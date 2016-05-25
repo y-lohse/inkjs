@@ -1,4 +1,4 @@
-//fully implemented
+//complete
 export class ControlCommand{
 	constructor(commandType){
 		this._commandType = commandType || CommandType.NotSet;

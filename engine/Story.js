@@ -1,4 +1,5 @@
 import {JsonSerialisation} from './JsonSerialisation';
+import {StoryState} from './StoryState';
 
 export class Story{
 	constructor(jsonString){
@@ -30,11 +31,11 @@ export class Story{
 		
 		this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
 
-//		this.ResetState();
+		this.ResetState();
 	}
 	ResetState(){
-//		_state = new StoryState(this);
-//		_state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;
+		this._state = new StoryState(this);
+//		this._state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;
 		
 //		this.ResetGlobals();
 	}

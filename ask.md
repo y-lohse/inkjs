@@ -1,0 +1,1 @@
+- story.cs, l.159 :   _state.variablesState.variableChangedEvent += VariableStateDidChangeEvent; what does it do?

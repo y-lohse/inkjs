@@ -1,4 +1,4 @@
-import {PushPopType} from './PushPopType';
+import {PushPopType} from './PushPop';
 
 class Element{
 	constructor(type, container, contentIndex, inExpressionEvaluation){
@@ -13,8 +13,9 @@ class Element{
 class Thread{
 	constructor(){
 		this._callstack = [];
+		this.threadIndex = 0;
 	}
-	callstack(){
+	get callstack(){
 		return this._callstack;
 	}
 }
@@ -22,8 +23,20 @@ class Thread{
 export class CallStack{
 	constructor(rootContentContainer){
 		this._threads = [];
-		this._threads.Add(new Thread());
+		this._threads.push(new Thread());
 		
         this._threads[0].callstack.push(new Element(PushPopType.Tunnel, rootContentContainer, 0));
+	}
+	get currentElement(){
+		return this.callStack[this.callStack.length - 1];
+	}
+	get currentElementIndex(){
+		return this.callStack.length - 1;
+	}
+	get currentThread(){
+		return this._threads[this._threads.length - 1];
+	}
+	get callStack(){
+		return this.currentThread.callstack;
 	}
 }

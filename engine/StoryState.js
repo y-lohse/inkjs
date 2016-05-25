@@ -1,38 +1,17 @@
 import {CallStack} from './CallStack';
+import {VariablesState} from './VariablesState';
 
 export class StoryState{
-	constructor(story){
-		this._outputStream;
-		this._currentChoices;
-		this._currentErrors;
-		this._variablesState;
-		this._callStack;
-		this._evaluationStack;
-		this._divertedTargetObject;
-		this._visitCounts;
-		this._turnIndices;
-		this._turnIndices;
-		this._currentTurnIndex;
-		this._storySeed;
-		this._didSafeExit;
-		
-		this._story;
-		this._currentPath;	
-		this._currentContentObject;
-		this._currentContainer;
-		this._hasError;
-		
-		this._inExpressionEvaluation;
-		
+	constructor(story){		
 		//actual constructor
-		this._story = story;
+		this.story = story;
 		
 		this._outputStream = [];
 
 		this._evaluationStack = [];
 
 		this._callStack = new CallStack(story.rootContentContainer);
-		this._variablesState = new VariablesState(callStack);
+		this._variablesState = new VariablesState(this._callStack);
 
 		this._visitCounts = {};
 		this._turnIndices = {};
@@ -46,12 +25,28 @@ export class StoryState{
 
 		this.GoToStart();
 	}
-	hasError(){
-		return this._currentErrors != null && this._currentErrors.length > 0;
+	get currentChoices(){
+		return this._currentChoices;
 	}
+	get callStack(){
+		return this._callStack;
+	}
+	get visitCounts(){
+		return this._visitCounts;
+	}
+	get turnIndices(){
+		return this._turnIndices;
+	}
+	get currentTurnIndex(){
+		return this._currentTurnIndex;
+	}
+	get storySeed(){
+		return this._storySeed;
+	}
+	
 	GoToStart(){
-		this._callStackcallStack.currentElement.currentContainer = story.mainContentContainer;
-		this._callStackcallStack.currentElement.currentContentIndex = 0;
+		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
+        this.callStack.currentElement.currentContentIndex = 0;
 	}
 }
 
