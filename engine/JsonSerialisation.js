@@ -1,5 +1,6 @@
 import {Container} from './Container';
 import {StringValue} from './Value';
+import {ControlCommand} from './ControlCommand';
 
 export class JsonSerialisation{
 	static ListToJArray(){
@@ -50,13 +51,13 @@ export class JsonSerialisation{
 //			else if(str == "G>")
 //				return new Runtime.Glue (GlueType.Right);
 //
-//			// Control commands (would looking up in a hash set be faster?)
-//			for (int i = 0; i < _controlCommandNames.Length; ++i) {
-//				string cmdName = _controlCommandNames [i];
-//				if (str == cmdName) {
-//					return new Runtime.ControlCommand ((ControlCommand.CommandType)i);
-//				}
-//			}
+			// Control commands (would looking up in a hash set be faster?)
+			for (var i = 0; i < _controlCommandNames.length; ++i) {
+				var cmdName = _controlCommandNames[i];
+				if (str == cmdName) {
+					return new ControlCommand(i);
+				}
+			}
 //
 //			// Native functions
 //			if( NativeFunctionCall.CallExistsWithName(str) )
@@ -130,7 +131,29 @@ export class JsonSerialisation{
 	static Json(){
 		
 	}
-	static _controlCommandNames(){
-		
-	}
+}
+
+var _controlCommandNames = [];
+
+_controlCommandNames[ControlCommand.CommandType.EvalStart] = "ev";
+_controlCommandNames[ControlCommand.CommandType.EvalOutput] = "out";
+_controlCommandNames[ControlCommand.CommandType.EvalEnd] = "/ev";
+_controlCommandNames[ControlCommand.CommandType.Duplicate] = "du";
+_controlCommandNames[ControlCommand.CommandType.PopEvaluatedValue] = "pop";
+_controlCommandNames[ControlCommand.CommandType.PopFunction] = "~ret";
+_controlCommandNames[ControlCommand.CommandType.PopTunnel] = "->->";
+_controlCommandNames[ControlCommand.CommandType.BeginString] = "str";
+_controlCommandNames[ControlCommand.CommandType.EndString] = "/str";
+_controlCommandNames[ControlCommand.CommandType.NoOp] = "nop";
+_controlCommandNames[ControlCommand.CommandType.ChoiceCount] = "choiceCnt";
+_controlCommandNames[ControlCommand.CommandType.TurnsSince] = "turns";
+_controlCommandNames[ControlCommand.CommandType.VisitIndex] = "visit";
+_controlCommandNames[ControlCommand.CommandType.SequenceShuffleIndex] = "seq";
+_controlCommandNames[ControlCommand.CommandType.StartThread] = "thread";
+_controlCommandNames[ControlCommand.CommandType.Done] = "done";
+_controlCommandNames[ControlCommand.CommandType.End] = "end";
+
+for (var i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
+	if (_controlCommandNames[i] == null)
+		throw "Control command not accounted for in serialisation";
 }
