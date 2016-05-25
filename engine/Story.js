@@ -1,4 +1,4 @@
-class Story{
+export class Story{
 	constructor(){
 		this.inkVersionCurrent = 11;
 		this.inkVersionMinimumCompatible = 11;
