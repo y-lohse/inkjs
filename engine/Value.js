@@ -21,17 +21,23 @@ export class Value{
 		this._isTruthy;
 		this._valueObject;
 	}
-	Cast(newType){
-		throw "Cast to " + newType + "not implemnted";
+	get value(){
+		return this._value;
 	}
-	getValueType(){
+	set value(value){
+		this._value = value;
+	}
+	get valueType(){
 		return this._valueType;
 	}
-	isTruthy(){
+	get isTruthy(){
 		return this._isTruthy;
 	}
-	getValueObject(){
+	get valueObject(){
 		return this._valueObject;
+	}
+	Cast(newType){
+		throw "Cast to " + newType + "not implemnted";
 	}
 	Copy(val){
 		return this.Create(val);
@@ -59,33 +65,39 @@ export class Value{
 
 export class IntValue extends Value{
 	constructor(val){
-		super(val);
+		super(val || 0);
 		this._valueType = ValueType.Int;
 	}
-	isTruthy(){
-		return this._value != 0;
+	get isTruthy(){
+		return this.value != 0;
+	}
+	get valueType(){
+		return ValueType.Int;
 	}
 }
 
 export class FloatValue extends Value{
 	constructor(val){
-		super(val);
-		this._valueType = ValueType.Int;
+		super(val || 0.0);
+		this._valueType = ValueType.Float;
 	}
-	isTruthy(){
+	get isTruthy(){
 		return this._value != 0.0;
+	}
+	get valueType(){
+		return ValueType.Float;
 	}
 }
 
 export class StringValue extends Value{
 	constructor(val){
-		super(val);
-		this._valueType = ValueType.Int;
+		super(val || '');
+		this._valueType = ValueType.String;
 		
-		this._isNewline = this._value == "\n";
+		this._isNewline = (this.value == "\n");
 		this._isInlineWhitespace = true;
 		
-		this._value.split().every(c => {
+		this.value.split().every(c => {
 			if (c != ' ' && c != '\t'){
 				this._isInlineWhitespace = false;
 				return false;
@@ -93,19 +105,21 @@ export class StringValue extends Value{
 			
 			return true;
 		});
-		
 	}
-	isTruthy(){
-		return this._value != 0;
+	get valueType(){
+		return ValueType.String;
 	}
-	isNewline(){
+	get isTruthy(){
+		return this.value.length > 0;
+	}
+	get isNewline(){
 		return this._isNewline;
 	}
-	isInlineWhitespace(){
+	get isInlineWhitespace(){
 		return this._isInlineWhitespace;
 	}
-	isNonWhitespace(){
-		return !this._isNewline && !this._isInlineWhitespace;
+	get isNonWhitespace(){
+		return !this.isNewline && !this.isInlineWhitespace;
 	}
 }
 

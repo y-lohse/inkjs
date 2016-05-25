@@ -3,9 +3,6 @@ import {StringValue} from './Value';
 import {ControlCommand} from './ControlCommand';
 
 export class JsonSerialisation{
-	static ListToJArray(){
-		
-	}
 	static JArrayToRuntimeObjList(jArray, skipLast){
 		var count = jArray.length;
 		if (skipLast) count--;
@@ -19,18 +16,6 @@ export class JsonSerialisation{
 		}
 		
 		return list;
-	}
-	static DictionaryRuntimeObjsToJObject(){
-		
-	}
-	static JObjectToDictionaryRuntimeObjs(){
-		
-	}
-	static JObjectToIntDictionary(){
-		
-	}
-	static IntDictionaryToJObject(){
-		
 	}
 	static JTokenToRuntimeObject(token){
 		if (typeof token === 'string'){
@@ -84,12 +69,6 @@ export class JsonSerialisation{
 		
 		throw "Failed to convert token to runtime object: " + JSON.stringify(token);
 	}
-	static RuntimeObjectToJToken(){
-		
-	}
-	static ContainerToJArray(){
-		
-	}
 	static JArrayToContainer(jArray){
 		var container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
@@ -121,15 +100,6 @@ export class JsonSerialisation{
 //		}
 
 		return container;
-	}
-	static JObjectToChoice(){
-		
-	}
-	static ChoiceToJObject(){
-		
-	}
-	static Json(){
-		
 	}
 }
 

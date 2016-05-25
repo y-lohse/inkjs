@@ -1,24 +1,17 @@
+//fully implemented
 export class ControlCommand{
 	constructor(commandType){
 		this._commandType = commandType || CommandType.NotSet;
 	}
-	getCommandType(){
+	get commandType(){
 		return this._commandType;
 	}
 	copy(){
-		return new ControlCommand(this._commandType);
+		return new ControlCommand(this.commandType);
 	}
 	toString(){
-		return this._commandType.toString();
+		return this.commandType.toString();
 	}
-	// The following static factory methods are to make generating these objects
-	// slightly more succinct. Without these, the code gets pretty massive! e.g.
-	//
-	//     var c = new Runtime.ControlCommand(Runtime.ControlCommand.CommandType.EvalStart)
-	// 
-	// as opposed to
-	//
-	//     var c = Runtime.ControlCommand.EvalStart()
 	static EvalStart(){
 		return new ControlCommand(CommandType.EvalStart);
 	}

@@ -4,18 +4,9 @@ export class Story{
 	constructor(jsonString){
 		this.inkVersionCurrent = 11;
 		this.inkVersionMinimumCompatible = 11;
-		this.allowExternalFunctionFallbacks = false;
 		
 		this._mainContentContainer;
-		this._externals;
-		this._variableObservers;
-		this._hasValidatedExternals;
-		this._temporaryEvaluationContainer;
-		this._state;
-		
-		//@TODO : implement the internal constructor
-		//internal Story (Container contentContainer)
-		
+
 		var rootObject = JSON.parse(jsonString);
 		
 		var versionObj = rootObject["inkVersion"];
@@ -39,10 +30,10 @@ export class Story{
 		
 		this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
 
-		this.ResetState();
+//		this.ResetState();
 	}
 	ResetState(){
-		_state = new StoryState(this);
+//		_state = new StoryState(this);
 //		_state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;
 		
 //		this.ResetGlobals();
