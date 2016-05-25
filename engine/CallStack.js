@@ -8,6 +8,13 @@ class Element{
 		this.temporaryVariables = {};
 		this.type = type;
 	}
+	get currentObject(){
+		if (this.currentContainer && this.currentContentIndex < this.currentContainer.content.length) {
+			return this.currentContainer.content[this.currentContentIndex];
+		}
+
+		return null;
+	}
 }
 
 class Thread{
@@ -25,6 +32,8 @@ export class CallStack{
 		this._threads = [];
 		this._threads.push(new Thread());
 		
+		console.log('rootContentContainer');
+		console.log(rootContentContainer);
         this._threads[0].callstack.push(new Element(PushPopType.Tunnel, rootContentContainer, 0));
 	}
 	get currentElement(){

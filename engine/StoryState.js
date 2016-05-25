@@ -16,6 +16,8 @@ export class StoryState{
 		this._visitCounts = {};
 		this._turnIndices = {};
 		this._currentTurnIndex = -1;
+		
+		this.currentErrors = [];
 
 		//there's no pseudo random generator in js, so try to generate somthing that's unique enough
 		var timeSeed = (new Date()).getTime();
@@ -42,6 +44,17 @@ export class StoryState{
 	}
 	get storySeed(){
 		return this._storySeed;
+	}
+	get currentContentObject(){
+		console.log('reslving current content object');
+		console.log(this.callStack.currentElement.currentObject);
+		return this.callStack.currentElement.currentObject;
+	}
+	set currentContentObject(value){
+		this.callStack.currentElement.currentObject = value;
+	}
+	get hasError(){
+		return this.currentErrors != null && this.currentErrors.length > 0;
 	}
 	
 	GoToStart(){

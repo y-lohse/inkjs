@@ -33,10 +33,32 @@ export class Story{
 
 		this.ResetState();
 	}
+	
+	get state(){
+		return this._state;
+	}
+	get canContinue(){
+		return this.state.currentContentObject != null && !this.state.hasError;
+	}
+	
 	ResetState(){
 		this._state = new StoryState(this);
-//		this._state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;
+//		this._state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;//@TODO: figure out what this does
 		
-//		this.ResetGlobals();
+		this.ResetGlobals();
+	}
+	ResetGlobals(){
+		if (this._mainContentContainer.namedContent["global decl"]){
+			throw "ResetGlobals not implemented";
+			var originalPath = this.state.currentPath;
+
+			this.ChoosePathString("global decl");
+
+			// Continue, but without validating external bindings,
+			// since we may be doing this reset at initialisation time.
+			this.ContinueInternal();
+
+			this.state.currentPath = this.originalPath;
+		}
 	}
 }
