@@ -1,3 +1,5 @@
+import {CallStack} from './CallStack';
+
 export class StoryState{
 	constructor(story){
 		this._outputStream;
@@ -25,7 +27,7 @@ export class StoryState{
 		//actual constructor
 		this._story = story;
 		
-		_outputStream = new List<Runtime.Object> ();
+		this._outputStream = [];
 
 		this._evaluationStack = [];
 
