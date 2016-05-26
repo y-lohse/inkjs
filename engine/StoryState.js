@@ -2,6 +2,7 @@ import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
 import {StringValue} from './Value';
 import {Glue} from './Glue';
+import {ControlCommand} from './ControlCommand';
 
 export class StoryState{
 	constructor(story){		

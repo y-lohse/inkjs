@@ -2,6 +2,8 @@ import {Object as InkObject} from './Object';
 import {Container} from './Container';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
+import {ControlCommand} from './ControlCommand';
+import {PushPopType} from './PushPop';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -108,7 +110,7 @@ export class Story extends InkObject{
 			// This code is slightly fragile :-/ 
 			//
 
-//			do {
+			do {
 
 				// Run main step function (walks through content)
 				this.Step();
@@ -169,7 +171,7 @@ export class Story extends InkObject{
 //
 //				}
 
-//			} while(this.canContinue);
+			} while(this.canContinue);
 
 			// Need to rewind, due to evaluating further than we should?
 //			if( stateAtLastNewline != null ) {
@@ -304,9 +306,10 @@ export class Story extends InkObject{
 		// Starting a thread should be done after the increment to the content pointer,
 		// so that when returning from the thread, it returns to the content after this instruction.
 //		var controlCmd = currentContentObj as ControlCommand;
-//		if (controlCmd && controlCmd.commandType == ControlCommand.CommandType.StartThread) {
-//			state.callStack.PushThread ();
-//		}
+		var controlCmd = currentContentObj;
+		if (controlCmd instanceof ControlCommand && controlCmd.commandType == ControlCommand.CommandType.StartThread) {
+			this.state.callStack.PushThread();
+		}
 	}
 	VisitContainer(container, atStart){
 		if (!container.countingAtStartOnly || atStart) {

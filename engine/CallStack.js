@@ -46,4 +46,17 @@ export class CallStack{
 	get currentElementIndex(){
 		return this.callStack.length - 1;
 	}
+	get canPop(){
+		return this.callStack.length > 1;
+	}
+	
+	CanPop(type){
+		if (!this.canPop)
+			return false;
+
+		if (type == null)
+			return true;
+
+		return this.currentElement.type == type;
+	}
 }
