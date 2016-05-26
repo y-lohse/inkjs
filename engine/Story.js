@@ -53,6 +53,9 @@ export class Story extends InkObject{
 	get canContinue(){
 		return this.state.currentContentObject != null && !this.state.hasError;
 	}
+	get currentText(){
+		return this.state.currentText;
+	}
 	
 	ResetState(){
 		this._state = new StoryState(this);
@@ -121,17 +124,18 @@ export class Story extends InkObject{
 //				}
 //
 //				// Don't save/rewind during string evaluation, which is e.g. used for choices
-//				if( !state.inStringEvaluation ) {
-//
-//					// We previously found a newline, but were we just double checking that
-//					// it wouldn't immediately be removed by glue?
-//					if( stateAtLastNewline != null ) {
-//
-//						// Cover cases that non-text generated content was evaluated last step
-//						string currText = currentText;
-//						int prevTextLength = stateAtLastNewline.currentText.Length;
-//
-//						// Output has been extended?
+				if( !this.state.inStringEvaluation ) {
+
+					// We previously found a newline, but were we just double checking that
+					// it wouldn't immediately be removed by glue?
+					if( stateAtLastNewline != null ) {
+
+						// Cover cases that non-text generated content was evaluated last step
+						var currText = this.currentText;
+						var prevTextLength = stateAtLastNewline.currentText.length;
+
+						// Output has been extended?
+						throw "stopped here";
 //						if( !currText.Equals(stateAtLastNewline.currentText) ) {
 //
 //							// Original newline still exists?
@@ -147,29 +151,29 @@ export class Story extends InkObject{
 //								stateAtLastNewline = null;
 //							}
 //						}
-//
-//					}
-//
-//					// Current content ends in a newline - approaching end of our evaluation
-//					if( state.outputStreamEndsInNewline ) {
-//
-//						// If we can continue evaluation for a bit:
-//						// Create a snapshot in case we need to rewind.
-//						// We're going to continue stepping in case we see glue or some
-//						// non-text content such as choices.
-//						if( canContinue ) {
-//							stateAtLastNewline = StateSnapshot();
-//						} 
-//
-//						// Can't continue, so we're about to exit - make sure we
-//						// don't have an old state hanging around.
-//						else {
-//							stateAtLastNewline = null;
-//						}
-//
-//					}
-//
-//				}
+
+					}
+
+					// Current content ends in a newline - approaching end of our evaluation
+					if( this.state.outputStreamEndsInNewline ) {
+
+						// If we can continue evaluation for a bit:
+						// Create a snapshot in case we need to rewind.
+						// We're going to continue stepping in case we see glue or some
+						// non-text content such as choices.
+						if( this.canContinue ) {
+//							stateAtLastNewline = this.StateSnapshot();
+						} 
+
+						// Can't continue, so we're about to exit - make sure we
+						// don't have an old state hanging around.
+						else {
+							stateAtLastNewline = null;
+						}
+
+					}
+
+				}
 
 			} while(this.canContinue);
 

@@ -108,6 +108,30 @@ export class StoryState{
 		}
 		return -1;
 	}
+	get inStringEvaluation(){
+		for (var i = this._outputStream.length - 1; i >= 0; i--) {
+//			var cmd = this._outputStream[i] as ControlCommand;
+			var cmd = this._outputStream[i];
+			if (cmd instanceof ControlCommand && cmd.commandType == ControlCommand.CommandType.BeginString) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+	get currentText(){
+		var sb = '';
+		
+		this._outputStream.forEach(outputObj => {
+//			var textContent = outputObj as StringValue;
+			var textContent = outputObj;
+			if (textContent instanceof StringValue) {
+				sb += textContent.value;
+			}
+		});
+
+		return sb;
+	}
 	
 	GoToStart(){
 		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
