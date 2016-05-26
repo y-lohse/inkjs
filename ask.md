@@ -1,1 +1,2 @@
 - story.cs, l.159 :   _state.variablesState.variableChangedEvent += VariableStateDidChangeEvent; what does it do?
+- objets l.137, why is there a break? It will stop th eval after just one cycle no?

@@ -57,7 +57,7 @@ export class Story extends InkObject{
 	}
 	ResetGlobals(){
 		if (this._mainContentContainer.namedContent["global decl"]){
-			throw "ResetGlobals not implemented";
+			throw "Story.ResetGlobals not implemented";
 			var originalPath = this.state.currentPath;
 
 			this.ChoosePathString("global decl");
