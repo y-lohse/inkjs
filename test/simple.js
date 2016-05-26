@@ -5,7 +5,7 @@ var hello = fs.readFileSync(__dirname + '/stories/hello.ink.json', 'UTF-8');
 
 var s = new Story(hello);
 
-console.log(s.canContinue);
+console.log(s.Continue());
 
 //while (s.canContinue){
 //	console.log(s.Continue());
