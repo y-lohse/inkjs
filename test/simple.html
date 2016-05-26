@@ -2,10 +2,6 @@
 	<script src="deps/require.js"></script>
 	<script src="../dist/ink.amd.js"></script>
 	<script>
-		require.config({
-			 baseUrl: "/another/path",
-		});
-		
 		require(['jsink'], function(jsink) {
 			fetch('stories/hello.ink.json')
 			.then(response => {

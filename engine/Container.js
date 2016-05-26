@@ -8,6 +8,10 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		this._content = [];
 		this.namedContent = {};
 		
+		this.visitsShouldBeCounted = false;
+		this.turnIndexShouldBeCounted = false;
+		this.countingAtStartOnly = false;
+		
 		this.CountFlags = {
 			Visits: 1,
 			Turns: 2,
