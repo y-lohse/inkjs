@@ -1,21 +1,19 @@
-// Order is significant for type coersion.
-// If types aren't directly compatible for an operation,
-// they're coerced to the same type, downward.
-// Higher value types "infect" an operation.
-// (This may not be the most sensible thing to do, but it's worked so far!)
+import {Object as InkObject} from './Object';
+
 var ValueType = {
 	// Used in coersion
-	Int: 'Int',
-	Float: 'Float',
-	String: 'String',
+	Int: 0,
+	Float: 1,
+	String: 2,
 
 	// Not used for coersion described above
-	DivertTarget: 'DivertTarget',
-	VariablePointer: 'VariablePointer'
+	DivertTarget: 3,
+	VariablePointer: 4
 }
 
-export class Value{
+export class Value extends InkObject{
 	constructor(val){
+		super();
 		this._value = val;
 		this._valueType;
 		this._isTruthy;

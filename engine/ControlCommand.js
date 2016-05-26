@@ -1,6 +1,9 @@
 //complete
-export class ControlCommand{
+import {Object as InkObject} from './Object';
+
+export class ControlCommand extends InkObject{
 	constructor(commandType){
+		super();
 		this._commandType = commandType || CommandType.NotSet;
 	}
 	get commandType(){

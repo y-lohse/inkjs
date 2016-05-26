@@ -1,5 +1,8 @@
-export class Container{
+import {Object as InkObject} from './Object';
+
+export class Container extends InkObject{//also implements INamedContent. Not sure how to do it cleanly in JS.
 	constructor(){
+		super();
 		this.name = '';
 		
 		this._content = [];
@@ -10,6 +13,9 @@ export class Container{
 			Turns: 2,
 			CountStartOnly: 4
 		};
+	}
+	get hasValidName(){
+		return this.name != null && this.name.length > 0;
 	}
 	get content(){
 		return this._content;
