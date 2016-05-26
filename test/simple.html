@@ -1,0 +1,23 @@
+<html>
+	<script src="deps/require.js"></script>
+	<script src="../dist/ink.amd.js"></script>
+	<script>
+		require.config({
+			 baseUrl: "/another/path",
+		});
+		
+		require(['jsink'], function(jsink) {
+			fetch('stories/hello.ink.json')
+			.then(response => {
+				return response.text();
+			})
+			.then(data => {
+				initStory(jsink.Story, data)
+			});
+		});
+		
+		function initStory(StoryClass, jsonText){
+			var s = new StoryClass(jsonText);
+		}
+	</script>
+</html>

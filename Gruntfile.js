@@ -19,6 +19,11 @@ module.exports = function(grunt) {
                 moduleId: 'jsink',
                 moduleName: 'jsink',
             },
+			amd: {
+                options : { format: 'amd' },
+                dest: 'dist/ink.amd.js',
+                src: ['engine/Story.js']
+            },
             cjs: {
                 options : { format: 'cjs' },
                 dest: 'dist/ink.cjs.js',
