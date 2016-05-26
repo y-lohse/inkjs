@@ -1,12 +1,13 @@
+import {Object as InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
 
-export class Story{
+export class Story extends InkObject{
 	constructor(jsonString){
+		super();
+		
 		this.inkVersionCurrent = 11;
 		this.inkVersionMinimumCompatible = 11;
-		
-		this._mainContentContainer;
 
 		var rootObject = JSON.parse(jsonString);
 		
@@ -34,6 +35,13 @@ export class Story{
 		this.ResetState();
 	}
 	
+	get mainContentContainer(){
+		if (this._temporaryEvaluationContainer) {
+			return this._temporaryEvaluationContainer;
+		} else {
+			return this._mainContentContainer;
+		}
+	}
 	get state(){
 		return this._state;
 	}

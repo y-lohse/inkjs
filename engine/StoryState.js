@@ -46,8 +46,6 @@ export class StoryState{
 		return this._storySeed;
 	}
 	get currentContentObject(){
-		console.log('reslving current content object');
-		console.log(this.callStack.currentElement.currentObject);
 		return this.callStack.currentElement.currentObject;
 	}
 	set currentContentObject(value){

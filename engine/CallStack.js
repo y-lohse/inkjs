@@ -32,20 +32,18 @@ export class CallStack{
 		this._threads = [];
 		this._threads.push(new Thread());
 		
-		console.log('rootContentContainer');
-		console.log(rootContentContainer);
         this._threads[0].callstack.push(new Element(PushPopType.Tunnel, rootContentContainer, 0));
-	}
-	get currentElement(){
-		return this.callStack[this.callStack.length - 1];
-	}
-	get currentElementIndex(){
-		return this.callStack.length - 1;
 	}
 	get currentThread(){
 		return this._threads[this._threads.length - 1];
 	}
 	get callStack(){
 		return this.currentThread.callstack;
+	}
+	get currentElement(){
+		return this.callStack[this.callStack.length - 1];
+	}
+	get currentElementIndex(){
+		return this.callStack.length - 1;
 	}
 }
