@@ -4,6 +4,8 @@ import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
+import {ChoicePoint} from './ChoicePoint';
+import {Choice} from './Choice';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -56,6 +58,19 @@ export class Story extends InkObject{
 	get currentText(){
 		return this.state.currentText;
 	}
+	get currentChoices(){
+		// Don't include invisible choices for external usage.
+		var choices = [];
+		
+		this._state.currentChoices.forEach(c => {
+			if (!c.choicePoint.isInvisibleDefault) {
+				c.index = choices.length;
+				choices.push(c);
+			}
+		});
+		
+		return choices;
+	}
 	
 	ResetState(){
 		this._state = new StoryState(this);
@@ -93,8 +108,6 @@ export class Story extends InkObject{
 		this._state.didSafeExit = false;
 
 		this._state.variablesState.batchObservingVariableChanges = true;
-
-		//_previousContainer = null;
 
 		try {
 
@@ -183,25 +196,25 @@ export class Story extends InkObject{
 //			}
 
 			// Finished a section of content / reached a choice point?
-//			if( !canContinue ) {
-//
-//				if( state.callStack.canPopThread ) {
-//					Error("Thread available to pop, threads should always be flat by the end of evaluation?");
-//				}
-//
-//				if( currentChoices.Count == 0 && !state.didSafeExit ) {
-//					if( state.callStack.CanPop(PushPopType.Tunnel) ) {
-//						Error("unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?");
-//					} else if( state.callStack.CanPop(PushPopType.Function) ) {
-//						Error("unexpectedly reached end of content. Do you need a '~ return'?");
-//					} else if( !state.callStack.canPop ) {
-//						Error("ran out of content. Do you need a '-> DONE' or '-> END'?");
-//					} else {
-//						Error("unexpectedly reached end of content for unknown reason. Please debug compiler!");
-//					}
-//				}
-//
-//			}
+			if( !this.canContinue ) {
+
+				if( this.state.callStack.canPopThread ) {
+					throw "Thread available to pop, threads should always be flat by the end of evaluation?";
+				}
+
+				if( this.currentChoices.length == 0 && !this.state.didSafeExit ) {
+					if( this.state.callStack.CanPop(PushPopType.Tunnel) ) {
+						throw "unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?";
+					} else if( this.state.callStack.CanPop(PushPopType.Function) ) {
+						throw "unexpectedly reached end of content. Do you need a '~ return'?";
+					} else if( !this.state.callStack.canPop ) {
+						throw "ran out of content. Do you need a '-> DONE' or '-> END'?";
+					} else {
+						throw "unexpectedly reached end of content for unknown reason. Please debug compiler!";
+					}
+				}
+
+			}
 
 
 		} catch(e) {
@@ -223,6 +236,7 @@ export class Story extends InkObject{
 		if (currentContentObj == null) {
 			return;
 		}
+		console.log(currentContentObj);
 
 		// Step directly to the first element of content in a container (if necessary)
 //		Container currentContainer = currentContentObj as Container;
@@ -264,15 +278,16 @@ export class Story extends InkObject{
 
 		// Choice with condition?
 //		var choicePoint = currentContentObj as ChoicePoint;
-//		if (choicePoint) {
-//			var choice = ProcessChoice (choicePoint);
-//			if (choice) {
-//				state.currentChoices.Add (choice);
-//			}
-//
-//			currentContentObj = null;
-//			shouldAddToStream = false;
-//		}
+		var choicePoint = currentContentObj;
+		if (choicePoint instanceof ChoicePoint) {
+			var choice = this.ProcessChoice(choicePoint);
+			if (choice) {
+				this.state.currentChoices.push(choice);
+			}
+
+			currentContentObj = null;
+			shouldAddToStream = false;
+		}
 
 		// If the container has no content, then it will be
 		// the "content" itself, but we skip over it.
@@ -282,6 +297,7 @@ export class Story extends InkObject{
 
 		// Content to add to evaluation stack or the output stream
 		if (shouldAddToStream) {
+			console.log('should ad to stream');
 
 			// If we're pushing a variable pointer onto the evaluation stack, ensure that it's specific
 			// to our current (possibly temporary) context index. And make a copy of the pointer
@@ -300,6 +316,7 @@ export class Story extends InkObject{
 			}
 			// Output stream content (i.e. not expression evaluation)
 			else {
+				console.log('did not push');
 				this.state.PushToOutputStream(currentContentObj);
 			}
 		}
@@ -355,6 +372,7 @@ export class Story extends InkObject{
 
 		// Ran out of content? Try to auto-exit from a function,
 		// or finish evaluating the content of a thread
+		console.log('pinter increment: '+ successfulPointerIncrement);
 		if (!successfulPointerIncrement) {
 
 			var didPop = false;
@@ -418,5 +436,66 @@ export class Story extends InkObject{
 			currEl.currentContainer = null;
 
 		return successfulIncrement;
+	}
+	ProcessChoice(choicePoint){
+		var showChoice = true;
+
+		// Don't create choice if choice point doesn't pass conditional
+		if (choicePoint.hasCondition) {
+			var conditionValue = this.state.PopEvaluationStack();
+			if (!conditionValue) {
+				showChoice = false;
+			}
+		}
+
+		var startText = "";
+		var choiceOnlyText = "";
+
+		if (choicePoint.hasChoiceOnlyContent) {
+//			var choiceOnlyStrVal = state.PopEvaluationStack () as StringValue;
+			var choiceOnlyStrVal = this.state.PopEvaluationStack();
+			choiceOnlyText = choiceOnlyStrVal.value;
+		}
+
+		if (choicePoint.hasStartContent) {
+//			var startStrVal = state.PopEvaluationStack () as StringValue;
+			var startStrVal = this.state.PopEvaluationStack();
+			startText = startStrVal.value;
+		}
+
+		// Don't create choice if player has already read this content
+		if (choicePoint.onceOnly) {
+			var visitCount = this.VisitCountForContainer(choicePoint.choiceTarget);
+			if (visitCount > 0) {
+				showChoice = false;
+			}
+		}
+
+		var choice = new Choice(choicePoint);
+		choice.threadAtGeneration = this.state.callStack.currentThread.Copy();
+
+		// We go through the full process of creating the choice above so
+		// that we consume the content for it, since otherwise it'll
+		// be shown on the output stream.
+		if (!showChoice) {
+			return null;
+		}
+
+		// Set final text for the choice
+		choice.text = startText + choiceOnlyText;
+
+		return choice;
+	}
+	VisitCountForContainer(container){
+		if( !container.visitsShouldBeCounted ) {
+			console.warn("Read count for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+			return 0;
+		}
+
+		var count = 0;
+		return count;
+		var containerPathStr = container.path.toString();
+//		this.state.visitCounts.TryGetValue(containerPathStr, out count);
+//		return count;
 	}
 }

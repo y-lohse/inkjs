@@ -141,7 +141,13 @@ export class StoryState{
 		this._outputStream.length = 0;
 	}
 	PushEvaluationStack(obj){
+		console.log('pushed to eval stack');
 		this.evaluationStack.push(obj);
+	}
+	PopEvaluationStack(){
+		console.log('popped from eval stack');
+		var obj = this.evaluationStack.pop();
+		return obj;
 	}
 	PushToOutputStream(obj){
 //		var text = obj as StringValue;
