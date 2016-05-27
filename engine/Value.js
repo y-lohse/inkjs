@@ -1,4 +1,5 @@
 import {Object as InkObject} from './Object';
+import {Path} from './Path';
 
 var ValueType = {
 	// Used in coersion
@@ -34,6 +35,7 @@ export class Value extends InkObject{
 	get valueObject(){
 		return this._valueObject;
 	}
+	
 	Cast(newType){
 		throw "Cast to " + newType + "not implemnted";
 	}
@@ -47,9 +49,9 @@ export class Value extends InkObject{
 			val = (b) ? 1 : 0;
 		}
 
-		if (Number.isInteger(val)) {
+		if (Number.isInteger(Number(val))) {
 			return new IntValue(val);
-		} else if (Number.isFloatval) {
+		} else if (!isNaN(val)) {
 			return new FloatValue(val);
 		} else if (val instanceof String) {
 			return new StringValue(val);

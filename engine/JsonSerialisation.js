@@ -1,6 +1,8 @@
 import {Container} from './Container';
-import {StringValue} from './Value';
+import {Value, StringValue} from './Value';
 import {ControlCommand} from './ControlCommand';
+import {PushPopType} from './PushPop';
+import {Divert} from './Divert';
 
 export class JsonSerialisation{
 	static JArrayToRuntimeObjList(jArray, skipLast){
@@ -18,6 +20,10 @@ export class JsonSerialisation{
 		return list;
 	}
 	static JTokenToRuntimeObject(token){
+		if (!isNaN(token)){
+			return Value.Create(token);
+		}
+		
 		if (typeof token === 'string'){
 			var str = token.toString();
 
@@ -57,6 +63,123 @@ export class JsonSerialisation{
 //			// Void
 //			if (str == "void")
 //				return new Runtime.Void ();
+		}
+		
+		if (typeof token === 'object' && token instanceof Array === false){
+			var obj = token;
+			var propValue;
+
+			// Divert target value to path
+//			if (obj.TryGetValue ("^->", out propValue))
+//				return new DivertTargetValue (new Path (propValue.ToString()));
+
+			// VariablePointerValue
+//			if (obj.TryGetValue ("^var", out propValue)) {
+//				var varPtr = new VariablePointerValue (propValue.ToString ());
+//				if (obj.TryGetValue ("ci", out propValue))
+//					varPtr.contextIndex = propValue.ToObject<int> ();
+//				return varPtr;
+//			}
+
+			// Divert
+			var isDivert = false;
+			var pushesToStack = false;
+			var divPushType = PushPopType.Function;
+			var external = false;
+			if (propValue = obj["->"]) {
+				isDivert = true;
+			}
+			else if (propValue = obj["f()"]) {
+				isDivert = true;
+				pushesToStack = true;
+				divPushType = PushPopType.Function;
+			}
+			else if (propValue = obj["->t->"]) {
+				isDivert = true;
+				pushesToStack = true;
+				divPushType = PushPopType.Tunnel;
+			}
+			else if (propValue = obj["x()"]) {
+				isDivert = true;
+				external = true;
+				pushesToStack = false;
+				divPushType = PushPopType.Function;
+			}
+			
+			if (isDivert) {
+				var divert = new Divert();
+				divert.pushesToStack = pushesToStack;
+				divert.stackPushType = divPushType;
+				divert.isExternal = external;
+
+				var target = propValue.toString();
+
+				if (propValue = obj["var"])
+					divert.variableDivertName = target;
+				else
+					divert.targetPathString = target;
+
+				if (external) {
+					if (propValue = obj["exArgs"])
+						throw "Divert external arg not implemented";
+//						divert.externalArgs = propValue.ToObject<int> ();
+				}
+
+				return divert;
+			}
+
+			// Choice
+//			if (obj.TryGetValue ("*", out propValue)) {
+//				var choice = new ChoicePoint ();
+//				choice.pathStringOnChoice = propValue.ToString();
+//
+//				if (obj.TryGetValue ("flg", out propValue))
+//					choice.flags = propValue.ToObject<int>();
+//
+//				return choice;
+//			}
+//
+//			// Variable reference
+//			if (obj.TryGetValue ("VAR?", out propValue)) {
+//				return new VariableReference (propValue.ToString ());
+//			} else if (obj.TryGetValue ("CNT?", out propValue)) {
+//				var readCountVarRef = new VariableReference ();
+//				readCountVarRef.pathStringForCount = propValue.ToString ();
+//				return readCountVarRef;
+//			}
+//
+//			// Variable assignment
+//			bool isVarAss = false;
+//			bool isGlobalVar = false;
+//			if (obj.TryGetValue ("VAR=", out propValue)) {
+//				isVarAss = true;
+//				isGlobalVar = true;
+//			} else if (obj.TryGetValue ("temp=", out propValue)) {
+//				isVarAss = true;
+//				isGlobalVar = false;
+//			}
+//			if (isVarAss) {
+//				var varName = propValue.ToString ();
+//				var isNewDecl = !obj.TryGetValue("re", out propValue);
+//				var varAss = new VariableAssignment (varName, isNewDecl);
+//				varAss.isGlobal = isGlobalVar;
+//				return varAss;
+//			}
+//
+//			Divert trueDivert = null;
+//			Divert falseDivert = null;
+//			if (obj.TryGetValue ("t?", out propValue)) {
+//				trueDivert = JTokenToRuntimeObject(propValue) as Divert;
+//			}
+//			if (obj.TryGetValue ("f?", out propValue)) {
+//				falseDivert = JTokenToRuntimeObject(propValue) as Divert;
+//			}
+//			if (trueDivert || falseDivert) {
+//				return new Branch (trueDivert, falseDivert);
+//			}
+//
+//			if (obj ["originalChoicePath"] != null)
+//				return JObjectToChoice (obj);
 		}
 		
 		// Array is always a Runtime.Container

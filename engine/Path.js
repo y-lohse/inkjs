@@ -101,9 +101,9 @@ export class Path{
 			componentsStr = componentsStr.substring(1);
 		}
 
-		var componentStrings = componentsStr.Split('.');
+		var componentStrings = componentsStr.split('.');
 		componentStrings.forEach(str => {
-			if (!isNan(parseInt(str))){
+			if (!isNaN(parseInt(str))){
 				this.components.push(new Component(parseInt(str)));
 			}
 			else{
