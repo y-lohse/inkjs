@@ -1,8 +1,10 @@
 //complete except for GetHashCode
+import {Object as InkObject} from './Object';
 import {Path} from './Path';
 
-export class Divert{
+export class Divert extends InkObject{
 	constructor(stackPushType){
+		super();
 		this._targetPath;
 		this._targetContent;
 		

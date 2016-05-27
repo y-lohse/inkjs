@@ -3,6 +3,7 @@ import {Value, StringValue} from './Value';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
+import {ChoicePoint} from './ChoicePoint';
 
 export class JsonSerialisation{
 	static JArrayToRuntimeObjList(jArray, skipLast){
@@ -121,23 +122,22 @@ export class JsonSerialisation{
 
 				if (external) {
 					if (propValue = obj["exArgs"])
-						throw "Divert external arg not implemented";
-//						divert.externalArgs = propValue.ToObject<int> ();
+						divert.externalArgs = parseInt(propValue);
 				}
 
 				return divert;
 			}
 
 			// Choice
-//			if (obj.TryGetValue ("*", out propValue)) {
-//				var choice = new ChoicePoint ();
-//				choice.pathStringOnChoice = propValue.ToString();
-//
-//				if (obj.TryGetValue ("flg", out propValue))
-//					choice.flags = propValue.ToObject<int>();
-//
-//				return choice;
-//			}
+			if (propValue = obj["*"]) {
+				var choice = new ChoicePoint();
+				choice.pathStringOnChoice = propValue.toString();
+
+				if (propValue = obj["flg"])
+					choice.flags = parseInt(propValue);
+
+				return choice;
+			}
 //
 //			// Variable reference
 //			if (obj.TryGetValue ("VAR?", out propValue)) {
