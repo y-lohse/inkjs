@@ -4,7 +4,7 @@ import {Object as InkObject} from './Object';
 export class ControlCommand extends InkObject{
 	constructor(commandType){
 		super();
-		this._commandType = commandType || CommandType.NotSet;
+		this._commandType = (typeof commandType != 'undefined') ? commandType : CommandType.NotSet;
 	}
 	get commandType(){
 		return this._commandType;

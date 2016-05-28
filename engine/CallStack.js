@@ -1,10 +1,11 @@
 import {PushPopType} from './PushPop';
+import {Container} from './Container';
 
 class Element{
 	constructor(type, container, contentIndex, inExpressionEvaluation){
 		this.currentContainer = container;
 		this.currentContentIndex = contentIndex;
-		this.inExpressionEvaluation = inExpressionEvaluation;
+		this.inExpressionEvaluation = inExpressionEvaluation || false;
 		this.temporaryVariables = {};
 		this.type = type;
 	}
@@ -14,6 +15,28 @@ class Element{
 		}
 
 		return null;
+	}
+	set currentObject(value){
+		var currentObj = value;
+		if (currentObj == null) {
+			this.currentContainer = null;
+			this.currentContentIndex = 0;
+			return;
+		}
+
+//		currentContainer = currentObj.parent as Container;
+		this.currentContainer = currentObj.parent;
+		if (this.currentContainer instanceof Container)
+			this.currentContentIndex = this.currentContainer.content.indexOf(currentObj);
+
+		// Two reasons why the above operation might not work:
+		//  - currentObj is already the root container
+		//  - currentObj is a named container rather than being an object at an index
+		if (this.currentContainer instanceof Container === false || this.currentContentIndex == -1) {
+//			currentContainer = currentObj as Container;
+			this.currentContainer = currentObj;
+			this.currentContentIndex = 0;
+		}
 	}
 }
 
@@ -58,5 +81,23 @@ export class CallStack{
 			return true;
 
 		return this.currentElement.type == type;
+	}
+	GetTemporaryVariableWithName(name, contextIndex){
+		if (contextIndex == -1)
+			contextIndex = this.currentElementIndex;
+
+		var varValue = null;
+
+		var contextElement = this.callStack[contextIndex];
+
+		if (varValue = contextElement.temporaryVariables[name]) {
+			return varValue;
+		} else {
+			return null;
+		}
+	}
+	Push(type){
+		// When pushing to callstack, maintain the current content path, but jump out of expressions by default
+		this.callStack.push(new Element(type, this.currentElement.currentContainer, this.currentElement.currentContentIndex, false));
 	}
 }

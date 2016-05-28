@@ -201,26 +201,28 @@ export class JsonSerialisation{
 		//  - a "#" key with the countFlags
 		// (if either exists at all, otherwise null)
 //		var terminatingObj = jArray [jArray.Count - 1] as JObject;
-//		if (terminatingObj != null) {
-//
-//			var namedOnlyContent = new Dictionary<string, Runtime.Object> (terminatingObj.Count);
-//
-//			foreach (var keyVal in terminatingObj) {
-//				if (keyVal.Key == "#f") {
-//					container.countFlags = keyVal.Value.ToObject<int> ();
-//				} else if (keyVal.Key == "#n") {
-//					container.name = keyVal.Value.ToString ();
-//				} else {
-//					var namedContentItem = JTokenToRuntimeObject(keyVal.Value);
+		var terminatingObj = jArray[jArray.length - 1];
+		if (terminatingObj != null) {
+
+			var namedOnlyContent = {};
+			
+			for (var key in terminatingObj){
+				if (key == "#f") {
+					container.countFlags = parseInt(terminatingObj[key]);
+				} else if (key == "#n") {
+					container.name = terminatingObj[key].toString();
+				} else {
+					var namedContentItem = this.JTokenToRuntimeObject(terminatingObj[key]);
 //					var namedSubContainer = namedContentItem as Container;
-//					if (namedSubContainer)
-//						namedSubContainer.name = keyVal.Key;
-//					namedOnlyContent [keyVal.Key] = namedContentItem;
-//				}
-//			}
-//
-//			container.namedOnlyContent = namedOnlyContent;
-//		}
+					var namedSubContainer = namedContentItem;
+					if (namedSubContainer instanceof Container)
+						namedSubContainer.name = key;
+					namedOnlyContent[key] = namedContentItem;
+				}
+			}
+
+			container.namedOnlyContent = namedOnlyContent;
+		}
 
 		return container;
 	}

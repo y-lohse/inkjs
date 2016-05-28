@@ -123,7 +123,7 @@ class Component{
 			this._name = indexOrName;
 		}
 		else{
-			this._index = parseInt(index);
+			this._index = parseInt(indexOrName);
 			this._name = null;
 		}
 	}

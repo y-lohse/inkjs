@@ -6,6 +6,7 @@ import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
+import {Divert} from './Divert';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -236,7 +237,7 @@ export class Story extends InkObject{
 		if (currentContentObj == null) {
 			return;
 		}
-		console.log(currentContentObj);
+//		console.log(currentContentObj);
 
 		// Step directly to the first element of content in a container (if necessary)
 //		Container currentContainer = currentContentObj as Container;
@@ -264,8 +265,7 @@ export class Story extends InkObject{
 		//  - Or a logic/flow statement - if so, do it
 		// Stop flow if we hit a stack pop when we're unable to pop (e.g. return/done statement in knot
 		// that was diverted to rather than called as a function)
-//		bool isLogicOrFlowControl = PerformLogicAndFlowControl (currentContentObj);
-		var isLogicOrFlowControl = false;
+		var isLogicOrFlowControl = this.PerformLogicAndFlowControl(currentContentObj);
 
 		// Has flow been forced to end by flow control above?
 		if (this.state.currentContentObject == null) {
@@ -297,7 +297,6 @@ export class Story extends InkObject{
 
 		// Content to add to evaluation stack or the output stream
 		if (shouldAddToStream) {
-			console.log('should ad to stream');
 
 			// If we're pushing a variable pointer onto the evaluation stack, ensure that it's specific
 			// to our current (possibly temporary) context index. And make a copy of the pointer
@@ -316,7 +315,6 @@ export class Story extends InkObject{
 			}
 			// Output stream content (i.e. not expression evaluation)
 			else {
-				console.log('did not push');
 				this.state.PushToOutputStream(currentContentObj);
 			}
 		}
@@ -372,7 +370,6 @@ export class Story extends InkObject{
 
 		// Ran out of content? Try to auto-exit from a function,
 		// or finish evaluating the content of a thread
-		console.log('pinter increment: '+ successfulPointerIncrement);
 		if (!successfulPointerIncrement) {
 
 			var didPop = false;
@@ -497,5 +494,352 @@ export class Story extends InkObject{
 		var containerPathStr = container.path.toString();
 //		this.state.visitCounts.TryGetValue(containerPathStr, out count);
 //		return count;
+	}
+	PerformLogicAndFlowControl(contentObj){
+		if( contentObj == null ) {
+			return false;
+		}
+
+		// Divert
+		if (contentObj instanceof Divert) {
+			var currentDivert = contentObj;
+			
+			if (currentDivert.hasVariableTarget) {
+				var varName = currentDivert.variableDivertName;
+
+				var varContents = this.state.variablesState.GetVariableWithName(varName);
+
+				if (!(varContents instanceof DivertTargetValue)) {
+
+//					var intContent = varContents as IntValue;
+					var intContent = varContents;
+
+					var errorMessage = "Tried to divert to a target from a variable, but the variable (" + varName + ") didn't contain a divert target, it ";
+					if (intContent instanceof IntValue && intContent.value == 0) {
+						errorMessage += "was empty/null (the value 0).";
+					} else {
+						errorMessage += "contained '" + varContents + "'.";
+					}
+
+					throw errorMessage;
+//					Error (errorMessage);
+				}
+
+				var target = varContents;
+				this.state.divertedTargetObject = this.ContentAtPath(target.targetPath);
+
+			} else if (currentDivert.isExternal) {
+				this.CallExternalFunction(currentDivert.targetPathString, currentDivert.externalArgs);
+				return true;
+			} else {
+				this.state.divertedTargetObject = currentDivert.targetContent;
+			}
+
+			if (currentDivert.pushesToStack) {
+				this.state.callStack.Push(currentDivert.stackPushType);
+			}
+
+			if (this.state.divertedTargetObject == null && !currentDivert.isExternal) {
+
+				// Human readable name available - runtime divert is part of a hard-written divert that to missing content
+				if (currentDivert && currentDivert.debugMetadata.sourceName != null) {
+					Error ("Divert target doesn't exist: " + currentDivert.debugMetadata.sourceName);
+				} else {
+					Error ("Divert resolution failed: " + currentDivert);
+				}
+			}
+
+			return true;
+		} 
+
+		// Branch (conditional divert)
+//		else if (contentObj is Branch) {
+//			var branch = (Branch)contentObj;
+//			var conditionValue = state.PopEvaluationStack ();
+//
+//			if (IsTruthy (conditionValue))
+//				state.divertedTargetObject = branch.trueDivert.targetContent;
+//			else if (branch.falseDivert)
+//				state.divertedTargetObject = branch.falseDivert.targetContent;
+//
+//			return true;
+//		} 
+
+		// Start/end an expression evaluation? Or print out the result?
+		else if( contentObj instanceof ControlCommand ) {
+			var evalCommand = contentObj;
+
+			switch (evalCommand.commandType) {
+
+			case ControlCommand.CommandType.EvalStart:
+				if (this.state.inExpressionEvaluation) console.log("Already in expression evaluation?");
+				this.state.inExpressionEvaluation = true;
+				break;
+
+			case ControlCommand.CommandType.EvalEnd:
+				if (!this.state.inExpressionEvaluation) console.log("Not in expression evaluation mode");
+				this.state.inExpressionEvaluation = false;
+				break;
+
+			case ControlCommand.CommandType.EvalOutput:
+
+				// If the expression turned out to be empty, there may not be anything on the stack
+				if (this.state.evaluationStack.length > 0) {
+
+					var output = this.state.PopEvaluationStack();
+
+					// Functions may evaluate to Void, in which case we skip output
+					if (!(output instanceof Void)) {
+						// TODO: Should we really always blanket convert to string?
+						// It would be okay to have numbers in the output stream the
+						// only problem is when exporting text for viewing, it skips over numbers etc.
+						var text = new StringValue(output.toString());
+
+						this.state.PushToOutputStream(text);
+					}
+
+				}
+				break;
+
+			case ControlCommand.CommandType.NoOp:
+				break;
+
+			case ControlCommand.CommandType.Duplicate:
+				this.state.PushEvaluationStack(this.state.PeekEvaluationStack());
+				break;
+
+			case ControlCommand.CommandType.PopEvaluatedValue:
+				this.state.PopEvaluationStack();
+				break;
+
+			case ControlCommand.CommandType.PopFunction:
+			case ControlCommand.CommandType.PopTunnel:
+
+				var popType = evalCommand.commandType == ControlCommand.CommandType.PopFunction ?
+					PushPopType.Function : PushPopType.Tunnel;
+
+				if (this.state.callStack.currentElement.type != popType || !this.state.callStack.canPop) {
+
+					var names = new {};
+					names[PushPopType.Function] = "function return statement (~ return)";
+					names[PushPopType.Tunnel] = "tunnel onwards statement (->->)";
+
+					var expected = names[state.callStack.currentElement.type];
+					if (!this.state.callStack.canPop) {
+						expected = "end of flow (-> END or choice)";
+					}
+
+					var errorMsg = "Found " + names[popType] + ", when expected " + expected;
+
+//					Error(errorMsg);
+					throw errorMsg;
+				} 
+
+				else {
+					this.state.callStack.Pop();
+				}
+				break;
+
+			case ControlCommand.CommandType.BeginString:
+				this.state.PushToOutputStream(evalCommand);
+
+				if (!this.state.inExpressionEvaluation) console.log("Expected to be in an expression when evaluating a string");
+				this.state.inExpressionEvaluation = false;
+				break;
+
+			case ControlCommand.CommandType.EndString:
+
+				// Since we're iterating backward through the content,
+				// build a stack so that when we build the string,
+				// it's in the right order
+				var contentStackForString = [];
+
+				var outputCountConsumed = 0;
+				for (var i = this.state.outputStream.length - 1; i >= 0; --i) {
+					var obj = this.state.outputStream[i];
+
+					outputCountConsumed++;
+
+//					var command = obj as ControlCommand;
+					var command = obj;
+					if (command instanceof ControlCommand && command.commandType == ControlCommand.CommandType.BeginString) {
+						break;
+					}
+
+					if( obj instanceof StringValue )
+						contentStackForString.push(obj);
+				}
+
+				// Consume the content that was produced for this string
+				this.state.outputStream.splice(state.outputStream.length - outputCountConsumed, outputCountConsumed);
+
+				// Build string out of the content we collected
+				var sb = '';
+				contentStackForString.forEach(c => {
+					sb += c.toString();
+				});
+
+				// Return to expression evaluation (from content mode)
+				this.state.inExpressionEvaluation = true;
+				this.state.PushEvaluationStack(new StringValue(sb));
+				break;
+
+			case ControlCommand.CommandType.ChoiceCount:
+				var choiceCount = this.currentChoices.length;
+				this.state.PushEvaluationStack(new IntValue(choiceCount));
+				break;
+
+			case ControlCommand.CommandType.TurnsSince:
+				var target = this.state.PopEvaluationStack();
+				if( !(target instanceof DivertTargetValue) ) {
+					var extraNote = "";
+					if( target instanceof IntValue )
+						extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
+					throw "TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote;
+//					Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
+					break;
+				}
+
+//				var divertTarget = target as DivertTargetValue;
+				var divertTarget = target;
+//				var container = ContentAtPath (divertTarget.targetPath) as Container;
+				var container = this.ContentAtPath(divertTarget.targetPath);
+				var turnCount = this.TurnsSinceForContainer(container);
+				this.state.PushEvaluationStack(new IntValue(turnCount));
+				break;
+
+			case ControlCommand.CommandType.VisitIndex:
+				var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
+				this.state.PushEvaluationStack(new IntValue(count));
+				break;
+
+			case ControlCommand.CommandType.SequenceShuffleIndex:
+				var shuffleIndex = this.NextSequenceShuffleIndex();
+				this.state.PushEvaluationStack(new IntValue(shuffleIndex));
+				break;
+
+			case ControlCommand.CommandType.StartThread:
+				// Handled in main step function
+				break;
+
+			case ControlCommand.CommandType.Done:
+
+				// We may exist in the context of the initial
+				// act of creating the thread, or in the context of
+				// evaluating the content.
+				if (this.state.callStack.canPopThread) {
+					this.state.callStack.PopThread();
+				} 
+
+				// In normal flow - allow safe exit without warning
+				else {
+					this.state.didSafeExit = true;
+				}
+
+				break;
+
+			// Force flow to end completely
+			case ControlCommand.CommandType.End:
+				this.state.ForceEndFlow();
+				break;
+
+			default:
+				throw "unhandled ControlCommand: " + evalCommand;
+//				Error ("unhandled ControlCommand: " + evalCommand);
+				break;
+			}
+
+			return true;
+		}
+
+		// Variable assignment
+//		else if( contentObj is VariableAssignment ) {
+//			var varAss = (VariableAssignment) contentObj;
+//			var assignedVal = state.PopEvaluationStack();
+//
+//			// When in temporary evaluation, don't create new variables purely within
+//			// the temporary context, but attempt to create them globally
+//			//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
+//
+//			state.variablesState.Assign (varAss, assignedVal);
+//
+//			return true;
+//		}
+
+		// Variable reference
+//		else if( contentObj is VariableReference ) {
+//			var varRef = (VariableReference)contentObj;
+//			Runtime.Object foundValue = null;
+//
+//
+//			// Explicit read count value
+//			if (varRef.pathForCount != null) {
+//
+//				var container = varRef.containerForCount;
+//				int count = VisitCountForContainer (container);
+//				foundValue = new IntValue (count);
+//			}
+//
+//			// Normal variable reference
+//			else {
+//
+//				foundValue = state.variablesState.GetVariableWithName (varRef.name);
+//
+//				if (foundValue == null) {
+//					Error("Uninitialised variable: " + varRef.name);
+//					foundValue = new IntValue (0);
+//				}
+//			}
+//
+//			state.evaluationStack.Add( foundValue );
+//
+//			return true;
+//		}
+
+		// Native function call
+//		else if( contentObj is NativeFunctionCall ) {
+//			var func = (NativeFunctionCall) contentObj;
+//			var funcParams = state.PopEvaluationStack(func.numberOfParameters);
+//			var result = func.Call(funcParams);
+//			state.evaluationStack.Add(result);
+//			return true;
+//		}
+
+		// No control content, must be ordinary content
+		return false;
+	}
+	VisitChangedContainersDueToDivert(previousContentObject, newContentObject){
+		if (!previousContentObject || !newContentObject)
+                return;
+            
+		// First, find the previously open set of containers
+		var prevContainerSet = [];
+//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
+		var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
+		while (prevAncestor instanceof Container) {
+			prevContainerSet.push(prevAncestor);
+//			prevAncestor = prevAncestor.parent as Container;
+			prevAncestor = prevAncestor.parent;
+		}
+
+		// If the new object is a container itself, it will be visited automatically at the next actual
+		// content step. However, we need to walk up the new ancestry to see if there are more new containers
+		var currentChildOfContainer = newContentObject;
+//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
+		var currentContainerAncestor = currentChildOfContainer.parent;
+		while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
+
+			// Check whether this ancestor container is being entered at the start,
+			// by checking whether the child object is the first.
+			var enteringAtStart = currentContainerAncestor.content.length > 0 
+				&& currentChildOfContainer == currentContainerAncestor.content[0];
+
+			// Mark a visit to this container
+			this.VisitContainer(currentContainerAncestor, enteringAtStart);
+
+			currentChildOfContainer = currentContainerAncestor;
+//			currentContainerAncestor = currentContainerAncestor.parent as Container;
+			currentContainerAncestor = currentContainerAncestor.parent;
+		}
 	}
 }

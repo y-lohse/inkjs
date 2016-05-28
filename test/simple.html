@@ -3,7 +3,7 @@
 	<script src="../dist/ink.amd.js"></script>
 	<script>
 		require(['jsink'], function(jsink) {
-			fetch('stories/hello.ink.json')
+			fetch('stories/choice.ink.json')
 			.then(response => {
 				return response.text();
 			})
@@ -14,6 +14,8 @@
 		
 		function initStory(StoryClass, jsonText){
 			var s = new StoryClass(jsonText);
+			console.log(s.canContinue);
+//			console.log(s.Continue());
 		}
 	</script>
 </html>

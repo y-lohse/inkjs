@@ -56,6 +56,8 @@ export class StoryState{
 		return this.callStack.currentElement.currentObject;
 	}
 	set currentContentObject(value){
+//		console.log('set current content');
+//		console.log(value);
 		this.callStack.currentElement.currentObject = value;
 	}
 	get hasError(){
@@ -145,7 +147,6 @@ export class StoryState{
 		this.evaluationStack.push(obj);
 	}
 	PopEvaluationStack(){
-		console.log('popped from eval stack');
 		var obj = this.evaluationStack.pop();
 		return obj;
 	}
@@ -290,6 +291,19 @@ export class StoryState{
 		if (includeInOutput) {
 			this._outputStream.push(obj);
 		}
+	}
+	ForceEndFlow(){
+		this.currentContentObject = null;
+
+		while (this.callStack.canPopThread)
+			this.callStack.PopThread();
+
+		while (this.callStack.canPop)
+			callStack.Pop();
+
+		this.currentChoices.length = 0;
+
+		this.didSafeExit = true;
 	}
 }
 
