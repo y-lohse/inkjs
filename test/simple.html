@@ -14,8 +14,19 @@
 		
 		function initStory(StoryClass, jsonText){
 			var s = new StoryClass(jsonText);
-			console.log(s.canContinue);
-//			console.log(s.Continue());
+			
+			while (s.canContinue){
+				console.log(s.Continue());
+			}
+
+			if (s.currentChoices.length > 0){
+				for (var i = 0; i < s.currentChoices.length; ++i) {
+					var choice = s.currentChoices[i];
+			//		console.log(choice);
+			//		console.log(choice.text);
+					console.log((i + 1) + ". " + choice.text);
+				}
+			}
 		}
 	</script>
 </html>

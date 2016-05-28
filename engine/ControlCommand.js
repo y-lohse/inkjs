@@ -84,8 +84,9 @@ var CommandType = {
 	TurnsSince: 11,
 	VisitIndex: 12,
 	SequenceShuffleIndex: 13,
-	Done: 14,
-	End: 15,
+	StartThread: 14,
+	Done: 15,
+	End: 16,
 }
 CommandType.TOTAL_VALUES = Object.keys(CommandType).length - 1;//-1 because NotSet shoudn't count
 ControlCommand.CommandType = CommandType;

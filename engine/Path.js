@@ -27,7 +27,7 @@ export class Path{
 	}
 	get tail(){
 		if (this.components.length >= 2) {
-			var tailComps = this.components.slice(1, this.components.length - 1);
+			var tailComps = this.components.slice(1, this.components.length);//careful, the original code uses length-1 here. This is because the second argument of List.GetRange is a number of elements to extract, wherease Array.slice uses an index
 			return new Path(tailComps);
 		}
 		else {

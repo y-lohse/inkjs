@@ -69,7 +69,7 @@ export class Object{
 				//Debug.Assert (path.components [0].isParent);
 				path = path.tail;
 			}
-
+			
 			return nearestContainer.ContentAtPath(path);
 		} else {
 			return this.rootContentContainer.ContentAtPath(path);

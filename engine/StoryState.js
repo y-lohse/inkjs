@@ -56,8 +56,6 @@ export class StoryState{
 		return this.callStack.currentElement.currentObject;
 	}
 	set currentContentObject(value){
-//		console.log('set current content');
-//		console.log(value);
 		this.callStack.currentElement.currentObject = value;
 	}
 	get hasError(){
@@ -134,6 +132,9 @@ export class StoryState{
 
 		return sb;
 	}
+	get outputStream(){
+		return this._outputStream;
+	}
 	
 	GoToStart(){
 		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
@@ -143,7 +144,6 @@ export class StoryState{
 		this._outputStream.length = 0;
 	}
 	PushEvaluationStack(obj){
-		console.log('pushed to eval stack');
 		this.evaluationStack.push(obj);
 	}
 	PopEvaluationStack(){

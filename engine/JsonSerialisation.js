@@ -4,6 +4,7 @@ import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
 import {ChoicePoint} from './ChoicePoint';
+import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
 	static JArrayToRuntimeObjList(jArray, skipLast){
@@ -19,6 +20,27 @@ export class JsonSerialisation{
 		}
 		
 		return list;
+	}
+	static JObjectToDictionaryRuntimeObjs(jObject){
+		var dict = {};
+
+		for (var key in jObject){
+			dict[key] = this.JTokenToRuntimeObject(jObject[key]);
+		}
+
+		return dict;
+	}
+	static DictionaryRuntimeObjsToJObject(dictionary){
+		var jsonObj = {};
+
+		for (var key in dictionary){
+//			var runtimeObj = keyVal.Value as Runtime.Object;
+			var runtimeObj = dictionary[key];
+			if (runtimeObj instanceof InkObject)
+				jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
+		}
+
+		return jsonObj;
 	}
 	static JTokenToRuntimeObject(token){
 		if (!isNaN(token)){

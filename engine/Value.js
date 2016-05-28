@@ -42,6 +42,9 @@ export class Value extends InkObject{
 	Copy(val){
 		return this.Create(val);
 	}
+	toString(){
+		return this.value.toString();
+	}
 	static Create(val){
 		// Implicitly convert bools into ints
 		if (val instanceof Boolean){

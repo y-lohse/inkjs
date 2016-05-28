@@ -7,6 +7,7 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
+import {StringValue} from './Value';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -31,7 +32,7 @@ export class Story extends InkObject{
 			throw "Version of ink used to build story is too old to be loaded by this verison of the engine";
 		}
 		else if (formatFromFile != this.inkVersionCurrent){
-			console.log("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
+			console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
 		}
 		
 		var rootToken = rootObject["root"];
@@ -237,8 +238,6 @@ export class Story extends InkObject{
 		if (currentContentObj == null) {
 			return;
 		}
-//		console.log(currentContentObj);
-
 		// Step directly to the first element of content in a container (if necessary)
 //		Container currentContainer = currentContentObj as Container;
 		var currentContainer = currentContentObj;
@@ -377,7 +376,7 @@ export class Story extends InkObject{
 			if (this.state.callStack.CanPop(PushPopType.Function)) {
 
 				// Pop from the call stack
-				this.state.callStack.pop(PushPopType.Function);
+				this.state.callStack.Pop(PushPopType.Function);
 
 				// This pop was due to dropping off the end of a function that didn't return anything,
 				// so in this case, we make sure that the evaluator has something to chomp on if it needs it
@@ -624,7 +623,7 @@ export class Story extends InkObject{
 					names[PushPopType.Function] = "function return statement (~ return)";
 					names[PushPopType.Tunnel] = "tunnel onwards statement (->->)";
 
-					var expected = names[state.callStack.currentElement.type];
+					var expected = names[this.state.callStack.currentElement.type];
 					if (!this.state.callStack.canPop) {
 						expected = "end of flow (-> END or choice)";
 					}
@@ -671,7 +670,7 @@ export class Story extends InkObject{
 				}
 
 				// Consume the content that was produced for this string
-				this.state.outputStream.splice(state.outputStream.length - outputCountConsumed, outputCountConsumed);
+				this.state.outputStream.splice(this.state.outputStream.length - outputCountConsumed, outputCountConsumed);
 
 				// Build string out of the content we collected
 				var sb = '';
