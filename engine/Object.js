@@ -29,9 +29,9 @@ export class Object{
 
 					var namedChild = child;
 					if (namedChild.name && namedChild.hasValidName) {
-						comps.push(new Path.Component(namedChild.name));
+						comps.unshift(new Path.Component(namedChild.name));
 					} else {
-						comps.push(new Path.Component(container.content.indexOf(child)));
+						comps.unshift(new Path.Component(container.content.indexOf(child)));
 					}
 
 					child = container;

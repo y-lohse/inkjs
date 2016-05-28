@@ -135,6 +135,18 @@ export class StoryState{
 	get outputStream(){
 		return this._outputStream;
 	}
+	get currentPath(){
+		if (this.currentContentObject == null)
+			return null;
+
+		return this.currentContentObject.path;
+	}
+	set currentPath(value){
+		if (value != null)
+			this.currentContentObject = this.story.ContentAtPath(value);
+		else
+			this.currentContentObject = null;
+	}
 	
 	GoToStart(){
 		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
@@ -304,6 +316,14 @@ export class StoryState{
 		this.currentChoices.length = 0;
 
 		this.didSafeExit = true;
+	}
+	SetChosenPath(path){
+		// Changing direction, assume we need to clear current set of choices
+		this.currentChoices.length = 0;
+
+		this.currentPath = path;
+
+		this._currentTurnIndex++;
 	}
 }
 

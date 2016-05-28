@@ -43,7 +43,6 @@ export class JsonSerialisation{
 		return jsonObj;
 	}
 	static JTokenToRuntimeObject(token){
-		if (!isNaN(token)){
 			return Value.Create(token);
 		}
 		

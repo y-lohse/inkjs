@@ -12,19 +12,31 @@
 			});
 		});
 		
-		function initStory(StoryClass, jsonText){
-			var s = new StoryClass(jsonText);
-			
-			while (s.canContinue){
-				console.log(s.Continue());
-			}
+		function initStory(StoryClass, inkFile){
+			var s = new StoryClass(inkFile);
+			continueToNextChoice();
 
-			if (s.currentChoices.length > 0){
-				for (var i = 0; i < s.currentChoices.length; ++i) {
-					var choice = s.currentChoices[i];
-			//		console.log(choice);
-			//		console.log(choice.text);
-					console.log((i + 1) + ". " + choice.text);
+			function continueToNextChoice(){
+				while (s.canContinue){
+					console.log(s.Continue());
+				}
+
+				if (s.currentChoices.length > 0){
+					for (var i = 0; i < s.currentChoices.length; ++i) {
+						var choice = s.currentChoices[i];
+						console.log((i + 1) + ". " + choice.text);
+					}
+
+					s.ChooseChoiceIndex(0);
+					continueToNextChoice();
+			//		rl.question('> ', (answer) => {
+			//			s.ChooseChoiceIndex(parseInt(answer) - 1);
+			//			continueToNextChoice();
+			//		});
+				}
+				else{
+					console.log('THE END');
+					rl.close();
 				}
 			}
 		}

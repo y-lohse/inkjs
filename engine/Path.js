@@ -144,7 +144,7 @@ class Component{
 		return new Component(Path.parentId);
 	}
 	toString(){
-		if (isIndex) {
+		if (this.isIndex) {
 			return this.index.toString();
 		} else {
 			return this.name;

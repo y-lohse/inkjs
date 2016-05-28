@@ -142,10 +142,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		this.namedContent[namedContentObj.name] = namedContentObj;
 	}
 	ContentAtPath(path, partialPathLength){
-		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : -1;
-		
-		if (partialPathLength == -1)
-			partialPathLength = path.components.length;
+		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.components.length;
 
 		var currentContainer = this;
 		var currentObj = this;

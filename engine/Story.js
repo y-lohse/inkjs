@@ -841,4 +841,43 @@ export class Story extends InkObject{
 			currentContainerAncestor = currentContainerAncestor.parent;
 		}
 	}
+	ChooseChoiceIndex(choiceIdx){
+		choiceIdx = choiceIdx;
+		var choices = this.currentChoices;
+		if (choiceIdx < 0 || choiceIdx > choices.length) console.warn("choice out of range");
+
+		// Replace callstack with the one from the thread at the choosing point, 
+		// so that we can jump into the right place in the flow.
+		// This is important in case the flow was forked by a new thread, which
+		// can create multiple leading edges for the story, each of
+		// which has its own context.
+		var choiceToChoose = choices[choiceIdx];
+		this.state.callStack.currentThread = choiceToChoose.threadAtGeneration;
+
+		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
+	}
+	ChoosePath(path){
+		var prevContentObj = this.state.currentContentObject;
+
+		this.state.SetChosenPath(path);
+
+		var newContentObj = this.state.currentContentObject;
+
+		// Take a note of newly visited containers for read counts etc
+		this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
+	}
+	ContentAtPath(path){
+		return this.mainContentContainer.ContentAtPath(path);
+	}
+	IncrementVisitCountForContainer(container){
+		var count = 0;
+		var containerPathStr = container.path.toString();
+		if (this.state.visitCounts[containerPathStr]) count = this.state.visitCounts[containerPathStr];
+		count++;
+		this.state.visitCounts[containerPathStr] = count;
+	}
+	RecordTurnIndexVisitToContainer(container){
+		var containerPathStr = container.path.toString();
+		this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
+	}
 }
