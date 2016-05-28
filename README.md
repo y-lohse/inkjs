@@ -21,7 +21,7 @@ Once you grab a hold of the module, it exposes a `Story` class. It should work l
 
 ### So I can just run any ink files?
 
-Right now, this port supports choices and diverts. A few other things *might* accidentally work but I haven't tried yet. Regardless, it should'nt take too long until everything works like the C# version.
+This port currently supports choices and diverts. A few other things *might* accidentally work but I haven't tried yet. Regardless, it should'nt take too long until everything works like the C# version.
 
 ### What's up with all this module loading?
 
