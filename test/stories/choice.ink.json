@@ -1,1 +1,1 @@
-{"inkVersion":11,"root":[["^Hello world!","\n",["ev","str",{"f()":".^.s"},"/str","/ev",{"*":".^.c","flg":18},{"s":["^Hello back!",null],"c":[{"f()":"0.2.s"},"\n","^Nice to hear from you!","\n","end",{"#f":5}]}],null],"done",null]}
+{"inkVersion":11,"root":[["^Hello world!","\n",["ev","str",{"f()":".^.s"},"/str","str","^back!","/str","/ev",{"*":".^.c","flg":22},{"s":["^Hello ",null],"c":[{"f()":"0.2.s"},"^ right back to you!","\n","\n","^Nice to hear from you!","\n","end",{"#f":5}]}],null],"done",null]}
