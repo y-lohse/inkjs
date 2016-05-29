@@ -1,19 +1,17 @@
 <html>
-	<script src="deps/require.js"></script>
-	<script src="../dist/ink.amd.js"></script>
+<!--	<script src="deps/require.js"></script>-->
+	<script src="../dist/ink.iife.js"></script>
 	<script>
-		require(['jsink'], function(jsink) {
-			fetch('stories/choice.ink.json')
-			.then(response => {
-				return response.text();
-			})
-			.then(data => {
-				initStory(jsink.Story, data)
-			});
+		fetch('stories/choice.ink.json')
+		.then(response => {
+			return response.text();
+		})
+		.then(data => {
+			initStory(data)
 		});
 		
-		function initStory(StoryClass, inkFile){
-			var s = new StoryClass(inkFile);
+		function initStory(inkFile){
+			var s = new jsink.Story(inkFile);
 			continueToNextChoice();
 
 			function continueToNextChoice(){

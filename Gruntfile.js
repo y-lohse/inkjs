@@ -30,6 +30,11 @@ module.exports = function(grunt) {
                 dest: 'dist/ink.cjs.js',
                 src: exposedFiles
             },
+			iife: {
+                options : { format: 'iife' },
+                dest: 'dist/ink.iife.js',
+                src: exposedFiles
+            },
         },
     });
 
