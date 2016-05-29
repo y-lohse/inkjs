@@ -1,8 +1,0 @@
-{
-	"inkVersion": 11
-	, "root": [{
-		"->": "top_knot"
-	}, "done", {
-		"top_knot": [["^Hello world!", "\n", "end", null], null]
-	}]
-}

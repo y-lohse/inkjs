@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<title>inkjs</title>
+	<style>
+/*------------------------------------*\
+    RESET
+\*------------------------------------*/
+/* http://meyerweb.com/eric/tools/css/reset/ 
+    v2.0b1 | 201101 
+    NOTE:WORK IN PROGRESS
+    USE WITH CAUTION AND TEST WITH ABANDON */
+
+html,body,div,span,applet,object,iframe,
+h1,h2,h3,h4,h5,h6,p,blockquote,pre,
+a,abbr,acronym,address,big,cite,code,
+del,dfn,em,img,ins,kbd,q,s,samp,
+small,strike,strong,sub,sup,tt,var,
+b,u,i,center,
+dl,dt,dd,ol,ul,li,
+fieldset,form,label,legend,
+table,caption,tbody,tfoot,thead,tr,th,td,
+article,aside,canvas,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section,summary,
+time,mark,audio,video{
+    margin:0;
+    padding:0;
+    border:0;
+    outline:0;
+    font-size:100%;
+    font:inherit;
+    vertical-align:baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article,aside,details,figcaption,figure,
+footer,header,hgroup,menu,nav,section{
+    display:block;
+}
+body{
+    line-height:1;
+}
+ol,ul{
+    list-style:none;
+}
+blockquote,q{
+    quotes:none;
+}
+blockquote:before,blockquote:after,
+q:before,q:after{
+    content:’’;
+    content:none;
+}
+/* remember to define visible focus styles! 
+:focus{
+    outline:?????;
+} */
+
+/* remember to highlight inserts somehow! */
+ins{
+    text-decoration:none;
+}
+del{
+    text-decoration:line-through;
+}
+
+table{
+    border-collapse:collapse;
+    border-spacing:0;
+}
+		
+		/*custom styles*/
+		body{
+			font-family: Montserrat, Helvetica, Arial;
+		}
+		#selection{
+			max-width: 650px;
+			margin: 20px auto;
+			text-align: center;
+		}
+		h1{
+			margin-bottom: 10px;
+		}
+		#file-input{
+			display: none;
+		}
+		.loader{
+			font-size: 14px;
+			font-weight: normal;
+			color: #1467a3;
+			cursor: pointer;
+			background: none;
+			border: none;
+			padding: 0;
+			text-decoration: underline;
+		}
+		
+		#play-area{
+			max-width: 650px;
+			margin: 20px auto;
+			padding: 5px 15px;
+			font-size: 18px;
+			line-height: 1.5;
+		}
+		
+		#choices{
+			margin-top: 25px;
+			list-style: decimal;
+			list-style-position: outside;
+		}
+		#choices li{
+			margin: 12px 0;
+			cursor: pointer;
+			opacity: .7;
+			transition: opacity .2s ease-out;
+		}
+		#choices li:hover{
+			opacity: 1;
+		}
+	</style>
+	<link href='https://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+	<div id="selection">
+		<h1>inkjs demo</h1>
+		<input type="file" id="file-input" accept=".json" />
+		<label for="file-input" class="loader">Load a .json file</label>
+		or
+		<button class="loader" onclick="loadSample()">play a sample story</button>
+	</div>
+	
+	<div id="play-area">
+		<ol id="choices">
+		</ol>
+	</div>
+	
+	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
+	<script src="../dist/ink.iife.js"></script>
+	<script>
+		var myStory, $playArea, $choices;
+		
+		$(function(){
+			$playArea = $('#play-area');
+			$choices = $('#choices');
+			
+			$('#file-input').on('change', function(event){
+				var file = event.target.files[0];
+				
+				if (!file) return;
+				
+				var reader = new FileReader();
+				reader.onload = function(e) {
+					var inkFile = e.target.result;
+					myStory = new inkjs.Story(inkFile);
+					continueToNextChoice();
+				};
+				reader.readAsText(file);
+			});
+		});
+		
+		function loadSample(){
+			fetch('stories/choice.ink.json')
+			.then(response => {
+				return response.text();
+			})
+			.then(inkFile => {
+				myStory = new inkjs.Story(inkFile);
+				continueToNextChoice();
+			});
+		}
+		
+		
+		function continueToNextChoice(){
+			while (myStory.canContinue){
+				var grafs = myStory.Continue().split("\n");
+				
+				grafs.forEach(text => {
+					if (text.length) $('<p>').text(text).insertBefore($choices);
+				});
+			}
+
+			if (myStory.currentChoices.length > 0){
+				for (var i = 0; i < myStory.currentChoices.length; ++i) {
+					var choice = myStory.currentChoices[i];
+					var $li = $('<li>').text(choice.text).appendTo($choices);
+					$li.on('click', onChoiceSelect);
+				}
+			}
+		}
+		
+		function onChoiceSelect(){
+			myStory.ChooseChoiceIndex($(this).index());
+			$choices.empty();
+			continueToNextChoice();
+		}
+	</script>
+</body>
+</html>
