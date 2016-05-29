@@ -27,7 +27,7 @@ Once you grab a hold of the module, it exposes a `Story` class. It should work l
 In node, you would do something like this:
 
 ```
-var Story = require('../dist/ink.cjs.js').Story;
+var Story = require('inkjs').Story;
 var fs = require('fs');
 
 var inkFile = fs.readFileSync('inkfile.json', 'UTF-8');
