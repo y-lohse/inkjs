@@ -1,4 +1,4 @@
-//complete except for GetHashCode
+//complete
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
 

@@ -7,6 +7,13 @@ import {ChoicePoint} from './ChoicePoint';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
+	static ListToJArray(serialisables){
+		var jArray = [];
+		serialisables.forEach(s => {
+			jArray.push(this.RuntimeObjectToJToken(s));
+		});
+		return jArray;
+	}
 	static JArrayToRuntimeObjList(jArray, skipLast){
 		var count = jArray.length;
 		if (skipLast) count--;
@@ -30,6 +37,13 @@ export class JsonSerialisation{
 
 		return dict;
 	}
+	static JObjectToIntDictionary(jObject){
+		var dict = {};
+		for (var key in jObject){
+			dict[key] = parseInt(jObject[key]);
+		}
+		return dict;
+	}
 	static DictionaryRuntimeObjsToJObject(dictionary){
 		var jsonObj = {};
 
@@ -42,7 +56,15 @@ export class JsonSerialisation{
 
 		return jsonObj;
 	}
+	static IntDictionaryToJObject(dict){
+		var jObj = new {};
+		for (var key in dict){
+			jObj[key] = dict[key];
+		}
+		return jObj;
+	}
 	static JTokenToRuntimeObject(token){
+		//@TODO probably find a more robust way to detect numbers, isNaN seems happy to accept things that really aren't numberish.
 		if (!isNaN(token) && token != "\n"){//JS thinks "\n" is a number
 			return Value.Create(token);
 		}

@@ -1,3 +1,4 @@
+//complete
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
 
@@ -37,7 +38,7 @@ export class Value extends InkObject{
 	}
 	
 	Cast(newType){
-		throw "Cast to " + newType + "not implemnted";
+		throw "Cast to " + newType + "not implemented";
 	}
 	Copy(val){
 		return this.Create(val);
@@ -77,6 +78,22 @@ export class IntValue extends Value{
 	get valueType(){
 		return ValueType.Int;
 	}
+	
+	Cast(newType){
+		if (newType == this.valueType) {
+			return this;
+		}
+
+		if (newType == ValueType.Float) {
+			return new FloatValue(parseFloat(this.value));
+		}
+
+		if (newType == ValueType.String) {
+			return new StringValue("" + this.value);
+		}
+
+		throw "Unexpected type cast of Value to new ValueType";
+	}
 }
 
 export class FloatValue extends Value{
@@ -89,6 +106,22 @@ export class FloatValue extends Value{
 	}
 	get valueType(){
 		return ValueType.Float;
+	}
+	
+	Cast(newType){
+		if (newType == this.valueType) {
+			return this;
+		}
+
+		if (newType == ValueType.Int) {
+			return new IntValue(parseInt(this.value));
+		}
+
+		if (newType == ValueType.String) {
+			return new StringValue("" + this.value);
+		}
+
+		throw "Unexpected type cast of Value to new ValueType";
 	}
 }
 
@@ -124,8 +157,90 @@ export class StringValue extends Value{
 	get isNonWhitespace(){
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
+	
+	Cast(newtType){
+		if (newType == this.valueType) {
+			return this;
+		}
+
+		if (newType == ValueType.Int) {
+
+			var parsedInt;
+			if (parsedInt = parseInt(value)) {
+				return new IntValue(parsedInt);
+			} else {
+				return null;
+			}
+		}
+
+		if (newType == ValueType.Float) {
+			var parsedFloat;
+			if (parsedFloat = parsedFloat(value)) {
+				return new FloatValue(parsedFloat);
+			} else {
+				return null;
+			}
+		}
+
+		throw "Unexpected type cast of Value to new ValueType";
+	}
 }
 
 export class DivertTargetValue extends Value{
+	constructor(targetPath){
+		super(targetPath);
+		
+		this._valueType = ValueType.DivertTarget;
+	}
+	get targetPath(){
+		return this.value;
+	}
+	set targetPath(value){
+		this.value = value;
+	}
+	get isTruthy(){
+		throw "Shouldn't be checking the truthiness of a divert target";
+	}
 	
+	Cast(newType){
+		if (newType == this.valueType)
+			return this;
+
+		throw "Unexpected type cast of Value to new ValueType";
+	}
+	toString(){
+		return "DivertTargetValue(" + this.targetPath + ")";
+	}
+}
+
+//@TODO: we should probably not extend StringValue here, because all teh calls to instanceof StringValue will be truthy for VariablePointerValues, which shouldn't be the case
+export class VariablePointerValue extends StringValue{
+	constructor(variableName, contextIndex){
+		super(variableName);
+		
+		this._valueType = ValueType.VariablePointer;
+		this.contextIndex = (typeof contextIndex !== 'undefined') ? contextIndex : -1;
+	}
+	get variableName(){
+		return this.value;
+	}
+	set variableName(value){
+		this.value = value;
+	}
+	get isTruthy(){
+		throw "Shouldn't be checking the truthiness of a variable pointer";
+	}
+	
+	Cast(newType){
+		if (newType == this.valueType)
+			return this;
+
+		throw "Unexpected type cast of Value to new ValueType";
+	}
+	toString(){
+		return "VariablePointerValue(" + this.variableName + ")";
+	}
+	Copy(){
+		return new VariablePointerValue(this.variableName, this.contextIndex);
+	}
 }

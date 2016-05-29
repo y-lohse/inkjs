@@ -1,8 +1,11 @@
+//complete but misses some Glue related code
 import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
 import {StringValue} from './Value';
 import {Glue} from './Glue';
 import {ControlCommand} from './ControlCommand';
+import {JsonSerialisation as Json} from './JsonSerialisation';
+import {Story} from './Story';
 
 export class StoryState{
 	constructor(story){		
@@ -20,7 +23,6 @@ export class StoryState{
 		this._turnIndices = {};
 		this._currentTurnIndex = -1;
 		
-		this.currentErrors = [];
 		this.divertedTargetObject = null;
 
 		//there's no pseudo random generator in js, so try to generate somthing that's unique enough
@@ -28,11 +30,19 @@ export class StoryState{
 		this._storySeed = timeSeed + '-' + Math.round(Math.random() * 9999);
 
 		this._currentChoices = [];
+		this._currentErrors = null;
+		
+		this._currentRightGlue;
+		
+		this.didSafeExit = false;
 
 		this.GoToStart();
 	}
 	get currentChoices(){
 		return this._currentChoices;
+	}
+	get currentErrors(){
+		return this._currentErrors;
 	}
 	get callStack(){
 		return this._callStack;
@@ -147,10 +157,123 @@ export class StoryState{
 		else
 			this.currentContentObject = null;
 	}
+	get currentContainer(){
+		return this.callStack.currentElement.currentContainer;
+	}
+	get jsonToken(){
+		var obj = {};
+
+		var choiceThreads = null;
+		this.currentChoices.forEach(c => {
+			c.originalChoicePath = c.choicePoint.path.componentsString;
+			c.originalThreadIndex = c.threadAtGeneration.threadIndex;
+
+			if( this.callStack.ThreadWithIndex(c.originalThreadIndex) == null ) {
+				if( choiceThreads == null )
+					choiceThreads = {};
+
+				choiceThreads[c.originalThreadIndex.toString()] = c.threadAtGeneration.jsonToken;
+			}
+		});
+		
+		if( this.choiceThreads != null )
+			obj["choiceThreads"] = this.choiceThreads;
+
+
+		obj["callstackThreads"] = this.callStack.GetJsonToken();
+		obj["variablesState"] = this.variablesState.jsonToken;
+
+		obj["evalStack"] = Json.ListToJArray(this.evaluationStack);
+
+		obj["outputStream"] = Json.ListToJArray(this._outputStream);
+
+		obj["currentChoices"] = Json.ListToJArray(this.currentChoices);
+
+		if (this._currentRightGlue) {
+			var rightGluePos = this._outputStream.indexOf(this._currentRightGlue);
+			if( rightGluePos != -1 ) {
+				obj["currRightGlue"] = this._outputStream.indexOf(this._currentRightGlue);
+			}
+		}
+
+		if( this.divertedTargetObject != null )
+			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
+
+		obj["visitCounts"] = Json.IntDictionaryToJObject(visitCounts);
+		obj["turnIndices"] = Json.IntDictionaryToJObject(turnIndices);
+		obj["turnIdx"] = this.currentTurnIndex;
+		obj["storySeed"] = this.storySeed;
+
+		obj["inkSaveVersion"] = kInkSaveStateVersion;
+
+		// Not using this right now, but could do in future.
+		obj["inkFormatVersion"] = Story.inkVersionCurrent;
+
+		return obj;
+	}
+	set jsonToken(value){
+		var jObject = value;
+
+		var jSaveVersion = jObject["inkSaveVersion"];
+		if (jSaveVersion == null) {
+			throw "ink save format incorrect, can't load.";
+		}
+		else if (parseInt(jSaveVersion) < StoryState.kMinCompatibleLoadVersion) {
+			throw "Ink save format isn't compatible with the current version (saw '"+jSaveVersion+"', but minimum is "+StoryState.kMinCompatibleLoadVersion+"), so can't load.";
+		}
+
+		this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);
+		this.variablesState.jsonToken = jObject["variablesState"];
+
+		this.evaluationStack = Json.JArrayToRuntimeObjList(jObject["evalStack"]);
+
+		this._outputStream = Json.JArrayToRuntimeObjList(jObject["outputStream"]);
+
+//		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
+		this.currentChoices = Json.JArrayToRuntimeObjList(jObject["currentChoices"]);
+
+		var propValue;
+		if( propValue = jObject["currRightGlue"] ) {
+			var gluePos = parseInt(propValue);
+			if( gluePos >= 0 ) {
+//				_currentRightGlue = _outputStream [gluePos] as Glue;
+				this._currentRightGlue = this._outputStream[gluePos];
+			}
+		}
+
+		var currentDivertTargetPath = jObject["currentDivertTarget"];
+		if (currentDivertTargetPath != null) {
+			var divertPath = new Path(currentDivertTargetPath.toString());
+			this.divertedTargetObject = this.story.ContentAtPath(divertPath);
+		}
+
+		this.visitCounts = Json.JObjectToIntDictionary(jObject["visitCounts"]);
+		this.turnIndices = Json.JObjectToIntDictionary(jObject["turnIndices"]);
+		this.currentTurnIndex = parseInt(jObject["turnIdx"]);
+		this.storySeed = parseInt(jObject["storySeed"]);
+
+//		var jChoiceThreads = jObject["choiceThreads"] as JObject;
+		var jChoiceThreads = jObject["choiceThreads"];
+		
+		this.currentChoices.forEach(c => {
+			c.choicePoint = this.story.ContentAtPath(new Path(c.originalChoicePath));
+
+			var foundActiveThread = this.callStack.ThreadWithIndex(c.originalThreadIndex);
+			if( foundActiveThread != null ) {
+				c.threadAtGeneration = foundActiveThread;
+			} else {
+				var jSavedChoiceThread = jChoiceThreads[c.originalThreadIndex.toString()];
+				c.threadAtGeneration = new CallStack.Thread(jSavedChoiceThread, this.story);
+			}
+		});
+	}
 	
 	GoToStart(){
 		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
         this.callStack.currentElement.currentContentIndex = 0;
+	}
+	ResetErrors(){
+		this.currentErrors = null;
 	}
 	ResetOutput(){
 		this._outputStream.length = 0;
@@ -158,9 +281,22 @@ export class StoryState{
 	PushEvaluationStack(obj){
 		this.evaluationStack.push(obj);
 	}
-	PopEvaluationStack(){
-		var obj = this.evaluationStack.pop();
-		return obj;
+	PopEvaluationStack(numberOfObjects){
+		if (!numberOfObjects){
+			var obj = this.evaluationStack.pop();
+			return obj;
+		}
+		else{
+			if(numberOfObjects > this.evaluationStack.length) {
+                throw "trying to pop too many objects";
+            }
+
+            var popped = evaluationStack.splice(evaluationStack.length - numberOfObjects, numberOfObjects);
+            return popped;
+		}
+	}
+	PeekEvaluationStack(){
+		 return this.evaluationStack[this.evaluationStack.length - 1];
 	}
 	PushToOutputStream(obj){
 //		var text = obj as StringValue;
@@ -304,6 +440,78 @@ export class StoryState{
 			this._outputStream.push(obj);
 		}
 	}
+	TrimNewlinesFromOutputStream(stopAndRemoveRightGlue){
+		var removeWhitespaceFrom = -1;
+		var rightGluePos = -1;
+		var foundNonWhitespace = false;
+
+		// Work back from the end, and try to find the point where
+		// we need to start removing content. There are two ways:
+		//  - Start from the matching right-glue (because we just saw a left-glue)
+		//  - Simply work backwards to find the first newline in a string of whitespace
+		var i = this._outputStream.length-1;
+		while (i >= 0) {
+			var obj = this._outputStream[i];
+//			var cmd = obj as ControlCommand;
+			var cmd = obj;
+//			var txt = obj as StringValue;
+			var txt = obj;
+//			var glue = obj as Glue;
+			var glue = obj;
+
+			if (cmd instanceof ControlCommand || (txt instanceof StringValue && txt.isNonWhitespace)) {
+				foundNonWhitespace = true;
+				if( !stopAndRemoveRightGlue )
+					break;
+			} else if (stopAndRemoveRightGlue && glue instanceof Glue && glue.isRight) {
+				rightGluePos = i;
+				break;
+			} else if (txt instanceof StringValue && txt.isNewline && !foundNonWhitespace) {
+				removeWhitespaceFrom = i;
+			}
+			i--;
+		}
+
+		// Remove the whitespace
+		if (removeWhitespaceFrom >= 0) {
+			i=removeWhitespaceFrom;
+			while(i < this._outputStream.length) {
+//				var text = _outputStream [i] as StringValue;
+				var text = this._outputStream[i];
+				if (text instanceof StringValue) {
+					this._outputStream.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+		}
+
+		// Remove the glue (it will come before the whitespace,
+		// so index is still valid)
+		if (stopAndRemoveRightGlue && rightGluePos > -1)
+			this._outputStream.splice(rightGluePos, 1);
+	}
+	TrimFromExistingGlue(){
+		var i = this.currentGlueIndex;
+		while (i < this._outputStream.length) {
+//			var txt = _outputStream [i] as StringValue;
+			var txt = this._outputStream[i];
+			if (txt instanceof StringValue && !txt.isNonWhitespace)
+				this._outputStream.splice(i, 1);
+			else
+				i++;
+		}
+	}
+	RemoveExistingGlue(){
+		for (var i = this._outputStream.length - 1; i >= 0; i--) {
+			var c = this._outputStream[i];
+			if (c instanceof Glue) {
+				this._outputStream.splice(i, 1);
+			} else if( c instanceof ControlCommand ) { // e.g. BeginString
+				break;
+			}
+		}
+	}
 	ForceEndFlow(){
 		this.currentContentObject = null;
 
@@ -324,6 +532,60 @@ export class StoryState{
 		this.currentPath = path;
 
 		this._currentTurnIndex++;
+	}
+	AddError(message){
+		if (this.currentErrors == null) {
+			this.currentErrors = [];
+		}
+
+		currentErrors.push(message);
+	}
+	VisitCountAtPathString(pathString){
+		var visitCountOut;
+		if (visitCountOut = this.visitCounts[pathString])
+			return visitCountOut;
+
+		return -1;
+	}
+	Copy(){
+		var copy = new StoryState(this.story);
+
+		copy.outputStream = copy.outputStream.concat(this._outputStream);
+		copy.currentChoices = copy.currentChoices.concat(this.currentChoices);
+
+		if (this.hasError) {
+			copy.currentErrors = [];
+			copy.currentErrors = copy.currentErrors.concat(this.currentErrors);
+		}
+
+		copy.callStack = new CallStack(this.callStack);
+
+		copy._currentRightGlue = this._currentRightGlue;
+
+		copy.variablesState = new VariablesState(copy.callStack);
+		copy.variablesState.CopyFrom(this.variablesState);
+
+		copy.evaluationStack = copy.evaluationStack.concat(this.evaluationStack);
+
+		if (this.divertedTargetObject != null)
+			copy.divertedTargetObject = this.divertedTargetObject;
+
+		copy.visitCounts = {};
+		copy.turnIndices = {};
+		copy.currentTurnIndex = this.currentTurnIndex;
+		copy.storySeed = this.storySeed;
+
+		copy.didSafeExit = this.didSafeExit;
+
+		return copy;
+	}
+	
+	toJson(indented){
+		throw "figur eout formating option";
+		return this.jsonToken.toString(indented ? Formatting.Indented : Formatting.None);
+	}
+	LoadJson(jsonString){
+		this.jsonToken = JSON.parse(json);
 	}
 }
 

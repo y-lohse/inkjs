@@ -1,4 +1,4 @@
-//complete except for equality operators
+//complete
 export class Path{
 	constructor(/*polymorphic constructor*/){
 		this.isRelative;
@@ -113,6 +113,18 @@ export class Path{
 	}
 	toString(){
 		return this.componentsString;
+	}
+	Equals(otherPath){
+		if (otherPath == null)
+			return false;
+
+		if (otherPath.components.length != this.components.length)
+			return false;
+
+		if (otherPath.isRelative != this.isRelative)
+			return false;
+
+		return otherPath.components == this.components;//originally uses SequenceEqual, not sure this achieves the same
 	}
 }
 
