@@ -1,14 +1,16 @@
 {
   "name": "jsink",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/ink.cjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-	"build": "grunt rollup"
+	"build": "grunt rollup",
+	"watch": "grunt watch",
+	"prepublish": "grunt rollup"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "Yannick Lohse",
+  "license": "MIT",
   "devDependencies": {
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
