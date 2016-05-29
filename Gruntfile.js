@@ -3,6 +3,7 @@ module.exports = function(grunt) {
     var version = 0.1;
 
     var babel = require('rollup-plugin-babel');
+	var exposedFiles = ['engine/Story.js'];
 
     // Project configuration.
     grunt.initConfig( {
@@ -22,17 +23,13 @@ module.exports = function(grunt) {
 			amd: {
                 options : { format: 'amd' },
                 dest: 'dist/ink.amd.js',
-                src: ['engine/Story.js']
+                src: exposedFiles
             },
             cjs: {
                 options : { format: 'cjs' },
                 dest: 'dist/ink.cjs.js',
-                src: ['engine/Story.js']
+                src: exposedFiles
             },
-        },
-        jasmine_node: {
-        	options: {},
-        	all: [],
         },
     });
 
