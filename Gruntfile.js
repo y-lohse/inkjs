@@ -17,8 +17,8 @@ module.exports = function(grunt) {
                 plugins: [
                     babel({ exclude: 'node_modules/**' }),
                 ],
-                moduleId: 'jsink',
-                moduleName: 'jsink',
+                moduleId: 'inkjs',
+                moduleName: 'inkjs',
             },
 			amd: {
                 options : { format: 'amd' },
