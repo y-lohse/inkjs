@@ -384,36 +384,35 @@ export class StoryState{
 		return listTexts;
 	}
 	PushToOutputStreamIndividual(obj){
-		var glue = obj instanceof Glue;
-		var text = obj instanceof StringValue;
+		var glue = obj;
+		var text = obj;
 
 		var includeInOutput = true;
 
-		if (glue) {
-			throw "Glue not implemented";
-//			// Found matching left-glue for right-glue? Close it.
-//			bool foundMatchingLeftGlue = glue.isLeft && _currentRightGlue && glue.parent == _currentRightGlue.parent;
-//			if (foundMatchingLeftGlue) {
-//				_currentRightGlue = null;
-//			}
-//
-//			// Left/Right glue is auto-generated for inline expressions 
-//			// where we want to absorb newlines but only in a certain direction.
-//			// "Bi" glue is written by the user in their ink with <>
-//			if (glue.isLeft || glue.isBi) {
-//				TrimNewlinesFromOutputStream(stopAndRemoveRightGlue:foundMatchingLeftGlue);
-//			}
-//
-//			// New right-glue
-//			bool isNewRightGlue = glue.isRight && _currentRightGlue == null;
-//			if (isNewRightGlue) {
-//				_currentRightGlue = glue;
-//			}
-//
-//			includeInOutput = glue.isBi || isNewRightGlue;
+		if (glue instanceof Glue) {
+			// Found matching left-glue for right-glue? Close it.
+			var foundMatchingLeftGlue = glue.isLeft && this._currentRightGlue && glue.parent == this._currentRightGlue.parent;
+			if (foundMatchingLeftGlue) {
+				this._currentRightGlue = null;
+			}
+
+			// Left/Right glue is auto-generated for inline expressions 
+			// where we want to absorb newlines but only in a certain direction.
+			// "Bi" glue is written by the user in their ink with <>
+			if (glue.isLeft || glue.isBi) {
+				this.TrimNewlinesFromOutputStream(foundMatchingLeftGlue);
+			}
+
+			// New right-glue
+			var isNewRightGlue = glue.isRight && this._currentRightGlue == null;
+			if (isNewRightGlue) {
+				this._currentRightGlue = glue;
+			}
+
+			includeInOutput = glue.isBi || isNewRightGlue;
 		}
 
-		else if( text ) {
+		else if( text instanceof StringValue ) {
 
 			if (this.currentGlueIndex != -1) {
 
@@ -550,30 +549,30 @@ export class StoryState{
 	Copy(){
 		var copy = new StoryState(this.story);
 
-		copy.outputStream = copy.outputStream.concat(this._outputStream);
-		copy.currentChoices = copy.currentChoices.concat(this.currentChoices);
+		copy.outputStream.push.apply(copy.outputStream, this._outputStream);
+		copy.currentChoices.push.apply(copy.currentChoices, this.currentChoices);
 
 		if (this.hasError) {
 			copy.currentErrors = [];
-			copy.currentErrors = copy.currentErrors.concat(this.currentErrors);
+			copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
 		}
 
-		copy.callStack = new CallStack(this.callStack);
+		copy._callStack = new CallStack(this.callStack);
 
 		copy._currentRightGlue = this._currentRightGlue;
 
-		copy.variablesState = new VariablesState(copy.callStack);
+		copy._variablesState = new VariablesState(copy.callStack);
 		copy.variablesState.CopyFrom(this.variablesState);
 
-		copy.evaluationStack = copy.evaluationStack.concat(this.evaluationStack);
+		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
 
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
 
-		copy.visitCounts = {};
-		copy.turnIndices = {};
-		copy.currentTurnIndex = this.currentTurnIndex;
-		copy.storySeed = this.storySeed;
+		copy._visitCounts = {};
+		copy._turnIndices = {};
+		copy._currentTurnIndex = this.currentTurnIndex;
+		copy._storySeed = this.storySeed;
 
 		copy.didSafeExit = this.didSafeExit;
 

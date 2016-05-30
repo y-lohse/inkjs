@@ -63,4 +63,19 @@ export class VariablesState{
 	ValueAtVariablePointer(pointer){
 		 return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 	}
+	CopyFrom(varState){
+		this._globalVariables = {};
+		this.variableChangedEvent = varState.variableChangedEvent;
+
+		if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+
+			if (varState.batchObservingVariableChanges) {
+				this._batchObservingVariableChanges = true;
+				this._changedVariables = {};
+			} else {
+				this._batchObservingVariableChanges = false;
+				this._changedVariables = null;
+			}
+		}
+	}
 }

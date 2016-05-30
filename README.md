@@ -61,7 +61,7 @@ Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state 
 - [x] Choices
 - [x] Knots
 - [x] Diverts
-- [ ] Glue
+- [x] Glue
 - [ ] Branching
 - [ ] Stiches (probably, haven't tried)
 - [ ] Gather (probably, haven't tried)

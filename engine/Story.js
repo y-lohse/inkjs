@@ -150,22 +150,21 @@ export class Story extends InkObject{
 						var prevTextLength = stateAtLastNewline.currentText.length;
 
 						// Output has been extended?
-						throw "stopped here";
-//						if( !currText.Equals(stateAtLastNewline.currentText) ) {
-//
-//							// Original newline still exists?
-//							if( currText.Length >= prevTextLength && currText[prevTextLength-1] == '\n' ) {
-//
-//								RestoreStateSnapshot(stateAtLastNewline);
-//								break;
-//							}
-//
-//							// Newline that previously existed is no longer valid - e.g.
-//							// glue was encounted that caused it to be removed.
-//							else {
-//								stateAtLastNewline = null;
-//							}
-//						}
+						if( currText !== stateAtLastNewline.currentText ) {
+
+							// Original newline still exists?
+							if( currText.length >= prevTextLength && currText[prevTextLength-1] == '\n' ) {
+
+								this.RestoreStateSnapshot(stateAtLastNewline);
+								break;
+							}
+
+							// Newline that previously existed is no longer valid - e.g.
+							// glue was encounted that caused it to be removed.
+							else {
+								stateAtLastNewline = null;
+							}
+						}
 
 					}
 
@@ -177,7 +176,6 @@ export class Story extends InkObject{
 						// We're going to continue stepping in case we see glue or some
 						// non-text content such as choices.
 						if( this.canContinue ) {
-							console.log('snapshotting');
 							stateAtLastNewline = this.StateSnapshot();
 						} 
 
@@ -221,6 +219,7 @@ export class Story extends InkObject{
 
 
 		} catch(e) {
+			throw e;
 			this.AddError(e.Message, e.useEndLineNumber);
 		} finally {
 			this.state.didSafeExit = false;
@@ -235,7 +234,6 @@ export class Story extends InkObject{
 
 		// Get current content
 		var currentContentObj = this.state.currentContentObject;
-		console.log(currentContentObj);
 		if (currentContentObj == null) {
 			return;
 		}

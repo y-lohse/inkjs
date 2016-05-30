@@ -2,7 +2,7 @@
 <!--	<script src="deps/require.js"></script>-->
 	<script src="../dist/ink.iife.js"></script>
 	<script>
-		fetch('stories/choice.ink.json')
+		fetch('stories/glue.ink.json')
 		.then(response => {
 			return response.text();
 		})
@@ -11,7 +11,7 @@
 		});
 		
 		function initStory(inkFile){
-			var s = new jsink.Story(inkFile);
+			var s = new inkjs.Story(inkFile);
 			continueToNextChoice();
 
 			function continueToNextChoice(){

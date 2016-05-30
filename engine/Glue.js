@@ -1,6 +1,6 @@
 //complete
 export class Glue{
-	cosntructor(type){
+	constructor(type){
 		this.glueType = type;
 	}
 	get isLeft(){
