@@ -418,7 +418,7 @@
 			//so here, in the reference implementation, contentObj is casted to an INamedContent
 			//but here we use js-style duck typing: if it implements the same props as the interface, we treat it as valid
 			if (contentObj.hasValidName && contentObj.name) {
-				AddToNamedContentOnly(contentObj);
+				this.AddToNamedContentOnly(contentObj);
 			}
 		}
 		AddToNamedContentOnly(namedContentObj) {
@@ -785,6 +785,40 @@
 		}
 	}
 
+	//complete
+	class Glue {
+		constructor(type) {
+			this.glueType = type;
+		}
+		get isLeft() {
+			return this.glueType == GlueType.Left;
+		}
+		get isBi() {
+			return this.glueType == GlueType.Bidirectional;
+		}
+		get isRight() {
+			return this.glueType == GlueType.Right;
+		}
+		toString() {
+			switch (this.glueType) {
+				case GlueType.Bidirectional:
+					return "BidirGlue";
+				case GlueType.Left:
+					return "LeftGlue";
+				case GlueType.Right:
+					return "RightGlue";
+			}
+
+			return "UnexpectedGlueType";
+		}
+	}
+
+	let GlueType = {
+		Bidirectional: 0,
+		Left: 1,
+		Right: 2
+	};
+
 	class ControlCommand extends InkObject {
 		constructor(commandType) {
 			super();
@@ -1110,13 +1144,8 @@
 				if (firstChar == '^') return new StringValue$1(str.substring(1));else if (firstChar == "\n" && str.length == 1) return new StringValue$1("\n");
 
 				// Glue
-				//			if (str == "<>")
-				//				return new Runtime.Glue (GlueType.Bidirectional);
-				//			else if(str == "G<")
-				//				return new Runtime.Glue (GlueType.Left);
-				//			else if(str == "G>")
-				//				return new Runtime.Glue (GlueType.Right);
-				//
+				if (str == "<>") return new Glue(GlueType.Bidirectional);else if (str == "G<") return new Glue(GlueType.Left);else if (str == "G>") return new Glue(GlueType.Right);
+
 				// Control commands (would looking up in a hash set be faster?)
 				for (var i = 0; i < _controlCommandNames.length; ++i) {
 					var cmdName = _controlCommandNames[i];
@@ -1653,9 +1682,22 @@
 		ValueAtVariablePointer(pointer) {
 			return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 		}
-	}
+		CopyFrom(varState) {
+			this._globalVariables = {};
+			this.variableChangedEvent = varState.variableChangedEvent;
 
-	class Glue {}
+			if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+
+				if (varState.batchObservingVariableChanges) {
+					this._batchObservingVariableChanges = true;
+					this._changedVariables = {};
+				} else {
+					this._batchObservingVariableChanges = false;
+					this._changedVariables = null;
+				}
+			}
+		}
+	}
 
 	class StoryState {
 		constructor(story) {
@@ -1908,7 +1950,7 @@
 			this.callStack.currentElement.currentContentIndex = 0;
 		}
 		ResetErrors() {
-			this.currentErrors = null;
+			this._currentErrors = null;
 		}
 		ResetOutput() {
 			this._outputStream.length = 0;
@@ -2007,54 +2049,53 @@
 			return listTexts;
 		}
 		PushToOutputStreamIndividual(obj) {
-			var glue = obj instanceof Glue;
-			var text = obj instanceof StringValue$1;
+			var glue = obj;
+			var text = obj;
 
 			var includeInOutput = true;
 
-			if (glue) {
-				throw "Glue not implemented";
-				//			// Found matching left-glue for right-glue? Close it.
-				//			bool foundMatchingLeftGlue = glue.isLeft && _currentRightGlue && glue.parent == _currentRightGlue.parent;
-				//			if (foundMatchingLeftGlue) {
-				//				_currentRightGlue = null;
-				//			}
-				//
-				//			// Left/Right glue is auto-generated for inline expressions
-				//			// where we want to absorb newlines but only in a certain direction.
-				//			// "Bi" glue is written by the user in their ink with <>
-				//			if (glue.isLeft || glue.isBi) {
-				//				TrimNewlinesFromOutputStream(stopAndRemoveRightGlue:foundMatchingLeftGlue);
-				//			}
-				//
-				//			// New right-glue
-				//			bool isNewRightGlue = glue.isRight && _currentRightGlue == null;
-				//			if (isNewRightGlue) {
-				//				_currentRightGlue = glue;
-				//			}
-				//
-				//			includeInOutput = glue.isBi || isNewRightGlue;
-			} else if (text) {
-
-					if (this.currentGlueIndex != -1) {
-
-						// Absorb any new newlines if there's existing glue
-						// in the output stream.
-						// Also trim any extra whitespace (spaces/tabs) if so.
-						if (text.isNewline) {
-							this.TrimFromExistingGlue();
-							includeInOutput = false;
-						}
-
-						// Able to completely reset when
-						else if (text.isNonWhitespace) {
-								this.RemoveExistingGlue();
-								this._currentRightGlue = null;
-							}
-					} else if (text.isNewline) {
-						if (this.outputStreamEndsInNewline || !this.outputStreamContainsContent) includeInOutput = false;
-					}
+			if (glue instanceof Glue) {
+				// Found matching left-glue for right-glue? Close it.
+				var foundMatchingLeftGlue = glue.isLeft && this._currentRightGlue && glue.parent == this._currentRightGlue.parent;
+				if (foundMatchingLeftGlue) {
+					this._currentRightGlue = null;
 				}
+
+				// Left/Right glue is auto-generated for inline expressions
+				// where we want to absorb newlines but only in a certain direction.
+				// "Bi" glue is written by the user in their ink with <>
+				if (glue.isLeft || glue.isBi) {
+					this.TrimNewlinesFromOutputStream(foundMatchingLeftGlue);
+				}
+
+				// New right-glue
+				var isNewRightGlue = glue.isRight && this._currentRightGlue == null;
+				if (isNewRightGlue) {
+					this._currentRightGlue = glue;
+				}
+
+				includeInOutput = glue.isBi || isNewRightGlue;
+			} else if (text instanceof StringValue$1) {
+
+				if (this.currentGlueIndex != -1) {
+
+					// Absorb any new newlines if there's existing glue
+					// in the output stream.
+					// Also trim any extra whitespace (spaces/tabs) if so.
+					if (text.isNewline) {
+						this.TrimFromExistingGlue();
+						includeInOutput = false;
+					}
+
+					// Able to completely reset when
+					else if (text.isNonWhitespace) {
+							this.RemoveExistingGlue();
+							this._currentRightGlue = null;
+						}
+				} else if (text.isNewline) {
+					if (this.outputStreamEndsInNewline || !this.outputStreamContainsContent) includeInOutput = false;
+				}
+			}
 
 			if (includeInOutput) {
 				this._outputStream.push(obj);
@@ -2148,11 +2189,11 @@
 			this._currentTurnIndex++;
 		}
 		AddError(message) {
-			if (this.currentErrors == null) {
-				this.currentErrors = [];
+			if (this._currentErrors == null) {
+				this._currentErrors = [];
 			}
 
-			currentErrors.push(message);
+			this._currentErrors.push(message);
 		}
 		VisitCountAtPathString(pathString) {
 			var visitCountOut;
@@ -2163,29 +2204,29 @@
 		Copy() {
 			var copy = new StoryState(this.story);
 
-			copy.outputStream = copy.outputStream.concat(this._outputStream);
-			copy.currentChoices = copy.currentChoices.concat(this.currentChoices);
+			copy.outputStream.push.apply(copy.outputStream, this._outputStream);
+			copy.currentChoices.push.apply(copy.currentChoices, this.currentChoices);
 
 			if (this.hasError) {
 				copy.currentErrors = [];
-				copy.currentErrors = copy.currentErrors.concat(this.currentErrors);
+				copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
 			}
 
-			copy.callStack = new CallStack(this.callStack);
+			copy._callStack = new CallStack(this.callStack);
 
 			copy._currentRightGlue = this._currentRightGlue;
 
-			copy.variablesState = new VariablesState(copy.callStack);
+			copy._variablesState = new VariablesState(copy.callStack);
 			copy.variablesState.CopyFrom(this.variablesState);
 
-			copy.evaluationStack = copy.evaluationStack.concat(this.evaluationStack);
+			copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
 
 			if (this.divertedTargetObject != null) copy.divertedTargetObject = this.divertedTargetObject;
 
-			copy.visitCounts = {};
-			copy.turnIndices = {};
-			copy.currentTurnIndex = this.currentTurnIndex;
-			copy.storySeed = this.storySeed;
+			copy._visitCounts = {};
+			copy._turnIndices = {};
+			copy._currentTurnIndex = this.currentTurnIndex;
+			copy._storySeed = this.storySeed;
 
 			copy.didSafeExit = this.didSafeExit;
 
@@ -2358,22 +2399,21 @@
 							var prevTextLength = stateAtLastNewline.currentText.length;
 
 							// Output has been extended?
-							throw "stopped here";
-							//						if( !currText.Equals(stateAtLastNewline.currentText) ) {
-							//
-							//							// Original newline still exists?
-							//							if( currText.Length >= prevTextLength && currText[prevTextLength-1] == '\n' ) {
-							//
-							//								RestoreStateSnapshot(stateAtLastNewline);
-							//								break;
-							//							}
-							//
-							//							// Newline that previously existed is no longer valid - e.g.
-							//							// glue was encounted that caused it to be removed.
-							//							else {
-							//								stateAtLastNewline = null;
-							//							}
-							//						}
+							if (currText !== stateAtLastNewline.currentText) {
+
+								// Original newline still exists?
+								if (currText.length >= prevTextLength && currText[prevTextLength - 1] == '\n') {
+
+									this.RestoreStateSnapshot(stateAtLastNewline);
+									break;
+								}
+
+								// Newline that previously existed is no longer valid - e.g.
+								// glue was encounted that caused it to be removed.
+								else {
+										stateAtLastNewline = null;
+									}
+							}
 						}
 
 						// Current content ends in a newline - approaching end of our evaluation
@@ -2383,9 +2423,9 @@
 							// Create a snapshot in case we need to rewind.
 							// We're going to continue stepping in case we see glue or some
 							// non-text content such as choices.
-							if (this.canContinue) {}
-							//							stateAtLastNewline = this.StateSnapshot();
-
+							if (this.canContinue) {
+								stateAtLastNewline = this.StateSnapshot();
+							}
 
 							// Can't continue, so we're about to exit - make sure we
 							// don't have an old state hanging around.
@@ -2397,9 +2437,9 @@
 				} while (this.canContinue);
 
 				// Need to rewind, due to evaluating further than we should?
-				//			if( stateAtLastNewline != null ) {
-				//				RestoreStateSnapshot(stateAtLastNewline);
-				//			}
+				if (stateAtLastNewline != null) {
+					this.RestoreStateSnapshot(stateAtLastNewline);
+				}
 
 				// Finished a section of content / reached a choice point?
 				if (!this.canContinue) {
@@ -2421,8 +2461,8 @@
 					}
 				}
 			} catch (e) {
-				//			this.AddError(e.Message, e.useEndLineNumber);
 				throw e;
+				this.AddError(e.Message, e.useEndLineNumber);
 			} finally {
 				this.state.didSafeExit = false;
 
@@ -2684,10 +2724,9 @@
 			}
 
 			var count = 0;
-			return count;
 			var containerPathStr = container.path.toString();
-			//		this.state.visitCounts.TryGetValue(containerPathStr, out count);
-			//		return count;
+			count = this.state.visitCounts[containerPathStr] || count;
+			return count;
 		}
 		PerformLogicAndFlowControl(contentObj) {
 			if (contentObj == null) {
@@ -2715,8 +2754,7 @@
 							errorMessage += "contained '" + varContents + "'.";
 						}
 
-						throw errorMessage;
-						//					Error (errorMessage);
+						this.Error(errorMessage);
 					}
 
 					var target = varContents;
@@ -2736,9 +2774,9 @@
 
 					// Human readable name available - runtime divert is part of a hard-written divert that to missing content
 					if (currentDivert && currentDivert.debugMetadata.sourceName != null) {
-						Error("Divert target doesn't exist: " + currentDivert.debugMetadata.sourceName);
+						this.Error("Divert target doesn't exist: " + currentDivert.debugMetadata.sourceName);
 					} else {
-						Error("Divert resolution failed: " + currentDivert);
+						this.Error("Divert resolution failed: " + currentDivert);
 					}
 				}
 
@@ -2822,8 +2860,7 @@
 
 								var errorMsg = "Found " + names[popType] + ", when expected " + expected;
 
-								//					Error(errorMsg);
-								throw errorMsg;
+								this.Error(errorMsg);
 							} else {
 								this.state.callStack.Pop();
 							}
@@ -2882,8 +2919,7 @@
 							if (!(target instanceof DivertTargetValue)) {
 								var extraNote = "";
 								if (target instanceof IntValue) extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-								throw "TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote;
-								//					Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
+								this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
 								break;
 							}
 
@@ -2931,8 +2967,7 @@
 							break;
 
 						default:
-							throw "unhandled ControlCommand: " + evalCommand;
-							//				Error ("unhandled ControlCommand: " + evalCommand);
+							this.Error("unhandled ControlCommand: " + evalCommand);
 							break;
 					}
 
@@ -3065,6 +3100,30 @@
 		RecordTurnIndexVisitToContainer(container) {
 			var containerPathStr = container.path.toString();
 			this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
+		}
+		Error(message, useEndLineNumber) {
+			var e = new Error(message);
+			//		e.useEndLineNumber = useEndLineNumber;
+			throw e;
+		}
+		AddError(message, useEndLineNumber) {
+			//		var dm = this.currentDebugMetadata;
+			var dm = null;
+
+			if (dm != null) {
+				var lineNum = useEndLineNumber ? dm.endLineNumber : dm.startLineNumber;
+				message = "RUNTIME ERROR: '" + dm.fileName + "' line " + lineNum + ": " + message;
+			} else {
+				message = "RUNTIME ERROR: " + message;
+			}
+
+			this.state.AddError(message);
+		}
+		StateSnapshot() {
+			return this.state.Copy();
+		}
+		RestoreStateSnapshot(state) {
+			this._state = state;
 		}
 	}
 
