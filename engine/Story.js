@@ -220,8 +220,7 @@ export class Story extends InkObject{
 
 
 		} catch(e) {
-//			this.AddError(e.Message, e.useEndLineNumber);
-			throw e;
+			this.AddError(e.Message, e.useEndLineNumber);
 		} finally {
 			this.state.didSafeExit = false;
 			
@@ -489,10 +488,9 @@ export class Story extends InkObject{
 		}
 
 		var count = 0;
-		return count;
 		var containerPathStr = container.path.toString();
-//		this.state.visitCounts.TryGetValue(containerPathStr, out count);
-//		return count;
+		count = this.state.visitCounts[containerPathStr] || count;
+		return count;
 	}
 	PerformLogicAndFlowControl(contentObj){
 		if( contentObj == null ) {
@@ -520,8 +518,7 @@ export class Story extends InkObject{
 						errorMessage += "contained '" + varContents + "'.";
 					}
 
-					throw errorMessage;
-//					Error (errorMessage);
+					this.Error(errorMessage);
 				}
 
 				var target = varContents;
@@ -542,9 +539,9 @@ export class Story extends InkObject{
 
 				// Human readable name available - runtime divert is part of a hard-written divert that to missing content
 				if (currentDivert && currentDivert.debugMetadata.sourceName != null) {
-					Error ("Divert target doesn't exist: " + currentDivert.debugMetadata.sourceName);
+					this.Error("Divert target doesn't exist: " + currentDivert.debugMetadata.sourceName);
 				} else {
-					Error ("Divert resolution failed: " + currentDivert);
+					this.Error("Divert resolution failed: " + currentDivert);
 				}
 			}
 
@@ -630,8 +627,7 @@ export class Story extends InkObject{
 
 					var errorMsg = "Found " + names[popType] + ", when expected " + expected;
 
-//					Error(errorMsg);
-					throw errorMsg;
+					this.Error(errorMsg);
 				} 
 
 				else {
@@ -694,8 +690,7 @@ export class Story extends InkObject{
 					var extraNote = "";
 					if( target instanceof IntValue )
 						extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-					throw "TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote;
-//					Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
+					this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
 					break;
 				}
 
@@ -743,8 +738,7 @@ export class Story extends InkObject{
 				break;
 
 			default:
-				throw "unhandled ControlCommand: " + evalCommand;
-//				Error ("unhandled ControlCommand: " + evalCommand);
+				this.Error("unhandled ControlCommand: " + evalCommand);
 				break;
 			}
 
@@ -879,5 +873,24 @@ export class Story extends InkObject{
 	RecordTurnIndexVisitToContainer(container){
 		var containerPathStr = container.path.toString();
 		this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
+	}
+	Error(message, useEndLineNumber){
+		var e = new Error(message);
+//		e.useEndLineNumber = useEndLineNumber;
+		throw e;
+	}
+	AddError(message, useEndLineNumber){
+//		var dm = this.currentDebugMetadata;
+		var dm = null;
+		
+		if (dm != null) {
+			var lineNum = useEndLineNumber ? dm.endLineNumber : dm.startLineNumber;
+			message = "RUNTIME ERROR: '" + dm.fileName + "' line " + lineNum + ": " + message;
+		}
+		else {
+			message = "RUNTIME ERROR: " + message;
+		}
+
+		this.state.AddError(message);
 	}
 }

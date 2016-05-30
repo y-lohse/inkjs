@@ -273,7 +273,7 @@ export class StoryState{
         this.callStack.currentElement.currentContentIndex = 0;
 	}
 	ResetErrors(){
-		this.currentErrors = null;
+		this._currentErrors = null;
 	}
 	ResetOutput(){
 		this._outputStream.length = 0;
@@ -534,11 +534,11 @@ export class StoryState{
 		this._currentTurnIndex++;
 	}
 	AddError(message){
-		if (this.currentErrors == null) {
-			this.currentErrors = [];
+		if (this._currentErrors == null) {
+			this._currentErrors = [];
 		}
 
-		currentErrors.push(message);
+		this._currentErrors.push(message);
 	}
 	VisitCountAtPathString(pathString){
 		var visitCountOut;
