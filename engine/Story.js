@@ -177,7 +177,8 @@ export class Story extends InkObject{
 						// We're going to continue stepping in case we see glue or some
 						// non-text content such as choices.
 						if( this.canContinue ) {
-//							stateAtLastNewline = this.StateSnapshot();
+							console.log('snapshotting');
+							stateAtLastNewline = this.StateSnapshot();
 						} 
 
 						// Can't continue, so we're about to exit - make sure we
@@ -193,9 +194,9 @@ export class Story extends InkObject{
 			} while(this.canContinue);
 
 			// Need to rewind, due to evaluating further than we should?
-//			if( stateAtLastNewline != null ) {
-//				RestoreStateSnapshot(stateAtLastNewline);
-//			}
+			if( stateAtLastNewline != null ) {
+				this.RestoreStateSnapshot(stateAtLastNewline);
+			}
 
 			// Finished a section of content / reached a choice point?
 			if( !this.canContinue ) {
@@ -234,6 +235,7 @@ export class Story extends InkObject{
 
 		// Get current content
 		var currentContentObj = this.state.currentContentObject;
+		console.log(currentContentObj);
 		if (currentContentObj == null) {
 			return;
 		}
@@ -892,5 +894,11 @@ export class Story extends InkObject{
 		}
 
 		this.state.AddError(message);
+	}
+	StateSnapshot(){
+		return this.state.Copy();
+	}
+	RestoreStateSnapshot(state){
+		this._state = state;
 	}
 }

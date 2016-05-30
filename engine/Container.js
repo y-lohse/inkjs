@@ -132,7 +132,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		//so here, in the reference implementation, contentObj is casted to an INamedContent
 		//but here we use js-style duck typing: if it implements the same props as the interface, we treat it as valid
 		if (contentObj.hasValidName && contentObj.name){
-			AddToNamedContentOnly(contentObj);
+			this.AddToNamedContentOnly(contentObj);
 		}
 	}
 	AddToNamedContentOnly(namedContentObj){

@@ -1,5 +1,6 @@
 import {Container} from './Container';
 import {Value, StringValue} from './Value';
+import {Glue, GlueType} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
@@ -80,13 +81,13 @@ export class JsonSerialisation{
 				return new StringValue("\n");
 
 			// Glue
-//			if (str == "<>")
-//				return new Runtime.Glue (GlueType.Bidirectional);
-//			else if(str == "G<")
-//				return new Runtime.Glue (GlueType.Left);
-//			else if(str == "G>")
-//				return new Runtime.Glue (GlueType.Right);
-//
+			if (str == "<>")
+				return new Glue(GlueType.Bidirectional);
+			else if(str == "G<")
+				return new Glue(GlueType.Left);
+			else if(str == "G>")
+				return new Glue(GlueType.Right);
+
 			// Control commands (would looking up in a hash set be faster?)
 			for (var i = 0; i < _controlCommandNames.length; ++i) {
 				var cmdName = _controlCommandNames[i];
