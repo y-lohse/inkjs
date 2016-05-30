@@ -1,3 +1,9 @@
+//still needs: 
+// - proxyfing the whole thing for getter and setters
+// - varchanged events
+// - see if the internal getenumarators are needed
+import {VariablePointerValue} from './Value';
+
 export class VariablesState{
 	constructor(callStack){
 		this._globalVariables = {};
@@ -28,7 +34,28 @@ export class VariablesState{
 			this._changedVariables = null;
 		}
 	}
+	get jsonToken(){
+		return Json.DictionaryRuntimeObjsToJObject(this._globalVariables);
+	}
+	set jsonToken(value){
+		this._globalVariables = Json.JObjectToDictionaryRuntimeObjs(value);
+	}
 	
+	CopyFrom(varState){
+		this._globalVariables = {};
+		this.variableChangedEvent = varState.variableChangedEvent;
+
+		if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+
+			if (varState.batchObservingVariableChanges) {
+				this._batchObservingVariableChanges = true;
+				this._changedVariables = {};
+			} else {
+				this._batchObservingVariableChanges = false;
+				this._changedVariables = null;
+			}
+		}
+	}
 	GetVariableWithName(name,contextIndex){
 		if (typeof contextIndex === 'undefined') contextIndex = -1;
 		
@@ -63,19 +90,90 @@ export class VariablesState{
 	ValueAtVariablePointer(pointer){
 		 return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 	}
-	CopyFrom(varState){
-		this._globalVariables = {};
-		this.variableChangedEvent = varState.variableChangedEvent;
+	Assign(varAss, value){
+		var name = varAss.variableName;
+		var contextIndex = -1;
 
-		if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+		// Are we assigning to a global variable?
+		var setGlobal = false;
+		if (varAss.isNewDeclaration) {
+			setGlobal = varAss.isGlobal;
+		} else {
+			setGlobal = !!this._globalVariables[name];
+		}
 
-			if (varState.batchObservingVariableChanges) {
-				this._batchObservingVariableChanges = true;
-				this._changedVariables = {};
-			} else {
-				this._batchObservingVariableChanges = false;
-				this._changedVariables = null;
+		// Constructing new variable pointer reference
+		if (varAss.isNewDeclaration) {
+//			var varPointer = value as VariablePointerValue;
+			var varPointer = value;
+			if (varPointer instanceof VariablePointerValue) {
+				var fullyResolvedVariablePointer = this.ResolveVariablePointer(varPointer);
+				value = fullyResolvedVariablePointer;
 			}
+
+		} 
+
+		// Assign to existing variable pointer?
+		// Then assign to the variable that the pointer is pointing to by name.
+		else {
+
+			// De-reference variable reference to point to
+			var existingPointer = null;
+			do {
+//				existingPointer = GetRawVariableWithName (name, contextIndex) as VariablePointerValue;
+				existingPointer = this.GetRawVariableWithName(name, contextIndex);
+				if (existingPointer instanceof VariablePointerValue) {
+					name = existingPointer.variableName;
+					contextIndex = existingPointer.contextIndex;
+					setGlobal = (contextIndex == 0);
+				}
+			} while(existingPointer);
+		}
+
+
+		if (setGlobal) {
+			this.SetGlobal(name, value);
+		} else {
+			this._callStack.SetTemporaryVariable(name, value, varAss.isNewDeclaration, contextIndex);
+		}
+	}
+	SetGlobal(variableName, value){
+		var oldValue = null;
+		oldValue = this._globalVariables[variableName];
+
+		this._globalVariables[variableName] = value;
+
+		if (this.variableChangedEvent != null && value !== oldValue) {
+
+			if (this.batchObservingVariableChanges) {
+				this._changedVariables.push(variableName);
+			} else {
+				this.variableChangedEvent(variableName, value);
+			}
+		}
+	}
+	ResolveVariablePointer(varPointer){
+		var contextIndex = varPointer.contextIndex;
+
+		if( contextIndex == -1 )
+			contextIndex = this.GetContextIndexOfVariableNamed(varPointer.variableName);
+
+		var valueOfVariablePointedTo = this.GetRawVariableWithName(varPointer.variableName, contextIndex);
+
+		// Extra layer of indirection:
+		// When accessing a pointer to a pointer (e.g. when calling nested or 
+		// recursive functions that take a variable references, ensure we don't create
+		// a chain of indirection by just returning the final target.
+//		var doubleRedirectionPointer = valueOfVariablePointedTo as VariablePointerValue;
+		var doubleRedirectionPointer = valueOfVariablePointedTo;
+		if (doubleRedirectionPointer instanceof VariablePointerValue) {
+			return doubleRedirectionPointer;
+		} 
+
+		// Make copy of the variable pointer so we're not using the value direct from
+		// the runtime. Temporary must be local to the current scope.
+		else {
+			return new VariablePointerValue(varPointer.variableName, contextIndex);
 		}
 	}
 }

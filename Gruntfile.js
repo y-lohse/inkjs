@@ -10,7 +10,7 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         watch: {
             files: ['engine/*.js'],
-            tasks: ['rollup']
+            tasks: ['rollup:cjs', 'rollup:iife']
         },
         rollup: {
             options: {
