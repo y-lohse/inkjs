@@ -36,12 +36,20 @@ module.exports = function(grunt) {
                 src: exposedFiles
             },
         },
+		jasmine_node: {
+        	options: {
+				specFolders: ['tests/']
+			},
+        	all: [],
+        },
     });
 
     // Load the plugin that provides tasks.
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-rollup');
+    grunt.loadNpmTasks('grunt-jasmine-node');
 
     // Default task(s).
     grunt.registerTask('default', ['rollup']);
+    grunt.registerTask('test', ['rollup:cjs', 'jasmine_node']);
 };
