@@ -7,6 +7,12 @@ export class VariableAssignment extends InkObject{
 		this._isNewDeclaration = !!isNewDeclaration;
 		this.isGlobal;
 	}
+	get variableName(){
+		return this._variableName;
+	}
+	get isNewDeclaration(){
+		return this._isNewDeclaration;
+	}
 	
 	toString(){
 		return "VarAssign to " + this.variableName;;

@@ -7,8 +7,13 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {StringValue} from './Value';
+import {StringValue, IntValue} from './Value';
 import {Path} from './Path';
+import {Void} from './Void';
+import {Branch} from './Branch';
+import {VariableAssignment} from './VariableAssignment';
+import {VariableReference} from './VariableReference';
+import {NativeFunctionCall} from './NativeFunctionCall';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -380,7 +385,7 @@ export class Story extends InkObject{
 				// This pop was due to dropping off the end of a function that didn't return anything,
 				// so in this case, we make sure that the evaluator has something to chomp on if it needs it
 				if (this.state.inExpressionEvaluation) {
-					this.state.PushEvaluationStack({});
+					this.state.PushEvaluationStack(new Void());
 				}
 
 				didPop = true;
@@ -549,17 +554,17 @@ export class Story extends InkObject{
 		} 
 
 		// Branch (conditional divert)
-//		else if (contentObj is Branch) {
-//			var branch = (Branch)contentObj;
-//			var conditionValue = state.PopEvaluationStack ();
-//
-//			if (IsTruthy (conditionValue))
-//				state.divertedTargetObject = branch.trueDivert.targetContent;
-//			else if (branch.falseDivert)
-//				state.divertedTargetObject = branch.falseDivert.targetContent;
-//
-//			return true;
-//		} 
+		else if (contentObj instanceof Branch) {
+			var branch = contentObj;
+			var conditionValue = this.state.PopEvaluationStack();
+
+			if (this.IsTruthy(conditionValue))
+				this.state.divertedTargetObject = branch.trueDivert.targetContent;
+			else if (branch.falseDivert)
+				this.state.divertedTargetObject = branch.falseDivert.targetContent;
+
+			return true;
+		} 
 
 		// Start/end an expression evaluation? Or print out the result?
 		else if( contentObj instanceof ControlCommand ) {
@@ -746,57 +751,60 @@ export class Story extends InkObject{
 		}
 
 		// Variable assignment
-//		else if( contentObj is VariableAssignment ) {
-//			var varAss = (VariableAssignment) contentObj;
-//			var assignedVal = state.PopEvaluationStack();
-//
-//			// When in temporary evaluation, don't create new variables purely within
-//			// the temporary context, but attempt to create them globally
-//			//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
-//
-//			state.variablesState.Assign (varAss, assignedVal);
-//
-//			return true;
-//		}
+		else if( contentObj instanceof VariableAssignment ) {
+			var varAss = contentObj;
+			var assignedVal = this.state.PopEvaluationStack();
+			
+			// When in temporary evaluation, don't create new variables purely within
+			// the temporary context, but attempt to create them globally
+			//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
+
+			this.state.variablesState.Assign(varAss, assignedVal);
+
+			return true;
+		}
 
 		// Variable reference
-//		else if( contentObj is VariableReference ) {
-//			var varRef = (VariableReference)contentObj;
-//			Runtime.Object foundValue = null;
-//
-//
-//			// Explicit read count value
-//			if (varRef.pathForCount != null) {
-//
-//				var container = varRef.containerForCount;
-//				int count = VisitCountForContainer (container);
-//				foundValue = new IntValue (count);
-//			}
-//
-//			// Normal variable reference
-//			else {
-//
-//				foundValue = state.variablesState.GetVariableWithName (varRef.name);
-//
-//				if (foundValue == null) {
-//					Error("Uninitialised variable: " + varRef.name);
-//					foundValue = new IntValue (0);
-//				}
-//			}
-//
-//			state.evaluationStack.Add( foundValue );
-//
-//			return true;
-//		}
+		else if( contentObj instanceof VariableReference ) {
+			var varRef = contentObj;
+			var foundValue = null;
+
+
+			// Explicit read count value
+			if (varRef.pathForCount != null) {
+
+				var container = varRef.containerForCount;
+				var count = this.VisitCountForContainer(container);
+				foundValue = new IntValue(count);
+			}
+
+			// Normal variable reference
+			else {
+
+				foundValue = this.state.variablesState.GetVariableWithName(varRef.name);
+
+				if (foundValue == null) {
+					this.Error("Uninitialised variable: " + varRef.name);
+					foundValue = new IntValue(0);
+				}
+			}
+
+			this.state.evaluationStack.push( foundValue );
+
+			return true;
+		}
 
 		// Native function call
-//		else if( contentObj is NativeFunctionCall ) {
-//			var func = (NativeFunctionCall) contentObj;
-//			var funcParams = state.PopEvaluationStack(func.numberOfParameters);
-//			var result = func.Call(funcParams);
-//			state.evaluationStack.Add(result);
-//			return true;
-//		}
+		else if( contentObj instanceof NativeFunctionCall ) {
+			var func = contentObj;
+			console.log('func');
+			console.log(func);
+			console.log(func.numberOfParameters);
+			var funcParams = this.state.PopEvaluationStack(func.numberOfParameters);
+			var result = func.Call(funcParams);
+			this.state.evaluationStack.push(result);
+			return true;
+		}
 
 		// No control content, must be ordinary content
 		return false;

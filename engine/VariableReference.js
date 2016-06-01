@@ -25,7 +25,7 @@ export class VariableReference extends InkObject{
 	
 	toString(){
 		if (this.name != null) {
-			return "var(" + name + ")";
+			return "var(" + this.name + ")";
 		} else {
 			var pathStr = this.pathStringForCount;
 			return "read_count(" + pathStr + ")";

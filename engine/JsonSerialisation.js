@@ -9,6 +9,7 @@ import {VariableReference} from './VariableReference';
 import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {Branch} from './Branch';
+import {Void} from './Void';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -110,9 +111,9 @@ export class JsonSerialisation{
 //			else if (str == "~ret")
 //				return Runtime.ControlCommand.PopFunction ();
 //
-//			// Void
-//			if (str == "void")
-//				return new Runtime.Void ();
+			// Void
+			if (str == "void")
+				return new Void ();
 		}
 		
 		if (typeof token === 'object' && token instanceof Array === false){

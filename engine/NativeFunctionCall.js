@@ -55,6 +55,7 @@ export class NativeFunctionCall extends InkObject{
 			throw "Unexpected number of parameters";
 		}
 		
+//		console.log(parameters);
 		parameters.forEach(p => {
 			if (p instanceof Void) throw "Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?";
 		})

@@ -184,20 +184,6 @@ export class CallStack{
 		// When pushing to callstack, maintain the current content path, but jump out of expressions by default
 		this.callStack.push(new Element(type, this.currentElement.currentContainer, this.currentElement.currentContentIndex, false));
 	}
-	GetTemporaryVariableWithName(name, contextIndex){
-		if (contextIndex == -1)
-			contextIndex = this.currentElementIndex;
-
-		var varValue = null;
-
-		var contextElement = this.callStack[contextIndex];
-
-		if (varValue = contextElement.temporaryVariables[name]) {
-			return varValue;
-		} else {
-			return null;
-		}
-	}
 	PushThread(){
 		var newThread = this.currentThread.Copy();
 		newThread.threadIndex = this._threadCounter;
@@ -239,7 +225,10 @@ export class CallStack{
 		return jObject;
 	}
 	GetTemporaryVariableWithName(name, contextIndex){
-		if (typeof contextIndex === 'undefined') contextIndex = this.currentElementIndex;
+		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
+		
+		if (contextIndex == -1) 
+			contextIndex = this.currentElementIndex;
 		
 		var varValue = null;
 
@@ -252,7 +241,10 @@ export class CallStack{
 		}
 	}
 	SetTemporaryVariable(name, value, declareNew, contextIndex){
-		if (typeof contextIndex === 'undefined') contextIndex = this.currentElementIndex;
+		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
+		
+		if (contextIndex == -1) 
+			contextIndex = this.currentElementIndex;
 
 		var contextElement = this.callStack[contextIndex];
 
