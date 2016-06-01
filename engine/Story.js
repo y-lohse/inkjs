@@ -91,7 +91,7 @@ export class Story extends InkObject{
 			// since we may be doing this reset at initialisation time.
 			this.ContinueInternal();
 
-			this.state.currentPath = this.originalPath;
+			this.state.currentPath = originalPath;
 		}
 	}
 	Continue(){

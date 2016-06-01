@@ -8,6 +8,7 @@ import {ChoicePoint} from './ChoicePoint';
 import {VariableReference} from './VariableReference';
 import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
+import {Branch} from './Branch';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -69,7 +70,7 @@ export class JsonSerialisation{
 	}
 	static JTokenToRuntimeObject(token){
 		//@TODO probably find a more robust way to detect numbers, isNaN seems happy to accept things that really aren't numberish.
-		if (!isNaN(token) && token != "\n"){//JS thinks "\n" is a number
+		if (!isNaN(token) && token !== "\n"){//JS thinks "\n" is a number
 			return Value.Create(token);
 		}
 		
@@ -213,21 +214,23 @@ export class JsonSerialisation{
 				varAss.isGlobal = isGlobalVar;
 				return varAss;
 			}
-//
-//			Divert trueDivert = null;
-//			Divert falseDivert = null;
-//			if (obj.TryGetValue ("t?", out propValue)) {
+
+			var trueDivert = null;
+			var falseDivert = null;
+			if (propValue = obj["t?"]) {
 //				trueDivert = JTokenToRuntimeObject(propValue) as Divert;
-//			}
-//			if (obj.TryGetValue ("f?", out propValue)) {
+				trueDivert = this.JTokenToRuntimeObject(propValue);
+			}
+			if (propValue = obj["f?"]) {
 //				falseDivert = JTokenToRuntimeObject(propValue) as Divert;
-//			}
-//			if (trueDivert || falseDivert) {
-//				return new Branch (trueDivert, falseDivert);
-//			}
-//
-//			if (obj ["originalChoicePath"] != null)
-//				return JObjectToChoice (obj);
+				falseDivert = this.JTokenToRuntimeObject(propValue);
+			}
+			if (trueDivert instanceof Divert || falseDivert instanceof Divert) {
+				return new Branch(trueDivert, falseDivert);
+			}
+
+			if (obj["originalChoicePath"] != null)
+				return this.JObjectToChoice(obj);
 		}
 		
 		// Array is always a Runtime.Container

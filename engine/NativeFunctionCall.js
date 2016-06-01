@@ -1,8 +1,10 @@
 //misses delegates, probably the returns from function calls
 import {ValueType} from './Value';
+import {Object as InkObject} from './Object';
 
-export class NativeFunctionCall{
+export class NativeFunctionCall extends InkObject{
 	constructor(name){
+		super();
 		this._name = name;
 		this._numberOfParameters;
 		
