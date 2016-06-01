@@ -7,7 +7,7 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-var inkFile = fs.readFileSync(__dirname + '/stories/branching.ink.json', 'UTF-8');
+var inkFile = fs.readFileSync(__dirname + '/stories/var.ink.json', 'UTF-8');
 var s = new Story(inkFile);
 continueToNextChoice();
 

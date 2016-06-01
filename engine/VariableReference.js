@@ -3,6 +3,7 @@ import {Path} from './Path';
 
 export class VariableReference extends InkObject{
 	constructor(name){
+		super();
 		this.name = name;
 		this.pathForCount;
 	}

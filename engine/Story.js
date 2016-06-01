@@ -8,6 +8,7 @@ import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
 import {StringValue} from './Value';
+import {Path} from './Path';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -82,7 +83,6 @@ export class Story extends InkObject{
 	}
 	ResetGlobals(){
 		if (this._mainContentContainer.namedContent["global decl"]){
-			throw "Story.ResetGlobals not implemented";
 			var originalPath = this.state.currentPath;
 
 			this.ChoosePathString("global decl");
@@ -898,5 +898,8 @@ export class Story extends InkObject{
 	}
 	RestoreStateSnapshot(state){
 		this._state = state;
+	}
+	ChoosePathString(path){
+		this.ChoosePath(new Path(path));
 	}
 }

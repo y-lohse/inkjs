@@ -2,7 +2,7 @@
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
 
-var ValueType = {
+export var ValueType = {
 	// Used in coersion
 	Int: 0,
 	Float: 1,

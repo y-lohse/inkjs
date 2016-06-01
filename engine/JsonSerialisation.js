@@ -5,6 +5,9 @@ import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
 import {ChoicePoint} from './ChoicePoint';
+import {VariableReference} from './VariableReference';
+import {VariableAssignment} from './VariableAssignment';
+import {NativeFunctionCall} from './NativeFunctionCall';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -95,11 +98,11 @@ export class JsonSerialisation{
 					return new ControlCommand(i);
 				}
 			}
-//
-//			// Native functions
-//			if( NativeFunctionCall.CallExistsWithName(str) )
-//				return NativeFunctionCall.CallWithName (str);
-//
+
+			// Native functions
+			if( NativeFunctionCall.CallExistsWithName(str) )
+				return NativeFunctionCall.CallWithName(str);
+
 //			// Pop
 //			if (str == "->->")
 //				return Runtime.ControlCommand.PopTunnel ();
@@ -183,33 +186,33 @@ export class JsonSerialisation{
 
 				return choice;
 			}
-//
-//			// Variable reference
-//			if (obj.TryGetValue ("VAR?", out propValue)) {
-//				return new VariableReference (propValue.ToString ());
-//			} else if (obj.TryGetValue ("CNT?", out propValue)) {
-//				var readCountVarRef = new VariableReference ();
-//				readCountVarRef.pathStringForCount = propValue.ToString ();
-//				return readCountVarRef;
-//			}
-//
-//			// Variable assignment
-//			bool isVarAss = false;
-//			bool isGlobalVar = false;
-//			if (obj.TryGetValue ("VAR=", out propValue)) {
-//				isVarAss = true;
-//				isGlobalVar = true;
-//			} else if (obj.TryGetValue ("temp=", out propValue)) {
-//				isVarAss = true;
-//				isGlobalVar = false;
-//			}
-//			if (isVarAss) {
-//				var varName = propValue.ToString ();
-//				var isNewDecl = !obj.TryGetValue("re", out propValue);
-//				var varAss = new VariableAssignment (varName, isNewDecl);
-//				varAss.isGlobal = isGlobalVar;
-//				return varAss;
-//			}
+
+			// Variable reference
+			if (propValue = obj["VAR?"]) {
+				return new VariableReference(propValue.toString());
+			} else if (propValue = obj["CNT?"]) {
+				var readCountVarRef = new VariableReference();
+				readCountVarRef.pathStringForCount = propValue.toString();
+				return readCountVarRef;
+			}
+
+			// Variable assignment
+			var isVarAss = false;
+			var isGlobalVar = false;
+			if (propValue = obj["VAR="]) {
+				isVarAss = true;
+				isGlobalVar = true;
+			} else if (propValue = obj["temp="]) {
+				isVarAss = true;
+				isGlobalVar = false;
+			}
+			if (isVarAss) {
+				var varName = propValue.toString();
+				var isNewDecl = !obj["re"];
+				var varAss = new VariableAssignment(varName, isNewDecl);
+				varAss.isGlobal = isGlobalVar;
+				return varAss;
+			}
 //
 //			Divert trueDivert = null;
 //			Divert falseDivert = null;
