@@ -7,7 +7,7 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {StringValue, IntValue} from './Value';
+import {StringValue, IntValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {Branch} from './Branch';
@@ -19,53 +19,43 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this._hasValidatedExternals = true;//@TODO init to false
-		
 		this.inkVersionCurrent = 11;
 		this.inkVersionMinimumCompatible = 11;
+		
+		if (jsonString instanceof Container){
+			this._mainContentContainer = jsonString;
+            this._externals = {};
+		}
+		else{
+			var rootObject = JSON.parse(jsonString);
 
-		var rootObject = JSON.parse(jsonString);
-		
-		var versionObj = rootObject["inkVersion"];
-		if (versionObj == null)
-			throw "ink version number not found. Are you sure it's a valid .ink.json file?";
-		
-		var formatFromFile = parseInt(versionObj);
-		if (formatFromFile > this.inkVersionCurrent){
-			throw "Version of ink used to build story was newer than the current verison of the engine";
-		}
-		else if (formatFromFile < this.inkVersionMinimumCompatible){
-			throw "Version of ink used to build story is too old to be loaded by this verison of the engine";
-		}
-		else if (formatFromFile != this.inkVersionCurrent){
-			console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
-		}
-		
-		var rootToken = rootObject["root"];
-		if (rootToken == null)
-			throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
-		
-		this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
+			var versionObj = rootObject["inkVersion"];
+			if (versionObj == null)
+				throw "ink version number not found. Are you sure it's a valid .ink.json file?";
 
-		this.ResetState();
+			var formatFromFile = parseInt(versionObj);
+			if (formatFromFile > this.inkVersionCurrent){
+				throw "Version of ink used to build story was newer than the current verison of the engine";
+			}
+			else if (formatFromFile < this.inkVersionMinimumCompatible){
+				throw "Version of ink used to build story is too old to be loaded by this verison of the engine";
+			}
+			else if (formatFromFile != this.inkVersionCurrent){
+				console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
+			}
+
+			var rootToken = rootObject["root"];
+			if (rootToken == null)
+				throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
+
+			this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
+
+			this._hasValidatedExternals = true;
+
+			this.ResetState();
+		}
 	}
 	
-	get mainContentContainer(){
-		if (this._temporaryEvaluationContainer) {
-			return this._temporaryEvaluationContainer;
-		} else {
-			return this._mainContentContainer;
-		}
-	}
-	get state(){
-		return this._state;
-	}
-	get canContinue(){
-		return this.state.currentContentObject != null && !this.state.hasError;
-	}
-	get currentText(){
-		return this.state.currentText;
-	}
 	get currentChoices(){
 		// Don't include invisible choices for external usage.
 		var choices = [];
@@ -79,12 +69,44 @@ export class Story extends InkObject{
 		
 		return choices;
 	}
+	get currentText(){
+		return this.state.currentText;
+	}
+	get currentErrors(){
+		return this.state.currentErrors;
+	}
+	get hasError(){
+		return this.state.hasError;
+	}
+	get variablesState(){
+		return this.state.variablesState;
+	}
+	get state(){
+		return this._state;
+	}
+	
+	get mainContentContainer(){
+		if (this._temporaryEvaluationContainer) {
+			return this._temporaryEvaluationContainer;
+		} else {
+			return this._mainContentContainer;
+		}
+	}
+	get canContinue(){
+		return this.state.currentContentObject != null && !this.state.hasError;
+	}
 	
 	ResetState(){
 		this._state = new StoryState(this);
 //		this._state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;//@TODO: figure out what this does
 		
 		this.ResetGlobals();
+	}
+	ResetErrors(){
+		this._state.ResetErrors();
+	}
+	ResetCallstack(){
+		this._state.ForceEndFlow();
 	}
 	ResetGlobals(){
 		if (this._mainContentContainer.namedContent["global decl"]){
@@ -139,11 +161,11 @@ export class Story extends InkObject{
 				this.Step();
 
 				// Run out of content and we have a default invisible choice that we can follow?
-//				if( !canContinue ) {
-//					TryFollowDefaultInvisibleChoice();
-//				}
-//
-//				// Don't save/rewind during string evaluation, which is e.g. used for choices
+				if( !this.canContinue ) {
+					this.TryFollowDefaultInvisibleChoice();
+				}
+
+				// Don't save/rewind during string evaluation, which is e.g. used for choices
 				if( !this.state.inStringEvaluation ) {
 
 					// We previously found a newline, but were we just double checking that
@@ -234,6 +256,24 @@ export class Story extends InkObject{
 
 		return this.currentText;
 	}
+	ContinueMaximally(){
+		var sb = '';
+
+		while (this.canContinue) {
+			sb += this.Continue();
+		}
+
+		return sb;
+	}
+	ContentAtPath(path){
+		return this.mainContentContainer.ContentAtPath(path);
+	}
+	StateSnapshot(){
+		return this.state.Copy();
+	}
+	RestoreStateSnapshot(state){
+		this._state = state;
+	}
 	Step(){
 		var shouldAddToStream = true;
 
@@ -305,12 +345,13 @@ export class Story extends InkObject{
 			// to our current (possibly temporary) context index. And make a copy of the pointer
 			// so that we're not editing the original runtime object.
 //			var varPointer = currentContentObj as VariablePointerValue;
-//			if (varPointer && varPointer.contextIndex == -1) {
-//
-//				// Create new object so we're not overwriting the story's own data
-//				var contextIdx = state.callStack.ContextForVariableNamed(varPointer.variableName);
-//				currentContentObj = new VariablePointerValue (varPointer.variableName, contextIdx);
-//			}
+			var varPointer = currentContentObj;
+			if (varPointer instanceof VariablePointerValue && varPointer.contextIndex == -1) {
+
+				// Create new object so we're not overwriting the story's own data
+				var contextIdx = this.state.callStack.ContextForVariableNamed(varPointer.variableName);
+				currentContentObj = new VariablePointerValue(varPointer.variableName, contextIdx);
+			}
 
 			// Expression evaluation content
 			if (this.state.inExpressionEvaluation) {
@@ -342,100 +383,39 @@ export class Story extends InkObject{
 				this.RecordTurnIndexVisitToContainer(container);
 		}
 	}
-	NextContent(){
-		// Divert step?
-		if (this.state.divertedTargetObject != null) {
-
-			var prevObj = this.state.currentContentObject;
-
-			this.state.currentContentObject = this.state.divertedTargetObject;
-			this.state.divertedTargetObject = null;
-
-			// Check for newly visited containers
-			// Rather than using state.currentContentObject and state.divertedTargetObject,
-			// we have to make sure that both come via the state.currentContentObject property,
-			// since it can actually get transformed slightly when set (it can end up stepping 
-			// into a container).
-			this.VisitChangedContainersDueToDivert(prevObj, this.state.currentContentObject);
-
-			// Diverted location has valid content?
-			if (this.state.currentContentObject != null) {
-				return;
-			}
-
-			// Otherwise, if diverted location doesn't have valid content,
-			// drop down and attempt to increment.
-			// This can happen if the diverted path is intentionally jumping
-			// to the end of a container - e.g. a Conditional that's re-joining
+	VisitChangedContainersDueToDivert(previousContentObject, newContentObject){
+		if (!previousContentObject || !newContentObject)
+                return;
+            
+		// First, find the previously open set of containers
+		var prevContainerSet = [];
+//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
+		var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
+		while (prevAncestor instanceof Container) {
+			prevContainerSet.push(prevAncestor);
+//			prevAncestor = prevAncestor.parent as Container;
+			prevAncestor = prevAncestor.parent;
 		}
 
-		var successfulPointerIncrement = this.IncrementContentPointer();
+		// If the new object is a container itself, it will be visited automatically at the next actual
+		// content step. However, we need to walk up the new ancestry to see if there are more new containers
+		var currentChildOfContainer = newContentObject;
+//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
+		var currentContainerAncestor = currentChildOfContainer.parent;
+		while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
 
-		// Ran out of content? Try to auto-exit from a function,
-		// or finish evaluating the content of a thread
-		if (!successfulPointerIncrement) {
+			// Check whether this ancestor container is being entered at the start,
+			// by checking whether the child object is the first.
+			var enteringAtStart = currentContainerAncestor.content.length > 0 
+				&& currentChildOfContainer == currentContainerAncestor.content[0];
 
-			var didPop = false;
+			// Mark a visit to this container
+			this.VisitContainer(currentContainerAncestor, enteringAtStart);
 
-			if (this.state.callStack.CanPop(PushPopType.Function)) {
-
-				// Pop from the call stack
-				this.state.callStack.Pop(PushPopType.Function);
-
-				// This pop was due to dropping off the end of a function that didn't return anything,
-				// so in this case, we make sure that the evaluator has something to chomp on if it needs it
-				if (this.state.inExpressionEvaluation) {
-					this.state.PushEvaluationStack(new Void());
-				}
-
-				didPop = true;
-			} 
-
-			else if (this.state.callStack.canPopThread) {
-				this.state.callStack.PopThread();
-
-				didPop = true;
-			}
-
-			// Step past the point where we last called out
-			if (didPop && this.state.currentContentObject != null) {
-				this.NextContent();
-			}
+			currentChildOfContainer = currentContainerAncestor;
+//			currentContainerAncestor = currentContainerAncestor.parent as Container;
+			currentContainerAncestor = currentContainerAncestor.parent;
 		}
-	}
-	IncrementContentPointer(){
-		var successfulIncrement = true;
-
-		var currEl = this.state.callStack.currentElement;
-		currEl.currentContentIndex++;
-
-		// Each time we step off the end, we fall out to the next container, all the
-		// while we're in indexed rather than named content
-		while (currEl.currentContentIndex >= currEl.currentContainer.content.length) {
-
-			successfulIncrement = false;
-
-//			Container nextAncestor = currEl.currentContainer.parent as Container;
-			var nextAncestor = currEl.currentContainer.parent;
-			if (nextAncestor instanceof Container === false) {
-				break;
-			}
-
-			var indexInAncestor = nextAncestor.content.indexOf(currEl.currentContainer);
-			if (indexInAncestor == -1) {
-				break;
-			}
-
-			currEl.currentContainer = nextAncestor;
-			currEl.currentContentIndex = indexInAncestor + 1;
-
-			successfulIncrement = true;
-		}
-
-		if (!successfulIncrement)
-			currEl.currentContainer = null;
-
-		return successfulIncrement;
 	}
 	ProcessChoice(choicePoint){
 		var showChoice = true;
@@ -486,16 +466,20 @@ export class Story extends InkObject{
 
 		return choice;
 	}
-	VisitCountForContainer(container){
-		if( !container.visitsShouldBeCounted ) {
-			console.warn("Read count for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
-			return 0;
-		}
+	IsTruthy(){
+		var truthy = false;
+		if (obj instanceof Value) {
+			var val = obj;
 
-		var count = 0;
-		var containerPathStr = container.path.toString();
-		count = this.state.visitCounts[containerPathStr] || count;
-		return count;
+			if (val instanceof DivertTargetValue) {
+				var divTarget = val;
+				this.Error("Shouldn't use a divert target (to " + divTarget.targetPath + ") as a conditional value. Did you intend a function call 'likeThis()' or a read count check 'likeThis'? (no arrows)");
+				return false;
+			}
+
+			return val.isTruthy;
+		}
+		return truthy;
 	}
 	PerformLogicAndFlowControl(contentObj){
 		if( contentObj == null ) {
@@ -809,39 +793,18 @@ export class Story extends InkObject{
 		// No control content, must be ordinary content
 		return false;
 	}
-	VisitChangedContainersDueToDivert(previousContentObject, newContentObject){
-		if (!previousContentObject || !newContentObject)
-                return;
-            
-		// First, find the previously open set of containers
-		var prevContainerSet = [];
-//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
-		var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
-		while (prevAncestor instanceof Container) {
-			prevContainerSet.push(prevAncestor);
-//			prevAncestor = prevAncestor.parent as Container;
-			prevAncestor = prevAncestor.parent;
-		}
+	ChoosePathString(path){
+		this.ChoosePath(new Path(path));
+	}
+	ChoosePath(path){
+		var prevContentObj = this.state.currentContentObject;
 
-		// If the new object is a container itself, it will be visited automatically at the next actual
-		// content step. However, we need to walk up the new ancestry to see if there are more new containers
-		var currentChildOfContainer = newContentObject;
-//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
-		var currentContainerAncestor = currentChildOfContainer.parent;
-		while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
+		this.state.SetChosenPath(path);
 
-			// Check whether this ancestor container is being entered at the start,
-			// by checking whether the child object is the first.
-			var enteringAtStart = currentContainerAncestor.content.length > 0 
-				&& currentChildOfContainer == currentContainerAncestor.content[0];
+		var newContentObj = this.state.currentContentObject;
 
-			// Mark a visit to this container
-			this.VisitContainer(currentContainerAncestor, enteringAtStart);
-
-			currentChildOfContainer = currentContainerAncestor;
-//			currentContainerAncestor = currentContainerAncestor.parent as Container;
-			currentContainerAncestor = currentContainerAncestor.parent;
-		}
+		// Take a note of newly visited containers for read counts etc
+		this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
 	}
 	ChooseChoiceIndex(choiceIdx){
 		choiceIdx = choiceIdx;
@@ -858,18 +821,134 @@ export class Story extends InkObject{
 
 		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 	}
-	ChoosePath(path){
-		var prevContentObj = this.state.currentContentObject;
+	/*
+	external funcs
+	*/
+	/*
+	observers
+	*/
+	
+	NextContent(){
+		// Divert step?
+		if (this.state.divertedTargetObject != null) {
 
-		this.state.SetChosenPath(path);
+			var prevObj = this.state.currentContentObject;
 
-		var newContentObj = this.state.currentContentObject;
+			this.state.currentContentObject = this.state.divertedTargetObject;
+			this.state.divertedTargetObject = null;
 
-		// Take a note of newly visited containers for read counts etc
-		this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
+			// Check for newly visited containers
+			// Rather than using state.currentContentObject and state.divertedTargetObject,
+			// we have to make sure that both come via the state.currentContentObject property,
+			// since it can actually get transformed slightly when set (it can end up stepping 
+			// into a container).
+			this.VisitChangedContainersDueToDivert(prevObj, this.state.currentContentObject);
+
+			// Diverted location has valid content?
+			if (this.state.currentContentObject != null) {
+				return;
+			}
+
+			// Otherwise, if diverted location doesn't have valid content,
+			// drop down and attempt to increment.
+			// This can happen if the diverted path is intentionally jumping
+			// to the end of a container - e.g. a Conditional that's re-joining
+		}
+
+		var successfulPointerIncrement = this.IncrementContentPointer();
+
+		// Ran out of content? Try to auto-exit from a function,
+		// or finish evaluating the content of a thread
+		if (!successfulPointerIncrement) {
+
+			var didPop = false;
+
+			if (this.state.callStack.CanPop(PushPopType.Function)) {
+
+				// Pop from the call stack
+				this.state.callStack.Pop(PushPopType.Function);
+
+				// This pop was due to dropping off the end of a function that didn't return anything,
+				// so in this case, we make sure that the evaluator has something to chomp on if it needs it
+				if (this.state.inExpressionEvaluation) {
+					this.state.PushEvaluationStack(new Void());
+				}
+
+				didPop = true;
+			} 
+
+			else if (this.state.callStack.canPopThread) {
+				this.state.callStack.PopThread();
+
+				didPop = true;
+			}
+
+			// Step past the point where we last called out
+			if (didPop && this.state.currentContentObject != null) {
+				this.NextContent();
+			}
+		}
 	}
-	ContentAtPath(path){
-		return this.mainContentContainer.ContentAtPath(path);
+	IncrementContentPointer(){
+		var successfulIncrement = true;
+
+		var currEl = this.state.callStack.currentElement;
+		currEl.currentContentIndex++;
+
+		// Each time we step off the end, we fall out to the next container, all the
+		// while we're in indexed rather than named content
+		while (currEl.currentContentIndex >= currEl.currentContainer.content.length) {
+
+			successfulIncrement = false;
+
+//			Container nextAncestor = currEl.currentContainer.parent as Container;
+			var nextAncestor = currEl.currentContainer.parent;
+			if (nextAncestor instanceof Container === false) {
+				break;
+			}
+
+			var indexInAncestor = nextAncestor.content.indexOf(currEl.currentContainer);
+			if (indexInAncestor == -1) {
+				break;
+			}
+
+			currEl.currentContainer = nextAncestor;
+			currEl.currentContentIndex = indexInAncestor + 1;
+
+			successfulIncrement = true;
+		}
+
+		if (!successfulIncrement)
+			currEl.currentContainer = null;
+
+		return successfulIncrement;
+	}
+	TryFollowDefaultInvisibleChoice(){
+		var allChoices = this._state.currentChoices;
+
+		// Is a default invisible choice the ONLY choice?
+		var invisibleChoices = allChoices.filter(c => {
+			return c.choicePoint.isInvisibleDefault;
+		});
+		if (invisibleChoices.length == 0 || allChoices.length > invisibleChoices.length)
+			return false;
+
+		var choice = invisibleChoices[0];
+
+		this.ChoosePath(choice.choicePoint.choiceTarget.path);
+
+		return true;
+	}
+	VisitCountForContainer(container){
+		if( !container.visitsShouldBeCounted ) {
+			console.warn("Read count for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+			return 0;
+		}
+
+		var count = 0;
+		var containerPathStr = container.path.toString();
+		count = this.state.visitCounts[containerPathStr] || count;
+		return count;
 	}
 	IncrementVisitCountForContainer(container){
 		var count = 0;
@@ -882,6 +961,24 @@ export class Story extends InkObject{
 		var containerPathStr = container.path.toString();
 		this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
 	}
+	TurnsSinceForContainer(container){
+		if( !container.turnIndexShouldBeCounted ) {
+			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+		}
+
+		var index = 0;
+		var containerPathStr = container.path.toString();
+		index = this.state.turnIndices[containerPathStr];
+		if (this.state.turnIndices[containerPathStr]) {
+			return state.currentTurnIndex - index;
+		} else {
+			return -1;
+		}
+	}
+	/*
+	NextSequenceShuffleIndex
+	*/
+	
 	Error(message, useEndLineNumber){
 		var e = new Error(message);
 //		e.useEndLineNumber = useEndLineNumber;
@@ -900,14 +997,5 @@ export class Story extends InkObject{
 		}
 
 		this.state.AddError(message);
-	}
-	StateSnapshot(){
-		return this.state.Copy();
-	}
-	RestoreStateSnapshot(state){
-		this._state = state;
-	}
-	ChoosePathString(path){
-		this.ChoosePath(new Path(path));
 	}
 }
