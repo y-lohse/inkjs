@@ -1,11 +1,12 @@
 //misses delegates, probably the returns from function calls
-import {ValueType} from './Value';
+import {Value, ValueType} from './Value';
+import {Void} from './Void';
 import {Object as InkObject} from './Object';
 
 export class NativeFunctionCall extends InkObject{
 	constructor(name){
 		super();
-		this._name = name;
+		this.name = name;
 		this._numberOfParameters;
 		
 		this._prototype;
@@ -20,7 +21,7 @@ export class NativeFunctionCall extends InkObject{
 	set name(value){
 		this._name = value;
 		if( !this._isPrototype )
-			this._prototype = this._nativeFunctions[this._name];
+			this._prototype = NativeFunctionCall._nativeFunctions[this._name];
 	}
 	get numberOfParameters(){
 		if (this._prototype) {
@@ -55,7 +56,6 @@ export class NativeFunctionCall extends InkObject{
 			throw "Unexpected number of parameters";
 		}
 		
-//		console.log(parameters);
 		parameters.forEach(p => {
 			if (p instanceof Void) throw "Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?";
 		})
@@ -63,14 +63,15 @@ export class NativeFunctionCall extends InkObject{
 		var coercedParams = this.CoerceValuesToSingleType(parameters);
 		var coercedType = coercedParams[0].valueType;
 
+		//Originally CallType gets a type parameter taht is used to do some casting, but we can do without.
 		if (coercedType == ValueType.Int) {
-			return Call<int> (coercedParams);
+			return this.CallType(coercedParams);
 		} else if (coercedType == ValueType.Float) {
-			return Call<float> (coercedParams);
+			return this.CallType(coercedParams);
 		} else if (coercedType == ValueType.String) {
-			return Call<string> (coercedParams);
+			return this.CallType(coercedParams);
 		} else if (coercedType == ValueType.DivertTarget) {
-			return Call<Path> (coercedParams);
+			return this.CallType(coercedParams);
 		}
 
 		return null;
@@ -85,7 +86,7 @@ export class NativeFunctionCall extends InkObject{
 
 		if (paramCount == 2 || paramCount == 1) {
 
-			var opForTypeObj = _operationFuncs[valType];
+			var opForTypeObj = this._operationFuncs[valType];
 			if (!opForTypeObj) {
 				throw "Can not perform operation '"+this.name+"' on "+valType;
 			}
@@ -147,52 +148,52 @@ export class NativeFunctionCall extends InkObject{
 			this._nativeFunctions = {};
 
 			// Int operations
-			this.AddIntBinaryOp(this.Add,      (x, y) => {x + y});
-			this.AddIntBinaryOp(this.Subtract, (x, y) => {x - y});
-			this.AddIntBinaryOp(this.Multiply, (x, y) => {x * y});
-			this.AddIntBinaryOp(this.Divide,   (x, y) => {x / y});
-			this.AddIntBinaryOp(this.Mod,      (x, y) => {x % y}); 
-			this.AddIntUnaryOp(this.Negate,   x => {-x}); 
+			this.AddIntBinaryOp(this.Add,      (x, y) => {return x + y});
+			this.AddIntBinaryOp(this.Subtract, (x, y) => {return x - y});
+			this.AddIntBinaryOp(this.Multiply, (x, y) => {return x * y});
+			this.AddIntBinaryOp(this.Divide,   (x, y) => {return x / y});
+			this.AddIntBinaryOp(this.Mod,      (x, y) => {return x % y}); 
+			this.AddIntUnaryOp(this.Negate,   x => {return -x}); 
 
-			this.AddIntBinaryOp(this.Equal,    (x, y) => {x == y ? 1 : 0});
-			this.AddIntBinaryOp(this.Greater,  (x, y) => {x > y  ? 1 : 0});
-			this.AddIntBinaryOp(this.Less,     (x, y) => {x < y  ? 1 : 0});
-			this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => {x >= y ? 1 : 0});
-			this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => {x <= y ? 1 : 0});
-			this.AddIntBinaryOp(this.NotEquals, (x, y) => {x != y ? 1 : 0});
-			this.AddIntUnaryOp(this.Not,       x => {(x == 0) ? 1 : 0}); 
+			this.AddIntBinaryOp(this.Equal,    (x, y) => {return x == y ? 1 : 0});
+			this.AddIntBinaryOp(this.Greater,  (x, y) => {return x > y  ? 1 : 0});
+			this.AddIntBinaryOp(this.Less,     (x, y) => {return x < y  ? 1 : 0});
+			this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => {return x >= y ? 1 : 0});
+			this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => {return x <= y ? 1 : 0});
+			this.AddIntBinaryOp(this.NotEquals, (x, y) => {return x != y ? 1 : 0});
+			this.AddIntUnaryOp(this.Not,       x => {return (x == 0) ? 1 : 0}); 
 
-			this.AddIntBinaryOp(this.And,      (x, y) => {x != 0 && y != 0 ? 1 : 0});
-			this.AddIntBinaryOp(this.Or,       (x, y) => {x != 0 || y != 0 ? 1 : 0});
+			this.AddIntBinaryOp(this.And,      (x, y) => {return x != 0 && y != 0 ? 1 : 0});
+			this.AddIntBinaryOp(this.Or,       (x, y) => {return x != 0 || y != 0 ? 1 : 0});
 
-			this.AddIntBinaryOp(this.Max,      (x, y) => {Math.max(x, y)});
-			this.AddIntBinaryOp(this.Min,      (x, y) => {Math.min(x, y)});
+			this.AddIntBinaryOp(this.Max,      (x, y) => {return Math.max(x, y)});
+			this.AddIntBinaryOp(this.Min,      (x, y) => {return Math.min(x, y)});
 
 			// Float operations
-			this.AddFloatBinaryOp(this.Add,      (x, y) => {x + y});
-			this.AddFloatBinaryOp(this.Subtract, (x, y) => {x - y});
-			this.AddFloatBinaryOp(this.Multiply, (x, y) => {x * y});
-			this.AddFloatBinaryOp(this.Divide,   (x, y) => {x / y});
-			this.AddFloatBinaryOp(this.Mod,      (x, y) => {x % y}); // TODO: Is this the operation we want for floats?
-			this.AddFloatUnaryOp(this.Negate,   x => {-x}); 
+			this.AddFloatBinaryOp(this.Add,      (x, y) => {return x + y});
+			this.AddFloatBinaryOp(this.Subtract, (x, y) => {return x - y});
+			this.AddFloatBinaryOp(this.Multiply, (x, y) => {return x * y});
+			this.AddFloatBinaryOp(this.Divide,   (x, y) => {return x / y});
+			this.AddFloatBinaryOp(this.Mod,      (x, y) => {return x % y}); // TODO: Is this the operation we want for floats?
+			this.AddFloatUnaryOp(this.Negate,   x => {return -x}); 
 
-			this.AddFloatBinaryOp(this.Equal,    (x, y) => {x == y ? 1 : 0});
-			this.AddFloatBinaryOp(this.Greater,  (x, y) => {x > y  ? 1 : 0});
-			this.AddFloatBinaryOp(this.Less,     (x, y) => {x < y  ? 1 : 0});
-			this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) => {x >= y ? 1 : 0});
-			this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => {x <= y ? 1 : 0});
-			this.AddFloatBinaryOp(this.NotEquals, (x, y) => {x != y ? 1 : 0});
-			this.AddFloatUnaryOp(this.Not,       x => {(x == 0.0) ? 1 : 0}); 
+			this.AddFloatBinaryOp(this.Equal,    (x, y) => {return x == y ? 1 : 0});
+			this.AddFloatBinaryOp(this.Greater,  (x, y) => {return x > y  ? 1 : 0});
+			this.AddFloatBinaryOp(this.Less,     (x, y) => {return x < y  ? 1 : 0});
+			this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) => {return x >= y ? 1 : 0});
+			this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => {return x <= y ? 1 : 0});
+			this.AddFloatBinaryOp(this.NotEquals, (x, y) => {return x != y ? 1 : 0});
+			this.AddFloatUnaryOp(this.Not,       x => {return (x == 0.0) ? 1 : 0}); 
 
-			this.AddFloatBinaryOp(this.And,      (x, y) => {x != 0.0 && y != 0.0 ? 1 : 0});
-			this.AddFloatBinaryOp(this.Or,       (x, y) => {x != 0.0 || y != 0.0 ? 1 : 0});
+			this.AddFloatBinaryOp(this.And,      (x, y) => {return x != 0.0 && y != 0.0 ? 1 : 0});
+			this.AddFloatBinaryOp(this.Or,       (x, y) => {return x != 0.0 || y != 0.0 ? 1 : 0});
 
-			this.AddFloatBinaryOp(this.Max,      (x, y) => {Math.max(x, y)});
-			this.AddFloatBinaryOp(this.Min,      (x, y) => {Math.min(x, y)});
+			this.AddFloatBinaryOp(this.Max,      (x, y) => {return Math.max(x, y)});
+			this.AddFloatBinaryOp(this.Min,      (x, y) => {return Math.min(x, y)});
 
 			// String operations
-			this.AddStringBinaryOp(this.Add,     (x, y) => {x + y}); // concat
-			this.AddStringBinaryOp(this.Equal,   (x, y) => {x === y ? 1 : 0});
+			this.AddStringBinaryOp(this.Add,     (x, y) => {return x + y}); // concat
+			this.AddStringBinaryOp(this.Equal,   (x, y) => {return x === y ? 1 : 0});
 
 			// Special case: The only operation you can do on divert target values
 			var divertTargetsEqual = (d1, d2) => {

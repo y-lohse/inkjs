@@ -291,7 +291,7 @@ export class StoryState{
                 throw "trying to pop too many objects";
             }
 
-            var popped = evaluationStack.splice(evaluationStack.length - numberOfObjects, numberOfObjects);
+            var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
             return popped;
 		}
 	}

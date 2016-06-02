@@ -7,7 +7,7 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {StringValue, IntValue, VariablePointerValue} from './Value';
+import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {Branch} from './Branch';
@@ -466,7 +466,7 @@ export class Story extends InkObject{
 
 		return choice;
 	}
-	IsTruthy(){
+	IsTruthy(obj){
 		var truthy = false;
 		if (obj instanceof Value) {
 			var val = obj;
@@ -557,12 +557,12 @@ export class Story extends InkObject{
 			switch (evalCommand.commandType) {
 
 			case ControlCommand.CommandType.EvalStart:
-				if (this.state.inExpressionEvaluation) console.log("Already in expression evaluation?");
+				if (this.state.inExpressionEvaluation) console.warn("Already in expression evaluation?");
 				this.state.inExpressionEvaluation = true;
 				break;
 
 			case ControlCommand.CommandType.EvalEnd:
-				if (!this.state.inExpressionEvaluation) console.log("Not in expression evaluation mode");
+				if (!this.state.inExpressionEvaluation) console.warn("Not in expression evaluation mode");
 				this.state.inExpressionEvaluation = false;
 				break;
 
@@ -627,7 +627,7 @@ export class Story extends InkObject{
 			case ControlCommand.CommandType.BeginString:
 				this.state.PushToOutputStream(evalCommand);
 
-				if (!this.state.inExpressionEvaluation) console.log("Expected to be in an expression when evaluating a string");
+				if (!this.state.inExpressionEvaluation) console.warn("Expected to be in an expression when evaluating a string");
 				this.state.inExpressionEvaluation = false;
 				break;
 
@@ -781,9 +781,6 @@ export class Story extends InkObject{
 		// Native function call
 		else if( contentObj instanceof NativeFunctionCall ) {
 			var func = contentObj;
-			console.log('func');
-			console.log(func);
-			console.log(func.numberOfParameters);
 			var funcParams = this.state.PopEvaluationStack(func.numberOfParameters);
 			var result = func.Call(funcParams);
 			this.state.evaluationStack.push(result);

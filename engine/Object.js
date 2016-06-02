@@ -1,5 +1,4 @@
 //still missing:
-// - SetChild
 // - DebugMetaData
 // - bool operators
 
@@ -131,5 +130,15 @@ export class Object{
 	}	
 	Copy(){
 		throw "Not Implemented";
+	}
+	//SetCHild works slightly diferently in the js implementation. SInce we can't pass an objets property by reference, we instead pass the object and the property string.
+	SetChild(obj, prop, value){
+		if (obj[prop])
+			obj[prop] = null;
+
+		obj[prop] = value;
+
+		if( obj[prop] )
+			obj[prop].parent = this;
 	}
 }
