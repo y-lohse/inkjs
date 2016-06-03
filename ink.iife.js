@@ -289,6 +289,14 @@
 		Copy() {
 			throw "Not Implemented";
 		}
+		//SetCHild works slightly diferently in the js implementation. SInce we can't pass an objets property by reference, we instead pass the object and the property string.
+		SetChild(obj, prop, value) {
+			if (obj[prop]) obj[prop] = null;
+
+			obj[prop] = value;
+
+			if (obj[prop]) obj[prop].parent = this;
+		}
 	}
 
 	class Container extends InkObject {
@@ -627,7 +635,7 @@
 			}
 
 			if (Number.isInteger(Number(val))) {
-				return new IntValue$1(val);
+				return new IntValue(val);
 			} else if (!isNaN(val)) {
 				return new FloatValue(val);
 			} else if (val instanceof String) {
@@ -640,7 +648,7 @@
 		}
 	}
 
-	class IntValue$1 extends Value {
+	class IntValue extends Value {
 		constructor(val) {
 			super(val || 0);
 			this._valueType = ValueType.Int;
@@ -687,7 +695,7 @@
 			}
 
 			if (newType == ValueType.Int) {
-				return new IntValue$1(parseInt(this.value));
+				return new IntValue(parseInt(this.value));
 			}
 
 			if (newType == ValueType.String) {
@@ -740,7 +748,7 @@
 
 				var parsedInt;
 				if (parsedInt = parseInt(value)) {
-					return new IntValue$1(parsedInt);
+					return new IntValue(parsedInt);
 				} else {
 					return null;
 				}
@@ -782,6 +790,37 @@
 		}
 		toString() {
 			return "DivertTargetValue(" + this.targetPath + ")";
+		}
+	}
+
+	//@TODO: we should probably not extend StringValue here, because all teh calls to instanceof StringValue will be truthy for VariablePointerValues, which shouldn't be the case
+	class VariablePointerValue extends StringValue$1 {
+		constructor(variableName, contextIndex) {
+			super(variableName);
+
+			this._valueType = ValueType.VariablePointer;
+			this.contextIndex = typeof contextIndex !== 'undefined' ? contextIndex : -1;
+		}
+		get variableName() {
+			return this.value;
+		}
+		set variableName(value) {
+			this.value = value;
+		}
+		get isTruthy() {
+			throw "Shouldn't be checking the truthiness of a variable pointer";
+		}
+
+		Cast(newType) {
+			if (newType == this.valueType) return this;
+
+			throw "Unexpected type cast of Value to new ValueType";
+		}
+		toString() {
+			return "VariablePointerValue(" + this.variableName + ")";
+		}
+		Copy() {
+			return new VariablePointerValue(this.variableName, this.contextIndex);
 		}
 	}
 
@@ -1073,7 +1112,419 @@
 		}
 	}
 
-	class Json {
+	class VariableReference extends InkObject {
+		constructor(name) {
+			super();
+			this.name = name;
+			this.pathForCount;
+		}
+		get containerForCount() {
+			return this.ResolvePath(this.pathForCount);
+		}
+		get pathStringForCount() {
+			if (this.pathForCount == null) return null;
+
+			return this.CompactPathString(this.pathForCount);
+		}
+		set pathStringForCount(value) {
+			if (value == null) this.pathForCount = null;else this.pathForCount = new Path$1(value);
+		}
+
+		toString() {
+			if (this.name != null) {
+				return "var(" + this.name + ")";
+			} else {
+				var pathStr = this.pathStringForCount;
+				return "read_count(" + pathStr + ")";
+			}
+		}
+	}
+
+	class VariableAssignment extends InkObject {
+		constructor(variableName, isNewDeclaration) {
+			super();
+			this._variableName = variableName || null;
+			this._isNewDeclaration = !!isNewDeclaration;
+			this.isGlobal;
+		}
+		get variableName() {
+			return this._variableName;
+		}
+		get isNewDeclaration() {
+			return this._isNewDeclaration;
+		}
+
+		toString() {
+			return "VarAssign to " + this.variableName;;
+		}
+	}
+
+	class Void extends InkObject {}
+
+	class NativeFunctionCall extends InkObject {
+		constructor(name) {
+			super();
+			this.name = name;
+			this._numberOfParameters;
+
+			this._prototype;
+			this._isPrototype;
+			this._operationFuncs = null;
+
+			NativeFunctionCall.GenerateNativeFunctionsIfNecessary();
+		}
+		get name() {
+			return this._name;
+		}
+		set name(value) {
+			this._name = value;
+			if (!this._isPrototype) this._prototype = NativeFunctionCall._nativeFunctions[this._name];
+		}
+		get numberOfParameters() {
+			if (this._prototype) {
+				return this._prototype.numberOfParameters;
+			} else {
+				return this._numberOfParameters;
+			}
+		}
+		set numberOfParameters(value) {
+			this._numberOfParameters = value;
+		}
+
+		static internalConstructor(name, numberOfParamters) {
+			var nativeFunc = new NativeFunctionCall(name);
+			nativeFunc._isPrototype = true;
+			nativeFunc.numberOfParameters = numberOfParamters;
+			return nativeFunc;
+		}
+		static CallWithName(functionName) {
+			return new NativeFunctionCall(functionName);
+		}
+		static CallExistsWithName(functionName) {
+			this.GenerateNativeFunctionsIfNecessary();
+			return this._nativeFunctions[functionName];
+		}
+		Call(parameters) {
+			if (this._prototype) {
+				return this._prototype.Call(parameters);
+			}
+
+			if (this.numberOfParameters != parameters.length) {
+				throw "Unexpected number of parameters";
+			}
+
+			parameters.forEach(p => {
+				if (p instanceof Void) throw "Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?";
+			});
+
+			var coercedParams = this.CoerceValuesToSingleType(parameters);
+			var coercedType = coercedParams[0].valueType;
+
+			//Originally CallType gets a type parameter taht is used to do some casting, but we can do without.
+			if (coercedType == ValueType.Int) {
+				return this.CallType(coercedParams);
+			} else if (coercedType == ValueType.Float) {
+				return this.CallType(coercedParams);
+			} else if (coercedType == ValueType.String) {
+				return this.CallType(coercedParams);
+			} else if (coercedType == ValueType.DivertTarget) {
+				return this.CallType(coercedParams);
+			}
+
+			return null;
+		}
+		CallType(parametersOfSingleType) {
+			var param1 = parametersOfSingleType[0];
+			var valType = param1.valueType;
+
+			var val1 = param1;
+
+			var paramCount = parametersOfSingleType.length;
+
+			if (paramCount == 2 || paramCount == 1) {
+
+				var opForTypeObj = this._operationFuncs[valType];
+				if (!opForTypeObj) {
+					throw "Can not perform operation '" + this.name + "' on " + valType;
+				}
+
+				// Binary
+				if (paramCount == 2) {
+					var param2 = parametersOfSingleType[1];
+
+					var val2 = param2;
+
+					var opForType = opForTypeObj;
+
+					// Return value unknown until it's evaluated
+					var resultVal = opForType(val1.value, val2.value);
+
+					return Value.Create(resultVal);
+				}
+
+				// Unary
+				else {
+
+						var opForType = opForTypeObj;
+
+						var resultVal = opForType(val1.value);
+
+						return Value.Create(resultVal);
+					}
+			} else {
+				throw "Unexpected number of parameters to NativeFunctionCall: " + parametersOfSingleType.length;
+			}
+		}
+		CoerceValuesToSingleType(parametersIn) {
+			var valType = ValueType.Int;
+
+			// Find out what the output type is
+			// "higher level" types infect both so that binary operations
+			// use the same type on both sides. e.g. binary operation of
+			// int and float causes the int to be casted to a float.
+			parametersIn.forEach(obj => {
+				var val = obj;
+				if (val.valueType > valType) {
+					valType = val.valueType;
+				}
+			});
+
+			// Coerce to this chosen type
+			var parametersOut = [];
+			parametersIn.forEach(val => {
+				var castedValue = val.Cast(valType);
+				parametersOut.push(castedValue);
+			});
+
+			return parametersOut;
+		}
+		static GenerateNativeFunctionsIfNecessary() {
+			if (this._nativeFunctions == null) {
+				this._nativeFunctions = {};
+
+				// Int operations
+				this.AddIntBinaryOp(this.Add, (x, y) => {
+					return x + y;
+				});
+				this.AddIntBinaryOp(this.Subtract, (x, y) => {
+					return x - y;
+				});
+				this.AddIntBinaryOp(this.Multiply, (x, y) => {
+					return x * y;
+				});
+				this.AddIntBinaryOp(this.Divide, (x, y) => {
+					return x / y;
+				});
+				this.AddIntBinaryOp(this.Mod, (x, y) => {
+					return x % y;
+				});
+				this.AddIntUnaryOp(this.Negate, x => {
+					return -x;
+				});
+
+				this.AddIntBinaryOp(this.Equal, (x, y) => {
+					return x == y ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.Greater, (x, y) => {
+					return x > y ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.Less, (x, y) => {
+					return x < y ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => {
+					return x >= y ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => {
+					return x <= y ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.NotEquals, (x, y) => {
+					return x != y ? 1 : 0;
+				});
+				this.AddIntUnaryOp(this.Not, x => {
+					return x == 0 ? 1 : 0;
+				});
+
+				this.AddIntBinaryOp(this.And, (x, y) => {
+					return x != 0 && y != 0 ? 1 : 0;
+				});
+				this.AddIntBinaryOp(this.Or, (x, y) => {
+					return x != 0 || y != 0 ? 1 : 0;
+				});
+
+				this.AddIntBinaryOp(this.Max, (x, y) => {
+					return Math.max(x, y);
+				});
+				this.AddIntBinaryOp(this.Min, (x, y) => {
+					return Math.min(x, y);
+				});
+
+				// Float operations
+				this.AddFloatBinaryOp(this.Add, (x, y) => {
+					return x + y;
+				});
+				this.AddFloatBinaryOp(this.Subtract, (x, y) => {
+					return x - y;
+				});
+				this.AddFloatBinaryOp(this.Multiply, (x, y) => {
+					return x * y;
+				});
+				this.AddFloatBinaryOp(this.Divide, (x, y) => {
+					return x / y;
+				});
+				this.AddFloatBinaryOp(this.Mod, (x, y) => {
+					return x % y;
+				}); // TODO: Is this the operation we want for floats?
+				this.AddFloatUnaryOp(this.Negate, x => {
+					return -x;
+				});
+
+				this.AddFloatBinaryOp(this.Equal, (x, y) => {
+					return x == y ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.Greater, (x, y) => {
+					return x > y ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.Less, (x, y) => {
+					return x < y ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) => {
+					return x >= y ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => {
+					return x <= y ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.NotEquals, (x, y) => {
+					return x != y ? 1 : 0;
+				});
+				this.AddFloatUnaryOp(this.Not, x => {
+					return x == 0.0 ? 1 : 0;
+				});
+
+				this.AddFloatBinaryOp(this.And, (x, y) => {
+					return x != 0.0 && y != 0.0 ? 1 : 0;
+				});
+				this.AddFloatBinaryOp(this.Or, (x, y) => {
+					return x != 0.0 || y != 0.0 ? 1 : 0;
+				});
+
+				this.AddFloatBinaryOp(this.Max, (x, y) => {
+					return Math.max(x, y);
+				});
+				this.AddFloatBinaryOp(this.Min, (x, y) => {
+					return Math.min(x, y);
+				});
+
+				// String operations
+				this.AddStringBinaryOp(this.Add, (x, y) => {
+					return x + y;
+				}); // concat
+				this.AddStringBinaryOp(this.Equal, (x, y) => {
+					return x === y ? 1 : 0;
+				});
+
+				// Special case: The only operation you can do on divert target values
+				var divertTargetsEqual = (d1, d2) => {
+					return d1.Equals(d2) ? 1 : 0;
+				};
+				this.AddOpToNativeFunc(this.Equal, 2, ValueType.DivertTarget, divertTargetsEqual);
+			}
+		}
+		AddOpFuncForType(valType, op) {
+			if (this._operationFuncs == null) {
+				this._operationFuncs = {};
+			}
+
+			this._operationFuncs[valType] = op;
+		}
+		static AddOpToNativeFunc(name, args, valType, op) {
+			var nativeFunc = this._nativeFunctions[name];
+			if (!nativeFunc) {
+				nativeFunc = NativeFunctionCall.internalConstructor(name, args);
+				this._nativeFunctions[name] = nativeFunc;
+			}
+
+			nativeFunc.AddOpFuncForType(valType, op);
+		}
+
+		static AddIntBinaryOp(name, op) {
+			this.AddOpToNativeFunc(name, 2, ValueType.Int, op);
+		}
+		static AddIntUnaryOp(name, op) {
+			this.AddOpToNativeFunc(name, 1, ValueType.Int, op);
+		}
+
+		static AddFloatBinaryOp(name, op) {
+			this.AddOpToNativeFunc(name, 2, ValueType.Float, op);
+		}
+		static AddFloatUnaryOp(name, op) {
+			this.AddOpToNativeFunc(name, 1, ValueType.Float, op);
+		}
+
+		static AddStringBinaryOp(name, op) {
+			this.AddOpToNativeFunc(name, 2, ValueType.String, op);
+		}
+
+		toString() {
+			return "Native '" + this.name + "'";
+		}
+	}
+
+	NativeFunctionCall.Add = "+";
+	NativeFunctionCall.Subtract = "-";
+	NativeFunctionCall.Divide = "/";
+	NativeFunctionCall.Multiply = "*";
+	NativeFunctionCall.Mod = "%";
+	NativeFunctionCall.Negate = "~";
+
+	NativeFunctionCall.Equal = "==";
+	NativeFunctionCall.Greater = ">";
+	NativeFunctionCall.Less = "<";
+	NativeFunctionCall.GreaterThanOrEquals = ">=";
+	NativeFunctionCall.LessThanOrEquals = "<=";
+	NativeFunctionCall.NotEquals = "!=";
+	NativeFunctionCall.Not = "!";
+
+	NativeFunctionCall.And = "&&";
+	NativeFunctionCall.Or = "||";
+
+	NativeFunctionCall.Min = "MIN";
+	NativeFunctionCall.Max = "MAX";
+
+	NativeFunctionCall._nativeFunctions = null;
+
+	class Branch extends InkObject {
+		constructor(trueDivert, falseDivert) {
+			super();
+			this.trueDivert = trueDivert || null;
+			this.falseDivert = falseDivert || null;
+		}
+		get trueDivert() {
+			return this._trueDivert;
+		}
+		set trueDivert(value) {
+			this.SetChild(this, '_trueDivert', value);
+		}
+		get falseDivert() {
+			return this._falseDivert;
+		}
+		set falseDivert(value) {
+			this.SetChild(this, '_falseDivert', value);
+		}
+
+		toString() {
+			var sb = "";
+			sb += "Branch: ";
+			if (this.trueDivert) {
+				sb += "(true: " + this.trueDivert + ")";
+			}
+			if (this.falseDivert) {
+				sb += "(false: " + this.falseDivert + ")";
+			}
+			return sb;
+		}
+	}
+
+	class Json$1 {
 		static ListToJArray(serialisables) {
 			var jArray = [];
 			serialisables.forEach(s => {
@@ -1131,7 +1582,7 @@
 		}
 		static JTokenToRuntimeObject(token) {
 			//@TODO probably find a more robust way to detect numbers, isNaN seems happy to accept things that really aren't numberish.
-			if (!isNaN(token) && token != "\n") {
+			if (!isNaN(token) && token !== "\n") {
 				//JS thinks "\n" is a number
 				return Value.Create(token);
 			}
@@ -1153,20 +1604,15 @@
 						return new ControlCommand(i);
 					}
 				}
-				//
-				//			// Native functions
-				//			if( NativeFunctionCall.CallExistsWithName(str) )
-				//				return NativeFunctionCall.CallWithName (str);
-				//
-				//			// Pop
-				//			if (str == "->->")
-				//				return Runtime.ControlCommand.PopTunnel ();
-				//			else if (str == "~ret")
-				//				return Runtime.ControlCommand.PopFunction ();
-				//
-				//			// Void
-				//			if (str == "void")
-				//				return new Runtime.Void ();
+
+				// Native functions
+				if (NativeFunctionCall.CallExistsWithName(str)) return NativeFunctionCall.CallWithName(str);
+
+				// Pop
+				if (str == "->->") return ControlCommand.PopTunnel();else if (str == "~ret") return ControlCommand.PopFunction();
+
+				// Void
+				if (str == "void") return new Void();
 			}
 
 			if (typeof token === 'object' && token instanceof Array === false) {
@@ -1174,16 +1620,21 @@
 				var propValue;
 
 				// Divert target value to path
-				//			if (obj.TryGetValue ("^->", out propValue))
-				//				return new DivertTargetValue (new Path (propValue.ToString()));
+				if (obj["^->"]) {
+					propValue = obj["^->"];
+					return new DivertTargetValue(new Path(propValue.toString()));
+				}
 
 				// VariablePointerValue
-				//			if (obj.TryGetValue ("^var", out propValue)) {
-				//				var varPtr = new VariablePointerValue (propValue.ToString ());
-				//				if (obj.TryGetValue ("ci", out propValue))
-				//					varPtr.contextIndex = propValue.ToObject<int> ();
-				//				return varPtr;
-				//			}
+				if (obj["^var"]) {
+					propValue = obj["^var"];
+					var varPtr = new VariablePointerValue(propValue.toString());
+					if (obj["ci"]) {
+						propValue = obj["ci"];
+						varPtr.contextIndex = parseInt(propValue);
+					}
+					return varPtr;
+				}
 
 				// Divert
 				var isDivert = false;
@@ -1233,48 +1684,49 @@
 
 					return choice;
 				}
-				//
-				//			// Variable reference
-				//			if (obj.TryGetValue ("VAR?", out propValue)) {
-				//				return new VariableReference (propValue.ToString ());
-				//			} else if (obj.TryGetValue ("CNT?", out propValue)) {
-				//				var readCountVarRef = new VariableReference ();
-				//				readCountVarRef.pathStringForCount = propValue.ToString ();
-				//				return readCountVarRef;
-				//			}
-				//
-				//			// Variable assignment
-				//			bool isVarAss = false;
-				//			bool isGlobalVar = false;
-				//			if (obj.TryGetValue ("VAR=", out propValue)) {
-				//				isVarAss = true;
-				//				isGlobalVar = true;
-				//			} else if (obj.TryGetValue ("temp=", out propValue)) {
-				//				isVarAss = true;
-				//				isGlobalVar = false;
-				//			}
-				//			if (isVarAss) {
-				//				var varName = propValue.ToString ();
-				//				var isNewDecl = !obj.TryGetValue("re", out propValue);
-				//				var varAss = new VariableAssignment (varName, isNewDecl);
-				//				varAss.isGlobal = isGlobalVar;
-				//				return varAss;
-				//			}
-				//
-				//			Divert trueDivert = null;
-				//			Divert falseDivert = null;
-				//			if (obj.TryGetValue ("t?", out propValue)) {
-				//				trueDivert = JTokenToRuntimeObject(propValue) as Divert;
-				//			}
-				//			if (obj.TryGetValue ("f?", out propValue)) {
-				//				falseDivert = JTokenToRuntimeObject(propValue) as Divert;
-				//			}
-				//			if (trueDivert || falseDivert) {
-				//				return new Branch (trueDivert, falseDivert);
-				//			}
-				//
-				//			if (obj ["originalChoicePath"] != null)
-				//				return JObjectToChoice (obj);
+
+				// Variable reference
+				if (propValue = obj["VAR?"]) {
+					return new VariableReference(propValue.toString());
+				} else if (propValue = obj["CNT?"]) {
+					var readCountVarRef = new VariableReference();
+					readCountVarRef.pathStringForCount = propValue.toString();
+					return readCountVarRef;
+				}
+
+				// Variable assignment
+				var isVarAss = false;
+				var isGlobalVar = false;
+				if (propValue = obj["VAR="]) {
+					isVarAss = true;
+					isGlobalVar = true;
+				} else if (propValue = obj["temp="]) {
+					isVarAss = true;
+					isGlobalVar = false;
+				}
+				if (isVarAss) {
+					var varName = propValue.toString();
+					var isNewDecl = !obj["re"];
+					var varAss = new VariableAssignment(varName, isNewDecl);
+					varAss.isGlobal = isGlobalVar;
+					return varAss;
+				}
+
+				var trueDivert = null;
+				var falseDivert = null;
+				if (propValue = obj["t?"]) {
+					//				trueDivert = JTokenToRuntimeObject(propValue) as Divert;
+					trueDivert = this.JTokenToRuntimeObject(propValue);
+				}
+				if (propValue = obj["f?"]) {
+					//				falseDivert = JTokenToRuntimeObject(propValue) as Divert;
+					falseDivert = this.JTokenToRuntimeObject(propValue);
+				}
+				if (trueDivert instanceof Divert || falseDivert instanceof Divert) {
+					return new Branch(trueDivert, falseDivert);
+				}
+
+				if (obj["originalChoicePath"] != null) return this.JObjectToChoice(obj);
 			}
 
 			// Array is always a Runtime.Container
@@ -1421,7 +1873,7 @@
 					var el = new Element(pushPopType, currentContainer, contentIndex, inExpressionEvaluation);
 
 					var jObjTemps = jElementObj["temp"];
-					el.temporaryVariables = Json.JObjectToDictionaryRuntimeObjs(jObjTemps);
+					el.temporaryVariables = Json$1.JObjectToDictionaryRuntimeObjs(jObjTemps);
 
 					this.callstack.push(el);
 				});
@@ -1439,7 +1891,7 @@
 				}
 				jObj["exp"] = el.inExpressionEvaluation;
 				jObj["type"] = parseInt(el.type);
-				jObj["temp"] = Json.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
+				jObj["temp"] = Json$1.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
 				jThreadCallstack.push(jObj);
 			});
 
@@ -1521,19 +1973,6 @@
 			// When pushing to callstack, maintain the current content path, but jump out of expressions by default
 			this.callStack.push(new Element(type, this.currentElement.currentContainer, this.currentElement.currentContentIndex, false));
 		}
-		GetTemporaryVariableWithName(name, contextIndex) {
-			if (contextIndex == -1) contextIndex = this.currentElementIndex;
-
-			var varValue = null;
-
-			var contextElement = this.callStack[contextIndex];
-
-			if (varValue = contextElement.temporaryVariables[name]) {
-				return varValue;
-			} else {
-				return null;
-			}
-		}
 		PushThread() {
 			var newThread = this.currentThread.Copy();
 			newThread.threadIndex = this._threadCounter;
@@ -1575,7 +2014,9 @@
 			return jObject;
 		}
 		GetTemporaryVariableWithName(name, contextIndex) {
-			if (typeof contextIndex === 'undefined') contextIndex = this.currentElementIndex;
+			contextIndex = typeof contextIndex === 'undefined' ? -1 : contextIndex;
+
+			if (contextIndex == -1) contextIndex = this.currentElementIndex;
 
 			var varValue = null;
 
@@ -1588,7 +2029,9 @@
 			}
 		}
 		SetTemporaryVariable(name, value, declareNew, contextIndex) {
-			if (typeof contextIndex === 'undefined') contextIndex = this.currentElementIndex;
+			contextIndex = typeof contextIndex === 'undefined' ? -1 : contextIndex;
+
+			if (contextIndex == -1) contextIndex = this.currentElementIndex;
 
 			var contextElement = this.callStack[contextIndex];
 
@@ -1649,7 +2092,28 @@
 					this._changedVariables = null;
 				}
 		}
+		get jsonToken() {
+			return Json.DictionaryRuntimeObjsToJObject(this._globalVariables);
+		}
+		set jsonToken(value) {
+			this._globalVariables = Json.JObjectToDictionaryRuntimeObjs(value);
+		}
 
+		CopyFrom(varState) {
+			this._globalVariables = varState._globalVariables;
+			this.variableChangedEvent = varState.variableChangedEvent;
+
+			if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+
+				if (varState.batchObservingVariableChanges) {
+					this._batchObservingVariableChanges = true;
+					this._changedVariables = {};
+				} else {
+					this._batchObservingVariableChanges = false;
+					this._changedVariables = null;
+				}
+			}
+		}
 		GetVariableWithName(name, contextIndex) {
 			if (typeof contextIndex === 'undefined') contextIndex = -1;
 
@@ -1682,20 +2146,93 @@
 		ValueAtVariablePointer(pointer) {
 			return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 		}
-		CopyFrom(varState) {
-			this._globalVariables = {};
-			this.variableChangedEvent = varState.variableChangedEvent;
+		Assign(varAss, value) {
+			var name = varAss.variableName;
+			var contextIndex = -1;
 
-			if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+			// Are we assigning to a global variable?
+			var setGlobal = false;
+			if (varAss.isNewDeclaration) {
+				setGlobal = varAss.isGlobal;
+			} else {
+				setGlobal = !!this._globalVariables[name];
+			}
 
-				if (varState.batchObservingVariableChanges) {
-					this._batchObservingVariableChanges = true;
-					this._changedVariables = {};
-				} else {
-					this._batchObservingVariableChanges = false;
-					this._changedVariables = null;
+			// Constructing new variable pointer reference
+			if (varAss.isNewDeclaration) {
+				//			var varPointer = value as VariablePointerValue;
+				var varPointer = value;
+				if (varPointer instanceof VariablePointerValue) {
+					var fullyResolvedVariablePointer = this.ResolveVariablePointer(varPointer);
+					value = fullyResolvedVariablePointer;
 				}
 			}
+
+			// Assign to existing variable pointer?
+			// Then assign to the variable that the pointer is pointing to by name.
+			else {
+
+					// De-reference variable reference to point to
+					var existingPointer = null;
+					do {
+						//				existingPointer = GetRawVariableWithName (name, contextIndex) as VariablePointerValue;
+						existingPointer = this.GetRawVariableWithName(name, contextIndex);
+						if (existingPointer instanceof VariablePointerValue) {
+							name = existingPointer.variableName;
+							contextIndex = existingPointer.contextIndex;
+							setGlobal = contextIndex == 0;
+						}
+					} while (existingPointer instanceof VariablePointerValue);
+				}
+
+			if (setGlobal) {
+				this.SetGlobal(name, value);
+			} else {
+				this._callStack.SetTemporaryVariable(name, value, varAss.isNewDeclaration, contextIndex);
+			}
+		}
+		SetGlobal(variableName, value) {
+			var oldValue = null;
+			oldValue = this._globalVariables[variableName];
+
+			this._globalVariables[variableName] = value;
+
+			if (this.variableChangedEvent != null && value !== oldValue) {
+
+				if (this.batchObservingVariableChanges) {
+					this._changedVariables.push(variableName);
+				} else {
+					this.variableChangedEvent(variableName, value);
+				}
+			}
+		}
+		ResolveVariablePointer(varPointer) {
+			var contextIndex = varPointer.contextIndex;
+
+			if (contextIndex == -1) contextIndex = this.GetContextIndexOfVariableNamed(varPointer.variableName);
+
+			var valueOfVariablePointedTo = this.GetRawVariableWithName(varPointer.variableName, contextIndex);
+
+			// Extra layer of indirection:
+			// When accessing a pointer to a pointer (e.g. when calling nested or
+			// recursive functions that take a variable references, ensure we don't create
+			// a chain of indirection by just returning the final target.
+			//		var doubleRedirectionPointer = valueOfVariablePointedTo as VariablePointerValue;
+			var doubleRedirectionPointer = valueOfVariablePointedTo;
+			if (doubleRedirectionPointer instanceof VariablePointerValue) {
+				return doubleRedirectionPointer;
+			}
+
+			// Make copy of the variable pointer so we're not using the value direct from
+			// the runtime. Temporary must be local to the current scope.
+			else {
+					return new VariablePointerValue(varPointer.variableName, contextIndex);
+				}
+		}
+		GetContextIndexOfVariableNamed(varName) {
+			if (this._globalVariables[varName]) return 0;
+
+			return this._callStack.currentElementIndex;
 		}
 	}
 
@@ -1862,11 +2399,11 @@
 			obj["callstackThreads"] = this.callStack.GetJsonToken();
 			obj["variablesState"] = this.variablesState.jsonToken;
 
-			obj["evalStack"] = Json.ListToJArray(this.evaluationStack);
+			obj["evalStack"] = Json$1.ListToJArray(this.evaluationStack);
 
-			obj["outputStream"] = Json.ListToJArray(this._outputStream);
+			obj["outputStream"] = Json$1.ListToJArray(this._outputStream);
 
-			obj["currentChoices"] = Json.ListToJArray(this.currentChoices);
+			obj["currentChoices"] = Json$1.ListToJArray(this.currentChoices);
 
 			if (this._currentRightGlue) {
 				var rightGluePos = this._outputStream.indexOf(this._currentRightGlue);
@@ -1877,8 +2414,8 @@
 
 			if (this.divertedTargetObject != null) obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
 
-			obj["visitCounts"] = Json.IntDictionaryToJObject(visitCounts);
-			obj["turnIndices"] = Json.IntDictionaryToJObject(turnIndices);
+			obj["visitCounts"] = Json$1.IntDictionaryToJObject(visitCounts);
+			obj["turnIndices"] = Json$1.IntDictionaryToJObject(turnIndices);
 			obj["turnIdx"] = this.currentTurnIndex;
 			obj["storySeed"] = this.storySeed;
 
@@ -1902,12 +2439,12 @@
 			this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);
 			this.variablesState.jsonToken = jObject["variablesState"];
 
-			this.evaluationStack = Json.JArrayToRuntimeObjList(jObject["evalStack"]);
+			this.evaluationStack = Json$1.JArrayToRuntimeObjList(jObject["evalStack"]);
 
-			this._outputStream = Json.JArrayToRuntimeObjList(jObject["outputStream"]);
+			this._outputStream = Json$1.JArrayToRuntimeObjList(jObject["outputStream"]);
 
 			//		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
-			this.currentChoices = Json.JArrayToRuntimeObjList(jObject["currentChoices"]);
+			this.currentChoices = Json$1.JArrayToRuntimeObjList(jObject["currentChoices"]);
 
 			var propValue;
 			if (propValue = jObject["currRightGlue"]) {
@@ -1924,8 +2461,8 @@
 				this.divertedTargetObject = this.story.ContentAtPath(divertPath);
 			}
 
-			this.visitCounts = Json.JObjectToIntDictionary(jObject["visitCounts"]);
-			this.turnIndices = Json.JObjectToIntDictionary(jObject["turnIndices"]);
+			this.visitCounts = Json$1.JObjectToIntDictionary(jObject["visitCounts"]);
+			this.turnIndices = Json$1.JObjectToIntDictionary(jObject["turnIndices"]);
 			this.currentTurnIndex = parseInt(jObject["turnIdx"]);
 			this.storySeed = parseInt(jObject["storySeed"]);
 
@@ -1967,7 +2504,7 @@
 					throw "trying to pop too many objects";
 				}
 
-				var popped = evaluationStack.splice(evaluationStack.length - numberOfObjects, numberOfObjects);
+				var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
 				return popped;
 			}
 		}
@@ -2267,49 +2804,38 @@
 		constructor(jsonString) {
 			super();
 
-			this._hasValidatedExternals = true; //@TODO init to false
-
 			this.inkVersionCurrent = 11;
 			this.inkVersionMinimumCompatible = 11;
 
-			var rootObject = JSON.parse(jsonString);
-
-			var versionObj = rootObject["inkVersion"];
-			if (versionObj == null) throw "ink version number not found. Are you sure it's a valid .ink.json file?";
-
-			var formatFromFile = parseInt(versionObj);
-			if (formatFromFile > this.inkVersionCurrent) {
-				throw "Version of ink used to build story was newer than the current verison of the engine";
-			} else if (formatFromFile < this.inkVersionMinimumCompatible) {
-				throw "Version of ink used to build story is too old to be loaded by this verison of the engine";
-			} else if (formatFromFile != this.inkVersionCurrent) {
-				console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
-			}
-
-			var rootToken = rootObject["root"];
-			if (rootToken == null) throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
-
-			this._mainContentContainer = Json.JTokenToRuntimeObject(rootToken);
-
-			this.ResetState();
-		}
-
-		get mainContentContainer() {
-			if (this._temporaryEvaluationContainer) {
-				return this._temporaryEvaluationContainer;
+			if (jsonString instanceof Container) {
+				this._mainContentContainer = jsonString;
+				this._externals = {};
 			} else {
-				return this._mainContentContainer;
+				var rootObject = JSON.parse(jsonString);
+
+				var versionObj = rootObject["inkVersion"];
+				if (versionObj == null) throw "ink version number not found. Are you sure it's a valid .ink.json file?";
+
+				var formatFromFile = parseInt(versionObj);
+				if (formatFromFile > this.inkVersionCurrent) {
+					throw "Version of ink used to build story was newer than the current verison of the engine";
+				} else if (formatFromFile < this.inkVersionMinimumCompatible) {
+					throw "Version of ink used to build story is too old to be loaded by this verison of the engine";
+				} else if (formatFromFile != this.inkVersionCurrent) {
+					console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
+				}
+
+				var rootToken = rootObject["root"];
+				if (rootToken == null) throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
+
+				this._mainContentContainer = Json$1.JTokenToRuntimeObject(rootToken);
+
+				this._hasValidatedExternals = true;
+
+				this.ResetState();
 			}
 		}
-		get state() {
-			return this._state;
-		}
-		get canContinue() {
-			return this.state.currentContentObject != null && !this.state.hasError;
-		}
-		get currentText() {
-			return this.state.currentText;
-		}
+
 		get currentChoices() {
 			// Don't include invisible choices for external usage.
 			var choices = [];
@@ -2323,6 +2849,32 @@
 
 			return choices;
 		}
+		get currentText() {
+			return this.state.currentText;
+		}
+		get currentErrors() {
+			return this.state.currentErrors;
+		}
+		get hasError() {
+			return this.state.hasError;
+		}
+		get variablesState() {
+			return this.state.variablesState;
+		}
+		get state() {
+			return this._state;
+		}
+
+		get mainContentContainer() {
+			if (this._temporaryEvaluationContainer) {
+				return this._temporaryEvaluationContainer;
+			} else {
+				return this._mainContentContainer;
+			}
+		}
+		get canContinue() {
+			return this.state.currentContentObject != null && !this.state.hasError;
+		}
 
 		ResetState() {
 			this._state = new StoryState(this);
@@ -2330,9 +2882,14 @@
 
 			this.ResetGlobals();
 		}
+		ResetErrors() {
+			this._state.ResetErrors();
+		}
+		ResetCallstack() {
+			this._state.ForceEndFlow();
+		}
 		ResetGlobals() {
 			if (this._mainContentContainer.namedContent["global decl"]) {
-				throw "Story.ResetGlobals not implemented";
 				var originalPath = this.state.currentPath;
 
 				this.ChoosePathString("global decl");
@@ -2341,7 +2898,7 @@
 				// since we may be doing this reset at initialisation time.
 				this.ContinueInternal();
 
-				this.state.currentPath = this.originalPath;
+				this.state.currentPath = originalPath;
 			}
 		}
 		Continue() {
@@ -2383,11 +2940,11 @@
 					this.Step();
 
 					// Run out of content and we have a default invisible choice that we can follow?
-					//				if( !canContinue ) {
-					//					TryFollowDefaultInvisibleChoice();
-					//				}
-					//
-					//				// Don't save/rewind during string evaluation, which is e.g. used for choices
+					if (!this.canContinue) {
+						this.TryFollowDefaultInvisibleChoice();
+					}
+
+					// Don't save/rewind during string evaluation, which is e.g. used for choices
 					if (!this.state.inStringEvaluation) {
 
 						// We previously found a newline, but were we just double checking that
@@ -2471,6 +3028,24 @@
 
 			return this.currentText;
 		}
+		ContinueMaximally() {
+			var sb = '';
+
+			while (this.canContinue) {
+				sb += this.Continue();
+			}
+
+			return sb;
+		}
+		ContentAtPath(path) {
+			return this.mainContentContainer.ContentAtPath(path);
+		}
+		StateSnapshot() {
+			return this.state.Copy();
+		}
+		RestoreStateSnapshot(state) {
+			this._state = state;
+		}
 		Step() {
 			var shouldAddToStream = true;
 
@@ -2541,12 +3116,13 @@
 				// to our current (possibly temporary) context index. And make a copy of the pointer
 				// so that we're not editing the original runtime object.
 				//			var varPointer = currentContentObj as VariablePointerValue;
-				//			if (varPointer && varPointer.contextIndex == -1) {
-				//
-				//				// Create new object so we're not overwriting the story's own data
-				//				var contextIdx = state.callStack.ContextForVariableNamed(varPointer.variableName);
-				//				currentContentObj = new VariablePointerValue (varPointer.variableName, contextIdx);
-				//			}
+				var varPointer = currentContentObj;
+				if (varPointer instanceof VariablePointerValue && varPointer.contextIndex == -1) {
+
+					// Create new object so we're not overwriting the story's own data
+					var contextIdx = this.state.callStack.ContextForVariableNamed(varPointer.variableName);
+					currentContentObj = new VariablePointerValue(varPointer.variableName, contextIdx);
+				}
 
 				// Expression evaluation content
 				if (this.state.inExpressionEvaluation) {
@@ -2576,97 +3152,37 @@
 				if (container.turnIndexShouldBeCounted) this.RecordTurnIndexVisitToContainer(container);
 			}
 		}
-		NextContent() {
-			// Divert step?
-			if (this.state.divertedTargetObject != null) {
+		VisitChangedContainersDueToDivert(previousContentObject, newContentObject) {
+			if (!previousContentObject || !newContentObject) return;
 
-				var prevObj = this.state.currentContentObject;
-
-				this.state.currentContentObject = this.state.divertedTargetObject;
-				this.state.divertedTargetObject = null;
-
-				// Check for newly visited containers
-				// Rather than using state.currentContentObject and state.divertedTargetObject,
-				// we have to make sure that both come via the state.currentContentObject property,
-				// since it can actually get transformed slightly when set (it can end up stepping
-				// into a container).
-				this.VisitChangedContainersDueToDivert(prevObj, this.state.currentContentObject);
-
-				// Diverted location has valid content?
-				if (this.state.currentContentObject != null) {
-					return;
-				}
-
-				// Otherwise, if diverted location doesn't have valid content,
-				// drop down and attempt to increment.
-				// This can happen if the diverted path is intentionally jumping
-				// to the end of a container - e.g. a Conditional that's re-joining
+			// First, find the previously open set of containers
+			var prevContainerSet = [];
+			//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
+			var prevAncestor = previousContentObject instanceof Container ? previousContentObject : previousContentObject.parent;
+			while (prevAncestor instanceof Container) {
+				prevContainerSet.push(prevAncestor);
+				//			prevAncestor = prevAncestor.parent as Container;
+				prevAncestor = prevAncestor.parent;
 			}
 
-			var successfulPointerIncrement = this.IncrementContentPointer();
+			// If the new object is a container itself, it will be visited automatically at the next actual
+			// content step. However, we need to walk up the new ancestry to see if there are more new containers
+			var currentChildOfContainer = newContentObject;
+			//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
+			var currentContainerAncestor = currentChildOfContainer.parent;
+			while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
 
-			// Ran out of content? Try to auto-exit from a function,
-			// or finish evaluating the content of a thread
-			if (!successfulPointerIncrement) {
+				// Check whether this ancestor container is being entered at the start,
+				// by checking whether the child object is the first.
+				var enteringAtStart = currentContainerAncestor.content.length > 0 && currentChildOfContainer == currentContainerAncestor.content[0];
 
-				var didPop = false;
+				// Mark a visit to this container
+				this.VisitContainer(currentContainerAncestor, enteringAtStart);
 
-				if (this.state.callStack.CanPop(PushPopType$1.Function)) {
-
-					// Pop from the call stack
-					this.state.callStack.Pop(PushPopType$1.Function);
-
-					// This pop was due to dropping off the end of a function that didn't return anything,
-					// so in this case, we make sure that the evaluator has something to chomp on if it needs it
-					if (this.state.inExpressionEvaluation) {
-						this.state.PushEvaluationStack({});
-					}
-
-					didPop = true;
-				} else if (this.state.callStack.canPopThread) {
-					this.state.callStack.PopThread();
-
-					didPop = true;
-				}
-
-				// Step past the point where we last called out
-				if (didPop && this.state.currentContentObject != null) {
-					this.NextContent();
-				}
+				currentChildOfContainer = currentContainerAncestor;
+				//			currentContainerAncestor = currentContainerAncestor.parent as Container;
+				currentContainerAncestor = currentContainerAncestor.parent;
 			}
-		}
-		IncrementContentPointer() {
-			var successfulIncrement = true;
-
-			var currEl = this.state.callStack.currentElement;
-			currEl.currentContentIndex++;
-
-			// Each time we step off the end, we fall out to the next container, all the
-			// while we're in indexed rather than named content
-			while (currEl.currentContentIndex >= currEl.currentContainer.content.length) {
-
-				successfulIncrement = false;
-
-				//			Container nextAncestor = currEl.currentContainer.parent as Container;
-				var nextAncestor = currEl.currentContainer.parent;
-				if (nextAncestor instanceof Container === false) {
-					break;
-				}
-
-				var indexInAncestor = nextAncestor.content.indexOf(currEl.currentContainer);
-				if (indexInAncestor == -1) {
-					break;
-				}
-
-				currEl.currentContainer = nextAncestor;
-				currEl.currentContentIndex = indexInAncestor + 1;
-
-				successfulIncrement = true;
-			}
-
-			if (!successfulIncrement) currEl.currentContainer = null;
-
-			return successfulIncrement;
 		}
 		ProcessChoice(choicePoint) {
 			var showChoice = true;
@@ -2717,16 +3233,20 @@
 
 			return choice;
 		}
-		VisitCountForContainer(container) {
-			if (!container.visitsShouldBeCounted) {
-				console.warn("Read count for target (" + container.name + " - on " + container.debugMetadata + ") unknown. The story may need to be compiled with countAllVisits flag (-c).");
-				return 0;
-			}
+		IsTruthy(obj) {
+			var truthy = false;
+			if (obj instanceof Value) {
+				var val = obj;
 
-			var count = 0;
-			var containerPathStr = container.path.toString();
-			count = this.state.visitCounts[containerPathStr] || count;
-			return count;
+				if (val instanceof DivertTargetValue$1) {
+					var divTarget = val;
+					this.Error("Shouldn't use a divert target (to " + divTarget.targetPath + ") as a conditional value. Did you intend a function call 'likeThis()' or a read count check 'likeThis'? (no arrows)");
+					return false;
+				}
+
+				return val.isTruthy;
+			}
+			return truthy;
 		}
 		PerformLogicAndFlowControl(contentObj) {
 			if (contentObj == null) {
@@ -2742,7 +3262,7 @@
 
 					var varContents = this.state.variablesState.GetVariableWithName(varName);
 
-					if (!(varContents instanceof DivertTargetValue)) {
+					if (!(varContents instanceof DivertTargetValue$1)) {
 
 						//					var intContent = varContents as IntValue;
 						var intContent = varContents;
@@ -2784,283 +3304,260 @@
 			}
 
 			// Branch (conditional divert)
-			//		else if (contentObj is Branch) {
-			//			var branch = (Branch)contentObj;
-			//			var conditionValue = state.PopEvaluationStack ();
-			//
-			//			if (IsTruthy (conditionValue))
-			//				state.divertedTargetObject = branch.trueDivert.targetContent;
-			//			else if (branch.falseDivert)
-			//				state.divertedTargetObject = branch.falseDivert.targetContent;
-			//
-			//			return true;
-			//		}
+			else if (contentObj instanceof Branch) {
+					var branch = contentObj;
+					var conditionValue = this.state.PopEvaluationStack();
 
-			// Start/end an expression evaluation? Or print out the result?
-			else if (contentObj instanceof ControlCommand) {
-					var evalCommand = contentObj;
-
-					switch (evalCommand.commandType) {
-
-						case ControlCommand.CommandType.EvalStart:
-							if (this.state.inExpressionEvaluation) console.log("Already in expression evaluation?");
-							this.state.inExpressionEvaluation = true;
-							break;
-
-						case ControlCommand.CommandType.EvalEnd:
-							if (!this.state.inExpressionEvaluation) console.log("Not in expression evaluation mode");
-							this.state.inExpressionEvaluation = false;
-							break;
-
-						case ControlCommand.CommandType.EvalOutput:
-
-							// If the expression turned out to be empty, there may not be anything on the stack
-							if (this.state.evaluationStack.length > 0) {
-
-								var output = this.state.PopEvaluationStack();
-
-								// Functions may evaluate to Void, in which case we skip output
-								if (!(output instanceof Void)) {
-									// TODO: Should we really always blanket convert to string?
-									// It would be okay to have numbers in the output stream the
-									// only problem is when exporting text for viewing, it skips over numbers etc.
-									var text = new StringValue$1(output.toString());
-
-									this.state.PushToOutputStream(text);
-								}
-							}
-							break;
-
-						case ControlCommand.CommandType.NoOp:
-							break;
-
-						case ControlCommand.CommandType.Duplicate:
-							this.state.PushEvaluationStack(this.state.PeekEvaluationStack());
-							break;
-
-						case ControlCommand.CommandType.PopEvaluatedValue:
-							this.state.PopEvaluationStack();
-							break;
-
-						case ControlCommand.CommandType.PopFunction:
-						case ControlCommand.CommandType.PopTunnel:
-
-							var popType = evalCommand.commandType == ControlCommand.CommandType.PopFunction ? PushPopType$1.Function : PushPopType$1.Tunnel;
-
-							if (this.state.callStack.currentElement.type != popType || !this.state.callStack.canPop) {
-
-								var names = new {}();
-								names[PushPopType$1.Function] = "function return statement (~ return)";
-								names[PushPopType$1.Tunnel] = "tunnel onwards statement (->->)";
-
-								var expected = names[this.state.callStack.currentElement.type];
-								if (!this.state.callStack.canPop) {
-									expected = "end of flow (-> END or choice)";
-								}
-
-								var errorMsg = "Found " + names[popType] + ", when expected " + expected;
-
-								this.Error(errorMsg);
-							} else {
-								this.state.callStack.Pop();
-							}
-							break;
-
-						case ControlCommand.CommandType.BeginString:
-							this.state.PushToOutputStream(evalCommand);
-
-							if (!this.state.inExpressionEvaluation) console.log("Expected to be in an expression when evaluating a string");
-							this.state.inExpressionEvaluation = false;
-							break;
-
-						case ControlCommand.CommandType.EndString:
-
-							// Since we're iterating backward through the content,
-							// build a stack so that when we build the string,
-							// it's in the right order
-							var contentStackForString = [];
-
-							var outputCountConsumed = 0;
-							for (var i = this.state.outputStream.length - 1; i >= 0; --i) {
-								var obj = this.state.outputStream[i];
-
-								outputCountConsumed++;
-
-								//					var command = obj as ControlCommand;
-								var command = obj;
-								if (command instanceof ControlCommand && command.commandType == ControlCommand.CommandType.BeginString) {
-									break;
-								}
-
-								if (obj instanceof StringValue$1) contentStackForString.push(obj);
-							}
-
-							// Consume the content that was produced for this string
-							this.state.outputStream.splice(this.state.outputStream.length - outputCountConsumed, outputCountConsumed);
-
-							// Build string out of the content we collected
-							var sb = '';
-							contentStackForString.forEach(c => {
-								sb += c.toString();
-							});
-
-							// Return to expression evaluation (from content mode)
-							this.state.inExpressionEvaluation = true;
-							this.state.PushEvaluationStack(new StringValue$1(sb));
-							break;
-
-						case ControlCommand.CommandType.ChoiceCount:
-							var choiceCount = this.currentChoices.length;
-							this.state.PushEvaluationStack(new IntValue(choiceCount));
-							break;
-
-						case ControlCommand.CommandType.TurnsSince:
-							var target = this.state.PopEvaluationStack();
-							if (!(target instanceof DivertTargetValue)) {
-								var extraNote = "";
-								if (target instanceof IntValue) extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-								this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
-								break;
-							}
-
-							//				var divertTarget = target as DivertTargetValue;
-							var divertTarget = target;
-							//				var container = ContentAtPath (divertTarget.targetPath) as Container;
-							var container = this.ContentAtPath(divertTarget.targetPath);
-							var turnCount = this.TurnsSinceForContainer(container);
-							this.state.PushEvaluationStack(new IntValue(turnCount));
-							break;
-
-						case ControlCommand.CommandType.VisitIndex:
-							var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
-							this.state.PushEvaluationStack(new IntValue(count));
-							break;
-
-						case ControlCommand.CommandType.SequenceShuffleIndex:
-							var shuffleIndex = this.NextSequenceShuffleIndex();
-							this.state.PushEvaluationStack(new IntValue(shuffleIndex));
-							break;
-
-						case ControlCommand.CommandType.StartThread:
-							// Handled in main step function
-							break;
-
-						case ControlCommand.CommandType.Done:
-
-							// We may exist in the context of the initial
-							// act of creating the thread, or in the context of
-							// evaluating the content.
-							if (this.state.callStack.canPopThread) {
-								this.state.callStack.PopThread();
-							}
-
-							// In normal flow - allow safe exit without warning
-							else {
-									this.state.didSafeExit = true;
-								}
-
-							break;
-
-						// Force flow to end completely
-						case ControlCommand.CommandType.End:
-							this.state.ForceEndFlow();
-							break;
-
-						default:
-							this.Error("unhandled ControlCommand: " + evalCommand);
-							break;
-					}
+					if (this.IsTruthy(conditionValue)) this.state.divertedTargetObject = branch.trueDivert.targetContent;else if (branch.falseDivert) this.state.divertedTargetObject = branch.falseDivert.targetContent;
 
 					return true;
 				}
 
-			// Variable assignment
-			//		else if( contentObj is VariableAssignment ) {
-			//			var varAss = (VariableAssignment) contentObj;
-			//			var assignedVal = state.PopEvaluationStack();
-			//
-			//			// When in temporary evaluation, don't create new variables purely within
-			//			// the temporary context, but attempt to create them globally
-			//			//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
-			//
-			//			state.variablesState.Assign (varAss, assignedVal);
-			//
-			//			return true;
-			//		}
+				// Start/end an expression evaluation? Or print out the result?
+				else if (contentObj instanceof ControlCommand) {
+						var evalCommand = contentObj;
 
-			// Variable reference
-			//		else if( contentObj is VariableReference ) {
-			//			var varRef = (VariableReference)contentObj;
-			//			Runtime.Object foundValue = null;
-			//
-			//
-			//			// Explicit read count value
-			//			if (varRef.pathForCount != null) {
-			//
-			//				var container = varRef.containerForCount;
-			//				int count = VisitCountForContainer (container);
-			//				foundValue = new IntValue (count);
-			//			}
-			//
-			//			// Normal variable reference
-			//			else {
-			//
-			//				foundValue = state.variablesState.GetVariableWithName (varRef.name);
-			//
-			//				if (foundValue == null) {
-			//					Error("Uninitialised variable: " + varRef.name);
-			//					foundValue = new IntValue (0);
-			//				}
-			//			}
-			//
-			//			state.evaluationStack.Add( foundValue );
-			//
-			//			return true;
-			//		}
+						switch (evalCommand.commandType) {
 
-			// Native function call
-			//		else if( contentObj is NativeFunctionCall ) {
-			//			var func = (NativeFunctionCall) contentObj;
-			//			var funcParams = state.PopEvaluationStack(func.numberOfParameters);
-			//			var result = func.Call(funcParams);
-			//			state.evaluationStack.Add(result);
-			//			return true;
-			//		}
+							case ControlCommand.CommandType.EvalStart:
+								if (this.state.inExpressionEvaluation) console.warn("Already in expression evaluation?");
+								this.state.inExpressionEvaluation = true;
+								break;
+
+							case ControlCommand.CommandType.EvalEnd:
+								if (!this.state.inExpressionEvaluation) console.warn("Not in expression evaluation mode");
+								this.state.inExpressionEvaluation = false;
+								break;
+
+							case ControlCommand.CommandType.EvalOutput:
+
+								// If the expression turned out to be empty, there may not be anything on the stack
+								if (this.state.evaluationStack.length > 0) {
+
+									var output = this.state.PopEvaluationStack();
+
+									// Functions may evaluate to Void, in which case we skip output
+									if (!(output instanceof Void)) {
+										// TODO: Should we really always blanket convert to string?
+										// It would be okay to have numbers in the output stream the
+										// only problem is when exporting text for viewing, it skips over numbers etc.
+										var text = new StringValue$1(output.toString());
+
+										this.state.PushToOutputStream(text);
+									}
+								}
+								break;
+
+							case ControlCommand.CommandType.NoOp:
+								break;
+
+							case ControlCommand.CommandType.Duplicate:
+								this.state.PushEvaluationStack(this.state.PeekEvaluationStack());
+								break;
+
+							case ControlCommand.CommandType.PopEvaluatedValue:
+								this.state.PopEvaluationStack();
+								break;
+
+							case ControlCommand.CommandType.PopFunction:
+							case ControlCommand.CommandType.PopTunnel:
+
+								var popType = evalCommand.commandType == ControlCommand.CommandType.PopFunction ? PushPopType$1.Function : PushPopType$1.Tunnel;
+
+								if (this.state.callStack.currentElement.type != popType || !this.state.callStack.canPop) {
+
+									var names = new {}();
+									names[PushPopType$1.Function] = "function return statement (~ return)";
+									names[PushPopType$1.Tunnel] = "tunnel onwards statement (->->)";
+
+									var expected = names[this.state.callStack.currentElement.type];
+									if (!this.state.callStack.canPop) {
+										expected = "end of flow (-> END or choice)";
+									}
+
+									var errorMsg = "Found " + names[popType] + ", when expected " + expected;
+
+									this.Error(errorMsg);
+								} else {
+									this.state.callStack.Pop();
+								}
+								break;
+
+							case ControlCommand.CommandType.BeginString:
+								this.state.PushToOutputStream(evalCommand);
+
+								if (!this.state.inExpressionEvaluation) console.warn("Expected to be in an expression when evaluating a string");
+								this.state.inExpressionEvaluation = false;
+								break;
+
+							case ControlCommand.CommandType.EndString:
+
+								// Since we're iterating backward through the content,
+								// build a stack so that when we build the string,
+								// it's in the right order
+								var contentStackForString = [];
+
+								var outputCountConsumed = 0;
+								for (var i = this.state.outputStream.length - 1; i >= 0; --i) {
+									var obj = this.state.outputStream[i];
+
+									outputCountConsumed++;
+
+									//					var command = obj as ControlCommand;
+									var command = obj;
+									if (command instanceof ControlCommand && command.commandType == ControlCommand.CommandType.BeginString) {
+										break;
+									}
+
+									if (obj instanceof StringValue$1) contentStackForString.push(obj);
+								}
+
+								// Consume the content that was produced for this string
+								this.state.outputStream.splice(this.state.outputStream.length - outputCountConsumed, outputCountConsumed);
+
+								// Build string out of the content we collected
+								var sb = '';
+								contentStackForString.forEach(c => {
+									sb += c.toString();
+								});
+
+								// Return to expression evaluation (from content mode)
+								this.state.inExpressionEvaluation = true;
+								this.state.PushEvaluationStack(new StringValue$1(sb));
+								break;
+
+							case ControlCommand.CommandType.ChoiceCount:
+								var choiceCount = this.currentChoices.length;
+								this.state.PushEvaluationStack(new IntValue(choiceCount));
+								break;
+
+							case ControlCommand.CommandType.TurnsSince:
+								var target = this.state.PopEvaluationStack();
+								if (!(target instanceof DivertTargetValue$1)) {
+									var extraNote = "";
+									if (target instanceof IntValue) extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
+									this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
+									break;
+								}
+
+								//				var divertTarget = target as DivertTargetValue;
+								var divertTarget = target;
+								//				var container = ContentAtPath (divertTarget.targetPath) as Container;
+								var container = this.ContentAtPath(divertTarget.targetPath);
+								var turnCount = this.TurnsSinceForContainer(container);
+								this.state.PushEvaluationStack(new IntValue(turnCount));
+								break;
+
+							case ControlCommand.CommandType.VisitIndex:
+								var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
+								this.state.PushEvaluationStack(new IntValue(count));
+								break;
+
+							case ControlCommand.CommandType.SequenceShuffleIndex:
+								var shuffleIndex = this.NextSequenceShuffleIndex();
+								this.state.PushEvaluationStack(new IntValue(shuffleIndex));
+								break;
+
+							case ControlCommand.CommandType.StartThread:
+								// Handled in main step function
+								break;
+
+							case ControlCommand.CommandType.Done:
+
+								// We may exist in the context of the initial
+								// act of creating the thread, or in the context of
+								// evaluating the content.
+								if (this.state.callStack.canPopThread) {
+									this.state.callStack.PopThread();
+								}
+
+								// In normal flow - allow safe exit without warning
+								else {
+										this.state.didSafeExit = true;
+									}
+
+								break;
+
+							// Force flow to end completely
+							case ControlCommand.CommandType.End:
+								this.state.ForceEndFlow();
+								break;
+
+							default:
+								this.Error("unhandled ControlCommand: " + evalCommand);
+								break;
+						}
+
+						return true;
+					}
+
+					// Variable assignment
+					else if (contentObj instanceof VariableAssignment) {
+							var varAss = contentObj;
+							var assignedVal = this.state.PopEvaluationStack();
+
+							// When in temporary evaluation, don't create new variables purely within
+							// the temporary context, but attempt to create them globally
+							//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
+
+							this.state.variablesState.Assign(varAss, assignedVal);
+
+							return true;
+						}
+
+						// Variable reference
+						else if (contentObj instanceof VariableReference) {
+								var varRef = contentObj;
+								var foundValue = null;
+
+								// Explicit read count value
+								if (varRef.pathForCount != null) {
+
+									var container = varRef.containerForCount;
+									var count = this.VisitCountForContainer(container);
+									foundValue = new IntValue(count);
+								}
+
+								// Normal variable reference
+								else {
+
+										foundValue = this.state.variablesState.GetVariableWithName(varRef.name);
+
+										if (foundValue == null) {
+											this.Error("Uninitialised variable: " + varRef.name);
+											foundValue = new IntValue(0);
+										}
+									}
+
+								this.state.evaluationStack.push(foundValue);
+
+								return true;
+							}
+
+							// Native function call
+							else if (contentObj instanceof NativeFunctionCall) {
+									var func = contentObj;
+									var funcParams = this.state.PopEvaluationStack(func.numberOfParameters);
+									var result = func.Call(funcParams);
+									this.state.evaluationStack.push(result);
+									return true;
+								}
 
 			// No control content, must be ordinary content
 			return false;
 		}
-		VisitChangedContainersDueToDivert(previousContentObject, newContentObject) {
-			if (!previousContentObject || !newContentObject) return;
+		ChoosePathString(path) {
+			this.ChoosePath(new Path$1(path));
+		}
+		ChoosePath(path) {
+			var prevContentObj = this.state.currentContentObject;
 
-			// First, find the previously open set of containers
-			var prevContainerSet = [];
-			//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
-			var prevAncestor = previousContentObject instanceof Container ? previousContentObject : previousContentObject.parent;
-			while (prevAncestor instanceof Container) {
-				prevContainerSet.push(prevAncestor);
-				//			prevAncestor = prevAncestor.parent as Container;
-				prevAncestor = prevAncestor.parent;
-			}
+			this.state.SetChosenPath(path);
 
-			// If the new object is a container itself, it will be visited automatically at the next actual
-			// content step. However, we need to walk up the new ancestry to see if there are more new containers
-			var currentChildOfContainer = newContentObject;
-			//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
-			var currentContainerAncestor = currentChildOfContainer.parent;
-			while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
+			var newContentObj = this.state.currentContentObject;
 
-				// Check whether this ancestor container is being entered at the start,
-				// by checking whether the child object is the first.
-				var enteringAtStart = currentContainerAncestor.content.length > 0 && currentChildOfContainer == currentContainerAncestor.content[0];
-
-				// Mark a visit to this container
-				this.VisitContainer(currentContainerAncestor, enteringAtStart);
-
-				currentChildOfContainer = currentContainerAncestor;
-				//			currentContainerAncestor = currentContainerAncestor.parent as Container;
-				currentContainerAncestor = currentContainerAncestor.parent;
-			}
+			// Take a note of newly visited containers for read counts etc
+			this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
 		}
 		ChooseChoiceIndex(choiceIdx) {
 			choiceIdx = choiceIdx;
@@ -3077,18 +3574,130 @@
 
 			this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 		}
-		ChoosePath(path) {
-			var prevContentObj = this.state.currentContentObject;
+		/*
+	 external funcs
+	 */
+		/*
+	 observers
+	 */
 
-			this.state.SetChosenPath(path);
+		NextContent() {
+			// Divert step?
+			if (this.state.divertedTargetObject != null) {
 
-			var newContentObj = this.state.currentContentObject;
+				var prevObj = this.state.currentContentObject;
 
-			// Take a note of newly visited containers for read counts etc
-			this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
+				this.state.currentContentObject = this.state.divertedTargetObject;
+				this.state.divertedTargetObject = null;
+
+				// Check for newly visited containers
+				// Rather than using state.currentContentObject and state.divertedTargetObject,
+				// we have to make sure that both come via the state.currentContentObject property,
+				// since it can actually get transformed slightly when set (it can end up stepping
+				// into a container).
+				this.VisitChangedContainersDueToDivert(prevObj, this.state.currentContentObject);
+
+				// Diverted location has valid content?
+				if (this.state.currentContentObject != null) {
+					return;
+				}
+
+				// Otherwise, if diverted location doesn't have valid content,
+				// drop down and attempt to increment.
+				// This can happen if the diverted path is intentionally jumping
+				// to the end of a container - e.g. a Conditional that's re-joining
+			}
+
+			var successfulPointerIncrement = this.IncrementContentPointer();
+
+			// Ran out of content? Try to auto-exit from a function,
+			// or finish evaluating the content of a thread
+			if (!successfulPointerIncrement) {
+
+				var didPop = false;
+
+				if (this.state.callStack.CanPop(PushPopType$1.Function)) {
+
+					// Pop from the call stack
+					this.state.callStack.Pop(PushPopType$1.Function);
+
+					// This pop was due to dropping off the end of a function that didn't return anything,
+					// so in this case, we make sure that the evaluator has something to chomp on if it needs it
+					if (this.state.inExpressionEvaluation) {
+						this.state.PushEvaluationStack(new Void());
+					}
+
+					didPop = true;
+				} else if (this.state.callStack.canPopThread) {
+					this.state.callStack.PopThread();
+
+					didPop = true;
+				}
+
+				// Step past the point where we last called out
+				if (didPop && this.state.currentContentObject != null) {
+					this.NextContent();
+				}
+			}
 		}
-		ContentAtPath(path) {
-			return this.mainContentContainer.ContentAtPath(path);
+		IncrementContentPointer() {
+			var successfulIncrement = true;
+
+			var currEl = this.state.callStack.currentElement;
+			currEl.currentContentIndex++;
+
+			// Each time we step off the end, we fall out to the next container, all the
+			// while we're in indexed rather than named content
+			while (currEl.currentContentIndex >= currEl.currentContainer.content.length) {
+
+				successfulIncrement = false;
+
+				//			Container nextAncestor = currEl.currentContainer.parent as Container;
+				var nextAncestor = currEl.currentContainer.parent;
+				if (nextAncestor instanceof Container === false) {
+					break;
+				}
+
+				var indexInAncestor = nextAncestor.content.indexOf(currEl.currentContainer);
+				if (indexInAncestor == -1) {
+					break;
+				}
+
+				currEl.currentContainer = nextAncestor;
+				currEl.currentContentIndex = indexInAncestor + 1;
+
+				successfulIncrement = true;
+			}
+
+			if (!successfulIncrement) currEl.currentContainer = null;
+
+			return successfulIncrement;
+		}
+		TryFollowDefaultInvisibleChoice() {
+			var allChoices = this._state.currentChoices;
+
+			// Is a default invisible choice the ONLY choice?
+			var invisibleChoices = allChoices.filter(c => {
+				return c.choicePoint.isInvisibleDefault;
+			});
+			if (invisibleChoices.length == 0 || allChoices.length > invisibleChoices.length) return false;
+
+			var choice = invisibleChoices[0];
+
+			this.ChoosePath(choice.choicePoint.choiceTarget.path);
+
+			return true;
+		}
+		VisitCountForContainer(container) {
+			if (!container.visitsShouldBeCounted) {
+				console.warn("Read count for target (" + container.name + " - on " + container.debugMetadata + ") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+				return 0;
+			}
+
+			var count = 0;
+			var containerPathStr = container.path.toString();
+			count = this.state.visitCounts[containerPathStr] || count;
+			return count;
 		}
 		IncrementVisitCountForContainer(container) {
 			var count = 0;
@@ -3101,6 +3710,24 @@
 			var containerPathStr = container.path.toString();
 			this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
 		}
+		TurnsSinceForContainer(container) {
+			if (!container.turnIndexShouldBeCounted) {
+				this.Error("TURNS_SINCE() for target (" + container.name + " - on " + container.debugMetadata + ") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+			}
+
+			var index = 0;
+			var containerPathStr = container.path.toString();
+			index = this.state.turnIndices[containerPathStr];
+			if (this.state.turnIndices[containerPathStr]) {
+				return state.currentTurnIndex - index;
+			} else {
+				return -1;
+			}
+		}
+		/*
+	 NextSequenceShuffleIndex
+	 */
+
 		Error(message, useEndLineNumber) {
 			var e = new Error(message);
 			//		e.useEndLineNumber = useEndLineNumber;
@@ -3118,12 +3745,6 @@
 			}
 
 			this.state.AddError(message);
-		}
-		StateSnapshot() {
-			return this.state.Copy();
-		}
-		RestoreStateSnapshot(state) {
-			this._state = state;
 		}
 	}
 
