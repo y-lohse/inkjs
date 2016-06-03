@@ -49,7 +49,9 @@ fetch('inkfile.json')
 
 After that, just use the API as described in the reference documentation. The function are nammed exactly the same.
 
-**Please note** that the `Story` constructor excpects a `string`, and not an actual JSON object. At least for now.
+**Please note** that the `Story` constructor expects a `string`, and not an actual JSON object. At least for now.
+
+**Please note something else.** If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
 
 ### So can I just run any ink file?
 
