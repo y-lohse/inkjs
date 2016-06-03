@@ -1,5 +1,5 @@
 import {Container} from './Container';
-import {Value, StringValue} from './Value';
+import {Value, StringValue, VariablePointerValue} from './Value';
 import {Glue, GlueType} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
@@ -105,12 +105,12 @@ export class JsonSerialisation{
 			if( NativeFunctionCall.CallExistsWithName(str) )
 				return NativeFunctionCall.CallWithName(str);
 
-//			// Pop
-//			if (str == "->->")
-//				return Runtime.ControlCommand.PopTunnel ();
-//			else if (str == "~ret")
-//				return Runtime.ControlCommand.PopFunction ();
-//
+			// Pop
+			if (str == "->->")
+				return ControlCommand.PopTunnel();
+			else if (str == "~ret")
+				return ControlCommand.PopFunction();
+
 			// Void
 			if (str == "void")
 				return new Void ();
@@ -121,16 +121,21 @@ export class JsonSerialisation{
 			var propValue;
 
 			// Divert target value to path
-//			if (obj.TryGetValue ("^->", out propValue))
-//				return new DivertTargetValue (new Path (propValue.ToString()));
-
+			if (obj["^->"]){
+				propValue = obj["^->"];
+				return new DivertTargetValue(new Path(propValue.toString()));
+			}
+				
 			// VariablePointerValue
-//			if (obj.TryGetValue ("^var", out propValue)) {
-//				var varPtr = new VariablePointerValue (propValue.ToString ());
-//				if (obj.TryGetValue ("ci", out propValue))
-//					varPtr.contextIndex = propValue.ToObject<int> ();
-//				return varPtr;
-//			}
+			if (obj["^var"]) {
+				propValue = obj["^var"];
+				var varPtr = new VariablePointerValue(propValue.toString());
+				if (obj["ci"]){
+					propValue = obj["ci"];
+					varPtr.contextIndex = parseInt(propValue);
+				}
+				return varPtr;
+			}
 
 			// Divert
 			var isDivert = false;

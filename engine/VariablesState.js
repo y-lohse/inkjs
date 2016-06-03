@@ -127,7 +127,7 @@ export class VariablesState{
 					contextIndex = existingPointer.contextIndex;
 					setGlobal = (contextIndex == 0);
 				}
-			} while(existingPointer);
+			} while(existingPointer instanceof VariablePointerValue);
 		}
 
 
@@ -175,5 +175,11 @@ export class VariablesState{
 		else {
 			return new VariablePointerValue(varPointer.variableName, contextIndex);
 		}
+	}
+	GetContextIndexOfVariableNamed(varName){
+		if (this._globalVariables[varName])
+			return 0;
+
+		return this._callStack.currentElementIndex;
 	}
 }
