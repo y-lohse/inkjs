@@ -62,16 +62,15 @@ Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state 
 - [x] Knots
 - [x] Diverts
 - [x] Glue
-- [ ] Branching
-- [ ] Stiches (probably, haven't tried)
-- [ ] Gather (probably, haven't tried)
-- [ ] Fallback choices
+- [x] Branching
+- [x] Stiches
+- [x] Gather
 - [ ] Fallback, Sticky and Conditional choices
-- [ ] Variables
+- [x] Variables
 - [ ] Conditions
 - [ ] Logic
 - [ ] Math
-- [ ] Functions
+- [x] Functions
 - [ ] Game queries
 
 Integration:
