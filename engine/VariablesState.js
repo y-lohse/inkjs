@@ -42,7 +42,7 @@ export class VariablesState{
 	}
 	
 	CopyFrom(varState){
-		this._globalVariables = {};
+		this._globalVariables = varState._globalVariables;
 		this.variableChangedEvent = varState.variableChangedEvent;
 
 		if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
