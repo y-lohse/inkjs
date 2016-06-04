@@ -213,8 +213,7 @@ export class DivertTargetValue extends Value{
 	}
 }
 
-//@TODO: we should probably not extend StringValue here, because all teh calls to instanceof StringValue will be truthy for VariablePointerValues, which shouldn't be the case
-export class VariablePointerValue extends StringValue{
+export class VariablePointerValue extends Value{
 	constructor(variableName, contextIndex){
 		super(variableName);
 		
