@@ -1,4 +1,4 @@
-//complete but misses some Glue related code
+//complete
 import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
 import {StringValue} from './Value';
@@ -569,8 +569,8 @@ export class StoryState{
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
 
-		copy._visitCounts = {};
-		copy._turnIndices = {};
+		copy._visitCounts = this._visitCounts;
+		copy._turnIndices = this._turnIndices;
 		copy._currentTurnIndex = this.currentTurnIndex;
 		copy._storySeed = this.storySeed;
 

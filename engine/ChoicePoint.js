@@ -12,7 +12,7 @@ export class ChoicePoint extends InkObject{
 		this.onceOnly;
 		this.isInvisibleDefault;
 		
-		this.onceOnly = (onceOnly === false) ? false : true;
+		this.onceOnly = !!onceOnly;
 	}
 	get choiceTarget(){
 		//return this.ResolvePath (pathOnChoice) as Container;
