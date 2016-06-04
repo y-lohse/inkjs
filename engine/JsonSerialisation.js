@@ -1,5 +1,5 @@
 import {Container} from './Container';
-import {Value, StringValue, VariablePointerValue} from './Value';
+import {Value, StringValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Glue, GlueType} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
@@ -10,6 +10,7 @@ import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {Branch} from './Branch';
 import {Void} from './Void';
+import {Path} from './Path';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{

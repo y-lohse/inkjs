@@ -73,7 +73,7 @@ Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state 
 - [x] Logic
 - [x] Math
 - [x] Functions
-- [ ] Game queries
+- [x] Game queries
 
 Integration:
 

@@ -967,7 +967,7 @@ export class Story extends InkObject{
 		var containerPathStr = container.path.toString();
 		index = this.state.turnIndices[containerPathStr];
 		if (this.state.turnIndices[containerPathStr]) {
-			return state.currentTurnIndex - index;
+			return this.state.currentTurnIndex - index;
 		} else {
 			return -1;
 		}
