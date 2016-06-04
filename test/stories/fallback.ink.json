@@ -1,0 +1,1 @@
+{"inkVersion":11,"root":[["^Hey?","\n",["ev","str",{"f()":".^.s"},"/str",0,"/ev",{"*":".^.c","flg":19},{"s":["^Option A",null],"c":[{"f()":"0.2.s"},"\n",{"#f":5}]}],["ev","str",{"f()":".^.s"},"/str",1,"/ev",{"*":".^.c","flg":19},{"s":["^Option B",null],"c":[{"f()":"0.3.s"},"\n","end",{"#f":5}]}],null],"done",null]}

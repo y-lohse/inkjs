@@ -423,7 +423,7 @@ export class Story extends InkObject{
 		// Don't create choice if choice point doesn't pass conditional
 		if (choicePoint.hasCondition) {
 			var conditionValue = this.state.PopEvaluationStack();
-			if (!conditionValue) {
+			if (!this.IsTruthy(conditionValue)) {
 				showChoice = false;
 			}
 		}

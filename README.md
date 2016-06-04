@@ -67,11 +67,11 @@ Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state 
 - [x] Branching
 - [x] Stiches
 - [x] Gather
-- [ ] Fallback, Sticky and Conditional choices
+- [x] Fallback, Sticky and Conditional choices
 - [x] Variables
-- [ ] Conditions
-- [ ] Logic
-- [ ] Math
+- [x] Conditions
+- [x] Logic
+- [x] Math
 - [x] Functions
 - [ ] Game queries
 
