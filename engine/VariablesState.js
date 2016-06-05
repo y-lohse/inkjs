@@ -3,6 +3,7 @@
 // - varchanged events
 // - see if the internal getenumarators are needed
 import {VariablePointerValue} from './Value';
+import {JsonSerialisation as Json} from './JsonSerialisation';
 
 export class VariablesState{
 	constructor(callStack){

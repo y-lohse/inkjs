@@ -78,7 +78,7 @@ Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state 
 Integration:
 
 - [ ] Saving and loading
-- [ ] Jumping to a scene
+- [x] Jumping to a scene
 - [ ] Setting/getting ink variables
 - [ ] Read/Visit counts
 - [ ] Variable observers

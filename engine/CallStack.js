@@ -68,8 +68,8 @@ class Thread{
 				var contentIndex = 0;
 
 				var currentContainerPathStr = null;
-				var currentContainerPathStrToken;
-				if (currentContainerPathStrToken = jElementObj["cPath"]) {
+				var currentContainerPathStrToken = jElementObj["cPath"];
+				if (typeof currentContainerPathStrToken !== 'undefined') {
 					currentContainerPathStr = currentContainerPathStrToken.toString();
 //					currentContainer = storyContext.ContentAtPath (new Path(currentContainerPathStr)) as Container;
 					currentContainer = storyContext.ContentAtPath(new Path(currentContainerPathStr));
@@ -104,7 +104,7 @@ class Thread{
 		});
 
 		threadJObj["callstack"] = jThreadCallstack;
-		threadJObj["threadIndex"] = threadIndex;
+		threadJObj["threadIndex"] = this.threadIndex;
 
 		return threadJObj;
 	}

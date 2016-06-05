@@ -199,15 +199,15 @@ export class StoryState{
 		if( this.divertedTargetObject != null )
 			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
 
-		obj["visitCounts"] = Json.IntDictionaryToJObject(visitCounts);
-		obj["turnIndices"] = Json.IntDictionaryToJObject(turnIndices);
+		obj["visitCounts"] = Json.IntDictionaryToJObject(this.visitCounts);
+		obj["turnIndices"] = Json.IntDictionaryToJObject(this.turnIndices);
 		obj["turnIdx"] = this.currentTurnIndex;
 		obj["storySeed"] = this.storySeed;
 
-		obj["inkSaveVersion"] = kInkSaveStateVersion;
+		obj["inkSaveVersion"] = StoryState.kInkSaveStateVersion;
 
 		// Not using this right now, but could do in future.
-		obj["inkFormatVersion"] = Story.inkVersionCurrent;
+		obj["inkFormatVersion"] = this.story.inkVersionCurrent;
 
 		return obj;
 	}
@@ -225,12 +225,12 @@ export class StoryState{
 		this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);
 		this.variablesState.jsonToken = jObject["variablesState"];
 
-		this.evaluationStack = Json.JArrayToRuntimeObjList(jObject["evalStack"]);
+		this._evaluationStack = Json.JArrayToRuntimeObjList(jObject["evalStack"]);
 
 		this._outputStream = Json.JArrayToRuntimeObjList(jObject["outputStream"]);
 
 //		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
-		this.currentChoices = Json.JArrayToRuntimeObjList(jObject["currentChoices"]);
+		this._currentChoices = Json.JArrayToRuntimeObjList(jObject["currentChoices"]);
 
 		var propValue;
 		if( propValue = jObject["currRightGlue"] ) {
@@ -247,10 +247,10 @@ export class StoryState{
 			this.divertedTargetObject = this.story.ContentAtPath(divertPath);
 		}
 
-		this.visitCounts = Json.JObjectToIntDictionary(jObject["visitCounts"]);
-		this.turnIndices = Json.JObjectToIntDictionary(jObject["turnIndices"]);
-		this.currentTurnIndex = parseInt(jObject["turnIdx"]);
-		this.storySeed = parseInt(jObject["storySeed"]);
+		this._visitCounts = Json.JObjectToIntDictionary(jObject["visitCounts"]);
+		this._turnIndices = Json.JObjectToIntDictionary(jObject["turnIndices"]);
+		this._currentTurnIndex = parseInt(jObject["turnIdx"]);
+		this._storySeed = parseInt(jObject["storySeed"]);
 
 //		var jChoiceThreads = jObject["choiceThreads"] as JObject;
 		var jChoiceThreads = jObject["choiceThreads"];
@@ -580,11 +580,10 @@ export class StoryState{
 	}
 	
 	toJson(indented){
-		throw "figur eout formating option";
-		return this.jsonToken.toString(indented ? Formatting.Indented : Formatting.None);
+		return JSON.stringify(this.jsonToken, null, (indented) ? 2 : 0);
 	}
 	LoadJson(jsonString){
-		this.jsonToken = JSON.parse(json);
+		this.jsonToken = JSON.parse(jsonString);
 	}
 }
 

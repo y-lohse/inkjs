@@ -44,13 +44,6 @@ export class JsonSerialisation{
 
 		return dict;
 	}
-	static JObjectToIntDictionary(jObject){
-		var dict = {};
-		for (var key in jObject){
-			dict[key] = parseInt(jObject[key]);
-		}
-		return dict;
-	}
 	static DictionaryRuntimeObjsToJObject(dictionary){
 		var jsonObj = {};
 
@@ -63,8 +56,15 @@ export class JsonSerialisation{
 
 		return jsonObj;
 	}
+	static JObjectToIntDictionary(jObject){
+		var dict = {};
+		for (var key in jObject){
+			dict[key] = parseInt(jObject[key]);
+		}
+		return dict;
+	}
 	static IntDictionaryToJObject(dict){
-		var jObj = new {};
+		var jObj = {};
 		for (var key in dict){
 			jObj[key] = dict[key];
 		}
@@ -250,6 +250,214 @@ export class JsonSerialisation{
 		
 		throw "Failed to convert token to runtime object: " + JSON.stringify(token);
 	}
+	static RuntimeObjectToJToken(obj){
+//		var container = obj as Container;
+		var container = obj;
+		if (container instanceof Container) {
+			return this.ContainerToJArray(container);
+		}
+
+//		var divert = obj as Divert;
+		var divert = obj;
+		if (divert instanceof Divert) {
+			var divTypeKey = "->";
+			if (divert.isExternal)
+				divTypeKey = "x()";
+			else if (divert.pushesToStack) {
+				if (divert.stackPushType == PushPopType.Function)
+					divTypeKey = "f()";
+				else if (divert.stackPushType == PushPopType.Tunnel)
+					divTypeKey = "->t->";
+			}
+
+			var targetStr;
+			if (divert.hasVariableTarget)
+				targetStr = divert.variableDivertName;
+			else
+				targetStr = divert.targetPathString;
+
+			var jObj = {};
+			jObj[divTypeKey] = targetStr;
+
+			if (divert.hasVariableTarget)
+				jObj["var"] = true;
+
+			if (divert.externalArgs > 0)
+				jObj["exArgs"] = divert.externalArgs;
+
+			return jObj;
+		}
+
+//		var choicePoint = obj as ChoicePoint;
+		var choicePoint = obj;
+		if (choicePoint instanceof ChoicePoint) {
+			var jObj = {};
+			jObj["*"] = choicePoint.pathStringOnChoice;
+			jObj["flg"] = choicePoint.flags;
+			return jObj;
+		}
+
+//		var intVal = obj as IntValue;
+		var intVal = obj;
+		if (intVal instanceof IntValue)
+			return intVal.value;
+
+//		var floatVal = obj as FloatValue;
+		var floatVal = obj;
+		if (floatVal instanceof FloatValue)
+			return floatVal.value;
+
+//		var strVal = obj as StringValue;
+		var strVal = obj;
+		if (strVal instanceof StringValue) {
+			if (strVal.isNewline)
+				return "\n";
+			else
+				return "^" + strVal.value;
+		}
+
+//		var divTargetVal = obj as DivertTargetValue;
+		var divTargetVal = obj;
+		if (divTargetVal instanceof DivertTargetValue)
+			return {
+				"^->": divTargetVal.value.componentsString
+			};
+
+//		var varPtrVal = obj as VariablePointerValue;
+		var varPtrVal = obj;
+		if (varPtrVal instanceof VariablePointerValue)
+			return {
+				"^var": varPtrVal.value,
+				"ci": varPtrVal.contextIndex
+			};
+
+//		var glue = obj as Runtime.Glue;
+		var glue = obj;
+		if (glue instanceof Glue) {
+			if (glue.isBi)
+				return "<>";
+			else if (glue.isLeft)
+				return "G<";
+			else
+				return "G>";
+		}
+
+//		var controlCmd = obj as ControlCommand;
+		var controlCmd = obj;
+		if (controlCmd instanceof ControlCommand) {
+			return _controlCommandNames[parseInt(controlCmd.commandType)];
+		}
+
+//		var nativeFunc = obj as Runtime.NativeFunctionCall;
+		var nativeFunc = obj;
+		if (nativeFunc instanceof NativeFunctionCall)
+			return nativeFunc.name;
+
+		// Variable reference
+//		var varRef = obj as VariableReference;
+		var varRef = obj;
+		if (varRef instanceof VariableReference) {
+			var jObj = {};
+			var readCountPath = varRef.pathStringForCount;
+			if (readCountPath != null) {
+				jObj["CNT?"] = readCountPath;
+			} else {
+				jObj["VAR?"] = varRef.name;
+			}
+
+			return jObj;
+		}
+
+		// Variable assignment
+//		var varAss = obj as VariableAssignment;
+		var varAss = obj;
+		if (varAss instanceof VariableAssignment) {
+			var key = varAss.isGlobal ? "VAR=" : "temp=";
+			var jObj = {};
+			jObj[key] = varAss.variableName;
+
+			// Reassignment?
+			if (!varAss.isNewDeclaration)
+				jObj["re"] = true;
+
+			return jObj;
+		}
+
+//		var branch = obj as Branch;
+		var branch = obj;
+		if (branch instanceof Branch) {
+			var jObj = {};
+			if (branch.trueDivert)
+				jObj["t?"] = this.RuntimeObjectToJToken(branch.trueDivert);
+			if (branch.falseDivert)
+				jObj["f?"] = this.RuntimeObjectToJToken(branch.falseDivert);
+			return jObj;
+		}
+
+//		var voidObj = obj as Void;
+		var voidObj = obj;
+		if (voidObj instanceof Void)
+			return "void";
+
+		// Used when serialising save state only
+//		var choice = obj as Choice;
+		var choice = obj;
+		if (choice instanceof Choice)
+			return this.ChoiceToJObject(choice);
+
+		throw "Failed to convert runtime object to Json token: " + obj;
+	}
+	static ContainerToJArray(container){
+		var jArray = this.ListToJArray(container.content);
+
+		// Container is always an array [...]
+		// But the final element is always either:
+		//  - a dictionary containing the named content, as well as possibly
+		//    the key "#" with the count flags
+		//  - null, if neither of the above
+		var namedOnlyContent = container.namedOnlyContent;
+		var countFlags = container.countFlags;
+		if (namedOnlyContent != null && namedOnlyContent.length > 0 || countFlags > 0 || container.name != null) {
+
+			var terminatingObj;
+			if (namedOnlyContent != null) {
+				terminatingObj = this.DictionaryRuntimeObjsToJObject(namedOnlyContent);
+
+				// Strip redundant names from containers if necessary
+				terminatingObj.forEach(namedContentObj => {
+//					var subContainerJArray = namedContentObj.Value as JArray;
+					var subContainerJArray = namedContentObj.Value;
+					if (subContainerJArray != null) {
+//						var attrJObj = subContainerJArray [subContainerJArray.Count - 1] as JObject;
+						var attrJObj = subContainerJArray[subContainerJArray.length - 1];
+						if (attrJObj != null) {
+							throw "Cleaning attrJObj not implemented";
+//							attrJObj.Remove ("#n");
+//							if (attrJObj.Count == 0)
+//								subContainerJArray [subContainerJArray.Count - 1] = null;
+						}
+					}
+				});
+
+			} else
+				terminatingObj = {};
+
+			if( countFlags > 0 )
+				terminatingObj["#f"] = countFlags;
+
+			if( container.name != null )
+				terminatingObj["#n"] = container.name;
+
+			jArray.push(terminatingObj);
+		} 
+
+		// Add null terminator to indicate that there's no dictionary
+		else {
+			jArray.push(null);
+		}
+
+		return jArray;
+	}
 	static JArrayToContainer(jArray){
 		var container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
@@ -283,6 +491,14 @@ export class JsonSerialisation{
 		}
 
 		return container;
+	}
+	JObjectToChoice(jObj){
+		var choice = new Choice();
+		choice.text = jObj["text"].toString();
+		choice.index = parseInt(jObj["index"]);
+		choice.originalChoicePath = jObj["originalChoicePath"].toString();
+		choice.originalThreadIndex = parseInt(jObj["originalThreadIndex"]);
+		return choice;
 	}
 }
 
