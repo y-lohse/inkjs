@@ -2,7 +2,7 @@
 <!--	<script src="deps/require.js"></script>-->
 	<script src="../dist/ink.iife.js"></script>
 	<script>
-		fetch('stories/fallback.ink.json')
+		fetch('stories/hello.ink.json')
 		.then(response => {
 			return response.text();
 		})
@@ -12,6 +12,9 @@
 		
 		function initStory(inkFile){
 			var s = new inkjs.Story(inkFile);
+			var json = s.state.toJson();
+			console.log(json);
+s.state.LoadJson(json);
 			continueToNextChoice();
 
 			function continueToNextChoice(){

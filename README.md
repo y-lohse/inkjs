@@ -47,11 +47,13 @@ fetch('inkfile.json')
 });
 ```
 
-After that, just use the API as described in the reference documentation. The function are nammed exactly the same.
+After that, just use the API as described in the reference documentation. The functions are nammed exactly the same.
 
-**Please note** that the `Story` constructor expects a `string`, and not an actual JSON object. At least for now.
+#### Caveats (temporary)
 
-**Please note something else.** If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
+- The `Story` constructor expects a `string`, and not an actual JSON object. At least for now.
+- If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
+- Getting and setting variables works slightly differently than the C# version at the moment. Where normally you would do `_inkStory.variablesState["player_health"] = 100`, you need to use `_inkStory.variablesState.$("player_health") = 100`. The `$` function is a getter and a setter.
 
 ### So can I just run any ink file?
 
@@ -79,8 +81,8 @@ Integration:
 
 - [ ] Saving and loading
 - [x] Jumping to a scene
-- [ ] Setting/getting ink variables
-- [ ] Read/Visit counts
+- [x] Setting/getting ink variables
+- [x] Read/Visit counts
 - [ ] Variable observers
 - [ ] Exernal functions
 

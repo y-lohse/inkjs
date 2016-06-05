@@ -13,19 +13,12 @@ export var ValueType = {
 	VariablePointer: 4
 }
 
-export class Value extends InkObject{
+class AbstractValue extends InkObject{
 	constructor(val){
 		super();
-		this._value = val;
 		this._valueType;
 		this._isTruthy;
 		this._valueObject;
-	}
-	get value(){
-		return this._value;
-	}
-	set value(value){
-		this._value = value;
 	}
 	get valueType(){
 		return this._valueType;
@@ -38,13 +31,7 @@ export class Value extends InkObject{
 	}
 	
 	Cast(newType){
-		throw "Cast to " + newType + "not implemented";
-	}
-	Copy(val){
-		return this.Create(val);
-	}
-	toString(){
-		return this.value.toString();
+		throw "Trying to casting an AbstractValue";
 	}
 	static Create(val){
 		// Implicitly convert bools into ints
@@ -64,6 +51,28 @@ export class Value extends InkObject{
 		}
 	
 		return null;
+	}
+	Copy(val){
+		return this.Create(val);
+	}
+}
+
+export class Value extends AbstractValue{
+	constructor(val){
+		super();
+		this.value = val;
+	}
+	get value(){
+		return this._value;
+	}
+	set value(value){
+		this._value = value;
+	}
+	get valueObject(){
+		return this.value;
+	}
+	toString(){
+		return this.value.toString();
 	}
 }
 

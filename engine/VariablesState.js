@@ -1,8 +1,7 @@
 //still needs: 
-// - proxyfing the whole thing for getter and setters
 // - varchanged events
 // - see if the internal getenumarators are needed
-import {VariablePointerValue} from './Value';
+import {Value, VariablePointerValue} from './Value';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 
 export class VariablesState{
@@ -182,5 +181,28 @@ export class VariablesState{
 			return 0;
 
 		return this._callStack.currentElementIndex;
+	}
+	$(variableName, value){
+		if (typeof value === 'undefined'){
+			var varContents = this._globalVariables[variableName];
+			console.log(varContents.valueObject);
+			if ( typeof varContents !== 'undefined' )
+	//			return (varContents as Runtime.Value).valueObject;
+				return varContents.valueObject;
+			else
+				return null;
+		}
+		else{
+			var val = Value.Create(value);
+			if (val == null) {
+				if (value == null) {
+					throw "Cannot pass null to VariableState";
+				} else {
+					throw "Invalid value passed to VariableState: "+value.toString();
+				}
+			}
+
+			this.SetGlobal(variableName, val);
+		}
 	}
 }

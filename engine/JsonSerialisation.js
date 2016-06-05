@@ -1,5 +1,5 @@
 import {Container} from './Container';
-import {Value, StringValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {Value, IntValue, FloatValue, StringValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Glue, GlueType} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
