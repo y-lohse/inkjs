@@ -1,5 +1,5 @@
-import {Object as InkObject} from './Object';
 import {Container} from './Container';
+import {Object as InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
 import {ControlCommand} from './ControlCommand';

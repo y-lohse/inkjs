@@ -3,6 +3,7 @@
 // - bool operators
 
 import {Path} from './Path';
+import {Container} from './Container';
 
 export class Object{
 	constructor(){
@@ -24,7 +25,7 @@ export class Object{
 //				Container container = child.parent as Container;
 				var container = child.parent;
 
-				while (container) {
+				while (container instanceof Container) {
 
 					var namedChild = child;
 					if (namedChild.name && namedChild.hasValidName) {
@@ -56,10 +57,8 @@ export class Object{
 	ResolvePath(path){
 		if (path.isRelative) {
 			var nearestContainer = this;
-			//originally here, nearestContainer is a cast of this to a Container.
-			//however, importing Container here creates a circular dep. Th best I can think of right now is to test the constructor name, which is likely to break in case of inheritance., but I don't think containers are extended.
-			
-			if (nearestContainer.constructor.name !== 'Container') {
+
+			if (nearestContainer instanceof Container === false) {
 				if (this.parent == null) console.warn("Can't resolve relative path because we don't have a parent");
 				
 				nearestContainer = this.parent;
