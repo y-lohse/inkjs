@@ -3,6 +3,7 @@ import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
 import {StringValue} from './Value';
 import {Glue} from './Glue';
+import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 import {Story} from './Story';

@@ -11,6 +11,7 @@ import {NativeFunctionCall} from './NativeFunctionCall';
 import {Branch} from './Branch';
 import {Void} from './Void';
 import {Path} from './Path';
+import {Choice} from './Choice';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -492,13 +493,21 @@ export class JsonSerialisation{
 
 		return container;
 	}
-	JObjectToChoice(jObj){
+	static JObjectToChoice(jObj){
 		var choice = new Choice();
 		choice.text = jObj["text"].toString();
 		choice.index = parseInt(jObj["index"]);
 		choice.originalChoicePath = jObj["originalChoicePath"].toString();
 		choice.originalThreadIndex = parseInt(jObj["originalThreadIndex"]);
 		return choice;
+	}
+	static ChoiceToJObject(choice){
+		var jObj = {};
+		jObj["text"] = choice.text;
+		jObj["index"] = choice.index;
+		jObj["originalChoicePath"] = choice.originalChoicePath;
+		jObj["originalThreadIndex"] = choice.originalThreadIndex;
+		return jObj;
 	}
 }
 

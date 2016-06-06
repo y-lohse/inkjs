@@ -7,17 +7,14 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-var inkFile = fs.readFileSync(__dirname + '/stories/var.ink.json', 'UTF-8');
+var inkFile = fs.readFileSync(__dirname + '/stories/hellofogg.ink.json', 'UTF-8');
 var s = new Story(inkFile);
-//var json = s.state.toJson();
-//s.state.LoadJson(json);
-//console.log(s.variablesState.$('mood'));
-s.variablesState.$('mood', 1)
+var gameSave;
 
 continueToNextChoice();
 
 function continueToNextChoice(){
-	if (!s.canContinue) end();
+	if (!s.canContinue && s.currentChoices.length === 0) end();
 	
 	while (s.canContinue){
 		console.log(s.Continue());
@@ -30,7 +27,18 @@ function continueToNextChoice(){
 		}
 		
 		rl.question('> ', (answer) => {
-			s.ChooseChoiceIndex(parseInt(answer) - 1);
+			if (answer == 'save'){
+				gameSave = s.state.toJson();
+				console.log('game saved');
+			}
+			else if (answer == 'load'){
+				s.state.LoadJson(gameSave);
+				console.log('game restored');
+			}
+			else{
+				s.ChooseChoiceIndex(parseInt(answer) - 1);
+			}
+			
 			continueToNextChoice();
 		});
 	}
