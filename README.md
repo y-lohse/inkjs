@@ -1,20 +1,16 @@
 # inkjs
 
-This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative.
+This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
-The port is still very young and only the basic ink features are working, but the rest should follow soon. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
+At this point, most features have been implemented but only shallowly tested. Please give it a spin and report any bugs here.
 
-### How do I use this?
+### How do I use this…
 
-Before I explain what you can do with this port and how, I'd like to point out that there's still a lot to be done and that any help is appreciated. Please have a look at [the issues](https://github.com/y-lohse/inkjs/issues) and feel free to grab one.
-
-### Ok cool, now how do I use this…
-
-#### …in Node
+#### …in Node?
 
 Install the package using `npm install inkjs`.
 
-#### …in the browser
+#### …in the browser?
 
 There are a number of ways you might want to use the package in the browser. The easiest way is to grab the [compiled script](http://yannick-lohse.fr/inkjs/ink.iife.js) from the demo and just include it wherever you want to use it.
 
@@ -49,42 +45,13 @@ fetch('inkfile.json')
 
 After that, just use the API as described in the reference documentation. The functions are nammed exactly the same.
 
-#### Caveats (temporary)
+#### Caveats (temporary) (hopefully)
 
-- The `Story` constructor expects a `string`, and not an actual JSON object. At least for now.
+- Variable observers are not implemented yet
+- Neither are external functions
+- The `Story` constructor expects a `string` and not an actual JSON object.
 - If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
-- Getting and setting variables works slightly differently than the C# version at the moment. Where normally you would do `_inkStory.variablesState["player_health"] = 100`, you need to use `_inkStory.variablesState.$("player_health") = 100`. The `$` function is a getter and a setter.
-
-### So can I just run any ink file?
-
-First off, you need a compiled ink file. This is done using [inklecate](https://github.com/inkle/ink#using-inklecate-on-the-command-line).
-
-Ok now, eventually, yes, you'll be abble to run any ink files. Here's the state of supported features:
-
-- [x] Simple output
-- [x] Choices
-- [x] Knots
-- [x] Diverts
-- [x] Glue
-- [x] Branching
-- [x] Stiches
-- [x] Gather
-- [x] Fallback, Sticky and Conditional choices
-- [x] Variables
-- [x] Conditions
-- [x] Logic
-- [x] Math
-- [x] Functions
-- [x] Game queries
-
-Integration:
-
-- [x] Saving and loading
-- [x] Jumping to a scene
-- [x] Setting/getting ink variables
-- [x] Read/Visit counts
-- [ ] Variable observers
-- [ ] Exernal functions
+- Getting and setting variables works slightly differently than the C# version at the moment. Where normally you would do `_inkStory.variablesState["player_health"] = 100`, you need to use `_inkStory.variablesState.$("player_health") = 100` here. The `$` function is a getter and a setter.
 
 ### I need a custom build
 
