@@ -22,6 +22,8 @@ export class Story extends InkObject{
 		this.inkVersionCurrent = 11;
 		this.inkVersionMinimumCompatible = 11;
 		
+		this._variableObservers = null;
+		
 		if (jsonString instanceof Container){
 			this._mainContentContainer = jsonString;
             this._externals = {};
@@ -821,10 +823,40 @@ export class Story extends InkObject{
 	/*
 	external funcs
 	*/
-	/*
-	observers
-	*/
 	
+	ObserveVariable(variableName, observer){
+		if (this._variableObservers == null)
+			this._variableObservers = {};
+
+		if (this._variableObservers[variableName]) {
+			this._variableObservers[variableName] += observer;
+		} else {
+			this._variableObservers[variableName] = observer;
+		}
+	}
+	ObserveVariables(variableNames, observers){
+		for (var i = 0, l = variableNames.length; i < l; i++){
+			this.ObserveVariable(variableNames[i], observers[i]);
+		}
+	}
+	RemoveVariableObserver(observer, specificVariableName){
+		if (this._variableObservers == null)
+			return;
+
+		// Remove observer for this specific variable
+		if (typeof specificVariableName !== 'undefined') {
+			if (this._variableObservers[specificVariableName]) {
+				this._variableObservers[specificVariableName] -= observer;
+			}
+		} 
+
+		// Remove observer for all variables
+		else {
+			for (var varName in this._variableObservers){
+				this._variableObservers[varName] -= observer;
+			}
+		}
+	}
 	NextContent(){
 		// Divert step?
 		if (this.state.divertedTargetObject != null) {
@@ -958,24 +990,9 @@ export class Story extends InkObject{
 		var containerPathStr = container.path.toString();
 		this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
 	}
-	TurnsSinceForContainer(container){
-		if( !container.turnIndexShouldBeCounted ) {
-			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
-		}
-
-		var index = 0;
-		var containerPathStr = container.path.toString();
-		index = this.state.turnIndices[containerPathStr];
-		if (this.state.turnIndices[containerPathStr]) {
-			return this.state.currentTurnIndex - index;
-		} else {
-			return -1;
-		}
-	}
 	/*
-	NextSequenceShuffleIndex
+	TurnsSinceForContainer
 	*/
-	
 	Error(message, useEndLineNumber){
 		var e = new Error(message);
 //		e.useEndLineNumber = useEndLineNumber;
