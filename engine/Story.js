@@ -100,7 +100,7 @@ export class Story extends InkObject{
 	
 	ResetState(){
 		this._state = new StoryState(this);
-//		this._state.variablesState.variableChangedEvent += VariableStateDidChangeEvent;//@TODO: figure out what this does
+		this._state.variablesState.ObserveVariableChange(this.VariableStateDidChangeEvent.bind(this));
 		
 		this.ResetGlobals();
 	}
@@ -829,9 +829,9 @@ export class Story extends InkObject{
 			this._variableObservers = {};
 
 		if (this._variableObservers[variableName]) {
-			this._variableObservers[variableName] += observer;
+			this._variableObservers[variableName].push(observer);
 		} else {
-			this._variableObservers[variableName] = observer;
+			this._variableObservers[variableName] = [observer];
 		}
 	}
 	ObserveVariables(variableNames, observers){
@@ -846,17 +846,38 @@ export class Story extends InkObject{
 		// Remove observer for this specific variable
 		if (typeof specificVariableName !== 'undefined') {
 			if (this._variableObservers[specificVariableName]) {
-				this._variableObservers[specificVariableName] -= observer;
+				this._variableObservers[specificVariableName].splice(this._variableObservers[specificVariableName].indexOf(observer), 1);
 			}
 		} 
 
 		// Remove observer for all variables
 		else {
 			for (var varName in this._variableObservers){
-				this._variableObservers[varName] -= observer;
+				this._variableObservers[varName].splice(this._variableObservers[varName].indexOf(observer), 1);
 			}
 		}
 	}
+	VariableStateDidChangeEvent(variableName, newValueObj){
+		if (this._variableObservers == null)
+			return;
+		
+		var observers = this._variableObservers[variableName];
+		if (typeof newValueObj !== 'undefined') {
+
+			if (!(newValueObj instanceof Value)) {
+				throw "Tried to get the value of a variable that isn't a standard type";
+			}
+//			var val = newValueObj as Value;
+			var val = newValueObj;
+
+			observers.forEach(function(observer){
+				observer(variableName, val.valueObject);
+			});
+		}
+	}
+	/*
+	BuildStringOfHierarchy
+	*/
 	NextContent(){
 		// Divert step?
 		if (this.state.divertedTargetObject != null) {

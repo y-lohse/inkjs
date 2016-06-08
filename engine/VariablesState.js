@@ -9,7 +9,13 @@ export class VariablesState{
 		this._globalVariables = {};
 		this._callStack = callStack;
 		
-		this._batchObservingVariableChanges;
+		this._batchObservingVariableChanges = null;
+		this._changedVariables = null;
+		
+		//the way variableChangedEvent is a bit different than the reference implementation. Originally it uses the C# += operator to add delegates, but in js we need to maintain an actual collection of delegates (ie. callbacks)
+		//to register a new one, there is a special ObserveVariableChange method below.
+		this.variableChangedEvent = null;
+		this.variableChangedEventCallbacks = [];
 	}
 	get batchObservingVariableChanges(){
 		return this._batchObservingVariableChanges;
@@ -18,17 +24,17 @@ export class VariablesState{
 		value = !!value;
 		this._batchObservingVariableChanges = value;
 		if (value) {
-			this._changedVariables = {};
+			this._changedVariables = [];
 		} 
 
 		// Finished observing variables in a batch - now send 
 		// notifications for changed variables all in one go.
 		else {
 			if (this._changedVariables != null) {
-				for (var variableName in this._changedVariables) {
+				this._changedVariables.forEach(variableName => {
 					var currentValue = this._globalVariables[variableName];
-					variableChangedEvent(variableName, currentValue);
-				}
+					this.variableChangedEvent(variableName, currentValue);
+				});
 			}
 
 			this._changedVariables = null;
@@ -41,6 +47,21 @@ export class VariablesState{
 		this._globalVariables = Json.JObjectToDictionaryRuntimeObjs(value);
 	}
 	
+	/**
+	 * This function is specific to the js version of ink. It allows to register a callback that will be called when a variable changes. The original code uses `state.variableChangedEvent += callback` instead.
+	 * @param {function} callback 
+	 */
+	ObserveVariableChange(callback){
+		if (this.variableChangedEvent == null){
+			this.variableChangedEvent = (variableName, newValue) => {
+				this.variableChangedEventCallbacks.forEach(cb => {
+					cb(variableName, newValue);
+				});
+			};
+		}
+		
+		this.variableChangedEventCallbacks.push(callback);
+	}
 	CopyFrom(varState){
 		this._globalVariables = varState._globalVariables;
 		this.variableChangedEvent = varState.variableChangedEvent;
@@ -49,7 +70,7 @@ export class VariablesState{
 
 			if (varState.batchObservingVariableChanges) {
 				this._batchObservingVariableChanges = true;
-				this._changedVariables = {};
+				this._changedVariables = varState._changedVariables;
 			} else {
 				this._batchObservingVariableChanges = false;
 				this._changedVariables = null;
@@ -185,7 +206,6 @@ export class VariablesState{
 	$(variableName, value){
 		if (typeof value === 'undefined'){
 			var varContents = this._globalVariables[variableName];
-			console.log(varContents.valueObject);
 			if ( typeof varContents !== 'undefined' )
 	//			return (varContents as Runtime.Value).valueObject;
 				return varContents.valueObject;
