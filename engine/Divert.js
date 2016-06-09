@@ -1,6 +1,7 @@
 //complete
-import {Object as InkObject} from './Object';
 import {Path} from './Path';
+import {PushPopType} from './PushPop';
+import {Object as InkObject} from './Object';
 
 export class Divert extends InkObject{
 	constructor(stackPushType){
@@ -79,7 +80,7 @@ export class Divert extends InkObject{
 		if (this.hasVariableTarget) {
 			return "Divert(variable: " + this.variableDivertName + ")";
 		}
-		else if (targetPath == null) {
+		else if (this.targetPath == null) {
 			return "Divert(null)";
 		} else {
 
@@ -94,7 +95,7 @@ export class Divert extends InkObject{
 
 			sb += "Divert";
 			if (this.pushesToStack) {
-				if (stackPushType == PushPopType.Function) {
+				if (this.stackPushType == PushPopType.Function) {
 					sb += " function";
 				} else {
 					sb += " tunnel";

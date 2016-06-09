@@ -1,4 +1,5 @@
 //complete
+import {StringValue} from './Value';
 import {Object as InkObject} from './Object';
 
 export class Container extends InkObject{//also implements INamedContent. Not sure how to do it cleanly in JS.

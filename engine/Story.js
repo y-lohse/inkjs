@@ -875,9 +875,13 @@ export class Story extends InkObject{
 			});
 		}
 	}
-	/*
-	BuildStringOfHierarchy
-	*/
+	BuildStringOfHierarchy(){
+		var sb = "";
+
+		this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
+
+        return sb.toString();
+	}
 	NextContent(){
 		// Divert step?
 		if (this.state.divertedTargetObject != null) {

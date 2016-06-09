@@ -152,7 +152,7 @@ class Component{
 		return this.name == Path.parentId;
 	}
 	
-	ToParent(){
+	static ToParent(){
 		return new Component(Path.parentId);
 	}
 	toString(){
@@ -164,10 +164,10 @@ class Component{
 	}
 	Equals(otherComp){
 		if (otherComp != null && otherComp.isIndex == this.isIndex) {
-			if (isIndex) {
-				return index == otherComp.index;   
+			if (this.isIndex) {
+				return this.index == otherComp.index;   
 			} else {
-				return name == otherComp.name;
+				return this.name == otherComp.name;
 			}
 		}
 

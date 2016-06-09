@@ -44,7 +44,7 @@ export class ChoicePoint extends InkObject{
 	toString(){
 //		int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
 		var targetLineNum = null;
-		var targetString = pathOnChoice.toString();
+		var targetString = this.pathOnChoice.toString();
 
 		if (targetLineNum != null) {
 			targetString = " line " + targetLineNum;
