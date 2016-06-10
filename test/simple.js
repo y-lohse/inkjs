@@ -7,7 +7,7 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-var inkFile = fs.readFileSync(__dirname + '/stories/intercept.ink.json', 'UTF-8');
+var inkFile = fs.readFileSync(__dirname + '/stories/shuffle.ink.json', 'UTF-8');
 var s = new Story(inkFile);
 var gameSave;
 

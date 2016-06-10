@@ -14,6 +14,7 @@ import {Branch} from './Branch';
 import {VariableAssignment} from './VariableAssignment';
 import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
+import {PRNG} from './PRNG';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -1018,6 +1019,51 @@ export class Story extends InkObject{
 	/*
 	TurnsSinceForContainer
 	*/
+	NextSequenceShuffleIndex(){
+//		var numElementsIntVal = state.PopEvaluationStack () as IntValue;
+		var numElementsIntVal = this.state.PopEvaluationStack();
+		if (!(numElementsIntVal instanceof IntValue)) {
+			this.Error("expected number of elements in sequence for shuffle index");
+			return 0;
+		}
+
+		var seqContainer = this.state.currentContainer;
+
+		var numElements = numElementsIntVal.value;
+
+		var seqCount = this.VisitCountForContainer(seqContainer);
+		var loopIndex = seqCount / numElements;
+		var iterationIndex = seqCount % numElements;
+
+		// Generate the same shuffle based on:
+		//  - The hash of this container, to make sure it's consistent
+		//    each time the runtime returns to the sequence
+		//  - How many times the runtime has looped around this full shuffle
+		var seqPathStr = seqContainer.path.toString();
+		var sequenceHash = 0;
+		for (var i = 0, l = seqPathStr.length; i < l; i++){
+			sequenceHash += parseInt(seqPathStr[i]) || 0;
+		}
+		var randomSeed = sequenceHash + loopIndex + this.state.storySeed;
+		var random = new PRNG(parseInt(randomSeed));
+
+		var unpickedIndices = [];
+		for (var i = 0; i < numElements; ++i) {
+			unpickedIndices.push(i);
+		}
+
+		for (var i = 0; i <= iterationIndex; ++i) {
+			var chosen = random.next() % unpickedIndices.length;
+			var chosenIndex = unpickedIndices[chosen];
+			unpickedIndices.splice(chosen, 1);
+
+			if (i == iterationIndex) {
+				return chosenIndex;
+			}
+		}
+
+		throw "Should never reach here";
+	}
 	Error(message, useEndLineNumber){
 		var e = new Error(message);
 //		e.useEndLineNumber = useEndLineNumber;

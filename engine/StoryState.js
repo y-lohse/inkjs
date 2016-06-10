@@ -7,6 +7,7 @@ import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 import {Story} from './Story';
+import {PRNG} from './PRNG';
 
 export class StoryState{
 	constructor(story){		
@@ -26,9 +27,9 @@ export class StoryState{
 		
 		this.divertedTargetObject = null;
 
-		//there's no pseudo random generator in js, so try to generate somthing that's unique enough
 		var timeSeed = (new Date()).getTime();
 		this._storySeed = timeSeed + '-' + Math.round(Math.random() * 9999);
+		this._storySeed = (new PRNG(timeSeed)).next() % 100;
 
 		this._currentChoices = [];
 		this._currentErrors = null;

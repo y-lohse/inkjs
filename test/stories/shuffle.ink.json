@@ -1,0 +1,1 @@
+{"inkVersion":11,"root":[["^I tossed the coin. ",["G>",["ev","visit",2,"seq","/ev","ev","du",0,"==","/ev",{"t?":{"->":"0.1.1.s0"}},"ev","du",1,"==","/ev",{"t?":{"->":"0.1.1.s1"}},"nop",{"s0":["^Heads",{"->":".^.^.17"},null],"s1":["^Tails",{"->":".^.^.17"},null],"#f":5}],"G<",null],"^.","\n","end",null],"done",null]}
