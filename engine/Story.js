@@ -1016,9 +1016,19 @@ export class Story extends InkObject{
 		var containerPathStr = container.path.toString();
 		this.state.turnIndices[containerPathStr] = this.state.currentTurnIndex;
 	}
-	/*
-	TurnsSinceForContainer
-	*/
+	TurnsSinceForContainer(container){
+		if( !container.turnIndexShouldBeCounted ) {
+			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
+		}
+
+		var index = this.state.turnIndices[containerPathStr];
+		var containerPathStr = container.path.toString();
+		if (typeof index !== 'undefined') {
+			return this.state.currentTurnIndex - index;
+		} else {
+			return -1;
+		}
+	}
 	NextSequenceShuffleIndex(){
 //		var numElementsIntVal = state.PopEvaluationStack () as IntValue;
 		var numElementsIntVal = this.state.PopEvaluationStack();
