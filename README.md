@@ -14,7 +14,7 @@ Install the package using `npm install inkjs`.
 
 There are a number of ways you might want to use the package in the browser. The easiest way is to grab the [compiled script](http://yannick-lohse.fr/inkjs/ink.iife.js) from the demo and just include it wherever you want to use it.
 
-It should be made available on bower any time soon. If you'd rather use it with [RequireJS](http://requirejs.org/) or something similar, I'm afraid you'll have to build it for yourself at the moment.
+It's also available on bower: `bower install inkjs`
 
 ### And then?
 
@@ -52,9 +52,9 @@ After that, just use the API as described in the reference documentation. The fu
 - If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
 - Getting and setting variables works slightly differently than the C# version at the moment. Where normally you would do `_inkStory.variablesState["player_health"] = 100`, you need to use `_inkStory.variablesState.$("player_health") = 100` here. The `$` function is a getter and a setter.
 
-### I need a custom build
+### I want to use AMD / UMD / RequireJS / some other flavour
 
-Right now you'll need to fork the repo, then run `npm install & npm run build`. This will create a `dist` folder with the compiled file in various formats. This process is using [rollup.js](http://rollupjs.org/) so if you need another format or want to change the output in some way, you can tweak the `Gruntfile.js` which is where the compilation options are. 
+Right now you'll need to fork the repo, then run `npm install & npm run build`. This will create a `dist` folder with the compiled file in various formats. This process is using [rollup.js](http://rollupjs.org/) so if you need another format or want to change the output in some way, you can tweak the `Gruntfile.js` which is where the compilation options are.
 
 ### I'd like to help with coding, is there something I should know?
 
