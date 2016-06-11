@@ -53,7 +53,7 @@ export class Story extends InkObject{
 
 			this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
 
-			this._hasValidatedExternals = true;
+			this._hasValidatedExternals = null;
 
 			this.ResetState();
 		}
@@ -824,7 +824,49 @@ export class Story extends InkObject{
 	/*
 	external funcs
 	*/
-	
+	ValidateExternalBindings(containerOrObject){
+		if (!containerOrObject){
+			this.ValidateExternalBindings(this._mainContentContainer);
+            this._hasValidatedExternals = true;
+		}
+		else if (containerOrObject instanceof Container){
+			var c = containerOrObject;
+			
+			c.content.forEach(innerContent => {
+				this.ValidateExternalBindings(innerContent);
+			});
+			for (var key in c.namedContent){
+				this.ValidateExternalBindings(c.namedContent[key]);
+			}
+		}
+		else{
+			var o = containerOrObject;
+			//the following code is already taken care of above in this implementation
+//			var container = o as Container;
+//            if (container) {
+//                ValidateExternalBindings (container);
+//                return;
+//            }
+
+//            var divert = o as Divert;
+            var divert = o;
+            if (divert instanceof Divert && divert.isExternal) {
+                var name = divert.targetPathString;
+
+                if (!this._externals[name]) {
+
+                    var fallbackFunction = mainContentContainer.namedContent[name];
+                    var fallbackFound = typeof fallbackFunction !== 'undefined';
+
+                    if (!this.allowExternalFunctionFallbacks)
+                        this.Error("Missing function binding for external '" + name + "' (ink fallbacks disabled)");
+                    else if( !fallbackFound ) {
+                        this.Error("Missing function binding for external '" + name + "', and no fallback ink function found.");
+                    }
+                }
+            }
+		}
+	}
 	ObserveVariable(variableName, observer){
 		if (this._variableObservers == null)
 			this._variableObservers = {};
