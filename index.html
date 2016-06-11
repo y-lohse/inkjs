@@ -156,8 +156,7 @@ table{
 				var reader = new FileReader();
 				reader.onload = function(e) {
 					var inkFile = e.target.result;
-					myStory = new inkjs.Story(inkFile);
-					continueToNextChoice();
+					startStory(inkFile);
 				};
 				reader.readAsText(file);
 			});
@@ -169,9 +168,15 @@ table{
 				return response.text();
 			})
 			.then(inkFile => {
-				myStory = new inkjs.Story(inkFile);
-				continueToNextChoice();
+				startStory(inkFile);
 			});
+		}
+		
+		function startStory(inkFile){
+			$playArea.find('p').remove();
+			
+			myStory = new inkjs.Story(inkFile);
+			continueToNextChoice();
 		}
 		
 		
