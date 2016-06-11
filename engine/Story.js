@@ -822,9 +822,35 @@ export class Story extends InkObject{
 
 		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 	}
-	/*
-	EvaluateExpression
-	*/
+	EvaluateExpression(exprContainer){
+		var startCallStackHeight = this.state.callStack.elements.length;
+
+		this.state.callStack.push(PushPopType.Tunnel);
+
+		this._temporaryEvaluationContainer = exprContainer;
+
+		this.state.GoToStart();
+
+		var evalStackHeight = this.state.evaluationStack.length;
+
+		this.Continue();
+
+		this._temporaryEvaluationContainer = null;
+
+		// Should have fallen off the end of the Container, which should
+		// have auto-popped, but just in case we didn't for some reason,
+		// manually pop to restore the state (including currentPath).
+		if (this.state.callStack.elements.length > startCallStackHeight) {
+			this.state.callStack.Pop();
+		}
+
+		var endStackHeight = this.state.evaluationStack.length;
+		if (endStackHeight > evalStackHeight) {
+			return this.state.PopEvaluationStack();
+		} else {
+			return null;
+		}
+	}
 	CallExternalFunction(funcName, numberOfArguments){
 		var func = this._externals[funcName];
 		var fallbackFunctionContainer = null;
