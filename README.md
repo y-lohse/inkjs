@@ -2,7 +2,7 @@
 
 This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
-At this point, most features have been implemented but only shallowly tested. Please give it a spin and report any bugs here.
+inkjs should support pretty much everything the original version does. If you find any bugs, please report them here! The code has zero dependencies and it should work in node and all evergreen browsers.
 
 ### How do I use this…
 
@@ -53,12 +53,3 @@ After that, just use the API as described in the reference documentation. The fu
 ### I want to use AMD / UMD / RequireJS / some other flavour
 
 Right now you'll need to fork the repo, then run `npm install & npm run build`. This will create a `dist` folder with the compiled file in various formats. This process is using [rollup.js](http://rollupjs.org/) so if you need another format or want to change the output in some way, you can tweak the `Gruntfile.js` which is where the compilation options are.
-
-### I'd like to help with coding, is there something I should know?
-
-The whole codebase is very similar to the reference implementation. Because of that, I stripped away pretty much all the original comments. If you want to read the source to get familiar with the codebase, the C# version is probably a better choice.
-
-There are only a couple of things that can't (to the best of my knowledge) be done in js, and it's mostly casting. The original code makes heavy use of casts such as `myContainer = thatOtherThingy as Container`, which are not an option is JS. These calls are usually replaced by `thatOtherThingy instanceof Container` which seem to do the job. I've left the original ones commented everywhere, just in case.
-The lone exception to that is `INamedInterface`, since there are no interfaces in JS at all. So that class is actually never used and whenever it is needed, I'm using duck-typing instead. This might be a problem at some point.
-
-You'll also notice that I do a lot of borderline moronic calls, such as extra variable assignments. They are mostly there to keep the codebase as similar as possible to the reference, please leave them in place. Once everything is working and we have a test suite, we can start making things a bit more javascript-y. 
