@@ -47,8 +47,6 @@ After that, just use the API as described in the reference documentation. The fu
 
 #### Caveats (temporary) (hopefully)
 
-- External functions are not implemented yet
-- The `Story` constructor expects a `string` and not an actual JSON object.
 - If you're using Node, make sure you convert the json file's encoding into UTF-8 without BOM. Inklecate outputs a file with BOM, but Node's `fs` doesn't strip it. You may also load the file like so: `fs.readFileSync('inkfile.json', 'UTF-8').replace(/^\uFEFF/, '')`.
 - Getting and setting variables works slightly differently than the C# version at the moment. Where normally you would do `_inkStory.variablesState["player_health"] = 100`, you need to use `_inkStory.variablesState.$("player_health") = 100` here. The `$` function is a getter and a setter.
 

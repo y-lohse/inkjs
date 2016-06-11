@@ -30,7 +30,8 @@ export class Story extends InkObject{
 			this._mainContentContainer = jsonString;
 		}
 		else{
-			var rootObject = JSON.parse(jsonString);
+			//the original version only accepts a string as a constructor, but this is javascript and it's almost easier to get a JSON value than a string, so we're silently accepting btoh
+			var rootObject = (typeof jsonString === 'string') ? JSON.parse(jsonString) : jsonString;
 
 			var versionObj = rootObject["inkVersion"];
 			if (versionObj == null)
