@@ -24,10 +24,10 @@ export class Story extends InkObject{
 		this.inkVersionMinimumCompatible = 11;
 		
 		this._variableObservers = null;
+		this._externals = {};
 		
 		if (jsonString instanceof Container){
 			this._mainContentContainer = jsonString;
-            this._externals = {};
 		}
 		else{
 			var rootObject = JSON.parse(jsonString);
@@ -54,6 +54,7 @@ export class Story extends InkObject{
 			this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
 
 			this._hasValidatedExternals = null;
+			this.allowExternalFunctionFallbacks = false;
 
 			this.ResetState();
 		}
@@ -822,8 +823,83 @@ export class Story extends InkObject{
 		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 	}
 	/*
-	external funcs
+	EvaluateExpression
 	*/
+	CallExternalFunction(funcName, numberOfArguments){
+		var func = this._externals[funcName];
+		var fallbackFunctionContainer = null;
+
+		var foundExternal = typeof func !== 'undefined';
+
+		// Try to use fallback function?
+		if (!foundExternal) {
+			if (this.allowExternalFunctionFallbacks) {
+//				fallbackFunctionContainer = ContentAtPath (new Path (funcName)) as Container;
+				fallbackFunctionContainer = this.ContentAtPath(new Path(funcName));
+				if (!(fallbackFunctionContainer instanceof Container)) console.warn("Trying to call EXTERNAL function '" + funcName + "' which has not been bound, and fallback ink function could not be found.");
+
+				// Divert direct into fallback function and we're done
+				this.state.callStack.push(PushPopType.Function);
+				this.state.divertedTargetObject = fallbackFunctionContainer;
+				return;
+
+			} else {
+				console.warn("Trying to call EXTERNAL function '" + funcName + "' which has not been bound (and ink fallbacks disabled).");
+			}
+		}
+
+		// Pop arguments
+		var args = [];
+		for (var i = 0; i < numberOfArguments; ++i) {
+//			var poppedObj = state.PopEvaluationStack () as Value;
+			var poppedObj = this.state.PopEvaluationStack();
+			var valueObj = poppedObj.valueObject;
+			args.push(valueObj);
+		}
+
+		// Reverse arguments from the order they were popped,
+		// so they're the right way round again.
+		args.reverse();
+
+		// Run the function!
+		var funcResult = func(args);
+
+		// Convert return value (if any) to the a type that the ink engine can use
+		var returnObj = null;
+		if (funcResult != null) {
+			returnObj = Value.Create(funcResult);
+			if (returnObj == null) console.warn("Could not create ink value from returned object of type " + funcResult.GetType());
+		} else {
+			returnObj = new Void();
+		}
+
+		this.state.PushEvaluationStack(returnObj);
+	}
+	TryCoerce(value){
+		//we're skipping type coercition in this implementation. First of, js is loosely typed, so it's not that important. Secondly, there is no clean way (AFAIK) for the user to describe what type of parameters he/she expects.
+		return value;
+	}
+	BindExternalFunctionGeneral(funcName, func){
+		if (this._externals[funcName]) console.warn("Function '" + funcName + "' has already been bound.");
+		this._externals[funcName] = func;
+	}
+	BindExternalFunction(funcName, func){
+		if (!func) console.warn("Can't bind a null function");
+
+		this.BindExternalFunctionGeneral(funcName, (args) => {
+			if (args.length < func.length) console.warn("External function expected " + func.length + " arguments");
+			
+			var coercedArgs = [];
+			for (var i = 0, l = args.length; i < l; i++){
+				coercedArgs[i] = this.TryCoerce(args[i]);
+			}
+			return func.apply(null, coercedArgs);
+		});
+	}
+	UnbindExternalFunction(funcName){
+		if (typeof this._externals[funcName] === 'undefined') console.warn("Function '" + funcName + "' has not been bound.");
+		delete this._externals[funcName];
+	}
 	ValidateExternalBindings(containerOrObject){
 		if (!containerOrObject){
 			this.ValidateExternalBindings(this._mainContentContainer);
@@ -855,7 +931,7 @@ export class Story extends InkObject{
 
                 if (!this._externals[name]) {
 
-                    var fallbackFunction = mainContentContainer.namedContent[name];
+                    var fallbackFunction = this.mainContentContainer.namedContent[name];
                     var fallbackFound = typeof fallbackFunction !== 'undefined';
 
                     if (!this.allowExternalFunctionFallbacks)
