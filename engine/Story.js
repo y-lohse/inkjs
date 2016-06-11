@@ -232,18 +232,18 @@ export class Story extends InkObject{
 			if( !this.canContinue ) {
 
 				if( this.state.callStack.canPopThread ) {
-					throw "Thread available to pop, threads should always be flat by the end of evaluation?";
+					this.Error("Thread available to pop, threads should always be flat by the end of evaluation?");
 				}
 
 				if( this.currentChoices.length == 0 && !this.state.didSafeExit ) {
 					if( this.state.callStack.CanPop(PushPopType.Tunnel) ) {
-						throw "unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?";
+						this.Error("unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?");
 					} else if( this.state.callStack.CanPop(PushPopType.Function) ) {
-						throw "unexpectedly reached end of content. Do you need a '~ return'?";
+						this.Error("unexpectedly reached end of content. Do you need a '~ return'?");
 					} else if( !this.state.callStack.canPop ) {
-						throw "ran out of content. Do you need a '-> DONE' or '-> END'?";
+						this.Error("ran out of content. Do you need a '-> DONE' or '-> END'?");
 					} else {
-						throw "unexpectedly reached end of content for unknown reason. Please debug compiler!";
+						this.Error("unexpectedly reached end of content for unknown reason. Please debug compiler!");
 					}
 				}
 
@@ -251,7 +251,7 @@ export class Story extends InkObject{
 
 
 		} catch(e) {
-			throw e;
+//			throw e;
 			this.AddError(e.Message, e.useEndLineNumber);
 		} finally {
 			this.state.didSafeExit = false;
