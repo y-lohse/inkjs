@@ -251,7 +251,7 @@ export class Story extends InkObject{
 
 
 		} catch(e) {
-//			throw e;
+			throw e;
 			this.AddError(e.Message, e.useEndLineNumber);
 		} finally {
 			this.state.didSafeExit = false;

@@ -1,0 +1,1 @@
+{"inkVersion":11,"root":[[["thread",{"->":"thread1"},null],"end",null],"done",{"thread1":[[["thread",{"->":"thread2"},null],null],null],"thread2":[[["ev","str",{"f()":".^.s"},"/str","/ev",{"*":".^.c","flg":18},{"s":["^choice",null],"c":[{"f()":".^.^.s"},"\n",{"#f":5}]}],null],null]}]}
