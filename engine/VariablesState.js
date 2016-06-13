@@ -16,6 +16,26 @@ export class VariablesState{
 		//to register a new one, there is a special ObserveVariableChange method below.
 		this.variableChangedEvent = null;
 		this.variableChangedEventCallbacks = [];
+		
+		//if es6 proxies are available, use them.
+		if (Proxy){
+			//the proxy is used to allow direct manipulation of global variables. It first tries to access the objetcs own property, and if none is found it delegates the call to the $ method, defined below
+			var p = new Proxy(this, {
+				get: function(target, name){
+					return (name in target) ? target[name] : target.$(name);
+				},
+				set: function(target, name, value){
+					if (name in target) target[name] = value;
+					else target.$(name, value);
+					return true;//returning a fasly value make sthe trap fail
+				}
+			});
+			
+			return p;
+		}
+		else{
+			console.log("ES6 Proxy not available - direct manipulation of global variables can't work, use $() instead.");
+		}
 	}
 	get batchObservingVariableChanges(){
 		return this._batchObservingVariableChanges;
@@ -203,6 +223,7 @@ export class VariablesState{
 
 		return this._callStack.currentElementIndex;
 	}
+	//the original code uses a magic getter and setter for global variables, allowing things like variableState['varname]. This is not quite possible in js without a Proxy, so it is replaced with this $ function.
 	$(variableName, value){
 		if (typeof value === 'undefined'){
 			var varContents = this._globalVariables[variableName];
