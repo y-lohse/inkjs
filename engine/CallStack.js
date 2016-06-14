@@ -2,6 +2,7 @@
 import {PushPopType} from './PushPop';
 import {Container} from './Container';
 import {Path} from './Path';
+import {StoryException} from './StoryException';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 
 class Element{
@@ -249,7 +250,7 @@ export class CallStack{
 		var contextElement = this.callStack[contextIndex];
 
 		if (!declareNew && !contextElement.temporaryVariables[name]) {
-			throw "Could not find temporary variable to set: " + name;
+			throw new StoryException("Could not find temporary variable to set: " + name);
 		}
 
 		contextElement.temporaryVariables[name] = value;
