@@ -167,7 +167,7 @@ export class StringValue extends Value{
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
 	
-	Cast(newtType){
+	Cast(newType){
 		if (newType == this.valueType) {
 			return this;
 		}
