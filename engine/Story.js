@@ -14,6 +14,7 @@ import {Branch} from './Branch';
 import {VariableAssignment} from './VariableAssignment';
 import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
+import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 
 export class Story extends InkObject{
@@ -134,7 +135,7 @@ export class Story extends InkObject{
 	}
 	ContinueInternal(){
 		if (!this.canContinue) {
-			throw "Can't continue - should check canContinue before calling Continue";
+			throw new StoryException("Can't continue - should check canContinue before calling Continue");
 		}
 
 		this._state.ResetOutput();
@@ -1220,7 +1221,7 @@ export class Story extends InkObject{
 		throw "Should never reach here";
 	}
 	Error(message, useEndLineNumber){
-		var e = new Error(message);
+		var e = new StoryException(message);
 //		e.useEndLineNumber = useEndLineNumber;
 		throw e;
 	}

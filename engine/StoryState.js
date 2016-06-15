@@ -5,6 +5,7 @@ import {StringValue} from './Value';
 import {Glue} from './Glue';
 import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
+import {StoryException} from './StoryException';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 import {Story} from './Story';
 import {PRNG} from './PRNG';
@@ -218,10 +219,10 @@ export class StoryState{
 
 		var jSaveVersion = jObject["inkSaveVersion"];
 		if (jSaveVersion == null) {
-			throw "ink save format incorrect, can't load.";
+			throw new StoryException("ink save format incorrect, can't load.");
 		}
 		else if (parseInt(jSaveVersion) < StoryState.kMinCompatibleLoadVersion) {
-			throw "Ink save format isn't compatible with the current version (saw '"+jSaveVersion+"', but minimum is "+StoryState.kMinCompatibleLoadVersion+"), so can't load.";
+			throw new StoryException("Ink save format isn't compatible with the current version (saw '"+jSaveVersion+"', but minimum is "+StoryState.kMinCompatibleLoadVersion+"), so can't load.");
 		}
 
 		this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);

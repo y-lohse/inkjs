@@ -2,6 +2,7 @@
 // - varchanged events
 // - see if the internal getenumarators are needed
 import {Value, VariablePointerValue} from './Value';
+import {StoryException} from './StoryException';
 import {JsonSerialisation as Json} from './JsonSerialisation';
 
 export class VariablesState{
@@ -237,9 +238,9 @@ export class VariablesState{
 			var val = Value.Create(value);
 			if (val == null) {
 				if (value == null) {
-					throw "Cannot pass null to VariableState";
+					throw new StoryException("Cannot pass null to VariableState");
 				} else {
-					throw "Invalid value passed to VariableState: "+value.toString();
+					throw new StoryException("Invalid value passed to VariableState: "+value.toString());
 				}
 			}
 

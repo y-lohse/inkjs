@@ -1,5 +1,6 @@
 //complete
 import {StringValue} from './Value';
+import {StoryException} from './StoryException';
 import {Object as InkObject} from './Object';
 
 export class Container extends InkObject{//also implements INamedContent. Not sure how to do it cleanly in JS.
@@ -204,7 +205,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 				return foundContent;
 			}
 			else {
-				throw "Content '"+component.name+"' not found at path: '"+this.path+"'";
+				throw new StoryException("Content '"+component.name+"' not found at path: '"+this.path+"'");
 			}
 		}
 	}

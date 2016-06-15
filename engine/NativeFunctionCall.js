@@ -1,5 +1,6 @@
 //misses delegates, probably the returns from function calls
 import {Value, ValueType} from './Value';
+import {StoryException} from './StoryException';
 import {Void} from './Void';
 import {Object as InkObject} from './Object';
 
@@ -57,7 +58,7 @@ export class NativeFunctionCall extends InkObject{
 		}
 		
 		parameters.forEach(p => {
-			if (p instanceof Void) throw "Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?";
+			if (p instanceof Void) throw new StoryException("Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?");
 		})
 
 		var coercedParams = this.CoerceValuesToSingleType(parameters);
@@ -88,7 +89,7 @@ export class NativeFunctionCall extends InkObject{
 
 			var opForTypeObj = this._operationFuncs[valType];
 			if (!opForTypeObj) {
-				throw "Can not perform operation '"+this.name+"' on "+valType;
+				throw new StoryException("Can not perform operation '"+this.name+"' on "+valType);
 			}
 
 			// Binary
