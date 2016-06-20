@@ -240,11 +240,11 @@ export class CallStack{
 		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
 		
 		if (contextIndex == -1) 
-			contextIndex = this.currentElementIndex;
+			contextIndex = this.currentElementIndex + 1;
 		
 		var varValue = null;
 
-		var contextElement = this.callStack[contextIndex];
+		var contextElement = this.callStack[contextIndex - 1];
 
 		if (varValue = contextElement.temporaryVariables[name]) {
 			return varValue;
@@ -256,9 +256,9 @@ export class CallStack{
 		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
 		
 		if (contextIndex == -1) 
-			contextIndex = this.currentElementIndex;
+			contextIndex = this.currentElementIndex + 1;
 
-		var contextElement = this.callStack[contextIndex];
+		var contextElement = this.callStack[contextIndex - 1];
 
 		if (!declareNew && !contextElement.temporaryVariables[name]) {
 			throw new StoryException("Could not find temporary variable to set: " + name);
@@ -270,12 +270,12 @@ export class CallStack{
 		// Current temporary context?
 		// (Shouldn't attempt to access contexts higher in the callstack.)
 		if (this.currentElement.temporaryVariables[name]) {
-			return this.currentElementIndex;
+			return this.currentElementIndex + 1;
 		} 
 
 		// Global
 		else {
-			return -1;
+			return 0;
 		}
 	}
 	ThreadWithIndex(index){
