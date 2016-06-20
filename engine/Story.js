@@ -10,7 +10,6 @@ import {Divert} from './Divert';
 import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
-import {Branch} from './Branch';
 import {VariableAssignment} from './VariableAssignment';
 import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
@@ -389,18 +388,23 @@ export class Story extends InkObject{
 				this.RecordTurnIndexVisitToContainer(container);
 		}
 	}
-	VisitChangedContainersDueToDivert(previousContentObject, newContentObject){
-		if (!previousContentObject || !newContentObject)
-                return;
+	VisitChangedContainersDueToDivert(){
+		var previousContentObject = this.state.previousContentObject;
+		var newContentObject = this.state.currentContentObject;
+		
+		if (!newContentObject)
+			return;
             
 		// First, find the previously open set of containers
 		var prevContainerSet = [];
-//		Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
-		var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
-		while (prevAncestor instanceof Container) {
-			prevContainerSet.push(prevAncestor);
-//			prevAncestor = prevAncestor.parent as Container;
-			prevAncestor = prevAncestor.parent;
+		if (previousContentObject) {
+//			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
+			var prevAncestor = (previousContentObject != null) ? previousContentObject : previousContentObject.parent;
+			while (prevAncestor instanceof Container) {
+				prevContainerSet.push(prevAncestor);
+//				prevAncestor = prevAncestor.parent as Container;
+				prevAncestor = prevAncestor.parent;
+			}
 		}
 
 		// If the new object is a container itself, it will be visited automatically at the next actual
@@ -496,6 +500,14 @@ export class Story extends InkObject{
 		if (contentObj instanceof Divert) {
 			var currentDivert = contentObj;
 			
+			if (currentDivert.isConditional) {
+				var conditionValue = this.state.PopEvaluationStack();
+
+				// False conditional? Cancel divert
+				if (!this.IsTruthy(conditionValue))
+					return true;
+			}
+			
 			if (currentDivert.hasVariableTarget) {
 				var varName = currentDivert.variableDivertName;
 
@@ -539,19 +551,6 @@ export class Story extends InkObject{
 					this.Error("Divert resolution failed: " + currentDivert);
 				}
 			}
-
-			return true;
-		} 
-
-		// Branch (conditional divert)
-		else if (contentObj instanceof Branch) {
-			var branch = contentObj;
-			var conditionValue = this.state.PopEvaluationStack();
-
-			if (this.IsTruthy(conditionValue))
-				this.state.divertedTargetObject = branch.trueDivert.targetContent;
-			else if (branch.falseDivert)
-				this.state.divertedTargetObject = branch.falseDivert.targetContent;
 
 			return true;
 		} 
@@ -800,14 +799,10 @@ export class Story extends InkObject{
 		this.ChoosePath(new Path(path));
 	}
 	ChoosePath(path){
-		var prevContentObj = this.state.currentContentObject;
-
 		this.state.SetChosenPath(path);
 
-		var newContentObj = this.state.currentContentObject;
-
 		// Take a note of newly visited containers for read counts etc
-		this.VisitChangedContainersDueToDivert(prevContentObj, newContentObj);
+		this.VisitChangedContainersDueToDivert();
 	}
 	ChooseChoiceIndex(choiceIdx){
 		choiceIdx = choiceIdx;
@@ -1030,20 +1025,17 @@ export class Story extends InkObject{
         return sb.toString();
 	}
 	NextContent(){
+		// Setting previousContentObject is critical for VisitChangedContainersDueToDivert
+		this.state.previousContentObject = this.state.currentContentObject;
+		
 		// Divert step?
 		if (this.state.divertedTargetObject != null) {
-
-			var prevObj = this.state.currentContentObject;
 
 			this.state.currentContentObject = this.state.divertedTargetObject;
 			this.state.divertedTargetObject = null;
 
-			// Check for newly visited containers
-			// Rather than using state.currentContentObject and state.divertedTargetObject,
-			// we have to make sure that both come via the state.currentContentObject property,
-			// since it can actually get transformed slightly when set (it can end up stepping 
-			// into a container).
-			this.VisitChangedContainersDueToDivert(prevObj, this.state.currentContentObject);
+			// Internally uses state.previousContentObject and state.currentContentObject
+			this.VisitChangedContainersDueToDivert();
 
 			// Diverted location has valid content?
 			if (this.state.currentContentObject != null) {
@@ -1187,7 +1179,9 @@ export class Story extends InkObject{
 
 		var numElements = numElementsIntVal.value;
 
-		var seqCount = this.VisitCountForContainer(seqContainer);
+//		var seqCountVal = state.PopEvaluationStack () as IntValue;
+		var seqCountVal = tjis.state.PopEvaluationStack();
+		var seqCount = seqCountVal.value;
 		var loopIndex = seqCount / numElements;
 		var iterationIndex = seqCount % numElements;
 
@@ -1238,5 +1232,8 @@ export class Story extends InkObject{
 		}
 
 		this.state.AddError(message);
+		
+		// In a broken state don't need to know about any other errors.
+		this.state.ForceEndFlow();
 	}
 }

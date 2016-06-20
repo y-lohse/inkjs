@@ -163,6 +163,12 @@ export class StoryState{
 	get currentContainer(){
 		return this.callStack.currentElement.currentContainer;
 	}
+	get previousContentObject(){
+		return this.callstack.currentThread.previousContentObject;
+	}
+	set previousContentObject(value){
+		this.callstack.currentThread.previousContentObject = value;
+	}
 	get jsonToken(){
 		var obj = {};
 
@@ -547,7 +553,7 @@ export class StoryState{
 		if (visitCountOut = this.visitCounts[pathString])
 			return visitCountOut;
 
-		return -1;
+		return 0;
 	}
 	Copy(){
 		var copy = new StoryState(this.story);
@@ -572,6 +578,8 @@ export class StoryState{
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
 
+		copy.previousContentObject = this.previousContentObject;
+		
 		copy._visitCounts = this._visitCounts;
 		copy._turnIndices = this._turnIndices;
 		copy._currentTurnIndex = this.currentTurnIndex;

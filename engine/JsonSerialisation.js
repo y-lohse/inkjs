@@ -8,7 +8,6 @@ import {ChoicePoint} from './ChoicePoint';
 import {VariableReference} from './VariableReference';
 import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
-import {Branch} from './Branch';
 import {Void} from './Void';
 import {Path} from './Path';
 import {Choice} from './Choice';
@@ -176,6 +175,8 @@ export class JsonSerialisation{
 					divert.variableDivertName = target;
 				else
 					divert.targetPathString = target;
+				
+				divert.isConditional = !!obj["c"];
 
 				if (external) {
 					if (propValue = obj["exArgs"])
@@ -223,20 +224,6 @@ export class JsonSerialisation{
 				return varAss;
 			}
 
-			var trueDivert = null;
-			var falseDivert = null;
-			if (propValue = obj["t?"]) {
-//				trueDivert = JTokenToRuntimeObject(propValue) as Divert;
-				trueDivert = this.JTokenToRuntimeObject(propValue);
-			}
-			if (propValue = obj["f?"]) {
-//				falseDivert = JTokenToRuntimeObject(propValue) as Divert;
-				falseDivert = this.JTokenToRuntimeObject(propValue);
-			}
-			if (trueDivert instanceof Divert || falseDivert instanceof Divert) {
-				return new Branch(trueDivert, falseDivert);
-			}
-
 			if (obj["originalChoicePath"] != null)
 				return this.JObjectToChoice(obj);
 		}
@@ -282,6 +269,9 @@ export class JsonSerialisation{
 
 			if (divert.hasVariableTarget)
 				jObj["var"] = true;
+			
+			if (divert.isConditional)
+				jObj["c"] = true;
 
 			if (divert.externalArgs > 0)
 				jObj["exArgs"] = divert.externalArgs;
@@ -381,17 +371,6 @@ export class JsonSerialisation{
 			if (!varAss.isNewDeclaration)
 				jObj["re"] = true;
 
-			return jObj;
-		}
-
-//		var branch = obj as Branch;
-		var branch = obj;
-		if (branch instanceof Branch) {
-			var jObj = {};
-			if (branch.trueDivert)
-				jObj["t?"] = this.RuntimeObjectToJToken(branch.trueDivert);
-			if (branch.falseDivert)
-				jObj["f?"] = this.RuntimeObjectToJToken(branch.falseDivert);
 			return jObj;
 		}
 

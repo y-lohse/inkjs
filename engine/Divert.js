@@ -14,6 +14,7 @@ export class Divert extends InkObject{
 		this.stackPushType;
 		
 		this.isExternal;
+		this.isConditional;
 		this.externalArgs;
 		
 		//actual constructor

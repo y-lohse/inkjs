@@ -53,6 +53,7 @@ class Thread{
 	constructor(jsonToken, storyContext){
 		this.callstack = [];
 		this.threadIndex = 0;
+		this.previousContentObject = null;
 		
 		if (jsonToken && storyContext){
 			var jThreadObj = jsonToken;
@@ -86,6 +87,12 @@ class Thread{
 
 				this.callstack.push(el);
 			});
+			
+			var prevContentObjPath = jThreadObj["previousContentObject"];
+			if(typeof prevContentObjPath  !== 'undefined') {
+				var prevPath = new Path(prevContentObjPath.toString());
+				this.previousContentObject = storyContext.ContentAtPath(prevPath);
+			}
 		}
 	}
 	get jsonToken(){
@@ -106,6 +113,9 @@ class Thread{
 
 		threadJObj["callstack"] = jThreadCallstack;
 		threadJObj["threadIndex"] = this.threadIndex;
+		
+		if (this.previousContentObject != null)
+			threadJObj["previousContentObject"] = this.previousContentObject.path.toString();
 
 		return threadJObj;
 	}
@@ -115,6 +125,7 @@ class Thread{
 		this.callstack.forEach(e => {
 			copy.callstack.push(e.Copy());
 		});
+		copy.previousContentObject = this.previousContentObject;
 		return copy;
 	}
 }
