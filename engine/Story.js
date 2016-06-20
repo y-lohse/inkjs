@@ -20,8 +20,8 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 11;
-		this.inkVersionMinimumCompatible = 11;
+		this.inkVersionCurrent = 12;
+		this.inkVersionMinimumCompatible = 12;
 		
 		this._variableObservers = null;
 		this._externals = {};
