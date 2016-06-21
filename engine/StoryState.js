@@ -164,10 +164,10 @@ export class StoryState{
 		return this.callStack.currentElement.currentContainer;
 	}
 	get previousContentObject(){
-		return this.callstack.currentThread.previousContentObject;
+		return this.callStack.currentThread.previousContentObject;
 	}
 	set previousContentObject(value){
-		this.callstack.currentThread.previousContentObject = value;
+		this.callStack.currentThread.previousContentObject = value;
 	}
 	get jsonToken(){
 		var obj = {};
