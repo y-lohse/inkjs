@@ -12,7 +12,7 @@ Install the package using `npm install inkjs`.
 
 #### …in the browser?
 
-There are a number of ways you might want to use the package in the browser. The easiest way is to grab the [compiled script](http://yannick-lohse.fr/inkjs/ink.iife.js) from the demo and just include it wherever you want to use it.
+Grab the most convenient format for you from the [release page](https://github.com/y-lohse/inkjs/releases). If in doubt, use the iife version.
 
 It's also available on bower: `bower install inkjs`
 
@@ -44,7 +44,3 @@ fetch('inkfile.json')
 ```
 
 After that, just use the API as described in the reference documentation. The functions are nammed exactly the same.
-
-### I want to use AMD / UMD / RequireJS / some other flavour
-
-Right now you'll need to fork the repo, then run `npm install & npm run build`. This will create a `dist` folder with the compiled file in various formats. This process is using [rollup.js](http://rollupjs.org/) so if you need another format or want to change the output in some way, you can tweak the `Gruntfile.js` which is where the compilation options are.
