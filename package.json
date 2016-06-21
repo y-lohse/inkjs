@@ -1,7 +1,7 @@
 {
   "name": "inkjs",
-  "version": "0.9.0",
-  "description": "",
+  "version": "1.0.0",
+  "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink.cjs.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
