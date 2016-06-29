@@ -204,7 +204,7 @@ export class CallStack{
 	}
 	PopThread(){
 		if (this.canPopThread) {
-			this._threads.splice(this.currentThread, 1);//should be equivalent to a pop()
+			this._threads.splice(this._threads.indexOf(this.currentThread), 1);//should be equivalent to a pop()
 		} else {
 			console.error("Can't pop thread");
 		}
