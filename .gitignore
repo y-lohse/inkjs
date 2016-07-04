@@ -1,4 +1,5 @@
 dist/
+test/stories/
 
 # Logs
 logs
