@@ -665,7 +665,7 @@ export class Story extends InkObject{
 				// Build string out of the content we collected
 				var sb = '';
 				contentStackForString.forEach(c => {
-					sb = sb + c.toString();
+					sb = c.toString() + sb;
 				});
 
 				// Return to expression evaluation (from content mode)
