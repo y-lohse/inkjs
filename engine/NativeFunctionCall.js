@@ -123,6 +123,8 @@ export class NativeFunctionCall extends InkObject{
 	}
 	CoerceValuesToSingleType(parametersIn){
 		var valType = ValueType.Int;
+		console.log(this.name);
+		console.log(parametersIn);
 
 		// Find out what the output type is
 		// "higher level" types infect both so that binary operations

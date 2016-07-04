@@ -7,13 +7,9 @@ var rl = readline.createInterface({
   output: process.stdout
 });
 
-var inkFile = fs.readFileSync(__dirname + '/stories/intercept.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
+var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
 var s = new Story(inkFile);
 var gameSave;
-
-console.log(s.variablesState['mood']);
-s.variablesState['mood'] = 1;
-console.log(s.variablesState['mood']);
 
 continueToNextChoice();
 
