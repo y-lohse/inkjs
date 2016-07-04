@@ -1180,7 +1180,7 @@ export class Story extends InkObject{
 		var numElements = numElementsIntVal.value;
 
 //		var seqCountVal = state.PopEvaluationStack () as IntValue;
-		var seqCountVal = tjis.state.PopEvaluationStack();
+		var seqCountVal = this.state.PopEvaluationStack();
 		var seqCount = seqCountVal.value;
 		var loopIndex = seqCount / numElements;
 		var iterationIndex = seqCount % numElements;
