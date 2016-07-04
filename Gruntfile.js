@@ -20,11 +20,16 @@ module.exports = function(grunt) {
                 moduleId: 'inkjs',
                 moduleName: 'inkjs',
             },
-//			amd: {
-//                options : { format: 'amd' },
-//                dest: 'dist/ink.amd.js',
-//                src: exposedFiles
-//            },
+			amd: {
+                options : { format: 'amd' },
+                dest: 'dist/ink.amd.js',
+                src: exposedFiles
+            },
+			umd: {
+                options : { format: 'umd' },
+                dest: 'dist/ink.umd.js',
+                src: exposedFiles
+            },
             cjs: {
                 options : { format: 'cjs' },
                 dest: 'dist/ink.cjs.js',
