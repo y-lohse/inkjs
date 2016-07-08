@@ -102,7 +102,7 @@ For an example implementation, you can refer to the source code of the test file
 
 ## Compatibility with older node and browser versions
 
-Generally speaking, everyhting should work just fine on any modern-ish browser and in node v4 or above. The only thing you should be careful about is if you're [getting and setting ink variables](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#settinggetting-ink-variables). In anything that does not [support Proxies](https://kangax.github.io/compat-table/es6/) (basically node v5, IE 11, Safari 9 and everything below), you can't directly read and write variables to the story state. Instead you will have to use the `$` function:
+Generally speaking, everything should work just fine on any modern-ish browser and in node v4 or above. The only thing you should be careful about is if you're [getting and setting ink variables](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#settinggetting-ink-variables). In anything that does not [support Proxies](https://kangax.github.io/compat-table/es6/) (basically node v5, IE 11, Safari 9 and everything below), you can't directly read and write variables to the story state. Instead you will have to use the `$` function:
 
 ```
 _inkStory.variablesState.$("player_health", 100);
