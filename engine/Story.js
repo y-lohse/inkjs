@@ -1158,9 +1158,9 @@ export class Story extends InkObject{
 		if( !container.turnIndexShouldBeCounted ) {
 			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
 		}
-
-		var index = this.state.turnIndices[containerPathStr];
+		
 		var containerPathStr = container.path.toString();
+		var index = this.state.turnIndices[containerPathStr];
 		if (typeof index !== 'undefined') {
 			return this.state.currentTurnIndex - index;
 		} else {
