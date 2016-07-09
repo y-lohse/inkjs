@@ -399,7 +399,7 @@ export class Story extends InkObject{
 		var prevContainerSet = [];
 		if (previousContentObject) {
 //			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
-			var prevAncestor = (previousContentObject != null) ? previousContentObject : previousContentObject.parent;
+			var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
 			while (prevAncestor instanceof Container) {
 				prevContainerSet.push(prevAncestor);
 //				prevAncestor = prevAncestor.parent as Container;
