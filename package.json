@@ -9,6 +9,9 @@
     "watch": "grunt watch",
     "prepublish": "grunt rollup:cjs"
   },
+  "bin": {
+    "inklecate": "./bin/cli.js"
+  },
   "author": "Yannick Lohse",
   "license": "MIT",
   "devDependencies": {
@@ -19,5 +22,6 @@
     "grunt-rollup": "^0.7.1",
     "rollup-plugin-babel": "^2.4.0",
     "rollup-plugin-uglify": "^1.0.1"
-  }
+  },
+  "dependencies": {}
 }
