@@ -17,6 +17,7 @@
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jasmine-node": "^0.3.1",
     "grunt-rollup": "^0.7.1",
-    "rollup-plugin-babel": "^2.4.0"
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-uglify": "^1.0.1"
   }
 }

@@ -3,6 +3,7 @@ module.exports = function(grunt) {
     var version = 0.1;
 
     var babel = require('rollup-plugin-babel');
+    var uglify = require('rollup-plugin-uglify');
 	var exposedFiles = ['engine/Story.js'];
 
     // Project configuration.
@@ -17,8 +18,9 @@ module.exports = function(grunt) {
                 plugins: [
                     babel({
 						exclude: 'node_modules/**',
-						presets: ['es2015-rollup']
+						presets: ['es2015-rollup'],
 					}),
+					uglify(),
                 ],
                 moduleId: 'inkjs',
                 moduleName: 'inkjs',
