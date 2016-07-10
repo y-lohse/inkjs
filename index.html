@@ -139,6 +139,8 @@ table{
 		</ol>
 	</div>
 	
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.2.2/es6-promise.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
 	<script src="https://code.jquery.com/jquery-2.2.4.min.js" integrity="sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=" crossorigin="anonymous"></script>
 	<script src="ink.iife.js"></script>
 	<script>
@@ -164,10 +166,10 @@ table{
 		
 		function loadSample(){
 			fetch('intercept.ink.json')
-			.then(response => {
+			.then(function(response){
 				return response.text();
 			})
-			.then(inkFile => {
+			.then(function(inkFile){
 				startStory(inkFile);
 			});
 		}
@@ -184,7 +186,7 @@ table{
 			while (myStory.canContinue){
 				var grafs = myStory.Continue().split("\n");
 				
-				grafs.forEach(text => {
+				grafs.forEach(function(text){
 					if (text.length) $('<p>').text(text).insertBefore($choices);
 				});
 			}
