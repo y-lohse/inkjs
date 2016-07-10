@@ -1,7 +1,5 @@
 module.exports = function(grunt) {
 
-    var version = 0.1;
-
     var babel = require('rollup-plugin-babel');
     var uglify = require('rollup-plugin-uglify');
 	var exposedFiles = ['engine/Story.js'];
