@@ -15,7 +15,10 @@ module.exports = function(grunt) {
         rollup: {
             options: {
                 plugins: [
-                    babel({ exclude: 'node_modules/**' }),
+                    babel({
+						exclude: 'node_modules/**',
+						presets: ['es2015-rollup']
+					}),
                 ],
                 moduleId: 'inkjs',
                 moduleName: 'inkjs',
