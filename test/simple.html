@@ -1,12 +1,14 @@
 <html>
 <!--	<script src="deps/require.js"></script>-->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/es6-promise/3.2.2/es6-promise.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/1.0.0/fetch.min.js"></script>
 	<script src="../dist/ink.iife.js"></script>
 	<script>
-		fetch('stories/threads.ink.json')
-		.then(response => {
+		fetch('stories/test.ink.json')
+		.then(function(response){
 			return response.text();
 		})
-		.then(data => {
+		.then(function(data){
 			initStory(data)
 		});
 		

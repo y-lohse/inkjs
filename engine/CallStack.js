@@ -3,7 +3,7 @@ import {PushPopType} from './PushPop';
 import {Container} from './Container';
 import {Path} from './Path';
 import {StoryException} from './StoryException';
-import {JsonSerialisation as Json} from './JsonSerialisation';
+import {JsonSerialisation} from './JsonSerialisation';
 
 class Element{
 	constructor(type, container, contentIndex, inExpressionEvaluation){
@@ -83,7 +83,7 @@ class Thread{
 				var el = new Element(pushPopType, currentContainer, contentIndex, inExpressionEvaluation);
 
 				var jObjTemps = jElementObj["temp"];
-				el.temporaryVariables = Json.JObjectToDictionaryRuntimeObjs(jObjTemps);
+				el.temporaryVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(jObjTemps);
 
 				this.callstack.push(el);
 			});
@@ -107,7 +107,7 @@ class Thread{
 			}
 			jObj["exp"] = el.inExpressionEvaluation;
 			jObj["type"] = parseInt(el.type);
-			jObj["temp"] = Json.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
+			jObj["temp"] = JsonSerialisation.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
 			jThreadCallstack.push(jObj);
 		});
 

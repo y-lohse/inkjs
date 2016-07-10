@@ -3,7 +3,7 @@
 // - see if the internal getenumarators are needed
 import {Value, VariablePointerValue} from './Value';
 import {StoryException} from './StoryException';
-import {JsonSerialisation as Json} from './JsonSerialisation';
+import {JsonSerialisation} from './JsonSerialisation';
 
 export class VariablesState{
 	constructor(callStack){
@@ -63,10 +63,10 @@ export class VariablesState{
 		}
 	}
 	get jsonToken(){
-		return Json.DictionaryRuntimeObjsToJObject(this._globalVariables);
+		return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
 	}
 	set jsonToken(value){
-		this._globalVariables = Json.JObjectToDictionaryRuntimeObjs(value);
+		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
 	}
 	
 	/**

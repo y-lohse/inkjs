@@ -6,7 +6,7 @@ import {Glue} from './Glue';
 import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
 import {StoryException} from './StoryException';
-import {JsonSerialisation as Json} from './JsonSerialisation';
+import {JsonSerialisation} from './JsonSerialisation';
 import {Story} from './Story';
 import {PRNG} from './PRNG';
 
@@ -192,11 +192,11 @@ export class StoryState{
 		obj["callstackThreads"] = this.callStack.GetJsonToken();
 		obj["variablesState"] = this.variablesState.jsonToken;
 
-		obj["evalStack"] = Json.ListToJArray(this.evaluationStack);
+		obj["evalStack"] = JsonSerialisation.ListToJArray(this.evaluationStack);
 
-		obj["outputStream"] = Json.ListToJArray(this._outputStream);
+		obj["outputStream"] = JsonSerialisation.ListToJArray(this._outputStream);
 
-		obj["currentChoices"] = Json.ListToJArray(this.currentChoices);
+		obj["currentChoices"] = JsonSerialisation.ListToJArray(this.currentChoices);
 
 		if (this._currentRightGlue) {
 			var rightGluePos = this._outputStream.indexOf(this._currentRightGlue);
@@ -208,8 +208,8 @@ export class StoryState{
 		if( this.divertedTargetObject != null )
 			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
 
-		obj["visitCounts"] = Json.IntDictionaryToJObject(this.visitCounts);
-		obj["turnIndices"] = Json.IntDictionaryToJObject(this.turnIndices);
+		obj["visitCounts"] = JsonSerialisation.IntDictionaryToJObject(this.visitCounts);
+		obj["turnIndices"] = JsonSerialisation.IntDictionaryToJObject(this.turnIndices);
 		obj["turnIdx"] = this.currentTurnIndex;
 		obj["storySeed"] = this.storySeed;
 
@@ -234,12 +234,12 @@ export class StoryState{
 		this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);
 		this.variablesState.jsonToken = jObject["variablesState"];
 
-		this._evaluationStack = Json.JArrayToRuntimeObjList(jObject["evalStack"]);
+		this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(jObject["evalStack"]);
 
-		this._outputStream = Json.JArrayToRuntimeObjList(jObject["outputStream"]);
+		this._outputStream = JsonSerialisation.JArrayToRuntimeObjList(jObject["outputStream"]);
 
 //		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
-		this._currentChoices = Json.JArrayToRuntimeObjList(jObject["currentChoices"]);
+		this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject["currentChoices"]);
 
 		var propValue;
 		if( propValue = jObject["currRightGlue"] ) {
@@ -256,8 +256,8 @@ export class StoryState{
 			this.divertedTargetObject = this.story.ContentAtPath(divertPath);
 		}
 
-		this._visitCounts = Json.JObjectToIntDictionary(jObject["visitCounts"]);
-		this._turnIndices = Json.JObjectToIntDictionary(jObject["turnIndices"]);
+		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject["visitCounts"]);
+		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject["turnIndices"]);
 		this._currentTurnIndex = parseInt(jObject["turnIdx"]);
 		this._storySeed = parseInt(jObject["storySeed"]);
 

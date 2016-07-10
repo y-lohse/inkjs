@@ -1,6 +1,6 @@
 {
   "name": "inkjs",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink.cjs.js",
   "scripts": {
@@ -9,13 +9,20 @@
     "watch": "grunt watch",
     "prepublish": "grunt rollup:cjs"
   },
+  "bin": {
+    "inklecate": "./bin/cli.js"
+  },
   "author": "Yannick Lohse",
   "license": "MIT",
   "devDependencies": {
+    "babel-plugin-transform-object-assign": "^6.8.0",
+    "babel-preset-es2015-rollup": "^1.1.1",
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jasmine-node": "^0.3.1",
     "grunt-rollup": "^0.7.1",
-    "rollup-plugin-babel": "^2.4.0"
-  }
+    "rollup-plugin-babel": "^2.4.0",
+    "rollup-plugin-uglify": "^1.0.1"
+  },
+  "dependencies": {}
 }

@@ -101,6 +101,15 @@ export class Story extends InkObject{
 		return this.state.currentContentObject != null && !this.state.hasError;
 	}
 	
+	ToJsonString(){
+		var rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
+
+		var rootObject = {};
+		rootObject["inkVersion"] = this.inkVersionCurrent;
+		rootObject["root"] = rootContainerJsonList;
+
+		return JSON.stringify(rootObject);
+	}
 	ResetState(){
 		this._state = new StoryState(this);
 		this._state.variablesState.ObserveVariableChange(this.VariableStateDidChangeEvent.bind(this));
@@ -399,7 +408,7 @@ export class Story extends InkObject{
 		var prevContainerSet = [];
 		if (previousContentObject) {
 //			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
-			var prevAncestor = (previousContentObject != null) ? previousContentObject : previousContentObject.parent;
+			var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
 			while (prevAncestor instanceof Container) {
 				prevContainerSet.push(prevAncestor);
 //				prevAncestor = prevAncestor.parent as Container;
@@ -1158,9 +1167,9 @@ export class Story extends InkObject{
 		if( !container.turnIndexShouldBeCounted ) {
 			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
 		}
-
-		var index = this.state.turnIndices[containerPathStr];
+		
 		var containerPathStr = container.path.toString();
+		var index = this.state.turnIndices[containerPathStr];
 		if (typeof index !== 'undefined') {
 			return this.state.currentTurnIndex - index;
 		} else {
