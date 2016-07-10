@@ -17,6 +17,7 @@ module.exports = function(grunt) {
                     babel({
 						exclude: 'node_modules/**',
 						presets: ['es2015-rollup'],
+						plugins: ['transform-object-assign'],
 					}),
 					uglify(),
                 ],

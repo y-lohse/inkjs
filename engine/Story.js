@@ -15,6 +15,7 @@ import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
+import {Polyfill} from './Polyfill';
 
 export class Story extends InkObject{
 	constructor(jsonString){
