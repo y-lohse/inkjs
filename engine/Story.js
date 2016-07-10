@@ -101,6 +101,15 @@ export class Story extends InkObject{
 		return this.state.currentContentObject != null && !this.state.hasError;
 	}
 	
+	ToJsonString(){
+		var rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
+
+		var rootObject = {};
+		rootObject["inkVersion"] = this.inkVersionCurrent;
+		rootObject["root"] = rootContainerJsonList;
+
+		return JSON.stringify(rootObject);
+	}
 	ResetState(){
 		this._state = new StoryState(this);
 		this._state.variablesState.ObserveVariableChange(this.VariableStateDidChangeEvent.bind(this));
