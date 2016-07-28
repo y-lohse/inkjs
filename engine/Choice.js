@@ -1,4 +1,3 @@
-//complete
 export class Choice{
 	constructor(choice){
 		this.text;

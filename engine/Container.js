@@ -1,4 +1,3 @@
-//complete
 import {StringValue} from './Value';
 import {StoryException} from './StoryException';
 import {Object as InkObject} from './Object';

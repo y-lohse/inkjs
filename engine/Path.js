@@ -1,19 +1,22 @@
-//complete
 export class Path{
 	constructor(/*polymorphic constructor*/){
-		this.isRelative;
+		this._isRelative;
 		this._components = [];
 		
-		if (arguments.length == 2){
+		if (typeof arguments[0] == 'string'){
+			this.componentsString = arguments[0];
+		}
+		else if (arguments[0] instanceof Component && arguments[1] instanceof Path){
 			this._components.push(arguments[0]);
 			this._components = this._components.concat(arguments[1]);
 		}
-		else if (arguments.length == 1 && typeof arguments[0] == 'string'){
-			this.componentsString = arguments[0];
-		}
-		else if (arguments.length == 1 && arguments[0] instanceof Array){
+		else if (arguments[0] instanceof Array){
 			this._components = this._components.concat(arguments[0]);
+			this._isRelative = !!arguments[1];
 		}
+	}
+	get isRelative(){
+		return this._isRelative;
 	}
 	get components(){
 		return this._components;
@@ -54,7 +57,7 @@ export class Path{
 	}
 	static get self(){
 		var path = new Path();
-		path.isRelative = true;
+		path._isRelative = true;
 		return path;
 	}
 	
@@ -91,13 +94,15 @@ export class Path{
 		this.components.length = 0;
 
 		var componentsStr = value;
+		
+		if (componentsStr == null || componentsStr == '') return;
 
 		// When components start with ".", it indicates a relative path, e.g.
 		//   .^.^.hello.5
 		// is equivalent to file system style path:
 		//  ../../hello/5
 		if (componentsStr[0] == '.') {
-			this.isRelative = true;
+			this._isRelative = true;
 			componentsStr = componentsStr.substring(1);
 		}
 

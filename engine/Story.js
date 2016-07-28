@@ -15,6 +15,7 @@ import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
+import {Polyfill} from './Polyfill';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -244,7 +245,7 @@ export class Story extends InkObject{
 					this.Error("Thread available to pop, threads should always be flat by the end of evaluation?");
 				}
 
-				if( this.currentChoices.length == 0 && !this.state.didSafeExit ) {
+				if( this.currentChoices.length == 0 && !this.state.didSafeExit && this._temporaryEvaluationContainer == null) {
 					if( this.state.callStack.CanPop(PushPopType.Tunnel) ) {
 						this.Error("unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?");
 					} else if( this.state.callStack.CanPop(PushPopType.Function) ) {

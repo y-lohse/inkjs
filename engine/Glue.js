@@ -1,4 +1,3 @@
-//complete
 export class Glue{
 	constructor(type){
 		this.glueType = type;
