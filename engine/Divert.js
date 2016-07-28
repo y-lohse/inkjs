@@ -1,4 +1,3 @@
-//complete
 import {Path} from './Path';
 import {PushPopType} from './PushPop';
 import {Object as InkObject} from './Object';

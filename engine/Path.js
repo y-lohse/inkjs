@@ -1,4 +1,3 @@
-//complete
 export class Path{
 	constructor(/*polymorphic constructor*/){
 		this._isRelative;

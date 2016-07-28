@@ -1,4 +1,3 @@
-//complete
 import {Object as InkObject} from './Object';
 
 export class ControlCommand extends InkObject{

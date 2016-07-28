@@ -1,7 +1,3 @@
-//still missing:
-// - DebugMetaData
-// - bool operators
-
 import {Path} from './Path';
 import {Container} from './Container';
 
