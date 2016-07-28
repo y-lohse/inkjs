@@ -104,8 +104,7 @@ export class Object{
 		for (var down = lastSharedPathCompIndex + 1; down < globalPath.components.length; ++down)
 			newPathComps.push(globalPath.components[down]);
 
-		var relativePath = new Path(newPathComps);
-		relativePath.isRelative = true;
+		var relativePath = new Path(newPathComps, true);
 		return relativePath;
 	}
 	CompactPathString(otherPath){
