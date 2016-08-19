@@ -1014,7 +1014,7 @@ export class Story extends InkObject{
 			return;
 		
 		var observers = this._variableObservers[variableName];
-		if (typeof newValueObj !== 'undefined') {
+		if (typeof observers !== 'undefined') {
 
 			if (!(newValueObj instanceof Value)) {
 				throw "Tried to get the value of a variable that isn't a standard type";
