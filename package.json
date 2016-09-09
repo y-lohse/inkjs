@@ -2,12 +2,12 @@
   "name": "inkjs",
   "version": "1.1.1",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
-  "main": "dist/ink.cjs.js",
+  "main": "dist/ink.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "grunt rollup",
     "watch": "grunt watch",
-    "prepublish": "grunt rollup:cjs"
+    "prepublish": "grunt rollup:release"
   },
   "bin": {
     "inklecate": "./bin/cli.js"
