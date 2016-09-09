@@ -404,20 +404,19 @@ export class JsonSerialisation{
 				terminatingObj = this.DictionaryRuntimeObjsToJObject(namedOnlyContent);
 
 				// Strip redundant names from containers if necessary
-				terminatingObj.forEach(namedContentObj => {
+				for (var key in terminatingObj){
 //					var subContainerJArray = namedContentObj.Value as JArray;
-					var subContainerJArray = namedContentObj.Value;
+					var subContainerJArray = terminatingObj[key];
 					if (subContainerJArray != null) {
 //						var attrJObj = subContainerJArray [subContainerJArray.Count - 1] as JObject;
 						var attrJObj = subContainerJArray[subContainerJArray.length - 1];
 						if (attrJObj != null) {
-							throw "Cleaning attrJObj not implemented";
-//							attrJObj.Remove ("#n");
-//							if (attrJObj.Count == 0)
-//								subContainerJArray [subContainerJArray.Count - 1] = null;
+							delete attrJObj["#n"];
+							if (Object.keys(attrJObj).length == 0)
+								subContainerJArray[subContainerJArray.length - 1] = null;
 						}
 					}
-				});
+				}
 
 			} else
 				terminatingObj = {};
