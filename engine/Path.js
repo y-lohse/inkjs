@@ -128,8 +128,14 @@ export class Path{
 
 		if (otherPath.isRelative != this.isRelative)
 			return false;
+		
+		//the original code uses SequenceEqual here, so we need to iterate over the components manually.
+		for (var i = 0, l = otherPath.components.length; i < l; i++){
+			//it's not quite clear whether this test should use Equals or a simple == operator, see https://github.com/y-lohse/inkjs/issues/22
+			if (!otherPath.components.Equals(this.components[i])) return false;
+		}
 
-		return otherPath.components == this.components;//originally uses SequenceEqual, not sure this achieves the same
+		return true;
 	}
 }
 
