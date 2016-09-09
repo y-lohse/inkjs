@@ -132,7 +132,7 @@ export class Path{
 		//the original code uses SequenceEqual here, so we need to iterate over the components manually.
 		for (var i = 0, l = otherPath.components.length; i < l; i++){
 			//it's not quite clear whether this test should use Equals or a simple == operator, see https://github.com/y-lohse/inkjs/issues/22
-			if (!otherPath.components.Equals(this.components[i])) return false;
+			if (!otherPath.components[i].Equals(this.components[i])) return false;
 		}
 
 		return true;
