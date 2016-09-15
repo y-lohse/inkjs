@@ -1202,7 +1202,7 @@ export class Story extends InkObject{
 		var seqPathStr = seqContainer.path.toString();
 		var sequenceHash = 0;
 		for (var i = 0, l = seqPathStr.length; i < l; i++){
-			sequenceHash += parseInt(seqPathStr[i]) || 0;
+			sequenceHash += seqPathStr.charCodeAt[i] || 0;
 		}
 		var randomSeed = sequenceHash + loopIndex + this.state.storySeed;
 		var random = new PRNG(parseInt(randomSeed));
