@@ -18,8 +18,8 @@ export class StoryState{
 
 		this._evaluationStack = [];
 
-		this._callStack = new CallStack(story.rootContentContainer);
-		this._variablesState = new VariablesState(this._callStack);
+		this.callStack = new CallStack(story.rootContentContainer);
+		this._variablesState = new VariablesState(this.callStack);
 
 		this._visitCounts = {};
 		this._turnIndices = {};
@@ -45,9 +45,6 @@ export class StoryState{
 	}
 	get currentErrors(){
 		return this._currentErrors;
-	}
-	get callStack(){
-		return this._callStack;
 	}
 	get visitCounts(){
 		return this._visitCounts;
@@ -565,7 +562,7 @@ export class StoryState{
 			copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
 		}
 
-		copy._callStack = new CallStack(this.callStack);
+		copy.callStack = new CallStack(this.callStack);
 
 		copy._currentRightGlue = this._currentRightGlue;
 

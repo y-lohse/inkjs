@@ -829,6 +829,105 @@ export class Story extends InkObject{
 
 		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 	}
+	HasFunction(functionName){
+		try {
+			return this.ContentAtPath(new Path(functionName)) instanceof Container;
+		} catch(e) {
+			return false;
+		}
+	}
+	EvaluateFunction(functionName, textOutput, args){
+		//match the first signature of the function
+		if (textOutput instanceof String === false) return this.EvaluateFunction(functionName, '', textOutput);
+		
+		if (functionName == null) {
+			throw "Function is null";
+		} 
+		else if (functionName == '' || functionName.trim() == '') {
+			throw "Function is empty or white space.";
+		}
+
+		var funcContainer = null;
+		try {
+			funcContainer = this.ContentAtPath(new Path(functionName));
+		} catch (e) {
+			if (e.message.indexOf("not found") >= 0)
+				throw "Function doesn't exist: '" + functionName + "'";
+			else
+				throw e;
+		}
+
+		// We'll start a new callstack, so keep hold of the original,
+		// as well as the evaluation stack so we know if the function 
+		// returned something
+		var originalCallstack = this.state.callStack;
+		var originalEvaluationStackHeight = this.state.evaluationStack.length;
+
+		// Create a new base call stack element.
+		// By making it point at element 0 of the base, when NextContent is
+		// called, it'll actually step past the entire content of the game (!)
+		// and straight onto the Done. Bit of a hack :-/ We don't really have
+		// a better way of creating a temporary context that ends correctly.
+		this.state.callStack = new CallStack(this.mainContentContainer);
+		this.state.callStack.currentElement.currentContainer = this.mainContentContainer;
+		this.state.callStack.currentElement.currentContentIndex = 0;
+
+		if (args != null) {
+			for (var i = 0; i < args.Length; i++) {
+				if (!(args[i] instanceof Number || args[i] instanceof String)) {
+					throw "ink arguments when calling EvaluateFunction must be int, float or string";
+				}
+
+				this.state.evaluationStack.Add(Runtime.Value.Create(args[i]));
+			}
+		}
+
+		// Jump into the function!
+		this.state.callStack.push(PushPopType.Function);
+		this.state.currentContentObject = funcContainer;
+
+		// Evaluate the function, and collect the string output
+		var stringOutput = '';
+		while (this.canContinue) {
+			stringOutput += this.Continue();
+		}
+		textOutput = stringOutput.toString();
+
+		// Restore original stack
+		this.state.callStack = originalCallstack;
+
+		// Do we have a returned value?
+		// Potentially pop multiple values off the stack, in case we need
+		// to clean up after ourselves (e.g. caller of EvaluateFunction may 
+		// have passed too many arguments, and we currently have no way to check for that)
+		var returnedObj = null;
+		while (this.state.evaluationStack.length > originalEvaluationStackHeight) {
+			var poppedObj = this.state.PopEvaluationStack();
+			if (returnedObj == null)
+				returnedObj = poppedObj;
+		}
+
+		if (returnedObj) {
+			if (returnedObj instanceof Void)
+				return null;
+
+			// Some kind of value, if not void
+//			var returnVal = returnedObj as Runtime.Value;
+			var returnVal = returnedObj;
+
+			// DivertTargets get returned as the string of components
+			// (rather than a Path, which isn't public)
+			if (returnVal.valueType == ValueType.DivertTarget) {
+				return returnVal.valueObject.toString();
+			}
+
+			// Other types can just have their exact object type:
+			// int, float, string. VariablePointers get returned as strings.
+			return returnVal.valueObject;
+		}
+
+		return null;
+	}
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
 
@@ -966,12 +1065,20 @@ export class Story extends InkObject{
 
                     var fallbackFunction = this.mainContentContainer.namedContent[name];
                     var fallbackFound = typeof fallbackFunction !== 'undefined';
-
+					
+					var message = null;
                     if (!this.allowExternalFunctionFallbacks)
-                        this.Error("Missing function binding for external '" + name + "' (ink fallbacks disabled)");
+                        message = "Missing function binding for external '" + name + "' (ink fallbacks disabled)";
                     else if( !fallbackFound ) {
-                        this.Error("Missing function binding for external '" + name + "', and no fallback ink function found.");
+                        message = "Missing function binding for external '" + name + "', and no fallback ink function found.";
                     }
+					
+					if (message != null){
+						var errorPreamble = "ERROR: ";
+						//misses a bit about metadata, which isn't implemented
+
+                        throw new errorPreamble + message;
+					}
                 }
             }
 		}
