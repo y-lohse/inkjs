@@ -1000,7 +1000,7 @@ export class Story extends InkObject{
 		var returnObj = null;
 		if (funcResult != null) {
 			returnObj = Value.Create(funcResult);
-			if (returnObj == null) console.warn("Could not create ink value from returned object of type " + funcResult.GetType());
+			if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult));
 		} else {
 			returnObj = new Void();
 		}
