@@ -21,7 +21,7 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 12;
+		this.inkVersionCurrent = 13;
 		this.inkVersionMinimumCompatible = 12;
 		
 		this._variableObservers = null;
@@ -121,7 +121,7 @@ export class Story extends InkObject{
 		this._state.ResetErrors();
 	}
 	ResetCallstack(){
-		this._state.ForceEndFlow();
+		this._state.ForceEnd();
 	}
 	ResetGlobals(){
 		if (this._mainContentContainer.namedContent["global decl"]){
@@ -706,6 +706,45 @@ export class Story extends InkObject{
 				this.state.PushEvaluationStack(new IntValue(turnCount));
 				break;
 
+			case ControlCommand.CommandType.Random:
+				var maxInt = this.state.PopEvaluationStack();
+				var minInt = this.state.PopEvaluationStack();
+
+				if (minInt == null || minInt instanceof IntValue === false)
+					this.Error("Invalid value for minimum parameter of RANDOM(min, max)");
+
+				if (maxInt == null || minInt instanceof IntValue === false)
+					this.Error("Invalid value for maximum parameter of RANDOM(min, max)");
+
+				// +1 because it's inclusive of min and max, for e.g. RANDOM(1,6) for a dice roll.
+				var randomRange = maxInt.value - minInt.value + 1;
+				if (randomRange <= 0)
+					this.Error("RANDOM was called with minimum as " + minInt.value + " and maximum as " + maxInt.value + ". The maximum must be larger");
+
+				var resultSeed = this.state.storySeed + this.state.previousRandom;
+				var random = new PRNG(resultSeed);
+
+				var nextRandom = random.Next();
+				var chosenValue = (nextRandom % randomRange) + minInt.value;
+				this.state.PushEvaluationStack(new IntValue(chosenValue));
+
+				// Next random number (rather than keeping the Random object around)
+				this.state.previousRandom = nextRandom;
+				break;
+					
+			case ControlCommand.CommandType.SeedRandom:
+				var seed = this.state.PopEvaluationStack();
+				if (seed == null || seed instanceof IntValue === false)
+					this.Error("Invalid value passed to SEED_RANDOM");
+
+				// Story seed affects both RANDOM and shuffle behaviour
+				this.state.storySeed = seed.value;
+				this.state.previousRandom = 0;
+
+				// SEED_RANDOM returns nothing.
+				this.state.PushEvaluationStack(new Runtime.Void());
+				break;
+					
 			case ControlCommand.CommandType.VisitIndex:
 				var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
 				this.state.PushEvaluationStack(new IntValue(count));
@@ -732,13 +771,16 @@ export class Story extends InkObject{
 				// In normal flow - allow safe exit without warning
 				else {
 					this.state.didSafeExit = true;
+					
+					// Stop flow in current thread
+					this.state.currentContentObject = null;
 				}
 
 				break;
 
 			// Force flow to end completely
 			case ControlCommand.CommandType.End:
-				this.state.ForceEndFlow();
+				this.state.ForceEnd();
 				break;
 
 			default:
@@ -1351,6 +1393,6 @@ export class Story extends InkObject{
 		this.state.AddError(message);
 		
 		// In a broken state don't need to know about any other errors.
-		this.state.ForceEndFlow();
+		this.state.ForceEnd();
 	}
 }
