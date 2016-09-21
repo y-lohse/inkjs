@@ -21,7 +21,7 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 12;
+		this.inkVersionCurrent = 13;
 		this.inkVersionMinimumCompatible = 12;
 		
 		this._variableObservers = null;
@@ -121,7 +121,7 @@ export class Story extends InkObject{
 		this._state.ResetErrors();
 	}
 	ResetCallstack(){
-		this._state.ForceEndFlow();
+		this._state.ForceEnd();
 	}
 	ResetGlobals(){
 		if (this._mainContentContainer.namedContent["global decl"]){
@@ -706,6 +706,45 @@ export class Story extends InkObject{
 				this.state.PushEvaluationStack(new IntValue(turnCount));
 				break;
 
+			case ControlCommand.CommandType.Random:
+				var maxInt = this.state.PopEvaluationStack();
+				var minInt = this.state.PopEvaluationStack();
+
+				if (minInt == null || minInt instanceof IntValue === false)
+					this.Error("Invalid value for minimum parameter of RANDOM(min, max)");
+
+				if (maxInt == null || minInt instanceof IntValue === false)
+					this.Error("Invalid value for maximum parameter of RANDOM(min, max)");
+
+				// +1 because it's inclusive of min and max, for e.g. RANDOM(1,6) for a dice roll.
+				var randomRange = maxInt.value - minInt.value + 1;
+				if (randomRange <= 0)
+					this.Error("RANDOM was called with minimum as " + minInt.value + " and maximum as " + maxInt.value + ". The maximum must be larger");
+
+				var resultSeed = this.state.storySeed + this.state.previousRandom;
+				var random = new PRNG(resultSeed);
+
+				var nextRandom = random.Next();
+				var chosenValue = (nextRandom % randomRange) + minInt.value;
+				this.state.PushEvaluationStack(new IntValue(chosenValue));
+
+				// Next random number (rather than keeping the Random object around)
+				this.state.previousRandom = nextRandom;
+				break;
+					
+			case ControlCommand.CommandType.SeedRandom:
+				var seed = this.state.PopEvaluationStack();
+				if (seed == null || seed instanceof IntValue === false)
+					this.Error("Invalid value passed to SEED_RANDOM");
+
+				// Story seed affects both RANDOM and shuffle behaviour
+				this.state.storySeed = seed.value;
+				this.state.previousRandom = 0;
+
+				// SEED_RANDOM returns nothing.
+				this.state.PushEvaluationStack(new Runtime.Void());
+				break;
+					
 			case ControlCommand.CommandType.VisitIndex:
 				var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
 				this.state.PushEvaluationStack(new IntValue(count));
@@ -732,13 +771,16 @@ export class Story extends InkObject{
 				// In normal flow - allow safe exit without warning
 				else {
 					this.state.didSafeExit = true;
+					
+					// Stop flow in current thread
+					this.state.currentContentObject = null;
 				}
 
 				break;
 
 			// Force flow to end completely
 			case ControlCommand.CommandType.End:
-				this.state.ForceEndFlow();
+				this.state.ForceEnd();
 				break;
 
 			default:
@@ -829,6 +871,105 @@ export class Story extends InkObject{
 
 		this.ChoosePath(choiceToChoose.choicePoint.choiceTarget.path);
 	}
+	HasFunction(functionName){
+		try {
+			return this.ContentAtPath(new Path(functionName)) instanceof Container;
+		} catch(e) {
+			return false;
+		}
+	}
+	EvaluateFunction(functionName, textOutput, args){
+		//match the first signature of the function
+		if (typeof textOutput !== 'string') return this.EvaluateFunction(functionName, '', textOutput);
+		
+		if (functionName == null) {
+			throw "Function is null";
+		} 
+		else if (functionName == '' || functionName.trim() == '') {
+			throw "Function is empty or white space.";
+		}
+
+		var funcContainer = null;
+		try {
+			funcContainer = this.ContentAtPath(new Path(functionName));
+		} catch (e) {
+			if (e.message.indexOf("not found") >= 0)
+				throw "Function doesn't exist: '" + functionName + "'";
+			else
+				throw e;
+		}
+
+		// We'll start a new callstack, so keep hold of the original,
+		// as well as the evaluation stack so we know if the function 
+		// returned something
+		var originalCallstack = this.state.callStack;
+		var originalEvaluationStackHeight = this.state.evaluationStack.length;
+
+		// Create a new base call stack element.
+		// By making it point at element 0 of the base, when NextContent is
+		// called, it'll actually step past the entire content of the game (!)
+		// and straight onto the Done. Bit of a hack :-/ We don't really have
+		// a better way of creating a temporary context that ends correctly.
+		this.state.callStack = new CallStack(this.mainContentContainer);
+		this.state.callStack.currentElement.currentContainer = this.mainContentContainer;
+		this.state.callStack.currentElement.currentContentIndex = 0;
+
+		if (args != null) {
+			for (var i = 0; i < args.Length; i++) {
+				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
+					throw "ink arguments when calling EvaluateFunction must be int, float or string";
+				}
+
+				this.state.evaluationStack.Add(Runtime.Value.Create(args[i]));
+			}
+		}
+
+		// Jump into the function!
+		this.state.callStack.push(PushPopType.Function);
+		this.state.currentContentObject = funcContainer;
+
+		// Evaluate the function, and collect the string output
+		var stringOutput = '';
+		while (this.canContinue) {
+			stringOutput += this.Continue();
+		}
+		textOutput = stringOutput.toString();
+
+		// Restore original stack
+		this.state.callStack = originalCallstack;
+
+		// Do we have a returned value?
+		// Potentially pop multiple values off the stack, in case we need
+		// to clean up after ourselves (e.g. caller of EvaluateFunction may 
+		// have passed too many arguments, and we currently have no way to check for that)
+		var returnedObj = null;
+		while (this.state.evaluationStack.length > originalEvaluationStackHeight) {
+			var poppedObj = this.state.PopEvaluationStack();
+			if (returnedObj == null)
+				returnedObj = poppedObj;
+		}
+
+		if (returnedObj) {
+			if (returnedObj instanceof Void)
+				return null;
+
+			// Some kind of value, if not void
+//			var returnVal = returnedObj as Runtime.Value;
+			var returnVal = returnedObj;
+
+			// DivertTargets get returned as the string of components
+			// (rather than a Path, which isn't public)
+			if (returnVal.valueType == ValueType.DivertTarget) {
+				return returnVal.valueObject.toString();
+			}
+
+			// Other types can just have their exact object type:
+			// int, float, string. VariablePointers get returned as strings.
+			return returnVal.valueObject;
+		}
+
+		return null;
+	}
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
 
@@ -901,7 +1042,7 @@ export class Story extends InkObject{
 		var returnObj = null;
 		if (funcResult != null) {
 			returnObj = Value.Create(funcResult);
-			if (returnObj == null) console.warn("Could not create ink value from returned object of type " + funcResult.GetType());
+			if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult));
 		} else {
 			returnObj = new Void();
 		}
@@ -966,12 +1107,20 @@ export class Story extends InkObject{
 
                     var fallbackFunction = this.mainContentContainer.namedContent[name];
                     var fallbackFound = typeof fallbackFunction !== 'undefined';
-
+					
+					var message = null;
                     if (!this.allowExternalFunctionFallbacks)
-                        this.Error("Missing function binding for external '" + name + "' (ink fallbacks disabled)");
+                        message = "Missing function binding for external '" + name + "' (ink fallbacks disabled)";
                     else if( !fallbackFound ) {
-                        this.Error("Missing function binding for external '" + name + "', and no fallback ink function found.");
+                        message = "Missing function binding for external '" + name + "', and no fallback ink function found.";
                     }
+					
+					if (message != null){
+						var errorPreamble = "ERROR: ";
+						//misses a bit about metadata, which isn't implemented
+
+                        throw new errorPreamble + message;
+					}
                 }
             }
 		}
@@ -1202,7 +1351,7 @@ export class Story extends InkObject{
 		var seqPathStr = seqContainer.path.toString();
 		var sequenceHash = 0;
 		for (var i = 0, l = seqPathStr.length; i < l; i++){
-			sequenceHash += parseInt(seqPathStr[i]) || 0;
+			sequenceHash += seqPathStr.charCodeAt[i] || 0;
 		}
 		var randomSeed = sequenceHash + loopIndex + this.state.storySeed;
 		var random = new PRNG(parseInt(randomSeed));
@@ -1244,6 +1393,6 @@ export class Story extends InkObject{
 		this.state.AddError(message);
 		
 		// In a broken state don't need to know about any other errors.
-		this.state.ForceEndFlow();
+		this.state.ForceEnd();
 	}
 }

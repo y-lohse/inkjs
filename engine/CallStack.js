@@ -188,7 +188,7 @@ export class CallStack{
 			this.callStack.pop();
 			return;
 		} else {
-			console.error("Mismatched push/pop in Callstack");
+			throw "Mismatched push/pop in Callstack";
 		}
 	}
 	Push(type){
@@ -205,7 +205,7 @@ export class CallStack{
 		if (this.canPopThread) {
 			this._threads.splice(this._threads.indexOf(this.currentThread), 1);//should be equivalent to a pop()
 		} else {
-			console.error("Can't pop thread");
+			throw "Can't pop thread";
 		}
 	}
 	SetJsonToken(token, storyContext){

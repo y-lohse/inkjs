@@ -18,8 +18,8 @@ export class StoryState{
 
 		this._evaluationStack = [];
 
-		this._callStack = new CallStack(story.rootContentContainer);
-		this._variablesState = new VariablesState(this._callStack);
+		this.callStack = new CallStack(story.rootContentContainer);
+		this._variablesState = new VariablesState(this.callStack);
 
 		this._visitCounts = {};
 		this._turnIndices = {};
@@ -28,13 +28,11 @@ export class StoryState{
 		this.divertedTargetObject = null;
 
 		var timeSeed = (new Date()).getTime();
-		this._storySeed = timeSeed + '-' + Math.round(Math.random() * 9999);
-		this._storySeed = (new PRNG(timeSeed)).next() % 100;
+		this.storySeed = (new PRNG(timeSeed)).next() % 100;
+		this.previousRandom = 0;
 
 		this._currentChoices = [];
 		this._currentErrors = null;
-		
-		this._currentRightGlue;
 		
 		this.didSafeExit = false;
 
@@ -45,9 +43,6 @@ export class StoryState{
 	}
 	get currentErrors(){
 		return this._currentErrors;
-	}
-	get callStack(){
-		return this._callStack;
 	}
 	get visitCounts(){
 		return this._visitCounts;
@@ -60,9 +55,6 @@ export class StoryState{
 	}
 	get variablesState(){
 		return this._variablesState;
-	}
-	get storySeed(){
-		return this._storySeed;
 	}
 	get currentContentObject(){
 		return this.callStack.currentElement.currentObject;
@@ -119,6 +111,18 @@ export class StoryState{
 				break;
 		}
 		return -1;
+	}
+	get currentRightGlue(){
+		for (var i = this._outputStream.length - 1; i >= 0; i--) {
+			var c = this._outputStream[i];
+//			var glue = c as Glue;
+			var glue = c;
+			if (glue instanceof Glue && glue.isRight)
+				return glue;
+			else if (c instanceof ControlCommand) // e.g. BeginString
+				break;
+		}
+		return null;
 	}
 	get inStringEvaluation(){
 		for (var i = this._outputStream.length - 1; i >= 0; i--) {
@@ -196,14 +200,7 @@ export class StoryState{
 		obj["outputStream"] = JsonSerialisation.ListToJArray(this._outputStream);
 
 		obj["currentChoices"] = JsonSerialisation.ListToJArray(this.currentChoices);
-
-		if (this._currentRightGlue) {
-			var rightGluePos = this._outputStream.indexOf(this._currentRightGlue);
-			if( rightGluePos != -1 ) {
-				obj["currRightGlue"] = this._outputStream.indexOf(this._currentRightGlue);
-			}
-		}
-
+		
 		if( this.divertedTargetObject != null )
 			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
 
@@ -240,15 +237,6 @@ export class StoryState{
 //		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
 		this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject["currentChoices"]);
 
-		var propValue;
-		if( propValue = jObject["currRightGlue"] ) {
-			var gluePos = parseInt(propValue);
-			if( gluePos >= 0 ) {
-//				_currentRightGlue = _outputStream [gluePos] as Glue;
-				this._currentRightGlue = this._outputStream[gluePos];
-			}
-		}
-
 		var currentDivertTargetPath = jObject["currentDivertTarget"];
 		if (currentDivertTargetPath != null) {
 			var divertPath = new Path(currentDivertTargetPath.toString());
@@ -258,7 +246,7 @@ export class StoryState{
 		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject["visitCounts"]);
 		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject["turnIndices"]);
 		this._currentTurnIndex = parseInt(jObject["turnIdx"]);
-		this._storySeed = parseInt(jObject["storySeed"]);
+		this.storySeed = parseInt(jObject["storySeed"]);
 
 //		var jChoiceThreads = jObject["choiceThreads"] as JObject;
 		var jChoiceThreads = jObject["choiceThreads"];
@@ -399,10 +387,8 @@ export class StoryState{
 
 		if (glue instanceof Glue) {
 			// Found matching left-glue for right-glue? Close it.
-			var foundMatchingLeftGlue = glue.isLeft && this._currentRightGlue && glue.parent == this._currentRightGlue.parent;
-			if (foundMatchingLeftGlue) {
-				this._currentRightGlue = null;
-			}
+			var existingRightGlue = this.currentRightGlue;
+			var foundMatchingLeftGlue = !!(glue.isLeft && existingRightGlue && glue.parent == existingRightGlue.parent);
 
 			// Left/Right glue is auto-generated for inline expressions 
 			// where we want to absorb newlines but only in a certain direction.
@@ -411,13 +397,7 @@ export class StoryState{
 				this.TrimNewlinesFromOutputStream(foundMatchingLeftGlue);
 			}
 
-			// New right-glue
-			var isNewRightGlue = glue.isRight && this._currentRightGlue == null;
-			if (isNewRightGlue) {
-				this._currentRightGlue = glue;
-			}
-
-			includeInOutput = glue.isBi || isNewRightGlue;
+			includeInOutput = glue.isBi || glue.isRight;
 		}
 
 		else if( text instanceof StringValue ) {
@@ -435,7 +415,6 @@ export class StoryState{
 				// Able to completely reset when 
 				else if (text.isNonWhitespace) {
 					this.RemoveExistingGlue();
-					this._currentRightGlue = null;
 				}
 			} else if (text.isNewline) {
 				if (this.outputStreamEndsInNewline || !this.outputStreamContainsContent)
@@ -519,7 +498,7 @@ export class StoryState{
 			}
 		}
 	}
-	ForceEndFlow(){
+	ForceEnd(){
 		this.currentContentObject = null;
 
 		while (this.callStack.canPopThread)
@@ -565,10 +544,8 @@ export class StoryState{
 			copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
 		}
 
-		copy._callStack = new CallStack(this.callStack);
-
-		copy._currentRightGlue = this._currentRightGlue;
-
+		copy.callStack = new CallStack(this.callStack);
+		
 		copy._variablesState = new VariablesState(copy.callStack);
 		copy.variablesState.CopyFrom(this.variablesState);
 
@@ -582,7 +559,8 @@ export class StoryState{
 		copy._visitCounts = this._visitCounts;
 		copy._turnIndices = this._turnIndices;
 		copy._currentTurnIndex = this.currentTurnIndex;
-		copy._storySeed = this.storySeed;
+		copy.storySeed = this.storySeed;
+		copy.previousRandom = this.previousRandom;
 
 		copy.didSafeExit = this.didSafeExit;
 
@@ -597,5 +575,5 @@ export class StoryState{
 	}
 }
 
-StoryState.kInkSaveStateVersion = 4;
+StoryState.kInkSaveStateVersion = 5;
 StoryState.kMinCompatibleLoadVersion = 4;

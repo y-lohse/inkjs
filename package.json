@@ -2,15 +2,12 @@
   "name": "inkjs",
   "version": "1.1.3",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
-  "main": "dist/ink.cjs.js",
+  "main": "dist/ink-es2015.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "grunt rollup",
     "watch": "grunt watch",
-    "prepublish": "grunt rollup:cjs"
-  },
-  "bin": {
-    "inklecate": "./bin/cli.js"
+    "prepublish": "grunt rollup:release"
   },
   "author": "Yannick Lohse",
   "license": "MIT",

@@ -1,4 +1,4 @@
-var Story = require('../dist/ink.cjs.js').Story;
+var Story = require('../dist/ink.js').Story;
 var fs = require('fs');
 var readline = require('readline');
 
@@ -9,6 +9,11 @@ var rl = readline.createInterface({
 
 var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
 var s = new Story(inkFile);
+console.log(s.ToJsonString());
+var out = s.ToJsonString();
+s = new Story(out);
+
+//end();
 var gameSave;
 
 continueToNextChoice();

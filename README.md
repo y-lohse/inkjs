@@ -2,21 +2,27 @@
 
 This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
-inkjs should support pretty much everything the original version does. If you find any bugs, please report them here! The code has zero dependencies and it should work in node and all evergreen browsers.
+inkjs should support pretty much everything the original version does. If you find any bugs, please report them here! The code has zero dependencies and it should work in node.js and all evergreen browsers.
 
 ## Getting started *browser version*
 
 ### Installation
 
-Grab the most convenient format for you from the [release page](https://github.com/y-lohse/inkjs/releases). If in doubt, use the iife version.
+Grab the ink.js file from the [latest release](https://github.com/y-lohse/inkjs/releases).
 
-It's also available on bower: `bower install inkjs`
+There's an ES2015 version available if you only target browsers with basic ES 2015 support that has a lighter footprint.
+Both versions use Universal Module Definition (UMD), so you can use it with [RequireJS](http://requirejs.org/) or basically any other module loader. If you don't know what any of this means, don't worry, you'll be fine too.
+It's also available on bower: `bower install inkjs`.
 
 ### Loading inkjs
 
-If you're using the IIFE version, add the script to your page and it will create aglobal object called `inkjs`. If you're using the AMD/UMD version, you need to require the package using your prefered mechanism.
+Add the script to your page:
 
-The `inkjs` has a property called `Story`. This is the main class we will interact with.
+```
+<script src="ink.js"></script>
+```
+
+This will create a global object named `inkjs`. It has a property called `Story` which is the main class we will interact with.
 
 ### Loading a json file
 

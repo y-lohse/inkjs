@@ -9,41 +9,45 @@ module.exports = function(grunt) {
         pkg: grunt.file.readJSON('package.json'),
         watch: {
             files: ['engine/*.js'],
-            tasks: ['rollup:cjs', 'rollup:iife']
+            tasks: ['rollup:release']
         },
         rollup: {
             options: {
-                plugins: [
-                    babel({
-						exclude: 'node_modules/**',
-						presets: ['es2015-rollup'],
-						plugins: ['transform-object-assign'],
-					}),
-					uglify(),
-                ],
+				format: 'umd',
                 moduleId: 'inkjs',
                 moduleName: 'inkjs',
             },
-			amd: {
-                options : { format: 'amd' },
-                dest: 'dist/ink.amd.js',
+			release: {
+				dest: 'dist/ink-es2015.js',
                 src: exposedFiles
-            },
-			umd: {
-                options : { format: 'umd' },
-                dest: 'dist/ink.umd.js',
+			},
+			legacy: {
+				options: {
+					plugins: [
+						babel({
+							exclude: 'node_modules/**',
+							presets: ['es2015-rollup'],
+							plugins: ['transform-object-assign'],
+						}),
+                	],
+				},
+				dest: 'dist/ink.js',
                 src: exposedFiles
-            },
-            cjs: {
-                options : { format: 'cjs' },
-                dest: 'dist/ink.cjs.js',
+			},
+			legacy_min: {
+				options: {
+					plugins: [
+						babel({
+							exclude: 'node_modules/**',
+							presets: ['es2015-rollup'],
+							plugins: ['transform-object-assign'],
+						}),
+						uglify(),
+                	],
+				},
+				dest: 'dist/ink.min.js',
                 src: exposedFiles
-            },
-			iife: {
-                options : { format: 'iife' },
-                dest: 'dist/ink.iife.js',
-                src: exposedFiles
-            },
+			}
         },
 		jasmine_node: {
         	options: {
