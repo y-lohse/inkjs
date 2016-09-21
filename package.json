@@ -9,9 +9,6 @@
     "watch": "grunt watch",
     "prepublish": "grunt rollup:release"
   },
-  "bin": {
-    "inklecate": "./bin/cli.js"
-  },
   "author": "Yannick Lohse",
   "license": "MIT",
   "devDependencies": {
