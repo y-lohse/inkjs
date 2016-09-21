@@ -3419,7 +3419,7 @@
   			while (this.callStack.canPopThread) {
   				this.callStack.PopThread();
   			}while (this.callStack.canPop) {
-  				callStack.Pop();
+  				this.callStack.Pop();
   			}this.currentChoices.length = 0;
 
   			this.didSafeExit = true;
@@ -4439,7 +4439,7 @@
   							var resultSeed = this.state.storySeed + this.state.previousRandom;
   							var random = new PRNG(resultSeed);
 
-  							var nextRandom = random.Next();
+  							var nextRandom = random.next();
   							var chosenValue = nextRandom % randomRange + minInt.value;
   							this.state.PushEvaluationStack(new IntValue(chosenValue));
 
@@ -4456,7 +4456,7 @@
   							this.state.previousRandom = 0;
 
   							// SEED_RANDOM returns nothing.
-  							this.state.PushEvaluationStack(new Runtime.Void());
+  							this.state.PushEvaluationStack(new Void());
   							break;
 
   						case ControlCommand.CommandType.VisitIndex:
@@ -4615,6 +4615,7 @@
   			try {
   				funcContainer = this.ContentAtPath(new Path$1(functionName));
   			} catch (e) {
+  				console.log(e);
   				if (e.message.indexOf("not found") >= 0) throw "Function doesn't exist: '" + functionName + "'";else throw e;
   			}
 
@@ -4898,7 +4899,7 @@
   			if (this._variableObservers == null) return;
 
   			var observers = this._variableObservers[variableName];
-  			if (typeof newValueObj !== 'undefined') {
+  			if (typeof observers !== 'undefined') {
 
   				if (!(newValueObj instanceof Value)) {
   					throw "Tried to get the value of a variable that isn't a standard type";
