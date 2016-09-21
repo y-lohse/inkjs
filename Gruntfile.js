@@ -18,7 +18,7 @@ module.exports = function(grunt) {
                 moduleName: 'inkjs',
             },
 			release: {
-				dest: 'dist/ink.js',
+				dest: 'dist/ink-es2015.js',
                 src: exposedFiles
 			},
 			legacy: {
@@ -31,7 +31,7 @@ module.exports = function(grunt) {
 						}),
                 	],
 				},
-				dest: 'dist/ink-legacy.js',
+				dest: 'dist/ink.js',
                 src: exposedFiles
 			},
 			legacy_min: {
@@ -45,7 +45,7 @@ module.exports = function(grunt) {
 						uglify(),
                 	],
 				},
-				dest: 'dist/ink-legacy.min.js',
+				dest: 'dist/ink.min.js',
                 src: exposedFiles
 			}
         },
