@@ -724,7 +724,7 @@ export class Story extends InkObject{
 				var resultSeed = this.state.storySeed + this.state.previousRandom;
 				var random = new PRNG(resultSeed);
 
-				var nextRandom = random.Next();
+				var nextRandom = random.next();
 				var chosenValue = (nextRandom % randomRange) + minInt.value;
 				this.state.PushEvaluationStack(new IntValue(chosenValue));
 
@@ -742,7 +742,7 @@ export class Story extends InkObject{
 				this.state.previousRandom = 0;
 
 				// SEED_RANDOM returns nothing.
-				this.state.PushEvaluationStack(new Runtime.Void());
+				this.state.PushEvaluationStack(new Void());
 				break;
 					
 			case ControlCommand.CommandType.VisitIndex:
@@ -893,6 +893,7 @@ export class Story extends InkObject{
 		try {
 			funcContainer = this.ContentAtPath(new Path(functionName));
 		} catch (e) {
+			console.log(e);
 			if (e.message.indexOf("not found") >= 0)
 				throw "Function doesn't exist: '" + functionName + "'";
 			else
