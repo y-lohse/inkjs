@@ -34,7 +34,7 @@ class AbstractValue extends InkObject{
 	}
 	static Create(val){
 		// Implicitly convert bools into ints
-		if (val instanceof Boolean){
+		if (typeof val === 'boolean'){
 			var b = !!val;
 			val = (b) ? 1 : 0;
 		}
@@ -43,7 +43,7 @@ class AbstractValue extends InkObject{
 			return new IntValue(val);
 		} else if (!isNaN(val)) {
 			return new FloatValue(val);
-		} else if (val instanceof String) {
+		} else if (typeof val === 'string') {
 			return new StringValue(val);
 		} else if (val instanceof Path) {
 			return new DivertTargetValue(val);

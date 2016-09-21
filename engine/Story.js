@@ -880,7 +880,7 @@ export class Story extends InkObject{
 	}
 	EvaluateFunction(functionName, textOutput, args){
 		//match the first signature of the function
-		if (textOutput instanceof String === false) return this.EvaluateFunction(functionName, '', textOutput);
+		if (typeof textOutput !== 'string') return this.EvaluateFunction(functionName, '', textOutput);
 		
 		if (functionName == null) {
 			throw "Function is null";
@@ -916,7 +916,7 @@ export class Story extends InkObject{
 
 		if (args != null) {
 			for (var i = 0; i < args.Length; i++) {
-				if (!(args[i] instanceof Number || args[i] instanceof String)) {
+				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
 					throw "ink arguments when calling EvaluateFunction must be int, float or string";
 				}
 
