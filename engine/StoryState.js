@@ -505,7 +505,7 @@ export class StoryState{
 			this.callStack.PopThread();
 
 		while (this.callStack.canPop)
-			callStack.Pop();
+			this.callStack.Pop();
 
 		this.currentChoices.length = 0;
 
