@@ -5,6 +5,7 @@ import {Glue} from './Glue';
 import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
 import {StoryException} from './StoryException';
+import {StringBuilder} from './StringBuilder';
 import {JsonSerialisation} from './JsonSerialisation';
 import {Story} from './Story';
 import {PRNG} from './PRNG';
@@ -136,17 +137,17 @@ export class StoryState{
 		return false;
 	}
 	get currentText(){
-		var sb = '';
+		var sb = new StringBuilder();
 		
 		this._outputStream.forEach(outputObj => {
 //			var textContent = outputObj as StringValue;
 			var textContent = outputObj;
 			if (textContent instanceof StringValue) {
-				sb += textContent.value;
+				sb.APpend(textContent.value);
 			}
 		});
 
-		return sb;
+		return sb.toString();
 	}
 	get outputStream(){
 		return this._outputStream;

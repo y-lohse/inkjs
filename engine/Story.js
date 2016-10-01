@@ -16,6 +16,7 @@ import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {Polyfill} from './Polyfill';
+import {StringBuilder} from './StringBuilder';
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -272,13 +273,13 @@ export class Story extends InkObject{
 		return this.currentText;
 	}
 	ContinueMaximally(){
-		var sb = '';
+		var sb = new StringBuilder();
 
 		while (this.canContinue) {
-			sb += this.Continue();
+			sb.Append(this.Continue());
 		}
 
-		return sb;
+		return sb.toString();
 	}
 	ContentAtPath(path){
 		return this.mainContentContainer.ContentAtPath(path);
@@ -673,14 +674,14 @@ export class Story extends InkObject{
 				contentStackForString = contentStackForString.reverse();
 					
 				// Build string out of the content we collected
-				var sb = '';
+				var sb = new StringBuilder();
 				contentStackForString.forEach(c => {
-					sb += c.toString();
+					sb.APpend(c.toString());
 				});
 
 				// Return to expression evaluation (from content mode)
 				this.state.inExpressionEvaluation = true;
-				this.state.PushEvaluationStack(new StringValue(sb));
+				this.state.PushEvaluationStack(new StringValue(sb.toString()));
 				break;
 
 			case ControlCommand.CommandType.ChoiceCount:
@@ -930,9 +931,9 @@ export class Story extends InkObject{
 		this.state.currentContentObject = funcContainer;
 
 		// Evaluate the function, and collect the string output
-		var stringOutput = '';
+		var stringOutput = new StringBuilder();
 		while (this.canContinue) {
-			stringOutput += this.Continue();
+			stringOutput.Append(this.Continue());
 		}
 		textOutput = stringOutput.toString();
 
@@ -1178,7 +1179,7 @@ export class Story extends InkObject{
 		}
 	}
 	BuildStringOfHierarchy(){
-		var sb = "";
+		var sb = new StringBuilder;
 
 		this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
 

@@ -1,5 +1,6 @@
 import {Path} from './Path';
 import {PushPopType} from './PushPop';
+import {StringBuilder} from './StringBuilder';
 import {Object as InkObject} from './Object';
 
 export class Divert extends InkObject{
@@ -84,7 +85,7 @@ export class Divert extends InkObject{
 			return "Divert(null)";
 		} else {
 
-			var sb = '';
+			var sb = new StringBuilder;
 
 			var targetStr = this.targetPath.toString();
 //			int? targetLineNum = DebugLineNumberOfPath (targetPath);
@@ -93,20 +94,20 @@ export class Divert extends InkObject{
 				targetStr = "line " + targetLineNum;
 			}
 
-			sb += "Divert";
+			sb.Append("Divert");
 			if (this.pushesToStack) {
 				if (this.stackPushType == PushPopType.Function) {
-					sb += " function";
+					sb.Append(" function");
 				} else {
-					sb += " tunnel";
+					sb.Append(" tunnel");
 				}
 			}
 
-			sb += " (";
-			sb += targetStr;
-			sb += ")";
+			sb.Append(" (");
+			sb.Append(targetStr);
+			sb.Append(")");
 
-			return sb;
+			return sb.toString();
 		}
 	}
 }
