@@ -1120,7 +1120,7 @@ export class Story extends InkObject{
 						var errorPreamble = "ERROR: ";
 						//misses a bit about metadata, which isn't implemented
 
-                        throw new errorPreamble + message;
+                        throw new StoryException(errorPreamble + message);
 					}
                 }
             }
