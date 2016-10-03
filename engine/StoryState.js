@@ -143,7 +143,7 @@ export class StoryState{
 //			var textContent = outputObj as StringValue;
 			var textContent = outputObj;
 			if (textContent instanceof StringValue) {
-				sb.APpend(textContent.value);
+				sb.Append(textContent.value);
 			}
 		});
 

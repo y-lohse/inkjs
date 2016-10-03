@@ -676,7 +676,7 @@ export class Story extends InkObject{
 				// Build string out of the content we collected
 				var sb = new StringBuilder();
 				contentStackForString.forEach(c => {
-					sb.APpend(c.toString());
+					sb.Append(c.toString());
 				});
 
 				// Return to expression evaluation (from content mode)
