@@ -1,6 +1,7 @@
 import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
 import {StringValue} from './Value';
+import {Tag} from './Tag';
 import {Glue} from './Glue';
 import {Path} from './Path';
 import {ControlCommand} from './ControlCommand';
@@ -148,6 +149,19 @@ export class StoryState{
 		});
 
 		return sb.toString();
+	}
+	get currentTags(){
+		var tags = [];
+		
+		this._outputStream.forEach(outputObj => {
+//			var tag = outputObj as Tag;
+			var tag = outputObj;
+			if (tag instanceof Tag) {
+				tags.push(tag.text);
+			}
+		});
+
+		return tags;
 	}
 	get outputStream(){
 		return this._outputStream;

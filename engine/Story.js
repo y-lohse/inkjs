@@ -10,6 +10,7 @@ import {Divert} from './Divert';
 import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
+import {Tag} from './Tag';
 import {VariableAssignment} from './VariableAssignment';
 import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
@@ -22,7 +23,7 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 13;
+		this.inkVersionCurrent = 14;
 		this.inkVersionMinimumCompatible = 12;
 		
 		this._variableObservers = null;
@@ -79,6 +80,9 @@ export class Story extends InkObject{
 	get currentText(){
 		return this.state.currentText;
 	}
+	get currentTags(){
+		return this.state.currentTags;
+	}
 	get currentErrors(){
 		return this.state.currentErrors;
 	}
@@ -101,6 +105,10 @@ export class Story extends InkObject{
 	}
 	get canContinue(){
 		return this.state.currentContentObject != null && !this.state.hasError;
+	}
+	
+	get globalTags(){
+		return this.TagsAtStartOfFlowContainerWithPathString("");
 	}
 	
 	ToJsonString(){
@@ -191,9 +199,10 @@ export class Story extends InkObject{
 						// Cover cases that non-text generated content was evaluated last step
 						var currText = this.currentText;
 						var prevTextLength = stateAtLastNewline.currentText.length;
+						var prevTagCount = stateAtLastNewline.currentTags.length;
 
 						// Output has been extended?
-						if( currText !== stateAtLastNewline.currentText ) {
+						if( currText !== stateAtLastNewline.currentText || prevTagCount != this.currentTags.length ) {
 
 							// Original newline still exists?
 							if( currText.length >= prevTextLength && currText[prevTextLength-1] == '\n' ) {
@@ -1177,6 +1186,35 @@ export class Story extends InkObject{
 				observer(variableName, val.valueObject);
 			});
 		}
+	}
+	TagsForContentAtPath(path){
+		return this.TagsAtStartOfFlowContainerWithPathString(path);
+	}
+	TagsAtStartOfFlowContainerWithPathString(pathString){
+		var path = new Path(pathString);
+
+		// Expected to be global story, knot or stitch
+//		var flowContainer = ContentAtPath (path) as Container;
+		var flowContainer = this.ContentAtPath(path);
+
+		// First element of the above constructs is a compiled weave
+//		var innerWeaveContainer = flowContainer.content [0] as Container;
+		var innerWeaveContainer = flowContainer.content[0];
+
+		// Any initial tag objects count as the "main tags" associated with that story/knot/stitch
+		var tags = null;
+		
+		innerWeaveContainer.content.every(c => {
+//			var tag = c as Runtime.Tag;
+			var tag = c;
+			if (tag instanceof Tag) {
+				if (tags == null) tags = [];
+				tags.push(tag.text);
+				return true;
+			} else return false;
+		});
+
+		return tags;
 	}
 	BuildStringOfHierarchy(){
 		var sb = new StringBuilder;
