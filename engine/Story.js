@@ -880,9 +880,9 @@ export class Story extends InkObject{
 			return false;
 		}
 	}
-	EvaluateFunction(functionName, textOutput, args){
-		//match the first signature of the function
-		if (typeof textOutput !== 'string') return this.EvaluateFunction(functionName, '', textOutput);
+	EvaluateFunction(functionName, args, returnTextOutput){
+		//EvaluateFunction behaves slightly differently than the C# version. In C#, you can pass a (second) parameter `out textOutput` to get the text outputted by the function. This is not possible in js. Instead, we maintain the regular signature (functionName, args), plus an optional third parameter returnTextOutput. If set to true, we will return both the textOutput and the returned value, as an object.
+		returnTextOutput = !!returnTextOutput;
 		
 		if (functionName == null) {
 			throw "Function is null";
@@ -935,7 +935,7 @@ export class Story extends InkObject{
 		while (this.canContinue) {
 			stringOutput.Append(this.Continue());
 		}
-		textOutput = stringOutput.toString();
+		var textOutput = stringOutput.toString();
 
 		// Restore original stack
 		this.state.callStack = originalCallstack;
@@ -950,10 +950,13 @@ export class Story extends InkObject{
 			if (returnedObj == null)
 				returnedObj = poppedObj;
 		}
+		
+		//inkjs specific: since we change the type of return conditionally, we want to have only one return statement
+		var returnedValue = null;
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
-				return null;
+				returnedValue = null;
 
 			// Some kind of value, if not void
 //			var returnVal = returnedObj as Runtime.Value;
@@ -962,15 +965,15 @@ export class Story extends InkObject{
 			// DivertTargets get returned as the string of components
 			// (rather than a Path, which isn't public)
 			if (returnVal.valueType == ValueType.DivertTarget) {
-				return returnVal.valueObject.toString();
+				returnedValue = returnVal.valueObject.toString();
 			}
 
 			// Other types can just have their exact object type:
 			// int, float, string. VariablePointers get returned as strings.
-			return returnVal.valueObject;
+			returnedValue = returnVal.valueObject;
 		}
 
-		return null;
+		return (returnTextOutput) ? {'returned': returnedValue, 'output': textOutput} : returnedValue;
 	}
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
