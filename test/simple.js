@@ -9,15 +9,9 @@ var rl = readline.createInterface({
 
 var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
 var s = new Story(inkFile);
-//console.log(s.ToJsonString());
-//var out = s.ToJsonString();
-//s = new Story(out);
 
-s.BindExternalFunction('multiply', function(){
-	return 5;
-});
-
-console.log(s.BuildStringOfHierarchy());
+//console.log(s.BuildStringOfHierarchy());
+console.log(s.EvaluateFunction('describe_health', [50]));
 
 //end();
 var gameSave;

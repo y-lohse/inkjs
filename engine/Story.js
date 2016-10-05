@@ -2,12 +2,13 @@ import {Container} from './Container';
 import {Object as InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
+import {CallStack} from './CallStack';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {ValueType, Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {VariableAssignment} from './VariableAssignment';
@@ -894,7 +895,6 @@ export class Story extends InkObject{
 		try {
 			funcContainer = this.ContentAtPath(new Path(functionName));
 		} catch (e) {
-			console.log(e);
 			if (e.message.indexOf("not found") >= 0)
 				throw "Function doesn't exist: '" + functionName + "'";
 			else
@@ -917,17 +917,17 @@ export class Story extends InkObject{
 		this.state.callStack.currentElement.currentContentIndex = 0;
 
 		if (args != null) {
-			for (var i = 0; i < args.Length; i++) {
+			for (var i = 0; i < args.length; i++) {
 				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
 					throw "ink arguments when calling EvaluateFunction must be int, float or string";
 				}
 
-				this.state.evaluationStack.Add(Runtime.Value.Create(args[i]));
+				this.state.evaluationStack.push(Value.Create(args[i]));
 			}
 		}
 
 		// Jump into the function!
-		this.state.callStack.push(PushPopType.Function);
+		this.state.callStack.Push(PushPopType.Function);
 		this.state.currentContentObject = funcContainer;
 
 		// Evaluate the function, and collect the string output
