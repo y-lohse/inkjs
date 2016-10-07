@@ -1,5 +1,6 @@
 import {StringValue} from './Value';
 import {StoryException} from './StoryException';
+import {StringBuilder} from './StringBuilder';
 import {Object as InkObject} from './Object';
 
 export class Container extends InkObject{//also implements INamedContent. Not sure how to do it cleanly in JS.
@@ -210,28 +211,30 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 	}
 	BuildStringOfHierarchy(sb, indentation, pointedObj){
 		if (arguments.length == 0){
-			return this.BuildStringOfHierarchy('', 0, null);
+			var sb = new StringBuilder();
+			this.BuildStringOfHierarchy(sb, 0, null);
+			return sb.toString();
 		}
 		
 		function appendIndentation(){
 			var spacesPerIndent = 4;
 			for(var i = 0; i < spacesPerIndent*indentation; ++i) { 
-				sb += " "; 
+				sb.Append(" "); 
 			}
 		}
 
 		appendIndentation();
-		sb += "[";
+		sb.Append("[");
 
 		if (this.hasValidName) {
-			sb += " (" + this.name + ")";
+			sb.AppendFormat(" ({0})", this.name);
 		}
 
 		if (this == pointedObj) {
-			sb += "  <---";
+			sb.Append("  <---");
 		}
 
-		sb += "\n";
+		sb.AppendLine();
 
 		indentation++;
 
@@ -248,23 +251,23 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 			} else {
 				appendIndentation();
 				if (obj instanceof StringValue) {
-					sb += "\"";
-					sb += obj.toString().replace("\n", "\\n");
-					sb += "\"";
+					sb.Append("\"");
+					sb.Append(obj.toString().replace("\n", "\\n"));
+					sb.Append("\"");
 				} else {
-					sb += obj.toString();
+					sb.Append(obj.toString());
 				}
 			}
 
 			if (i != this.content.length - 1) {
-				sb += ",";
+				sb.Append(",");
 			}
 
 			if ( !(obj instanceof Container) && obj == pointedObj ) {
-				sb += "  <---";
+				sb.Append("  <---");
 			}
 
-			sb += "\n";
+			sb.AppendLine();
 		}
 
 
@@ -280,15 +283,14 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 		if (Object.keys(onlyNamed).length > 0) {
 			appendIndentation();
-			sb += "\n";
-			sb += "-- named: --";
+			sb.AppendLine("-- named: --");
 
 			for (var key in onlyNamed){
 				if (!(onlyNamed[key] instanceof Container)) console.warn("Can only print out named Containers");
 				
 				var container = onlyNamed[key];
 				container.BuildStringOfHierarchy(sb, indentation, pointedObj);
-				sb += "\n";
+				sb.Append("\n");
 			}
 		}
 
@@ -296,6 +298,6 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		indentation--;
 
 		appendIndentation();
-		sb += "]";
+		sb.Append("]");
 	}
 }

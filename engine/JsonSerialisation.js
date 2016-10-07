@@ -9,6 +9,7 @@ import {VariableReference} from './VariableReference';
 import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {Void} from './Void';
+import {Tag} from './Tag';
 import {Path} from './Path';
 import {Choice} from './Choice';
 import {Object as InkObject} from './Object';
@@ -223,6 +224,9 @@ export class JsonSerialisation{
 				varAss.isGlobal = isGlobalVar;
 				return varAss;
 			}
+			if (propValue = obj["#"]){
+				return new Tag(propValue.toString());
+			}
 
 			if (obj["originalChoicePath"] != null)
 				return this.JObjectToChoice(obj);
@@ -378,6 +382,14 @@ export class JsonSerialisation{
 		var voidObj = obj;
 		if (voidObj instanceof Void)
 			return "void";
+	
+//		var tag = obj as Tag;
+		var tag = obj;
+		if (tag instanceof Tag) {
+			var jObj = {};
+			jObj["#"] = tag.text;
+			return jObj;
+		}
 
 		// Used when serialising save state only
 //		var choice = obj as Choice;

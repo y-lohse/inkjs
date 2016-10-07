@@ -1,4 +1,4 @@
-var Story = require('../dist/ink.js').Story;
+var Story = require('../dist/ink-es2015.js').Story;
 var fs = require('fs');
 var readline = require('readline');
 
@@ -9,9 +9,9 @@ var rl = readline.createInterface({
 
 var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
 var s = new Story(inkFile);
-console.log(s.ToJsonString());
-var out = s.ToJsonString();
-s = new Story(out);
+
+//console.log(s.BuildStringOfHierarchy());
+console.log(s.EvaluateFunction('describe_health', [50], true));
 
 //end();
 var gameSave;

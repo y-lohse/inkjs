@@ -236,6 +236,10 @@ export class VariablesState{
 				return null;
 		}
 		else{
+			if (typeof this._globalVariables[variableName] === 'undefined'){
+				throw new StoryException("Variable '" + variableName + "' doesn't exist, so can't be set.");
+			}
+			
 			var val = Value.Create(value);
 			if (val == null) {
 				if (value == null) {

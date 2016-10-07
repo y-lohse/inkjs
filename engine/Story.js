@@ -2,26 +2,29 @@ import {Container} from './Container';
 import {Object as InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
+import {CallStack} from './CallStack';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {ValueType, Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
+import {Tag} from './Tag';
 import {VariableAssignment} from './VariableAssignment';
 import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {Polyfill} from './Polyfill';
+import {StringBuilder} from './StringBuilder';
 
 export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 13;
+		this.inkVersionCurrent = 14;
 		this.inkVersionMinimumCompatible = 12;
 		
 		this._variableObservers = null;
@@ -78,6 +81,9 @@ export class Story extends InkObject{
 	get currentText(){
 		return this.state.currentText;
 	}
+	get currentTags(){
+		return this.state.currentTags;
+	}
 	get currentErrors(){
 		return this.state.currentErrors;
 	}
@@ -100,6 +106,10 @@ export class Story extends InkObject{
 	}
 	get canContinue(){
 		return this.state.currentContentObject != null && !this.state.hasError;
+	}
+	
+	get globalTags(){
+		return this.TagsAtStartOfFlowContainerWithPathString("");
 	}
 	
 	ToJsonString(){
@@ -190,9 +200,10 @@ export class Story extends InkObject{
 						// Cover cases that non-text generated content was evaluated last step
 						var currText = this.currentText;
 						var prevTextLength = stateAtLastNewline.currentText.length;
+						var prevTagCount = stateAtLastNewline.currentTags.length;
 
 						// Output has been extended?
-						if( currText !== stateAtLastNewline.currentText ) {
+						if( currText !== stateAtLastNewline.currentText || prevTagCount != this.currentTags.length ) {
 
 							// Original newline still exists?
 							if( currText.length >= prevTextLength && currText[prevTextLength-1] == '\n' ) {
@@ -272,13 +283,13 @@ export class Story extends InkObject{
 		return this.currentText;
 	}
 	ContinueMaximally(){
-		var sb = '';
+		var sb = new StringBuilder();
 
 		while (this.canContinue) {
-			sb += this.Continue();
+			sb.Append(this.Continue());
 		}
 
-		return sb;
+		return sb.toString();
 	}
 	ContentAtPath(path){
 		return this.mainContentContainer.ContentAtPath(path);
@@ -673,14 +684,14 @@ export class Story extends InkObject{
 				contentStackForString = contentStackForString.reverse();
 					
 				// Build string out of the content we collected
-				var sb = '';
+				var sb = new StringBuilder();
 				contentStackForString.forEach(c => {
-					sb += c.toString();
+					sb.Append(c.toString());
 				});
 
 				// Return to expression evaluation (from content mode)
 				this.state.inExpressionEvaluation = true;
-				this.state.PushEvaluationStack(new StringValue(sb));
+				this.state.PushEvaluationStack(new StringValue(sb.toString()));
 				break;
 
 			case ControlCommand.CommandType.ChoiceCount:
@@ -878,9 +889,9 @@ export class Story extends InkObject{
 			return false;
 		}
 	}
-	EvaluateFunction(functionName, textOutput, args){
-		//match the first signature of the function
-		if (typeof textOutput !== 'string') return this.EvaluateFunction(functionName, '', textOutput);
+	EvaluateFunction(functionName, args, returnTextOutput){
+		//EvaluateFunction behaves slightly differently than the C# version. In C#, you can pass a (second) parameter `out textOutput` to get the text outputted by the function. This is not possible in js. Instead, we maintain the regular signature (functionName, args), plus an optional third parameter returnTextOutput. If set to true, we will return both the textOutput and the returned value, as an object.
+		returnTextOutput = !!returnTextOutput;
 		
 		if (functionName == null) {
 			throw "Function is null";
@@ -893,7 +904,6 @@ export class Story extends InkObject{
 		try {
 			funcContainer = this.ContentAtPath(new Path(functionName));
 		} catch (e) {
-			console.log(e);
 			if (e.message.indexOf("not found") >= 0)
 				throw "Function doesn't exist: '" + functionName + "'";
 			else
@@ -916,25 +926,25 @@ export class Story extends InkObject{
 		this.state.callStack.currentElement.currentContentIndex = 0;
 
 		if (args != null) {
-			for (var i = 0; i < args.Length; i++) {
+			for (var i = 0; i < args.length; i++) {
 				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
 					throw "ink arguments when calling EvaluateFunction must be int, float or string";
 				}
 
-				this.state.evaluationStack.Add(Runtime.Value.Create(args[i]));
+				this.state.evaluationStack.push(Value.Create(args[i]));
 			}
 		}
 
 		// Jump into the function!
-		this.state.callStack.push(PushPopType.Function);
+		this.state.callStack.Push(PushPopType.Function);
 		this.state.currentContentObject = funcContainer;
 
 		// Evaluate the function, and collect the string output
-		var stringOutput = '';
+		var stringOutput = new StringBuilder();
 		while (this.canContinue) {
-			stringOutput += this.Continue();
+			stringOutput.Append(this.Continue());
 		}
-		textOutput = stringOutput.toString();
+		var textOutput = stringOutput.toString();
 
 		// Restore original stack
 		this.state.callStack = originalCallstack;
@@ -949,10 +959,13 @@ export class Story extends InkObject{
 			if (returnedObj == null)
 				returnedObj = poppedObj;
 		}
+		
+		//inkjs specific: since we change the type of return conditionally, we want to have only one return statement
+		var returnedValue = null;
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
-				return null;
+				returnedValue = null;
 
 			// Some kind of value, if not void
 //			var returnVal = returnedObj as Runtime.Value;
@@ -961,15 +974,15 @@ export class Story extends InkObject{
 			// DivertTargets get returned as the string of components
 			// (rather than a Path, which isn't public)
 			if (returnVal.valueType == ValueType.DivertTarget) {
-				return returnVal.valueObject.toString();
+				returnedValue = returnVal.valueObject.toString();
 			}
 
 			// Other types can just have their exact object type:
 			// int, float, string. VariablePointers get returned as strings.
-			return returnVal.valueObject;
+			returnedValue = returnVal.valueObject;
 		}
 
-		return null;
+		return (returnTextOutput) ? {'returned': returnedValue, 'output': textOutput} : returnedValue;
 	}
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
@@ -1120,7 +1133,7 @@ export class Story extends InkObject{
 						var errorPreamble = "ERROR: ";
 						//misses a bit about metadata, which isn't implemented
 
-                        throw new errorPreamble + message;
+                        throw new StoryException(errorPreamble + message);
 					}
                 }
             }
@@ -1177,8 +1190,37 @@ export class Story extends InkObject{
 			});
 		}
 	}
+	TagsForContentAtPath(path){
+		return this.TagsAtStartOfFlowContainerWithPathString(path);
+	}
+	TagsAtStartOfFlowContainerWithPathString(pathString){
+		var path = new Path(pathString);
+
+		// Expected to be global story, knot or stitch
+//		var flowContainer = ContentAtPath (path) as Container;
+		var flowContainer = this.ContentAtPath(path);
+
+		// First element of the above constructs is a compiled weave
+//		var innerWeaveContainer = flowContainer.content [0] as Container;
+		var innerWeaveContainer = flowContainer.content[0];
+
+		// Any initial tag objects count as the "main tags" associated with that story/knot/stitch
+		var tags = null;
+		
+		innerWeaveContainer.content.every(c => {
+//			var tag = c as Runtime.Tag;
+			var tag = c;
+			if (tag instanceof Tag) {
+				if (tags == null) tags = [];
+				tags.push(tag.text);
+				return true;
+			} else return false;
+		});
+
+		return tags;
+	}
 	BuildStringOfHierarchy(){
-		var sb = "";
+		var sb = new StringBuilder;
 
 		this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
 
