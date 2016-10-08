@@ -7,7 +7,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "grunt rollup",
     "watch": "grunt watch",
-    "prepublish": "grunt rollup:release"
+    "prepublish": "grunt rollup"
   },
   "author": "Yannick Lohse",
   "license": "MIT",
