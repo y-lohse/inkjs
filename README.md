@@ -4,12 +4,18 @@ This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scri
 
 inkjs is fully compatible with the original version, has zero dependency and works in all browsers and node.js. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
+- [How to install](#installation)
+- [Quickstart in the browser](#quickstart)
+- [Working with a JSON file in the browser](#working-with-a-json-file)
+- [With Node.js](#using-nodejs)
+- [Differences with the C# API](#differences-with-the-c-api)
+
 ## Installation
 
 Grab the `ink.js` file from the [latest release](https://github.com/y-lohse/inkjs/releases).
 
-For npm users, install with `npm install inkjs --save`. Or for bower, `bower install inkjs`.
-There's a (lighter) ES2015 version available if you only target platforms with basic ES 2015 support.
+For npm users, install with `npm install inkjs --save`. Or for bower, `bower install inkjs`.  
+There's a (lighter) ES2015 version available if you only target platforms with basic ES 2015 support.  
 Both `ink.js` and `ink-es2015.js` use Universal Module Definition (UMD), so you can use it with [RequireJS](http://requirejs.org/) or basically any other module loader.
 If you don't know what any of this means, don't worry, just include `ink.js` with a regular script tag and everything will work fine.
 
