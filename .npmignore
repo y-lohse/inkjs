@@ -1,5 +1,6 @@
 test/
 tests/
 engine/
+templates/
 Gruntfile.js
 .gitattributes
