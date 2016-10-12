@@ -2,13 +2,12 @@ import {Container} from './Container';
 import {Object as InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
-import {CallStack} from './CallStack';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {ValueType, Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {Tag} from './Tag';
@@ -24,8 +23,8 @@ export class Story extends InkObject{
 	constructor(jsonString){
 		super();
 		
-		this.inkVersionCurrent = 14;
-		this.inkVersionMinimumCompatible = 12;
+		this.inkVersionCurrent = 15;
+		this.inkVersionMinimumCompatible = 15;
 		
 		this._variableObservers = null;
 		this._externals = {};
@@ -628,17 +627,31 @@ export class Story extends InkObject{
 
 				var popType = evalCommand.commandType == ControlCommand.CommandType.PopFunction ?
 					PushPopType.Function : PushPopType.Tunnel;
+					
+				var overrideTunnelReturnTarget = null;
+				if (popType == PushPopType.Tunnel) {
+					var popped = this.state.PopEvaluationStack();
+//					overrideTunnelReturnTarget = popped as DivertTargetValue;
+					overrideTunnelReturnTarget = popped;
+					if (overrideTunnelReturnTarget instanceof DivertTargetValue === false) {
+						if (popped instanceof Void === false){
+							throw "Expected void if ->-> doesn't override target";
+						}
+					}
+				}
 
-				if (this.state.callStack.currentElement.type != popType || !this.state.callStack.canPop) {
+				if (this.state.TryExitExternalFunctionEvaluation()){
+					break;
+				}
+				else if (this.state.callStack.currentElement.type != popType || !this.state.callStack.canPop) {
 
-					var names = new {};
+					var names = {};
 					names[PushPopType.Function] = "function return statement (~ return)";
 					names[PushPopType.Tunnel] = "tunnel onwards statement (->->)";
 
 					var expected = names[this.state.callStack.currentElement.type];
-					if (!this.state.callStack.canPop) {
+					if (!this.state.callStack.canPop)
 						expected = "end of flow (-> END or choice)";
-					}
 
 					var errorMsg = "Found " + names[popType] + ", when expected " + expected;
 
@@ -647,6 +660,9 @@ export class Story extends InkObject{
 
 				else {
 					this.state.callStack.Pop();
+					
+					if (overrideTunnelReturnTarget)
+						this.state.divertedTargetObject = this.ContentAtPath(overrideTunnelReturnTarget.targetPath);
 				}
 				break;
 
@@ -909,80 +925,19 @@ export class Story extends InkObject{
 			else
 				throw e;
 		}
-
-		// We'll start a new callstack, so keep hold of the original,
-		// as well as the evaluation stack so we know if the function 
-		// returned something
-		var originalCallstack = this.state.callStack;
-		var originalEvaluationStackHeight = this.state.evaluationStack.length;
-
-		// Create a new base call stack element.
-		// By making it point at element 0 of the base, when NextContent is
-		// called, it'll actually step past the entire content of the game (!)
-		// and straight onto the Done. Bit of a hack :-/ We don't really have
-		// a better way of creating a temporary context that ends correctly.
-		this.state.callStack = new CallStack(this.mainContentContainer);
-		this.state.callStack.currentElement.currentContainer = this.mainContentContainer;
-		this.state.callStack.currentElement.currentContentIndex = 0;
-
-		if (args != null) {
-			for (var i = 0; i < args.length; i++) {
-				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
-					throw "ink arguments when calling EvaluateFunction must be int, float or string";
-				}
-
-				this.state.evaluationStack.push(Value.Create(args[i]));
-			}
-		}
-
-		// Jump into the function!
-		this.state.callStack.Push(PushPopType.Function);
-		this.state.currentContentObject = funcContainer;
-
+		
+		this.state.StartExternalFunctionEvaluation(funcContainer, args);
+		
 		// Evaluate the function, and collect the string output
 		var stringOutput = new StringBuilder();
 		while (this.canContinue) {
 			stringOutput.Append(this.Continue());
 		}
 		var textOutput = stringOutput.toString();
-
-		// Restore original stack
-		this.state.callStack = originalCallstack;
-
-		// Do we have a returned value?
-		// Potentially pop multiple values off the stack, in case we need
-		// to clean up after ourselves (e.g. caller of EvaluateFunction may 
-		// have passed too many arguments, and we currently have no way to check for that)
-		var returnedObj = null;
-		while (this.state.evaluationStack.length > originalEvaluationStackHeight) {
-			var poppedObj = this.state.PopEvaluationStack();
-			if (returnedObj == null)
-				returnedObj = poppedObj;
-		}
 		
-		//inkjs specific: since we change the type of return conditionally, we want to have only one return statement
-		var returnedValue = null;
+		var result = this.state.CompleteExternalFunctionEvaluation();
 
-		if (returnedObj) {
-			if (returnedObj instanceof Void)
-				returnedValue = null;
-
-			// Some kind of value, if not void
-//			var returnVal = returnedObj as Runtime.Value;
-			var returnVal = returnedObj;
-
-			// DivertTargets get returned as the string of components
-			// (rather than a Path, which isn't public)
-			if (returnVal.valueType == ValueType.DivertTarget) {
-				returnedValue = returnVal.valueObject.toString();
-			}
-
-			// Other types can just have their exact object type:
-			// int, float, string. VariablePointers get returned as strings.
-			returnedValue = returnVal.valueObject;
-		}
-
-		return (returnTextOutput) ? {'returned': returnedValue, 'output': textOutput} : returnedValue;
+		return (returnTextOutput) ? {'returned': result, 'output': textOutput} : result;
 	}
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
@@ -1276,6 +1231,9 @@ export class Story extends InkObject{
 				this.state.callStack.PopThread();
 
 				didPop = true;
+			}
+			else {
+				this.state.TryExitExternalFunctionEvaluation();
 			}
 
 			// Step past the point where we last called out

@@ -11,7 +11,7 @@ var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').rep
 var s = new Story(inkFile);
 
 //console.log(s.BuildStringOfHierarchy());
-console.log(s.EvaluateFunction('describe_health', [50], true));
+//console.log(s.EvaluateFunction('describe_health', [50], true));
 
 //end();
 var gameSave;
