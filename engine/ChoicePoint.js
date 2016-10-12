@@ -4,7 +4,7 @@ import {Path} from './Path';
 export class ChoicePoint extends InkObject{
 	constructor(onceOnly){
 		super();
-		this.pathOnChoice;
+		this._pathOnChoice;
 		this.hasCondition;
 		this.hasStartContent;
 		this.hasChoiceOnlyContent;
@@ -13,9 +13,18 @@ export class ChoicePoint extends InkObject{
 		
 		this.onceOnly = !!onceOnly;
 	}
+	get pathOnChoice(){
+		if (this._pathOnChoice != null && this._pathOnChoice.isRelative) {
+			var choiceTargetObj = this.choiceTarget;
+			if (choiceTargetObj) {
+				this._pathOnChoice = choiceTargetObj.path;
+			}
+		}
+		return this._pathOnChoice;
+	}
 	get choiceTarget(){
-		//return this.ResolvePath (pathOnChoice) as Container;
-		return this.ResolvePath(this.pathOnChoice);
+		//return this.ResolvePath (_pathOnChoice) as Container;
+		return this.ResolvePath(this._pathOnChoice);
 	}
 	get pathStringOnChoice(){
 		return this.CompactPathString(this.pathOnChoice);
@@ -38,6 +47,9 @@ export class ChoicePoint extends InkObject{
 		this.hasChoiceOnlyContent = (value & 4) > 0;
 		this.isInvisibleDefault = (value & 8) > 0;
 		this.onceOnly = (value & 16) > 0;
+	}
+	set pathOnChoice(value){
+		this._pathOnChoice = value;
 	}
 	
 	toString(){

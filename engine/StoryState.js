@@ -1,6 +1,7 @@
 import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
-import {StringValue} from './Value';
+import {ValueType, Value, StringValue} from './Value';
+import {PushPopType} from './PushPop';
 import {Tag} from './Tag';
 import {Glue} from './Glue';
 import {Path} from './Path';
@@ -10,6 +11,7 @@ import {StringBuilder} from './StringBuilder';
 import {JsonSerialisation} from './JsonSerialisation';
 import {Story} from './Story';
 import {PRNG} from './PRNG';
+import {Void} from './Void';
 
 export class StoryState{
 	constructor(story){		
@@ -37,6 +39,10 @@ export class StoryState{
 		this._currentErrors = null;
 		
 		this.didSafeExit = false;
+		
+		this._isExternalFunctionEvaluation = false;
+		this._originalCallstack = null;
+		this._originalEvaluationStackHeight = 0;
 
 		this.GoToStart();
 	}
@@ -533,6 +539,80 @@ export class StoryState{
 		this.currentPath = path;
 
 		this._currentTurnIndex++;
+	}
+	StartExternalFunctionEvaluation(funcContainer, args){
+		 // We'll start a new callstack, so keep hold of the original,
+		// as well as the evaluation stack so we know if the function 
+		// returned something
+		this._originalCallstack = this.callStack;
+		this._originalEvaluationStackHeight = this.evaluationStack.length;
+
+		// Create a new base call stack element.
+		this.callStack = new CallStack(funcContainer);
+		this.callStack.currentElement.type = PushPopType.Function;
+
+		// By setting ourselves in external function evaluation mode,
+		// we're saying it's okay to end the flow without a Done or End,
+		// but with a ~ return instead.
+		this._isExternalFunctionEvaluation = true;
+
+		// Pass arguments onto the evaluation stack
+		if (args != null) {
+			for (var i = 0; i < args.length; i++) {
+				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
+					throw "ink arguments when calling EvaluateFunction must be int, float or string";
+				}
+
+				this.evaluationStack.push(Value.Create(args[i]));
+			}
+		}
+	}
+	TryExitExternalFunctionEvaluation(){
+		if (this._isExternalFunctionEvaluation && this.callStack.elements.length == 1 && this.callStack.currentElement.type == PushPopType.Function) {
+			this.currentContentObject = null;
+			this.didSafeExit = true;
+			return true;
+		}
+
+		return false;
+	}
+	CompleteExternalFunctionEvaluation(){
+		// Do we have a returned value?
+		// Potentially pop multiple values off the stack, in case we need
+		// to clean up after ourselves (e.g. caller of EvaluateFunction may 
+		// have passed too many arguments, and we currently have no way to check for that)
+		var returnedObj = null;
+		while (this.evaluationStack.length > this._originalEvaluationStackHeight) {
+			var poppedObj = this.PopEvaluationStack();
+			if (returnedObj == null)
+				returnedObj = poppedObj;
+		}
+		
+		// Restore our own state
+		this.callStack = this._originalCallstack;
+		this._originalCallstack = null;
+		this._originalEvaluationStackHeight = 0;
+
+		if (returnedObj) {
+			if (returnedObj instanceof Void)
+				return null;
+
+			// Some kind of value, if not void
+//			var returnVal = returnedObj as Runtime.Value;
+			var returnVal = returnedObj;
+
+			// DivertTargets get returned as the string of components
+			// (rather than a Path, which isn't public)
+			if (returnVal.valueType == ValueType.DivertTarget) {
+				return returnVal.valueObject.toString();
+			}
+
+			// Other types can just have their exact object type:
+			// int, float, string. VariablePointers get returned as strings.
+			return returnVal.valueObject;
+		}
+
+		return null;
 	}
 	AddError(message){
 		if (this._currentErrors == null) {

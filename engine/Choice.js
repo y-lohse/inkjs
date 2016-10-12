@@ -13,4 +13,7 @@ export class Choice{
 	get pathStringOnChoice(){
 		return this.choicePoint.pathStringOnChoice;
 	}
+	get sourcePath(){
+		return this.choicePoint.path.componentsString;
+	}
 }
