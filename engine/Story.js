@@ -636,6 +636,8 @@ export class Story extends InkObject{
 					if (overrideTunnelReturnTarget instanceof DivertTargetValue === false) {
 						if (popped instanceof Void === false){
 							throw "Expected void if ->-> doesn't override target";
+						} else {
+							overrideTunnelReturnTarget = null;
 						}
 					}
 				}
