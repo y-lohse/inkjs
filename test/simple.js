@@ -19,7 +19,10 @@ var gameSave;
 continueToNextChoice();
 
 function continueToNextChoice(){
-	if (!s.canContinue && s.currentChoices.length === 0) end();
+	if (!s.canContinue && s.currentChoices.length === 0){
+		end();
+		return;
+	}
 	
 	while (s.canContinue){
 		console.log(s.Continue());
