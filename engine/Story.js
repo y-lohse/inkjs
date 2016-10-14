@@ -636,6 +636,8 @@ export class Story extends InkObject{
 					if (overrideTunnelReturnTarget instanceof DivertTargetValue === false) {
 						if (popped instanceof Void === false){
 							throw "Expected void if ->-> doesn't override target";
+						} else {
+							overrideTunnelReturnTarget = null;
 						}
 					}
 				}
@@ -942,7 +944,7 @@ export class Story extends InkObject{
 	EvaluateExpression(exprContainer){
 		var startCallStackHeight = this.state.callStack.elements.length;
 
-		this.state.callStack.push(PushPopType.Tunnel);
+		this.state.callStack.Push(PushPopType.Tunnel);
 
 		this._temporaryEvaluationContainer = exprContainer;
 
@@ -982,7 +984,7 @@ export class Story extends InkObject{
 				if (!(fallbackFunctionContainer instanceof Container)) console.warn("Trying to call EXTERNAL function '" + funcName + "' which has not been bound, and fallback ink function could not be found.");
 
 				// Divert direct into fallback function and we're done
-				this.state.callStack.push(PushPopType.Function);
+				this.state.callStack.Push(PushPopType.Function);
 				this.state.divertedTargetObject = fallbackFunctionContainer;
 				return;
 
