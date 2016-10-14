@@ -1,5 +1,8 @@
-export class Glue{
+import {Object as InkObject} from './Object';
+
+export class Glue extends InkObject{
 	constructor(type){
+		super();
 		this.glueType = type;
 	}
 	get isLeft(){
