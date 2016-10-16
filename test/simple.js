@@ -10,6 +10,8 @@ var rl = readline.createInterface({
 var inkFile = fs.readFileSync(__dirname + '/stories/test.ink.json', 'UTF-8').replace(/^\uFEFF/, '');
 var s = new Story(inkFile);
 
+console.log(s.globalTags);
+
 //console.log(s.BuildStringOfHierarchy());
 //console.log(s.EvaluateFunction('describe_health', [50], true));
 
