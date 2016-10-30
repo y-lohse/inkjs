@@ -1058,22 +1058,12 @@ export class Story extends InkObject{
 
 			// Error for all missing externals
 			else {
-				var message = "Missing function binding for external";
+				var message = "Error: Missing function binding for external";
 				message += (missingExternals.length > 1) ? "s" : "";
 				message += ": '";
 				message += missingExternals.join("', '");
 				message += "' ";
 				message += (this.allowExternalFunctionFallbacks) ? ", and no fallback ink function found." : " (ink fallbacks disabled)";
-					
-				var errorPreamble = "ERROR: ";
-				if (this._mainContentContainer.debugMetadata) {
-					errorPreamble += "'" + this._mainContentContainer.debugMetadata.fileName + "'";
-					errorPreamble += " line ";
-					errorPreamble += this._mainContentContainer.debugMetadata.startLineNumber;
-					errorPreamble += ": ";
-					
-					message = errorPreamble + message;
-				}
 
 				this.Error(message);
 			}
