@@ -1887,7 +1887,7 @@
   					return x * y;
   				});
   				this.AddIntBinaryOp(this.Divide, function (x, y) {
-  					return x / y;
+  					return parseInt(x / y);
   				});
   				this.AddIntBinaryOp(this.Mod, function (x, y) {
   					return x % y;
@@ -3283,6 +3283,23 @@
   	}
 
   	babelHelpers.createClass(StoryState, [{
+  		key: 'MatchRightGlueForLeftGlue',
+  		value: function MatchRightGlueForLeftGlue(leftGlue) {
+  			if (!leftGlue.isLeft) return null;
+
+  			for (var i = this._outputStream.length - 1; i >= 0; i--) {
+  				var c = this._outputStream[i];
+  				//			var g = c as Glue;
+  				var g = c;
+  				if (g instanceof Glue && g.isRight && g.parent == leftGlue.parent) {
+  					return g;
+  				} else if (c instanceof ControlCommand) // e.g. BeginString
+  					break;
+  			}
+
+  			return null;
+  		}
+  	}, {
   		key: 'GoToStart',
   		value: function GoToStart() {
   			this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
@@ -3415,12 +3432,15 @@
   				// Found matching left-glue for right-glue? Close it.
   				var existingRightGlue = this.currentRightGlue;
   				var foundMatchingLeftGlue = !!(glue.isLeft && existingRightGlue && glue.parent == existingRightGlue.parent);
+  				var matchingRightGlue = null;
+
+  				if (glue.isLeft) matchingRightGlue = this.MatchRightGlueForLeftGlue(glue);
 
   				// Left/Right glue is auto-generated for inline expressions
   				// where we want to absorb newlines but only in a certain direction.
   				// "Bi" glue is written by the user in their ink with <>
   				if (glue.isLeft || glue.isBi) {
-  					this.TrimNewlinesFromOutputStream(foundMatchingLeftGlue);
+  					this.TrimNewlinesFromOutputStream(matchingRightGlue);
   				}
 
   				includeInOutput = glue.isBi || glue.isRight;
@@ -3451,7 +3471,7 @@
   		}
   	}, {
   		key: 'TrimNewlinesFromOutputStream',
-  		value: function TrimNewlinesFromOutputStream(stopAndRemoveRightGlue) {
+  		value: function TrimNewlinesFromOutputStream(rightGlueToStopAt) {
   			var removeWhitespaceFrom = -1;
   			var rightGluePos = -1;
   			var foundNonWhitespace = false;
@@ -3472,8 +3492,8 @@
 
   				if (cmd instanceof ControlCommand || txt instanceof StringValue && txt.isNonWhitespace) {
   					foundNonWhitespace = true;
-  					if (!stopAndRemoveRightGlue) break;
-  				} else if (stopAndRemoveRightGlue && glue instanceof Glue && glue.isRight) {
+  					if (rightGlueToStopAt == null) break;
+  				} else if (rightGlueToStopAt && glue instanceof Glue && glue == rightGlueToStopAt) {
   					rightGluePos = i;
   					break;
   				} else if (txt instanceof StringValue && txt.isNewline && !foundNonWhitespace) {
@@ -3496,9 +3516,16 @@
   				}
   			}
 
-  			// Remove the glue (it will come before the whitespace,
-  			// so index is still valid)
-  			if (stopAndRemoveRightGlue && rightGluePos > -1) this._outputStream.splice(rightGluePos, 1);
+  			if (rightGlueToStopAt && rightGluePos > -1) {
+  				i = rightGluePos;
+  				while (i < this._outputStream.length) {
+  					if (this._outputStream[i] instanceof Glue && this._outputStream[i].isRight) {
+  						this.outputStream.splice(i, 1);
+  					} else {
+  						i++;
+  					}
+  				}
+  			}
   		}
   	}, {
   		key: 'TrimFromExistingGlue',
@@ -3526,13 +3553,14 @@
   	}, {
   		key: 'ForceEnd',
   		value: function ForceEnd() {
-  			this.currentContentObject = null;
-
   			while (this.callStack.canPopThread) {
   				this.callStack.PopThread();
   			}while (this.callStack.canPop) {
   				this.callStack.Pop();
   			}this.currentChoices.length = 0;
+
+  			this.currentContentObject = null;
+  			this.previousContentObject = null;
 
   			this.didSafeExit = true;
   		}
@@ -4987,22 +5015,12 @@
 
   				// Error for all missing externals
   				else {
-  						var message = "Missing function binding for external";
+  						var message = "Error: Missing function binding for external";
   						message += missingExternals.length > 1 ? "s" : "";
   						message += ": '";
   						message += missingExternals.join("', '");
   						message += "' ";
   						message += this.allowExternalFunctionFallbacks ? ", and no fallback ink function found." : " (ink fallbacks disabled)";
-
-  						var errorPreamble = "ERROR: ";
-  						if (this._mainContentContainer.debugMetadata) {
-  							errorPreamble += "'" + this._mainContentContainer.debugMetadata.fileName + "'";
-  							errorPreamble += " line ";
-  							errorPreamble += this._mainContentContainer.debugMetadata.startLineNumber;
-  							errorPreamble += ": ";
-
-  							message = errorPreamble + message;
-  						}
 
   						this.Error(message);
   					}
