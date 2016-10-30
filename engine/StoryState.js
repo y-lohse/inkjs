@@ -285,6 +285,21 @@ export class StoryState{
 		});
 	}
 	
+	MatchRightGlueForLeftGlue(leftGlue){
+		if (!leftGlue.isLeft) return null;
+		
+		for (var i = this._outputStream.length - 1; i >= 0; i--) {
+			var c = this._outputStream[i];
+//			var g = c as Glue;
+			var g = c;
+			if (g instanceof Glue && g.isRight && g.parent == leftGlue.parent) {
+				return g;
+			} else if (c instanceof ControlCommand) // e.g. BeginString
+				break;
+		}
+		
+		return null;
+	}
 	GoToStart(){
 		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
         this.callStack.currentElement.currentContentIndex = 0;
@@ -410,12 +425,16 @@ export class StoryState{
 			// Found matching left-glue for right-glue? Close it.
 			var existingRightGlue = this.currentRightGlue;
 			var foundMatchingLeftGlue = !!(glue.isLeft && existingRightGlue && glue.parent == existingRightGlue.parent);
+			var matchingRightGlue = null;
+			
+			if (glue.isLeft)
+				matchingRightGlue = this.MatchRightGlueForLeftGlue(glue);
 
 			// Left/Right glue is auto-generated for inline expressions 
 			// where we want to absorb newlines but only in a certain direction.
 			// "Bi" glue is written by the user in their ink with <>
 			if (glue.isLeft || glue.isBi) {
-				this.TrimNewlinesFromOutputStream(foundMatchingLeftGlue);
+				this.TrimNewlinesFromOutputStream(matchingRightGlue);
 			}
 
 			includeInOutput = glue.isBi || glue.isRight;
@@ -447,7 +466,7 @@ export class StoryState{
 			this._outputStream.push(obj);
 		}
 	}
-	TrimNewlinesFromOutputStream(stopAndRemoveRightGlue){
+	TrimNewlinesFromOutputStream(rightGlueToStopAt){
 		var removeWhitespaceFrom = -1;
 		var rightGluePos = -1;
 		var foundNonWhitespace = false;
@@ -468,9 +487,9 @@ export class StoryState{
 
 			if (cmd instanceof ControlCommand || (txt instanceof StringValue && txt.isNonWhitespace)) {
 				foundNonWhitespace = true;
-				if( !stopAndRemoveRightGlue )
+				if( rightGlueToStopAt == null )
 					break;
-			} else if (stopAndRemoveRightGlue && glue instanceof Glue && glue.isRight) {
+			} else if (rightGlueToStopAt && glue instanceof Glue && glue == rightGlueToStopAt) {
 				rightGluePos = i;
 				break;
 			} else if (txt instanceof StringValue && txt.isNewline && !foundNonWhitespace) {
@@ -493,10 +512,16 @@ export class StoryState{
 			}
 		}
 
-		// Remove the glue (it will come before the whitespace,
-		// so index is still valid)
-		if (stopAndRemoveRightGlue && rightGluePos > -1)
-			this._outputStream.splice(rightGluePos, 1);
+		if (rightGlueToStopAt && rightGluePos > -1) {
+			i = rightGluePos;
+			while(i < this._outputStream.length) {
+				if (this._outputStream[i] instanceof Glue && (this._outputStream[i]).isRight) {
+					this.outputStream.splice(i, 1);
+				} else {
+					i++;
+				}
+			}
+		}
 	}
 	TrimFromExistingGlue(){
 		var i = this.currentGlueIndex;
@@ -520,8 +545,6 @@ export class StoryState{
 		}
 	}
 	ForceEnd(){
-		this.currentContentObject = null;
-
 		while (this.callStack.canPopThread)
 			this.callStack.PopThread();
 
@@ -529,6 +552,9 @@ export class StoryState{
 			this.callStack.Pop();
 
 		this.currentChoices.length = 0;
+		
+		this.currentContentObject = null;
+		this.previousContentObject = null;
 
 		this.didSafeExit = true;
 	}

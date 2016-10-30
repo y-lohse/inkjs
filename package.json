@@ -1,6 +1,6 @@
 {
   "name": "inkjs",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
   "scripts": {
