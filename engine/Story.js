@@ -228,7 +228,13 @@ export class Story extends InkObject{
 						// We're going to continue stepping in case we see glue or some
 						// non-text content such as choices.
 						if( this.canContinue ) {
-							stateAtLastNewline = this.StateSnapshot();
+								// Don't bother to record the state beyond the current newline.
+								// e.g.:
+								// Hello world\n			// record state at the end of here
+								// ~ complexCalculation()   // don't actually need this unless it generates text
+								if( stateAtLastNewline == null ) {
+                                					stateAtLastNewline = this.StateSnapshot();
+								}	
 						} 
 
 						// Can't continue, so we're about to exit - make sure we
