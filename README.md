@@ -30,7 +30,7 @@ We simply create a new story by calling `var story = new inkjs.Story(storyConten
 
 ## Working with a JSON file
 
-If you frequently need to update your story, pasting the content into `story.js` will probably get tedious. So another option is to dynamically load the JSON file for your story. Unfortunately, your browser won't let you do that because of [CORS policy]([CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS), which means you need a web server to do this. You could do this without much hassle with [node.js](https://www.npmjs.com/package/http-server) or [python](http://www.linuxjournal.com/content/tech-tip-really-simple-http-server-python) for example.
+If you frequently need to update your story, pasting the content into `story.js` will probably get tedious. So another option is to dynamically load the JSON file for your story. Unfortunately, your browser won't let you do that because of [CORS policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS), which means you need a web server to do this. You could do this without much hassle with [node.js](https://www.npmjs.com/package/http-server) or [python](http://www.linuxjournal.com/content/tech-tip-really-simple-http-server-python) for example.
 
 Once the server is running, use the [other boilerplate](https://github.com/y-lohse/inkjs/blob/master/templates/browser_with_server) and place your story content inside `story.json`. Behind the scenes, the only difference is that we load the JSON file via ajax before creating the story:
 
