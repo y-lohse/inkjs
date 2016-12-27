@@ -27,6 +27,7 @@ module.exports = function(grunt) {
 						babel({
 							exclude: 'node_modules/**',
 							presets: ['babili'],
+							comments: false
 						}),
                 	],
 				},
