@@ -108,7 +108,10 @@ export class Path{
 
 		var componentStrings = componentsStr.split('.');
 		componentStrings.forEach(str => {
-			if (!isNaN(parseInt(str))){
+			//we need to distinguish between named components that start with a number, eg "42somewhere", and indexed components
+			//the normal parseInt won't do for the detection because it's too relaxed.
+			//see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
+			if (/^(\-|\+)?([0-9]+|Infinity)$/.test(str)){
 				this.components.push(new Component(parseInt(str)));
 			}
 			else{

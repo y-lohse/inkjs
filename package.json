@@ -13,12 +13,13 @@
   "license": "MIT",
   "devDependencies": {
     "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-preset-es2015-rollup": "^1.1.1",
+    "babel-preset-babili": "0.0.9",
+    "babel-preset-es2015-rollup": "^3.0.0",
     "grunt": "^1.0.1",
     "grunt-contrib-watch": "^1.0.0",
     "grunt-jasmine-node": "^0.3.1",
-    "grunt-rollup": "^0.7.1",
-    "rollup-plugin-babel": "^2.4.0",
+    "grunt-rollup": "^1.0.1",
+    "rollup-plugin-babel": "^2.7.1",
     "rollup-plugin-uglify": "^1.0.1"
   },
   "dependencies": {}

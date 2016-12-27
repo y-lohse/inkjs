@@ -16,8 +16,13 @@ import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
-import {Polyfill} from './Polyfill';
 import {StringBuilder} from './StringBuilder';
+
+if (!Number.isInteger) {
+	Number.isInteger = function isInteger (nVal) {
+		return typeof nVal === "number" && isFinite(nVal) && nVal > -9007199254740992 && nVal < 9007199254740992 && Math.floor(nVal) === nVal;
+	};
+}
 
 export class Story extends InkObject{
 	constructor(jsonString){
@@ -28,6 +33,7 @@ export class Story extends InkObject{
 		
 		this._variableObservers = null;
 		this._externals = {};
+		this._prevContainerSet = null;
 		
 		if (jsonString instanceof Container){
 			this._mainContentContainer = jsonString;
@@ -104,7 +110,7 @@ export class Story extends InkObject{
 		}
 	}
 	get canContinue(){
-		return this.state.currentContentObject != null && !this.state.hasError;
+		return this.state.canContinue;
 	}
 	
 	get globalTags(){
@@ -233,7 +239,7 @@ export class Story extends InkObject{
 								// Hello world\n			// record state at the end of here
 								// ~ complexCalculation()   // don't actually need this unless it generates text
 								if( stateAtLastNewline == null ) {
-                                					stateAtLastNewline = this.StateSnapshot();
+                                	stateAtLastNewline = this.StateSnapshot();
 								}	
 						} 
 
@@ -261,7 +267,7 @@ export class Story extends InkObject{
 					this.Error("Thread available to pop, threads should always be flat by the end of evaluation?");
 				}
 
-				if( this.currentChoices.length == 0 && !this.state.didSafeExit && this._temporaryEvaluationContainer == null) {
+				if( this.state.generatedChoices.length == 0 && !this.state.didSafeExit && this._temporaryEvaluationContainer == null) {
 					if( this.state.callStack.CanPop(PushPopType.Tunnel) ) {
 						this.Error("unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?");
 					} else if( this.state.callStack.CanPop(PushPopType.Function) ) {
@@ -356,7 +362,7 @@ export class Story extends InkObject{
 		if (choicePoint instanceof ChoicePoint) {
 			var choice = this.ProcessChoice(choicePoint);
 			if (choice) {
-				this.state.currentChoices.push(choice);
+				this.state.generatedChoices.push(choice);
 			}
 
 			currentContentObj = null;
@@ -422,12 +428,12 @@ export class Story extends InkObject{
 			return;
             
 		// First, find the previously open set of containers
-		var prevContainerSet = [];
+		if (this._prevContainerSet == null) this._prevContainerSet = [];
 		if (previousContentObject) {
 //			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
 			var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
 			while (prevAncestor instanceof Container) {
-				prevContainerSet.push(prevAncestor);
+				this._prevContainerSet.push(prevAncestor);
 //				prevAncestor = prevAncestor.parent as Container;
 				prevAncestor = prevAncestor.parent;
 			}
@@ -438,7 +444,7 @@ export class Story extends InkObject{
 		var currentChildOfContainer = newContentObject;
 //		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
 		var currentContainerAncestor = currentChildOfContainer.parent;
-		while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
+		while (currentContainerAncestor instanceof Container && this._prevContainerSet.indexOf(currentContainerAncestor) < 0) {
 
 			// Check whether this ancestor container is being entered at the start,
 			// by checking whether the child object is the first.
@@ -719,7 +725,7 @@ export class Story extends InkObject{
 				break;
 
 			case ControlCommand.CommandType.ChoiceCount:
-				var choiceCount = this.currentChoices.length;
+				var choiceCount = this.state.generatedChoices.length;
 				this.state.PushEvaluationStack(new IntValue(choiceCount));
 				break;
 
