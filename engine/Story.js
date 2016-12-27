@@ -16,8 +16,13 @@ import {VariableReference} from './VariableReference';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
-import {Polyfill} from './Polyfill';
 import {StringBuilder} from './StringBuilder';
+
+if (!Number.isInteger) {
+	Number.isInteger = function isInteger (nVal) {
+		return typeof nVal === "number" && isFinite(nVal) && nVal > -9007199254740992 && nVal < 9007199254740992 && Math.floor(nVal) === nVal;
+	};
+}
 
 export class Story extends InkObject{
 	constructor(jsonString){
