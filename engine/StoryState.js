@@ -19,6 +19,9 @@ export class StoryState{
 		this.story = story;
 		
 		this._outputStream = [];
+		this._outputStreamTextDirty = true;
+		this._outputStreamTagsDirty = true;
+		this.OutputStreamDirty();
 
 		this._evaluationStack = [];
 
@@ -36,6 +39,8 @@ export class StoryState{
 		this.previousRandom = 0;
 
 		this._currentChoices = [];
+		this._currentText = null;
+		this._currentTags = null;
 		this._currentErrors = null;
 		
 		this.didSafeExit = false;
@@ -47,6 +52,13 @@ export class StoryState{
 		this.GoToStart();
 	}
 	get currentChoices(){
+		// If we can continue generating text content rather than choices,
+		// then we reflect the choice list as being empty, since choices
+		// should always come at the end.
+		if ( this.canContinue ) return [];
+		return this._currentChoices;
+	}
+	get generatedChoices(){
 		return this._currentChoices;
 	}
 	get currentErrors(){
@@ -69,6 +81,9 @@ export class StoryState{
 	}
 	set currentContentObject(value){
 		this.callStack.currentElement.currentObject = value;
+	}
+	get canContinue(){
+		return this.currentContentObject != null && !this.hasError;
 	}
 	get hasError(){
 		return this.currentErrors != null && this.currentErrors.length > 0;
@@ -144,30 +159,39 @@ export class StoryState{
 		return false;
 	}
 	get currentText(){
-		var sb = new StringBuilder();
-		
-		this._outputStream.forEach(outputObj => {
-//			var textContent = outputObj as StringValue;
-			var textContent = outputObj;
-			if (textContent instanceof StringValue) {
-				sb.Append(textContent.value);
-			}
-		});
+		if( this._outputStreamTextDirty ) {
+			var sb = new StringBuilder();
 
-		return sb.toString();
+			this._outputStream.forEach(outputObj => {
+	//			var textContent = outputObj as StringValue;
+				var textContent = outputObj;
+				if (textContent instanceof StringValue) {
+					sb.Append(textContent.value);
+				}
+			});
+
+			this._currentText = sb.toString();
+			this._outputStreamTextDirty = false;
+		}
+		
+		return this._currentText;
 	}
 	get currentTags(){
-		var tags = [];
-		
-		this._outputStream.forEach(outputObj => {
-//			var tag = outputObj as Tag;
-			var tag = outputObj;
-			if (tag instanceof Tag) {
-				tags.push(tag.text);
-			}
-		});
+		if( this._outputStreamTagsDirty ) {
+			this._currentTags = [];
 
-		return tags;
+			this._outputStream.forEach(outputObj => {
+	//			var tag = outputObj as Tag;
+				var tag = outputObj;
+				if (tag instanceof Tag) {
+					this._currentTags.push(tag.text);
+				}
+			});
+			
+			this._outputStreamTagsDirty = false;
+		}
+		
+		return this._currentTags;
 	}
 	get outputStream(){
 		return this._outputStream;
@@ -197,7 +221,7 @@ export class StoryState{
 		var obj = {};
 
 		var choiceThreads = null;
-		this.currentChoices.forEach(c => {
+		this._currentChoices.forEach(c => {
 			c.originalChoicePath = c.choicePoint.path.componentsString;
 			c.originalThreadIndex = c.threadAtGeneration.threadIndex;
 
@@ -220,7 +244,7 @@ export class StoryState{
 
 		obj["outputStream"] = JsonSerialisation.ListToJArray(this._outputStream);
 
-		obj["currentChoices"] = JsonSerialisation.ListToJArray(this.currentChoices);
+		obj["currentChoices"] = JsonSerialisation.ListToJArray(this._currentChoices);
 		
 		if( this.divertedTargetObject != null )
 			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
@@ -254,6 +278,7 @@ export class StoryState{
 		this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(jObject["evalStack"]);
 
 		this._outputStream = JsonSerialisation.JArrayToRuntimeObjList(jObject["outputStream"]);
+		this.OutputStreamDirty();
 
 //		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
 		this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject["currentChoices"]);
@@ -272,7 +297,7 @@ export class StoryState{
 //		var jChoiceThreads = jObject["choiceThreads"] as JObject;
 		var jChoiceThreads = jObject["choiceThreads"];
 		
-		this.currentChoices.forEach(c => {
+		this._currentChoices.forEach(c => {
 			c.choicePoint = this.story.ContentAtPath(new Path(c.originalChoicePath));
 
 			var foundActiveThread = this.callStack.ThreadWithIndex(c.originalThreadIndex);
@@ -309,6 +334,7 @@ export class StoryState{
 	}
 	ResetOutput(){
 		this._outputStream.length = 0;
+		this.OutputStreamDirty();
 	}
 	PushEvaluationStack(obj){
 		this.evaluationStack.push(obj);
@@ -344,6 +370,7 @@ export class StoryState{
 		}
 
 		this.PushToOutputStreamIndividual(obj);
+		this.OutputStreamDirty();
 	}
 	TrySplittingHeadTailWhitespace(single){
 		var str = single.value;
@@ -464,6 +491,7 @@ export class StoryState{
 
 		if (includeInOutput) {
 			this._outputStream.push(obj);
+			this.OutputStreamDirty();
 		}
 	}
 	TrimNewlinesFromOutputStream(rightGlueToStopAt){
@@ -522,6 +550,8 @@ export class StoryState{
 				}
 			}
 		}
+		
+		this.OutputStreamDirty();
 	}
 	TrimFromExistingGlue(){
 		var i = this.currentGlueIndex;
@@ -533,6 +563,8 @@ export class StoryState{
 			else
 				i++;
 		}
+		
+		this.OutputStreamDirty();
 	}
 	RemoveExistingGlue(){
 		for (var i = this._outputStream.length - 1; i >= 0; i--) {
@@ -543,6 +575,8 @@ export class StoryState{
 				break;
 			}
 		}
+		
+		this.OutputStreamDirty();
 	}
 	ForceEnd(){
 		while (this.callStack.canPopThread)
@@ -551,7 +585,7 @@ export class StoryState{
 		while (this.callStack.canPop)
 			this.callStack.Pop();
 
-		this.currentChoices.length = 0;
+		this._currentChoices.length = 0;
 		
 		this.currentContentObject = null;
 		this.previousContentObject = null;
@@ -560,7 +594,7 @@ export class StoryState{
 	}
 	SetChosenPath(path){
 		// Changing direction, assume we need to clear current set of choices
-		this.currentChoices.length = 0;
+		this._currentChoices.length = 0;
 
 		this.currentPath = path;
 
@@ -647,6 +681,10 @@ export class StoryState{
 
 		this._currentErrors.push(message);
 	}
+	OutputStreamDirty(){
+		this._outputStreamTextDirty = true;
+		this._outputStreamTagsDirty = true;
+	}
 	VisitCountAtPathString(pathString){
 		var visitCountOut;
 		if (visitCountOut = this.visitCounts[pathString])
@@ -658,7 +696,9 @@ export class StoryState{
 		var copy = new StoryState(this.story);
 
 		copy.outputStream.push.apply(copy.outputStream, this._outputStream);
-		copy.currentChoices.push.apply(copy.currentChoices, this.currentChoices);
+		this.OutputStreamDirty();
+		
+		copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
 
 		if (this.hasError) {
 			copy.currentErrors = [];
