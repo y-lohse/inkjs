@@ -21,6 +21,18 @@ module.exports = function(grunt) {
 				dest: 'dist/ink-es2015.js',
                 src: exposedFiles
 			},
+			release_min: {
+				options: {
+					plugins: [
+						babel({
+							exclude: 'node_modules/**',
+							presets: ['babili'],
+						}),
+                	],
+				},
+				dest: 'dist/ink-es2015.min.js',
+                src: exposedFiles
+			},
 			legacy: {
 				options: {
 					plugins: [
