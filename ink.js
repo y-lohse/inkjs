@@ -2,78 +2,7 @@
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define('inkjs', ['exports'], factory) :
   (factory((global.inkjs = global.inkjs || {})));
-}(this, function (exports) { 'use strict';
-
-  var babelHelpers = {};
-  babelHelpers.typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-    return typeof obj;
-  } : function (obj) {
-    return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj;
-  };
-
-  babelHelpers.classCallCheck = function (instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  };
-
-  babelHelpers.createClass = function () {
-    function defineProperties(target, props) {
-      for (var i = 0; i < props.length; i++) {
-        var descriptor = props[i];
-        descriptor.enumerable = descriptor.enumerable || false;
-        descriptor.configurable = true;
-        if ("value" in descriptor) descriptor.writable = true;
-        Object.defineProperty(target, descriptor.key, descriptor);
-      }
-    }
-
-    return function (Constructor, protoProps, staticProps) {
-      if (protoProps) defineProperties(Constructor.prototype, protoProps);
-      if (staticProps) defineProperties(Constructor, staticProps);
-      return Constructor;
-    };
-  }();
-
-  babelHelpers.extends = Object.assign || function (target) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-
-      for (var key in source) {
-        if (Object.prototype.hasOwnProperty.call(source, key)) {
-          target[key] = source[key];
-        }
-      }
-    }
-
-    return target;
-  };
-
-  babelHelpers.inherits = function (subClass, superClass) {
-    if (typeof superClass !== "function" && superClass !== null) {
-      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
-    }
-
-    subClass.prototype = Object.create(superClass && superClass.prototype, {
-      constructor: {
-        value: subClass,
-        enumerable: false,
-        writable: true,
-        configurable: true
-      }
-    });
-    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
-  };
-
-  babelHelpers.possibleConstructorReturn = function (self, call) {
-    if (!self) {
-      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
-    }
-
-    return call && (typeof call === "object" || typeof call === "function") ? call : self;
-  };
-
-  babelHelpers;
+}(this, (function (exports) { 'use strict';
 
   var Path$1 = function () {
   	function Path() /*polymorphic constructor*/{
@@ -218,7 +147,10 @@
 
   			var componentStrings = componentsStr.split('.');
   			componentStrings.forEach(function (str) {
-  				if (!isNaN(parseInt(str))) {
+  				//we need to distinguish between named components that start with a number, eg "42somewhere", and indexed components
+  				//the normal parseInt won't do for the detection because it's too relaxed.
+  				//see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
+  				if (/^(\-|\+)?([0-9]+|Infinity)$/.test(str)) {
   					_this.components.push(new Component(parseInt(str)));
   				} else {
   					_this.components.push(new Component(str));
@@ -303,7 +235,7 @@
   Path$1.parentId = "^";
   Path$1.Component = Component;
 
-  var InkObject = function () {
+  var Object$1 = function () {
   	function Object() {
   		babelHelpers.classCallCheck(this, Object);
 
@@ -465,7 +397,7 @@
   	function AbstractValue(val) {
   		babelHelpers.classCallCheck(this, AbstractValue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(AbstractValue).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (AbstractValue.__proto__ || Object.getPrototypeOf(AbstractValue)).call(this));
 
   		_this._valueType;
   		_this._isTruthy;
@@ -521,7 +453,7 @@
   		}
   	}]);
   	return AbstractValue;
-  }(InkObject);
+  }(Object$1);
 
   var Value = function (_AbstractValue) {
   	babelHelpers.inherits(Value, _AbstractValue);
@@ -529,7 +461,7 @@
   	function Value(val) {
   		babelHelpers.classCallCheck(this, Value);
 
-  		var _this2 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Value).call(this));
+  		var _this2 = babelHelpers.possibleConstructorReturn(this, (Value.__proto__ || Object.getPrototypeOf(Value)).call(this));
 
   		_this2.value = val;
   		return _this2;
@@ -563,7 +495,7 @@
   	function IntValue(val) {
   		babelHelpers.classCallCheck(this, IntValue);
 
-  		var _this3 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(IntValue).call(this, val || 0));
+  		var _this3 = babelHelpers.possibleConstructorReturn(this, (IntValue.__proto__ || Object.getPrototypeOf(IntValue)).call(this, val || 0));
 
   		_this3._valueType = ValueType.Int;
   		return _this3;
@@ -606,7 +538,7 @@
   	function FloatValue(val) {
   		babelHelpers.classCallCheck(this, FloatValue);
 
-  		var _this4 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(FloatValue).call(this, val || 0.0));
+  		var _this4 = babelHelpers.possibleConstructorReturn(this, (FloatValue.__proto__ || Object.getPrototypeOf(FloatValue)).call(this, val || 0.0));
 
   		_this4._valueType = ValueType.Float;
   		return _this4;
@@ -649,7 +581,7 @@
   	function StringValue(val) {
   		babelHelpers.classCallCheck(this, StringValue);
 
-  		var _this5 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(StringValue).call(this, val || ''));
+  		var _this5 = babelHelpers.possibleConstructorReturn(this, (StringValue.__proto__ || Object.getPrototypeOf(StringValue)).call(this, val || ''));
 
   		_this5._valueType = ValueType.String;
 
@@ -730,7 +662,7 @@
   	function DivertTargetValue(targetPath) {
   		babelHelpers.classCallCheck(this, DivertTargetValue);
 
-  		var _this6 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(DivertTargetValue).call(this, targetPath));
+  		var _this6 = babelHelpers.possibleConstructorReturn(this, (DivertTargetValue.__proto__ || Object.getPrototypeOf(DivertTargetValue)).call(this, targetPath));
 
   		_this6._valueType = ValueType.DivertTarget;
   		return _this6;
@@ -771,7 +703,7 @@
   	function VariablePointerValue(variableName, contextIndex) {
   		babelHelpers.classCallCheck(this, VariablePointerValue);
 
-  		var _this7 = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(VariablePointerValue).call(this, variableName));
+  		var _this7 = babelHelpers.possibleConstructorReturn(this, (VariablePointerValue.__proto__ || Object.getPrototypeOf(VariablePointerValue)).call(this, variableName));
 
   		_this7._valueType = ValueType.VariablePointer;
   		_this7.contextIndex = typeof contextIndex !== 'undefined' ? contextIndex : -1;
@@ -818,7 +750,7 @@
   	function StoryException(message) {
   		babelHelpers.classCallCheck(this, StoryException);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(StoryException).call(this, message));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (StoryException.__proto__ || Object.getPrototypeOf(StoryException)).call(this, message));
 
   		_this.message = message;
   		_this.name = 'StoryException';
@@ -872,12 +804,12 @@
 
   var Container = function (_InkObject) {
   	babelHelpers.inherits(Container, _InkObject);
-  	//also implements INamedContent. Not sure how to do it cleanly in JS.
 
+  	//also implements INamedContent. Not sure how to do it cleanly in JS.
   	function Container() {
   		babelHelpers.classCallCheck(this, Container);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Container).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this));
 
   		_this.name = '';
 
@@ -931,7 +863,7 @@
   	}, {
   		key: 'AddToNamedContentOnly',
   		value: function AddToNamedContentOnly(namedContentObj) {
-  			if (namedContentObj instanceof InkObject === false) console.warn("Can only add Runtime.Objects to a Runtime.Container");
+  			if (namedContentObj instanceof Object$1 === false) console.warn("Can only add Runtime.Objects to a Runtime.Container");
   			namedContentObj.parent = this;
 
   			this.namedContent[namedContentObj.name] = namedContentObj;
@@ -1193,7 +1125,7 @@
   		}
   	}]);
   	return Container;
-  }(InkObject);
+  }(Object$1);
 
   var Glue = function (_InkObject) {
   	babelHelpers.inherits(Glue, _InkObject);
@@ -1201,7 +1133,7 @@
   	function Glue(type) {
   		babelHelpers.classCallCheck(this, Glue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Glue).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (Glue.__proto__ || Object.getPrototypeOf(Glue)).call(this));
 
   		_this.glueType = type;
   		return _this;
@@ -1238,7 +1170,7 @@
   		}
   	}]);
   	return Glue;
-  }(InkObject);
+  }(Object$1);
 
   var GlueType = {
   	Bidirectional: 0,
@@ -1252,7 +1184,7 @@
   	function ControlCommand(commandType) {
   		babelHelpers.classCallCheck(this, ControlCommand);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ControlCommand).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (ControlCommand.__proto__ || Object.getPrototypeOf(ControlCommand)).call(this));
 
   		_this._commandType = typeof commandType != 'undefined' ? commandType : CommandType.NotSet;
   		return _this;
@@ -1370,7 +1302,7 @@
   		}
   	}]);
   	return ControlCommand;
-  }(InkObject);
+  }(Object$1);
 
   var CommandType = {
   	NotSet: -1,
@@ -1408,7 +1340,7 @@
   	function Divert(stackPushType) {
   		babelHelpers.classCallCheck(this, Divert);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Divert).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (Divert.__proto__ || Object.getPrototypeOf(Divert)).call(this));
 
   		_this._targetPath;
   		_this._targetContent;
@@ -1527,7 +1459,7 @@
   		}
   	}]);
   	return Divert;
-  }(InkObject);
+  }(Object$1);
 
   var ChoicePoint = function (_InkObject) {
   	babelHelpers.inherits(ChoicePoint, _InkObject);
@@ -1535,7 +1467,7 @@
   	function ChoicePoint(onceOnly) {
   		babelHelpers.classCallCheck(this, ChoicePoint);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(ChoicePoint).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (ChoicePoint.__proto__ || Object.getPrototypeOf(ChoicePoint)).call(this));
 
   		_this._pathOnChoice;
   		_this.hasCondition;
@@ -1609,7 +1541,7 @@
   		}
   	}]);
   	return ChoicePoint;
-  }(InkObject);
+  }(Object$1);
 
   var VariableReference = function (_InkObject) {
   	babelHelpers.inherits(VariableReference, _InkObject);
@@ -1617,7 +1549,7 @@
   	function VariableReference(name) {
   		babelHelpers.classCallCheck(this, VariableReference);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(VariableReference).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableReference.__proto__ || Object.getPrototypeOf(VariableReference)).call(this));
 
   		_this.name = name;
   		_this.pathForCount;
@@ -1651,7 +1583,7 @@
   		}
   	}]);
   	return VariableReference;
-  }(InkObject);
+  }(Object$1);
 
   var VariableAssignment = function (_InkObject) {
   	babelHelpers.inherits(VariableAssignment, _InkObject);
@@ -1659,7 +1591,7 @@
   	function VariableAssignment(variableName, isNewDeclaration) {
   		babelHelpers.classCallCheck(this, VariableAssignment);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(VariableAssignment).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableAssignment.__proto__ || Object.getPrototypeOf(VariableAssignment)).call(this));
 
   		_this._variableName = variableName || null;
   		_this._isNewDeclaration = !!isNewDeclaration;
@@ -1670,7 +1602,7 @@
   	babelHelpers.createClass(VariableAssignment, [{
   		key: "toString",
   		value: function toString() {
-  			return "VarAssign to " + this.variableName;;
+  			return "VarAssign to " + this.variableName;
   		}
   	}, {
   		key: "variableName",
@@ -1684,26 +1616,27 @@
   		}
   	}]);
   	return VariableAssignment;
-  }(InkObject);
+  }(Object$1);
 
   var Void = function (_InkObject) {
     babelHelpers.inherits(Void, _InkObject);
 
     function Void() {
       babelHelpers.classCallCheck(this, Void);
-      return babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Void).apply(this, arguments));
+      return babelHelpers.possibleConstructorReturn(this, (Void.__proto__ || Object.getPrototypeOf(Void)).apply(this, arguments));
     }
 
     return Void;
-  }(InkObject);
+  }(Object$1);
 
+  //misses delegates, probably the returns from function calls
   var NativeFunctionCall = function (_InkObject) {
   	babelHelpers.inherits(NativeFunctionCall, _InkObject);
 
   	function NativeFunctionCall(name) {
   		babelHelpers.classCallCheck(this, NativeFunctionCall);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(NativeFunctionCall).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (NativeFunctionCall.__proto__ || Object.getPrototypeOf(NativeFunctionCall)).call(this));
 
   		_this.name = name;
   		_this._numberOfParameters;
@@ -2041,7 +1974,7 @@
   		}
   	}]);
   	return NativeFunctionCall;
-  }(InkObject);
+  }(Object$1);
 
   NativeFunctionCall.Add = "+";
   NativeFunctionCall.Subtract = "-";
@@ -2072,7 +2005,7 @@
   	function Tag(tagText) {
   		babelHelpers.classCallCheck(this, Tag);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Tag).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (Tag.__proto__ || Object.getPrototypeOf(Tag)).call(this));
 
   		_this._text = tagText.toString() || '';
   		return _this;
@@ -2090,7 +2023,7 @@
   		}
   	}]);
   	return Tag;
-  }(InkObject);
+  }(Object$1);
 
   var Choice = function () {
   	function Choice(choice) {
@@ -2172,7 +2105,7 @@
   			for (var key in dictionary) {
   				//			var runtimeObj = keyVal.Value as Runtime.Object;
   				var runtimeObj = dictionary[key];
-  				if (runtimeObj instanceof InkObject) jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
+  				if (runtimeObj instanceof Object$1) jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
   			}
 
   			return jsonObj;
@@ -2813,8 +2746,8 @@
   			if (this.canPopThread) {
   				this._threads.splice(this._threads.indexOf(this.currentThread), 1); //should be equivalent to a pop()
   			} else {
-  					throw "Can't pop thread";
-  				}
+  				throw "Can't pop thread";
+  			}
   		}
   	}, {
   		key: 'SetJsonToken',
@@ -2949,6 +2882,9 @@
   	return CallStack;
   }();
 
+  //still needs: 
+  // - varchanged events
+  // - see if the internal getenumarators are needed
   var VariablesState = function () {
   	function VariablesState(callStack) {
   		babelHelpers.classCallCheck(this, VariablesState);
@@ -3134,7 +3070,7 @@
   			var valueOfVariablePointedTo = this.GetRawVariableWithName(varPointer.variableName, contextIndex);
 
   			// Extra layer of indirection:
-  			// When accessing a pointer to a pointer (e.g. when calling nested or
+  			// When accessing a pointer to a pointer (e.g. when calling nested or 
   			// recursive functions that take a variable references, ensure we don't create
   			// a chain of indirection by just returning the final target.
   			//		var doubleRedirectionPointer = valueOfVariablePointedTo as VariablePointerValue;
@@ -3197,7 +3133,7 @@
   				this._changedVariables = [];
   			}
 
-  			// Finished observing variables in a batch - now send
+  			// Finished observing variables in a batch - now send 
   			// notifications for changed variables all in one go.
   			else {
   					if (this._changedVariables != null) {
@@ -3254,6 +3190,9 @@
   		this.story = story;
 
   		this._outputStream = [];
+  		this._outputStreamTextDirty = true;
+  		this._outputStreamTagsDirty = true;
+  		this.OutputStreamDirty();
 
   		this._evaluationStack = [];
 
@@ -3271,6 +3210,8 @@
   		this.previousRandom = 0;
 
   		this._currentChoices = [];
+  		this._currentText = null;
+  		this._currentTags = null;
   		this._currentErrors = null;
 
   		this.didSafeExit = false;
@@ -3314,6 +3255,7 @@
   		key: 'ResetOutput',
   		value: function ResetOutput() {
   			this._outputStream.length = 0;
+  			this.OutputStreamDirty();
   		}
   	}, {
   		key: 'PushEvaluationStack',
@@ -3358,6 +3300,7 @@
   			}
 
   			this.PushToOutputStreamIndividual(obj);
+  			this.OutputStreamDirty();
   		}
   	}, {
   		key: 'TrySplittingHeadTailWhitespace',
@@ -3436,7 +3379,7 @@
 
   				if (glue.isLeft) matchingRightGlue = this.MatchRightGlueForLeftGlue(glue);
 
-  				// Left/Right glue is auto-generated for inline expressions
+  				// Left/Right glue is auto-generated for inline expressions 
   				// where we want to absorb newlines but only in a certain direction.
   				// "Bi" glue is written by the user in their ink with <>
   				if (glue.isLeft || glue.isBi) {
@@ -3456,7 +3399,7 @@
   						includeInOutput = false;
   					}
 
-  					// Able to completely reset when
+  					// Able to completely reset when 
   					else if (text.isNonWhitespace) {
   							this.RemoveExistingGlue();
   						}
@@ -3467,6 +3410,7 @@
 
   			if (includeInOutput) {
   				this._outputStream.push(obj);
+  				this.OutputStreamDirty();
   			}
   		}
   	}, {
@@ -3526,6 +3470,8 @@
   					}
   				}
   			}
+
+  			this.OutputStreamDirty();
   		}
   	}, {
   		key: 'TrimFromExistingGlue',
@@ -3536,6 +3482,8 @@
   				var txt = this._outputStream[i];
   				if (txt instanceof StringValue && !txt.isNonWhitespace) this._outputStream.splice(i, 1);else i++;
   			}
+
+  			this.OutputStreamDirty();
   		}
   	}, {
   		key: 'RemoveExistingGlue',
@@ -3549,6 +3497,8 @@
   					break;
   				}
   			}
+
+  			this.OutputStreamDirty();
   		}
   	}, {
   		key: 'ForceEnd',
@@ -3557,7 +3507,7 @@
   				this.callStack.PopThread();
   			}while (this.callStack.canPop) {
   				this.callStack.Pop();
-  			}this.currentChoices.length = 0;
+  			}this._currentChoices.length = 0;
 
   			this.currentContentObject = null;
   			this.previousContentObject = null;
@@ -3568,7 +3518,7 @@
   		key: 'SetChosenPath',
   		value: function SetChosenPath(path) {
   			// Changing direction, assume we need to clear current set of choices
-  			this.currentChoices.length = 0;
+  			this._currentChoices.length = 0;
 
   			this.currentPath = path;
 
@@ -3578,7 +3528,7 @@
   		key: 'StartExternalFunctionEvaluation',
   		value: function StartExternalFunctionEvaluation(funcContainer, args) {
   			// We'll start a new callstack, so keep hold of the original,
-  			// as well as the evaluation stack so we know if the function
+  			// as well as the evaluation stack so we know if the function 
   			// returned something
   			this._originalCallstack = this.callStack;
   			this._originalEvaluationStackHeight = this.evaluationStack.length;
@@ -3619,7 +3569,7 @@
   		value: function CompleteExternalFunctionEvaluation() {
   			// Do we have a returned value?
   			// Potentially pop multiple values off the stack, in case we need
-  			// to clean up after ourselves (e.g. caller of EvaluateFunction may
+  			// to clean up after ourselves (e.g. caller of EvaluateFunction may 
   			// have passed too many arguments, and we currently have no way to check for that)
   			var returnedObj = null;
   			while (this.evaluationStack.length > this._originalEvaluationStackHeight) {
@@ -3662,6 +3612,12 @@
   			this._currentErrors.push(message);
   		}
   	}, {
+  		key: 'OutputStreamDirty',
+  		value: function OutputStreamDirty() {
+  			this._outputStreamTextDirty = true;
+  			this._outputStreamTagsDirty = true;
+  		}
+  	}, {
   		key: 'VisitCountAtPathString',
   		value: function VisitCountAtPathString(pathString) {
   			var visitCountOut;
@@ -3675,7 +3631,9 @@
   			var copy = new StoryState(this.story);
 
   			copy.outputStream.push.apply(copy.outputStream, this._outputStream);
-  			copy.currentChoices.push.apply(copy.currentChoices, this.currentChoices);
+  			this.OutputStreamDirty();
+
+  			copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
 
   			if (this.hasError) {
   				copy.currentErrors = [];
@@ -3716,6 +3674,15 @@
   	}, {
   		key: 'currentChoices',
   		get: function get() {
+  			// If we can continue generating text content rather than choices,
+  			// then we reflect the choice list as being empty, since choices
+  			// should always come at the end.
+  			if (this.canContinue) return [];
+  			return this._currentChoices;
+  		}
+  	}, {
+  		key: 'generatedChoices',
+  		get: function get() {
   			return this._currentChoices;
   		}
   	}, {
@@ -3750,6 +3717,11 @@
   		},
   		set: function set(value) {
   			this.callStack.currentElement.currentObject = value;
+  		}
+  	}, {
+  		key: 'canContinue',
+  		get: function get() {
+  			return this.currentContentObject != null && !this.hasError;
   		}
   	}, {
   		key: 'hasError',
@@ -3835,32 +3807,43 @@
   	}, {
   		key: 'currentText',
   		get: function get() {
-  			var sb = new StringBuilder();
+  			if (this._outputStreamTextDirty) {
+  				var sb = new StringBuilder();
 
-  			this._outputStream.forEach(function (outputObj) {
-  				//			var textContent = outputObj as StringValue;
-  				var textContent = outputObj;
-  				if (textContent instanceof StringValue) {
-  					sb.Append(textContent.value);
-  				}
-  			});
+  				this._outputStream.forEach(function (outputObj) {
+  					//			var textContent = outputObj as StringValue;
+  					var textContent = outputObj;
+  					if (textContent instanceof StringValue) {
+  						sb.Append(textContent.value);
+  					}
+  				});
 
-  			return sb.toString();
+  				this._currentText = sb.toString();
+  				this._outputStreamTextDirty = false;
+  			}
+
+  			return this._currentText;
   		}
   	}, {
   		key: 'currentTags',
   		get: function get() {
-  			var tags = [];
+  			var _this2 = this;
 
-  			this._outputStream.forEach(function (outputObj) {
-  				//			var tag = outputObj as Tag;
-  				var tag = outputObj;
-  				if (tag instanceof Tag) {
-  					tags.push(tag.text);
-  				}
-  			});
+  			if (this._outputStreamTagsDirty) {
+  				this._currentTags = [];
 
-  			return tags;
+  				this._outputStream.forEach(function (outputObj) {
+  					//			var tag = outputObj as Tag;
+  					var tag = outputObj;
+  					if (tag instanceof Tag) {
+  						_this2._currentTags.push(tag.text);
+  					}
+  				});
+
+  				this._outputStreamTagsDirty = false;
+  			}
+
+  			return this._currentTags;
   		}
   	}, {
   		key: 'outputStream',
@@ -3893,16 +3876,16 @@
   	}, {
   		key: 'jsonToken',
   		get: function get() {
-  			var _this2 = this;
+  			var _this3 = this;
 
   			var obj = {};
 
   			var choiceThreads = null;
-  			this.currentChoices.forEach(function (c) {
+  			this._currentChoices.forEach(function (c) {
   				c.originalChoicePath = c.choicePoint.path.componentsString;
   				c.originalThreadIndex = c.threadAtGeneration.threadIndex;
 
-  				if (_this2.callStack.ThreadWithIndex(c.originalThreadIndex) == null) {
+  				if (_this3.callStack.ThreadWithIndex(c.originalThreadIndex) == null) {
   					if (choiceThreads == null) choiceThreads = {};
 
   					choiceThreads[c.originalThreadIndex.toString()] = c.threadAtGeneration.jsonToken;
@@ -3918,7 +3901,7 @@
 
   			obj["outputStream"] = JsonSerialisation.ListToJArray(this._outputStream);
 
-  			obj["currentChoices"] = JsonSerialisation.ListToJArray(this.currentChoices);
+  			obj["currentChoices"] = JsonSerialisation.ListToJArray(this._currentChoices);
 
   			if (this.divertedTargetObject != null) obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
 
@@ -3935,7 +3918,7 @@
   			return obj;
   		},
   		set: function set(value) {
-  			var _this3 = this;
+  			var _this4 = this;
 
   			var jObject = value;
 
@@ -3952,6 +3935,7 @@
   			this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(jObject["evalStack"]);
 
   			this._outputStream = JsonSerialisation.JArrayToRuntimeObjList(jObject["outputStream"]);
+  			this.OutputStreamDirty();
 
   			//		currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
   			this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject["currentChoices"]);
@@ -3970,15 +3954,15 @@
   			//		var jChoiceThreads = jObject["choiceThreads"] as JObject;
   			var jChoiceThreads = jObject["choiceThreads"];
 
-  			this.currentChoices.forEach(function (c) {
-  				c.choicePoint = _this3.story.ContentAtPath(new Path$1(c.originalChoicePath));
+  			this._currentChoices.forEach(function (c) {
+  				c.choicePoint = _this4.story.ContentAtPath(new Path$1(c.originalChoicePath));
 
-  				var foundActiveThread = _this3.callStack.ThreadWithIndex(c.originalThreadIndex);
+  				var foundActiveThread = _this4.callStack.ThreadWithIndex(c.originalThreadIndex);
   				if (foundActiveThread != null) {
   					c.threadAtGeneration = foundActiveThread;
   				} else {
   					var jSavedChoiceThread = jChoiceThreads[c.originalThreadIndex.toString()];
-  					c.threadAtGeneration = new CallStack.Thread(jSavedChoiceThread, _this3.story);
+  					c.threadAtGeneration = new CallStack.Thread(jSavedChoiceThread, _this4.story);
   				}
   			});
   		}
@@ -4001,13 +3985,14 @@
   	function Story(jsonString) {
   		babelHelpers.classCallCheck(this, Story);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, Object.getPrototypeOf(Story).call(this));
+  		var _this = babelHelpers.possibleConstructorReturn(this, (Story.__proto__ || Object.getPrototypeOf(Story)).call(this));
 
   		_this.inkVersionCurrent = 15;
   		_this.inkVersionMinimumCompatible = 15;
 
   		_this._variableObservers = null;
   		_this._externals = {};
+  		_this._prevContainerSet = null;
 
   		if (jsonString instanceof Container) {
   			_this._mainContentContainer = jsonString;
@@ -4118,7 +4103,7 @@
   				//    which are actually built out of text content.
   				// So we have to take a snapshot of the state, continue prospectively,
   				// and rewind if necessary.
-  				// This code is slightly fragile :-/
+  				// This code is slightly fragile :-/ 
   				//
 
   				do {
@@ -4169,7 +4154,13 @@
   							// We're going to continue stepping in case we see glue or some
   							// non-text content such as choices.
   							if (this.canContinue) {
-  								stateAtLastNewline = this.StateSnapshot();
+  								// Don't bother to record the state beyond the current newline.
+  								// e.g.:
+  								// Hello world\n			// record state at the end of here
+  								// ~ complexCalculation()   // don't actually need this unless it generates text
+  								if (stateAtLastNewline == null) {
+  									stateAtLastNewline = this.StateSnapshot();
+  								}
   							}
 
   							// Can't continue, so we're about to exit - make sure we
@@ -4193,7 +4184,7 @@
   						this.Error("Thread available to pop, threads should always be flat by the end of evaluation?");
   					}
 
-  					if (this.currentChoices.length == 0 && !this.state.didSafeExit && this._temporaryEvaluationContainer == null) {
+  					if (this.state.generatedChoices.length == 0 && !this.state.didSafeExit && this._temporaryEvaluationContainer == null) {
   						if (this.state.callStack.CanPop(PushPopType.Tunnel)) {
   							this.Error("unexpectedly reached end of content. Do you need a '->->' to return from a tunnel?");
   						} else if (this.state.callStack.CanPop(PushPopType.Function)) {
@@ -4294,7 +4285,7 @@
   			if (choicePoint instanceof ChoicePoint) {
   				var choice = this.ProcessChoice(choicePoint);
   				if (choice) {
-  					this.state.currentChoices.push(choice);
+  					this.state.generatedChoices.push(choice);
   				}
 
   				currentContentObj = null;
@@ -4361,12 +4352,12 @@
   			if (!newContentObject) return;
 
   			// First, find the previously open set of containers
-  			var prevContainerSet = [];
+  			if (this._prevContainerSet == null) this._prevContainerSet = [];
   			if (previousContentObject) {
   				//			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
   				var prevAncestor = previousContentObject instanceof Container ? previousContentObject : previousContentObject.parent;
   				while (prevAncestor instanceof Container) {
-  					prevContainerSet.push(prevAncestor);
+  					this._prevContainerSet.push(prevAncestor);
   					//				prevAncestor = prevAncestor.parent as Container;
   					prevAncestor = prevAncestor.parent;
   				}
@@ -4377,7 +4368,7 @@
   			var currentChildOfContainer = newContentObject;
   			//		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
   			var currentContainerAncestor = currentChildOfContainer.parent;
-  			while (currentContainerAncestor instanceof Container && prevContainerSet.indexOf(currentContainerAncestor) < 0) {
+  			while (currentContainerAncestor instanceof Container && this._prevContainerSet.indexOf(currentContainerAncestor) < 0) {
 
   				// Check whether this ancestor container is being entered at the start,
   				// by checking whether the child object is the first.
@@ -4653,7 +4644,7 @@
   							break;
 
   						case ControlCommand.CommandType.ChoiceCount:
-  							var choiceCount = this.currentChoices.length;
+  							var choiceCount = this.state.generatedChoices.length;
   							this.state.PushEvaluationStack(new IntValue(choiceCount));
   							break;
 
@@ -4830,7 +4821,7 @@
   			var choices = this.currentChoices;
   			if (choiceIdx < 0 || choiceIdx > choices.length) console.warn("choice out of range");
 
-  			// Replace callstack with the one from the thread at the choosing point,
+  			// Replace callstack with the one from the thread at the choosing point, 
   			// so that we can jump into the right place in the flow.
   			// This is important in case the flow was forked by a new thread, which
   			// can create multiple leading edges for the story, each of
@@ -5444,7 +5435,7 @@
   	}, {
   		key: 'canContinue',
   		get: function get() {
-  			return this.state.currentContentObject != null && !this.state.hasError;
+  			return this.state.canContinue;
   		}
   	}, {
   		key: 'globalTags',
@@ -5453,8 +5444,10 @@
   		}
   	}]);
   	return Story;
-  }(InkObject);
+  }(Object$1);
 
   exports.Story = Story;
 
-}));
+  Object.defineProperty(exports, '__esModule', { value: true });
+
+})));
