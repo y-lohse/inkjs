@@ -4,9 +4,105 @@
   (factory((global.inkjs = global.inkjs || {})));
 }(this, (function (exports) { 'use strict';
 
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+
+
+
+
+
+
+
+
+
+
+  var classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  var createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+
+
+
+
+
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+
+
+  var inherits = function (subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  };
+
+
+
+
+
+
+
+
+
+
+
+  var possibleConstructorReturn = function (self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
   var Path$1 = function () {
   	function Path() /*polymorphic constructor*/{
-  		babelHelpers.classCallCheck(this, Path);
+  		classCallCheck(this, Path);
 
   		this._isRelative;
   		this._components = [];
@@ -22,7 +118,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Path, [{
+  	createClass(Path, [{
   		key: "PathByAppendingPath",
   		value: function PathByAppendingPath(pathToAppend) {
   			var p = new Path();
@@ -170,7 +266,7 @@
 
   var Component = function () {
   	function Component(indexOrName) {
-  		babelHelpers.classCallCheck(this, Component);
+  		classCallCheck(this, Component);
 
   		if (typeof indexOrName == 'string') {
   			this._index = -1;
@@ -181,7 +277,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Component, [{
+  	createClass(Component, [{
   		key: "toString",
   		value: function toString() {
   			if (this.isIndex) {
@@ -237,13 +333,13 @@
 
   var Object$1 = function () {
   	function Object() {
-  		babelHelpers.classCallCheck(this, Object);
+  		classCallCheck(this, Object);
 
   		this.parent = null;
   		this._path = null;
   	}
 
-  	babelHelpers.createClass(Object, [{
+  	createClass(Object, [{
   		key: 'ResolvePath',
   		value: function ResolvePath(path) {
   			if (path.isRelative) {
@@ -392,12 +488,12 @@
   };
 
   var AbstractValue = function (_InkObject) {
-  	babelHelpers.inherits(AbstractValue, _InkObject);
+  	inherits(AbstractValue, _InkObject);
 
   	function AbstractValue(val) {
-  		babelHelpers.classCallCheck(this, AbstractValue);
+  		classCallCheck(this, AbstractValue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (AbstractValue.__proto__ || Object.getPrototypeOf(AbstractValue)).call(this));
+  		var _this = possibleConstructorReturn(this, (AbstractValue.__proto__ || Object.getPrototypeOf(AbstractValue)).call(this));
 
   		_this._valueType;
   		_this._isTruthy;
@@ -405,7 +501,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(AbstractValue, [{
+  	createClass(AbstractValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			throw "Trying to casting an AbstractValue";
@@ -456,18 +552,18 @@
   }(Object$1);
 
   var Value = function (_AbstractValue) {
-  	babelHelpers.inherits(Value, _AbstractValue);
+  	inherits(Value, _AbstractValue);
 
   	function Value(val) {
-  		babelHelpers.classCallCheck(this, Value);
+  		classCallCheck(this, Value);
 
-  		var _this2 = babelHelpers.possibleConstructorReturn(this, (Value.__proto__ || Object.getPrototypeOf(Value)).call(this));
+  		var _this2 = possibleConstructorReturn(this, (Value.__proto__ || Object.getPrototypeOf(Value)).call(this));
 
   		_this2.value = val;
   		return _this2;
   	}
 
-  	babelHelpers.createClass(Value, [{
+  	createClass(Value, [{
   		key: 'toString',
   		value: function toString() {
   			return this.value.toString();
@@ -490,18 +586,18 @@
   }(AbstractValue);
 
   var IntValue = function (_Value) {
-  	babelHelpers.inherits(IntValue, _Value);
+  	inherits(IntValue, _Value);
 
   	function IntValue(val) {
-  		babelHelpers.classCallCheck(this, IntValue);
+  		classCallCheck(this, IntValue);
 
-  		var _this3 = babelHelpers.possibleConstructorReturn(this, (IntValue.__proto__ || Object.getPrototypeOf(IntValue)).call(this, val || 0));
+  		var _this3 = possibleConstructorReturn(this, (IntValue.__proto__ || Object.getPrototypeOf(IntValue)).call(this, val || 0));
 
   		_this3._valueType = ValueType.Int;
   		return _this3;
   	}
 
-  	babelHelpers.createClass(IntValue, [{
+  	createClass(IntValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -533,18 +629,18 @@
   }(Value);
 
   var FloatValue = function (_Value2) {
-  	babelHelpers.inherits(FloatValue, _Value2);
+  	inherits(FloatValue, _Value2);
 
   	function FloatValue(val) {
-  		babelHelpers.classCallCheck(this, FloatValue);
+  		classCallCheck(this, FloatValue);
 
-  		var _this4 = babelHelpers.possibleConstructorReturn(this, (FloatValue.__proto__ || Object.getPrototypeOf(FloatValue)).call(this, val || 0.0));
+  		var _this4 = possibleConstructorReturn(this, (FloatValue.__proto__ || Object.getPrototypeOf(FloatValue)).call(this, val || 0.0));
 
   		_this4._valueType = ValueType.Float;
   		return _this4;
   	}
 
-  	babelHelpers.createClass(FloatValue, [{
+  	createClass(FloatValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -576,12 +672,12 @@
   }(Value);
 
   var StringValue = function (_Value3) {
-  	babelHelpers.inherits(StringValue, _Value3);
+  	inherits(StringValue, _Value3);
 
   	function StringValue(val) {
-  		babelHelpers.classCallCheck(this, StringValue);
+  		classCallCheck(this, StringValue);
 
-  		var _this5 = babelHelpers.possibleConstructorReturn(this, (StringValue.__proto__ || Object.getPrototypeOf(StringValue)).call(this, val || ''));
+  		var _this5 = possibleConstructorReturn(this, (StringValue.__proto__ || Object.getPrototypeOf(StringValue)).call(this, val || ''));
 
   		_this5._valueType = ValueType.String;
 
@@ -599,7 +695,7 @@
   		return _this5;
   	}
 
-  	babelHelpers.createClass(StringValue, [{
+  	createClass(StringValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -657,18 +753,18 @@
   }(Value);
 
   var DivertTargetValue = function (_Value4) {
-  	babelHelpers.inherits(DivertTargetValue, _Value4);
+  	inherits(DivertTargetValue, _Value4);
 
   	function DivertTargetValue(targetPath) {
-  		babelHelpers.classCallCheck(this, DivertTargetValue);
+  		classCallCheck(this, DivertTargetValue);
 
-  		var _this6 = babelHelpers.possibleConstructorReturn(this, (DivertTargetValue.__proto__ || Object.getPrototypeOf(DivertTargetValue)).call(this, targetPath));
+  		var _this6 = possibleConstructorReturn(this, (DivertTargetValue.__proto__ || Object.getPrototypeOf(DivertTargetValue)).call(this, targetPath));
 
   		_this6._valueType = ValueType.DivertTarget;
   		return _this6;
   	}
 
-  	babelHelpers.createClass(DivertTargetValue, [{
+  	createClass(DivertTargetValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) return this;
@@ -698,19 +794,19 @@
   }(Value);
 
   var VariablePointerValue = function (_Value5) {
-  	babelHelpers.inherits(VariablePointerValue, _Value5);
+  	inherits(VariablePointerValue, _Value5);
 
   	function VariablePointerValue(variableName, contextIndex) {
-  		babelHelpers.classCallCheck(this, VariablePointerValue);
+  		classCallCheck(this, VariablePointerValue);
 
-  		var _this7 = babelHelpers.possibleConstructorReturn(this, (VariablePointerValue.__proto__ || Object.getPrototypeOf(VariablePointerValue)).call(this, variableName));
+  		var _this7 = possibleConstructorReturn(this, (VariablePointerValue.__proto__ || Object.getPrototypeOf(VariablePointerValue)).call(this, variableName));
 
   		_this7._valueType = ValueType.VariablePointer;
   		_this7.contextIndex = typeof contextIndex !== 'undefined' ? contextIndex : -1;
   		return _this7;
   	}
 
-  	babelHelpers.createClass(VariablePointerValue, [{
+  	createClass(VariablePointerValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) return this;
@@ -745,12 +841,12 @@
   }(Value);
 
   var StoryException = function (_Error) {
-  	babelHelpers.inherits(StoryException, _Error);
+  	inherits(StoryException, _Error);
 
   	function StoryException(message) {
-  		babelHelpers.classCallCheck(this, StoryException);
+  		classCallCheck(this, StoryException);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (StoryException.__proto__ || Object.getPrototypeOf(StoryException)).call(this, message));
+  		var _this = possibleConstructorReturn(this, (StoryException.__proto__ || Object.getPrototypeOf(StoryException)).call(this, message));
 
   		_this.message = message;
   		_this.name = 'StoryException';
@@ -762,13 +858,13 @@
 
   var StringBuilder = function () {
   	function StringBuilder(str) {
-  		babelHelpers.classCallCheck(this, StringBuilder);
+  		classCallCheck(this, StringBuilder);
 
   		str = typeof str !== 'undefined' ? str.toString() : '';
   		this._string = str;
   	}
 
-  	babelHelpers.createClass(StringBuilder, [{
+  	createClass(StringBuilder, [{
   		key: 'Append',
   		value: function Append(str) {
   			this._string += str;
@@ -803,13 +899,13 @@
   }();
 
   var Container = function (_InkObject) {
-  	babelHelpers.inherits(Container, _InkObject);
+  	inherits(Container, _InkObject);
 
   	//also implements INamedContent. Not sure how to do it cleanly in JS.
   	function Container() {
-  		babelHelpers.classCallCheck(this, Container);
+  		classCallCheck(this, Container);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this));
+  		var _this = possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this));
 
   		_this.name = '';
 
@@ -830,7 +926,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Container, [{
+  	createClass(Container, [{
   		key: 'AddContent',
   		value: function AddContent(contentObj) {
   			var _this2 = this;
@@ -1128,18 +1224,18 @@
   }(Object$1);
 
   var Glue = function (_InkObject) {
-  	babelHelpers.inherits(Glue, _InkObject);
+  	inherits(Glue, _InkObject);
 
   	function Glue(type) {
-  		babelHelpers.classCallCheck(this, Glue);
+  		classCallCheck(this, Glue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Glue.__proto__ || Object.getPrototypeOf(Glue)).call(this));
+  		var _this = possibleConstructorReturn(this, (Glue.__proto__ || Object.getPrototypeOf(Glue)).call(this));
 
   		_this.glueType = type;
   		return _this;
   	}
 
-  	babelHelpers.createClass(Glue, [{
+  	createClass(Glue, [{
   		key: "toString",
   		value: function toString() {
   			switch (this.glueType) {
@@ -1179,18 +1275,18 @@
   };
 
   var ControlCommand = function (_InkObject) {
-  	babelHelpers.inherits(ControlCommand, _InkObject);
+  	inherits(ControlCommand, _InkObject);
 
   	function ControlCommand(commandType) {
-  		babelHelpers.classCallCheck(this, ControlCommand);
+  		classCallCheck(this, ControlCommand);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (ControlCommand.__proto__ || Object.getPrototypeOf(ControlCommand)).call(this));
+  		var _this = possibleConstructorReturn(this, (ControlCommand.__proto__ || Object.getPrototypeOf(ControlCommand)).call(this));
 
   		_this._commandType = typeof commandType != 'undefined' ? commandType : CommandType.NotSet;
   		return _this;
   	}
 
-  	babelHelpers.createClass(ControlCommand, [{
+  	createClass(ControlCommand, [{
   		key: 'copy',
   		value: function copy() {
   			return new ControlCommand(this.commandType);
@@ -1335,12 +1431,12 @@
   };
 
   var Divert = function (_InkObject) {
-  	babelHelpers.inherits(Divert, _InkObject);
+  	inherits(Divert, _InkObject);
 
   	function Divert(stackPushType) {
-  		babelHelpers.classCallCheck(this, Divert);
+  		classCallCheck(this, Divert);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Divert.__proto__ || Object.getPrototypeOf(Divert)).call(this));
+  		var _this = possibleConstructorReturn(this, (Divert.__proto__ || Object.getPrototypeOf(Divert)).call(this));
 
   		_this._targetPath;
   		_this._targetContent;
@@ -1362,7 +1458,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Divert, [{
+  	createClass(Divert, [{
   		key: 'Equals',
   		value: function Equals(obj) {
   			//		var otherDivert = obj as Divert;
@@ -1462,12 +1558,12 @@
   }(Object$1);
 
   var ChoicePoint = function (_InkObject) {
-  	babelHelpers.inherits(ChoicePoint, _InkObject);
+  	inherits(ChoicePoint, _InkObject);
 
   	function ChoicePoint(onceOnly) {
-  		babelHelpers.classCallCheck(this, ChoicePoint);
+  		classCallCheck(this, ChoicePoint);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (ChoicePoint.__proto__ || Object.getPrototypeOf(ChoicePoint)).call(this));
+  		var _this = possibleConstructorReturn(this, (ChoicePoint.__proto__ || Object.getPrototypeOf(ChoicePoint)).call(this));
 
   		_this._pathOnChoice;
   		_this.hasCondition;
@@ -1480,7 +1576,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(ChoicePoint, [{
+  	createClass(ChoicePoint, [{
   		key: 'toString',
   		value: function toString() {
   			//		int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
@@ -1544,19 +1640,19 @@
   }(Object$1);
 
   var VariableReference = function (_InkObject) {
-  	babelHelpers.inherits(VariableReference, _InkObject);
+  	inherits(VariableReference, _InkObject);
 
   	function VariableReference(name) {
-  		babelHelpers.classCallCheck(this, VariableReference);
+  		classCallCheck(this, VariableReference);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableReference.__proto__ || Object.getPrototypeOf(VariableReference)).call(this));
+  		var _this = possibleConstructorReturn(this, (VariableReference.__proto__ || Object.getPrototypeOf(VariableReference)).call(this));
 
   		_this.name = name;
   		_this.pathForCount;
   		return _this;
   	}
 
-  	babelHelpers.createClass(VariableReference, [{
+  	createClass(VariableReference, [{
   		key: 'toString',
   		value: function toString() {
   			if (this.name != null) {
@@ -1586,12 +1682,12 @@
   }(Object$1);
 
   var VariableAssignment = function (_InkObject) {
-  	babelHelpers.inherits(VariableAssignment, _InkObject);
+  	inherits(VariableAssignment, _InkObject);
 
   	function VariableAssignment(variableName, isNewDeclaration) {
-  		babelHelpers.classCallCheck(this, VariableAssignment);
+  		classCallCheck(this, VariableAssignment);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableAssignment.__proto__ || Object.getPrototypeOf(VariableAssignment)).call(this));
+  		var _this = possibleConstructorReturn(this, (VariableAssignment.__proto__ || Object.getPrototypeOf(VariableAssignment)).call(this));
 
   		_this._variableName = variableName || null;
   		_this._isNewDeclaration = !!isNewDeclaration;
@@ -1599,7 +1695,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(VariableAssignment, [{
+  	createClass(VariableAssignment, [{
   		key: "toString",
   		value: function toString() {
   			return "VarAssign to " + this.variableName;
@@ -1619,11 +1715,11 @@
   }(Object$1);
 
   var Void = function (_InkObject) {
-    babelHelpers.inherits(Void, _InkObject);
+    inherits(Void, _InkObject);
 
     function Void() {
-      babelHelpers.classCallCheck(this, Void);
-      return babelHelpers.possibleConstructorReturn(this, (Void.__proto__ || Object.getPrototypeOf(Void)).apply(this, arguments));
+      classCallCheck(this, Void);
+      return possibleConstructorReturn(this, (Void.__proto__ || Object.getPrototypeOf(Void)).apply(this, arguments));
     }
 
     return Void;
@@ -1631,12 +1727,12 @@
 
   //misses delegates, probably the returns from function calls
   var NativeFunctionCall = function (_InkObject) {
-  	babelHelpers.inherits(NativeFunctionCall, _InkObject);
+  	inherits(NativeFunctionCall, _InkObject);
 
   	function NativeFunctionCall(name) {
-  		babelHelpers.classCallCheck(this, NativeFunctionCall);
+  		classCallCheck(this, NativeFunctionCall);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (NativeFunctionCall.__proto__ || Object.getPrototypeOf(NativeFunctionCall)).call(this));
+  		var _this = possibleConstructorReturn(this, (NativeFunctionCall.__proto__ || Object.getPrototypeOf(NativeFunctionCall)).call(this));
 
   		_this.name = name;
   		_this._numberOfParameters;
@@ -1649,7 +1745,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(NativeFunctionCall, [{
+  	createClass(NativeFunctionCall, [{
   		key: 'Call',
   		value: function Call(parameters) {
   			if (this._prototype) {
@@ -2000,18 +2096,18 @@
   NativeFunctionCall._nativeFunctions = null;
 
   var Tag = function (_InkObject) {
-  	babelHelpers.inherits(Tag, _InkObject);
+  	inherits(Tag, _InkObject);
 
   	function Tag(tagText) {
-  		babelHelpers.classCallCheck(this, Tag);
+  		classCallCheck(this, Tag);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Tag.__proto__ || Object.getPrototypeOf(Tag)).call(this));
+  		var _this = possibleConstructorReturn(this, (Tag.__proto__ || Object.getPrototypeOf(Tag)).call(this));
 
   		_this._text = tagText.toString() || '';
   		return _this;
   	}
 
-  	babelHelpers.createClass(Tag, [{
+  	createClass(Tag, [{
   		key: 'toString',
   		value: function toString() {
   			return "# " + this._text;
@@ -2027,7 +2123,7 @@
 
   var Choice = function () {
   	function Choice(choice) {
-  		babelHelpers.classCallCheck(this, Choice);
+  		classCallCheck(this, Choice);
 
   		this.text;
   		this.index;
@@ -2040,7 +2136,7 @@
   		if (choice) this.choicePoint = choice;
   	}
 
-  	babelHelpers.createClass(Choice, [{
+  	createClass(Choice, [{
   		key: "pathStringOnChoice",
   		get: function get() {
   			return this.choicePoint.pathStringOnChoice;
@@ -2056,10 +2152,10 @@
 
   var JsonSerialisation = function () {
   	function JsonSerialisation() {
-  		babelHelpers.classCallCheck(this, JsonSerialisation);
+  		classCallCheck(this, JsonSerialisation);
   	}
 
-  	babelHelpers.createClass(JsonSerialisation, null, [{
+  	createClass(JsonSerialisation, null, [{
   		key: 'ListToJArray',
   		value: function ListToJArray(serialisables) {
   			var _this = this;
@@ -2165,7 +2261,7 @@
   				if (str == "void") return new Void();
   			}
 
-  			if ((typeof token === 'undefined' ? 'undefined' : babelHelpers.typeof(token)) === 'object' && token instanceof Array === false) {
+  			if ((typeof token === 'undefined' ? 'undefined' : _typeof(token)) === 'object' && token instanceof Array === false) {
   				var obj = token;
   				var propValue;
 
@@ -2545,7 +2641,7 @@
 
   var Element = function () {
   	function Element(type, container, contentIndex, inExpressionEvaluation) {
-  		babelHelpers.classCallCheck(this, Element);
+  		classCallCheck(this, Element);
 
   		this.currentContainer = container;
   		this.currentContentIndex = contentIndex;
@@ -2554,11 +2650,11 @@
   		this.type = type;
   	}
 
-  	babelHelpers.createClass(Element, [{
+  	createClass(Element, [{
   		key: 'Copy',
   		value: function Copy() {
   			var copy = new Element(this.type, this.currentContainer, this.currentContentIndex, this.inExpressionEvaluation);
-  			babelHelpers.extends(copy.temporaryVariables, this.temporaryVariables);
+  			_extends(copy.temporaryVariables, this.temporaryVariables);
   			return copy;
   		}
   	}, {
@@ -2599,7 +2695,7 @@
   	function Thread(jsonToken, storyContext) {
   		var _this = this;
 
-  		babelHelpers.classCallCheck(this, Thread);
+  		classCallCheck(this, Thread);
 
   		this.callstack = [];
   		this.threadIndex = 0;
@@ -2646,7 +2742,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Thread, [{
+  	createClass(Thread, [{
   		key: 'Copy',
   		value: function Copy() {
   			var copy = new Thread();
@@ -2690,7 +2786,7 @@
   	function CallStack(copyOrrootContentContainer) {
   		var _this2 = this;
 
-  		babelHelpers.classCallCheck(this, CallStack);
+  		classCallCheck(this, CallStack);
 
   		this._threads = [];
   		this._threadCounter = 0;
@@ -2707,7 +2803,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(CallStack, [{
+  	createClass(CallStack, [{
   		key: 'CanPop',
   		value: function CanPop(type) {
   			if (!this.canPop) return false;
@@ -2887,7 +2983,7 @@
   // - see if the internal getenumarators are needed
   var VariablesState = function () {
   	function VariablesState(callStack) {
-  		babelHelpers.classCallCheck(this, VariablesState);
+  		classCallCheck(this, VariablesState);
 
   		this._globalVariables = {};
   		this._callStack = callStack;
@@ -2920,7 +3016,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(VariablesState, [{
+  	createClass(VariablesState, [{
   		key: 'ObserveVariableChange',
 
 
@@ -3162,13 +3258,13 @@
   //Ink uses a seedable PRNG of which there is none in native javascript.
   var PRNG = function () {
   	function PRNG(seed) {
-  		babelHelpers.classCallCheck(this, PRNG);
+  		classCallCheck(this, PRNG);
 
   		this._seed = seed % 2147483647;
   		if (this._seed <= 0) this._seed += 2147483646;
   	}
 
-  	babelHelpers.createClass(PRNG, [{
+  	createClass(PRNG, [{
   		key: "next",
   		value: function next() {
   			return this._seed = this._seed * 16807 % 2147483647;
@@ -3184,7 +3280,7 @@
 
   var StoryState = function () {
   	function StoryState(story) {
-  		babelHelpers.classCallCheck(this, StoryState);
+  		classCallCheck(this, StoryState);
 
   		//actual constructor
   		this.story = story;
@@ -3223,7 +3319,7 @@
   		this.GoToStart();
   	}
 
-  	babelHelpers.createClass(StoryState, [{
+  	createClass(StoryState, [{
   		key: 'MatchRightGlueForLeftGlue',
   		value: function MatchRightGlueForLeftGlue(leftGlue) {
   			if (!leftGlue.isLeft) return null;
@@ -3980,12 +4076,12 @@
   }
 
   var Story = function (_InkObject) {
-  	babelHelpers.inherits(Story, _InkObject);
+  	inherits(Story, _InkObject);
 
   	function Story(jsonString) {
-  		babelHelpers.classCallCheck(this, Story);
+  		classCallCheck(this, Story);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Story.__proto__ || Object.getPrototypeOf(Story)).call(this));
+  		var _this = possibleConstructorReturn(this, (Story.__proto__ || Object.getPrototypeOf(Story)).call(this));
 
   		_this.inkVersionCurrent = 15;
   		_this.inkVersionMinimumCompatible = 15;
@@ -4025,7 +4121,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Story, [{
+  	createClass(Story, [{
   		key: 'ToJsonString',
   		value: function ToJsonString() {
   			var rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
@@ -4947,7 +5043,7 @@
   			var returnObj = null;
   			if (funcResult != null) {
   				returnObj = Value.Create(funcResult);
-  				if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult === 'undefined' ? 'undefined' : babelHelpers.typeof(funcResult)));
+  				if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult === 'undefined' ? 'undefined' : _typeof(funcResult)));
   			} else {
   				returnObj = new Void();
   			}
