@@ -3747,8 +3747,15 @@
 
   			copy.previousContentObject = this.previousContentObject;
 
-  			copy._visitCounts = this._visitCounts;
-  			copy._turnIndices = this._turnIndices;
+  			copy._visitCounts = {};
+  			for (var keyValue in this._visitCounts) {
+  				copy._visitCounts[keyValue] = this._visitCounts[keyValue];
+  			}
+  			copy._turnIndices = {};
+  			for (var keyValue in this._turnIndices) {
+  				copy._turnIndices[keyValue] = this._turnIndices[keyValue];
+  			}
+
   			copy._currentTurnIndex = this.currentTurnIndex;
   			copy.storySeed = this.storySeed;
   			copy.previousRandom = this.previousRandom;
