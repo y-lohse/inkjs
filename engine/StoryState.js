@@ -726,8 +726,6 @@ export class StoryState{
 			copy._turnIndices[keyValue] = this._turnIndices[keyValue];
 		}
   		
-		copy._visitCounts = this._visitCounts;
-		copy._turnIndices = this._turnIndices;
 		copy._currentTurnIndex = this.currentTurnIndex;
 		copy.storySeed = this.storySeed;
 		copy.previousRandom = this.previousRandom;
