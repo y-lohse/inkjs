@@ -717,6 +717,15 @@ export class StoryState{
 
 		copy.previousContentObject = this.previousContentObject;
 		
+		copy._visitCounts = {};
+		for (var keyValue in this._visitCounts) {
+		      	copy._visitCounts[keyValue] = this._visitCounts[keyValue];
+		}
+		copy._turnIndices = {};
+		for (var keyValue in this._turnIndices) {
+			copy._turnIndices[keyValue] = this._turnIndices[keyValue];
+		}
+  		
 		copy._visitCounts = this._visitCounts;
 		copy._turnIndices = this._turnIndices;
 		copy._currentTurnIndex = this.currentTurnIndex;
