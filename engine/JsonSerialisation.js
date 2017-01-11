@@ -104,6 +104,7 @@ export class JsonSerialisation{
 			}
 
 			// Native functions
+			if (str == "L^") str = "^";
 			if( NativeFunctionCall.CallExistsWithName(str) )
 				return NativeFunctionCall.CallWithName(str);
 
@@ -227,6 +228,27 @@ export class JsonSerialisation{
 			if (propValue = obj["#"]){
 				return new Tag(propValue.toString());
 			}
+			
+			//list value
+			if (propValue = obj["list"]) {
+//				var listContent = (Dictionary<string, object>)propValue;
+				var listContent = propValue;
+				var rawList = new RawList();
+				if (propValue = obj["origins"]) {
+//					var namesAsObjs = (List<object>)propValue;
+					var namesAsObjs = propValue;
+					rawList.SetInitialOriginNames(namesAsObjs.Cast<string>().ToList());
+				}
+				
+				for (var key in listContent){
+					var nameToVal = listContent[key];
+					var item = new RawListItem(key);
+					var val = parseInt(nameToVal);
+					rawList.Add(item, val);
+				}
+				
+				return new ListValue(rawList);
+			}
 
 			if (obj["originalChoicePath"] != null)
 				return this.JObjectToChoice(obj);
@@ -310,6 +332,12 @@ export class JsonSerialisation{
 			else
 				return "^" + strVal.value;
 		}
+		
+//		var listVal = obj as ListValue;
+		var listVal = obj;
+		if (listVal instanceof ListValue) {
+			return this.InkListToJObject(listVal);
+		}
 
 //		var divTargetVal = obj as DivertTargetValue;
 		var divTargetVal = obj;
@@ -345,8 +373,13 @@ export class JsonSerialisation{
 
 //		var nativeFunc = obj as Runtime.NativeFunctionCall;
 		var nativeFunc = obj;
-		if (nativeFunc instanceof NativeFunctionCall)
-			return nativeFunc.name;
+		if (nativeFunc instanceof NativeFunctionCall) {
+			var name = nativeFunc.name;
+
+			// Avoid collision with ^ used to indicate a string
+			if (name == "^") name = "L^";
+			return name;
+		}
 
 		// Variable reference
 //		var varRef = obj as VariableReference;
@@ -499,6 +532,67 @@ export class JsonSerialisation{
 		jObj["originalThreadIndex"] = choice.originalThreadIndex;
 		return jObj;
 	}
+	static InkListToJObject (listVal){
+		var rawList = listVal.value;
+
+		var dict = {};
+
+		var content = {};
+		
+		rawList.forEach(function(itemAndValue){
+			var item = itemAndValue.Key;
+			var val = itemAndValue.Value;
+			content[item.toString()] = val;
+		});
+
+		dict["list"] = content;
+
+		if (rawList.length == 0 && rawList.originNames != null && rawList.originNames.length > 0) {
+			dict["origins"] = rawList.originNames.Cast<object> ().ToList ();
+		}
+
+		return dict;
+	}
+	static ListDefinitionsToJToken(origin){
+		var result = {};
+		
+		origin.lists.forEach(function(def){
+			var listDefJson = {};
+			def.items.forEach(function(itemToVal){
+				var item = itemToVal.Key;
+				var val = itemToVal.Value;
+				listDefJson[item.itemName] = val;
+			});
+			
+			result[def.name] = listDefJson;
+		});
+		
+		return result;
+	}
+	static JTokenToListDefinitions(obj){
+//		var defsObj = (Dictionary<string, object>)obj;
+		var defsObj = obj;
+
+		var allDefs = [];
+		
+		for (var key in defsObj){
+			var name = key.toString();
+//			var listDefJson = (Dictionary<string, object>)kv.Value;
+			var listDefJson = defsObj[key];
+
+			// Cast (string, object) to (string, int) for items
+			var items = {};
+			
+			listDefJson.forEach(function(nameValue, nameValueKey){
+				items[nameValueKey] = parseInt(nameValue));
+			});
+
+			var def = new ListDefinition(name, items);
+			allDefs.push(def);
+		}
+
+		return new ListDefinitionsOrigin(allDefs);
+	}
 }
 
 var _controlCommandNames = [];
@@ -522,6 +616,8 @@ _controlCommandNames[ControlCommand.CommandType.SequenceShuffleIndex] = "seq";
 _controlCommandNames[ControlCommand.CommandType.StartThread] = "thread";
 _controlCommandNames[ControlCommand.CommandType.Done] = "done";
 _controlCommandNames[ControlCommand.CommandType.End] = "end";
+_controlCommandNames[ControlCommand.CommandType.End] = "listInt";
+_controlCommandNames[ControlCommand.CommandType.End] = "range";
 
 for (var i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
 	if (_controlCommandNames[i] == null)

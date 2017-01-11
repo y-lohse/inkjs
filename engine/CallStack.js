@@ -262,6 +262,10 @@ export class CallStack{
 		if (!declareNew && !contextElement.temporaryVariables[name]) {
 			throw new StoryException("Could not find temporary variable to set: " + name);
 		}
+		
+		var oldValue;
+		if( oldValue = contextElement.temporaryVariables[name]) )
+			ListValue.RetainListOriginsForAssignment(oldValue, value);
 
 		contextElement.temporaryVariables[name] = value;
 	}
