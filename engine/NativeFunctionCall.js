@@ -57,14 +57,21 @@ export class NativeFunctionCall extends InkObject{
 			throw "Unexpected number of parameters";
 		}
 		
+		var hasList  = false;
 		parameters.forEach(p => {
 			if (p instanceof Void) throw new StoryException("Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?");
-		})
+			if (p instanceof ListValue)
+				hasList = true;
+		});
+		
+		if (parameters.length == 2 && hasList){
+			return this.CallBinaryListOperation(parameters);
+		}
 
 		var coercedParams = this.CoerceValuesToSingleType(parameters);
 		var coercedType = coercedParams[0].valueType;
 
-		//Originally CallType gets a type parameter taht is used to do some casting, but we can do without.
+		//Originally CallType gets a type parameter that is used to do some casting, but we can do without.
 		if (coercedType == ValueType.Int) {
 			return this.CallType(coercedParams);
 		} else if (coercedType == ValueType.Float) {
@@ -72,6 +79,8 @@ export class NativeFunctionCall extends InkObject{
 		} else if (coercedType == ValueType.String) {
 			return this.CallType(coercedParams);
 		} else if (coercedType == ValueType.DivertTarget) {
+			return this.CallType(coercedParams);
+		} else if (coercedType == ValueType.List) {
 			return this.CallType(coercedParams);
 		}
 
@@ -89,7 +98,7 @@ export class NativeFunctionCall extends InkObject{
 
 			var opForTypeObj = this._operationFuncs[valType];
 			if (!opForTypeObj) {
-				throw new StoryException("Can not perform operation '"+this.name+"' on "+valType);
+				throw new StoryException("Cannot perform operation '"+this.name+"' on "+valType);
 			}
 
 			// Binary
@@ -121,8 +130,70 @@ export class NativeFunctionCall extends InkObject{
 			throw "Unexpected number of parameters to NativeFunctionCall: " + parametersOfSingleType.length;
 		}
 	}
+	CallBinaryListOperation(parameters)
+	{
+		// List-Int addition/subtraction returns a List (e.g. "alpha" + 1 = "beta")
+		if ((this.name == "+" || this.name == "-") && parameters[0] instanceof ListValue && parameters[1] instanceof IntValue)
+			return CallListIncrementOperation(parameters);
+
+//		var v1 = parameters [0] as Value;
+		var v1 = parameters[0];
+//		var v2 = parameters [1] as Value;
+		var v2 = parameters[1];
+
+		// And/or with any other type requires coerscion to bool (int)
+		if ((this.name == "&&" || this.name == "||") && (v1.valueType != ValueType.List || v2.valueType != ValueType.List)) {
+//			var op = _operationFuncs [ValueType.Int] as BinaryOp<int>;
+			var op = this._operationFuncs[ValueType.Int];
+			var result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
+			return parseInt(result);
+		}
+
+		// Normal (list • list) operation
+		if (v1.valueType == ValueType.List && v2.valueType == ValueType.List)
+			return CallType([v1, v2]);
+
+		throw new StoryException("Can not call use '" + this.name + "' operation on " + v1.valueType + " and " + v2.valueType);
+	}
+	CallListIncrementOperation(listIntParams)
+	{
+		var listVal = listIntParams[0];
+		var intVal = listIntParams[1];
+
+
+		var resultRawList = new RawList();
+
+		listVal.value.forEach(function(listItemWithValue){
+			var listItem = listItemWithValue.Key;
+			var listItemValue = listItemWithValue.Value;
+
+			// Find + or - operation
+			var intOp = this._operationFuncs[ValueType.Int];
+
+			// Return value unknown until it's evaluated
+			var targetInt = intOp(listItemValue, intVal.value);
+
+			// Find this item's origin (linear search should be ok, should be short haha)
+			var itemOrigin = null;
+			listVal.value.origins.forEach(function(origin){
+				if (origin.name == listItem.originName) {
+					itemOrigin = origin;
+					return false;
+				}
+			});
+			if (itemOrigin != null) {
+				var incrementedItem;
+				if (incrementedItem = itemOrigin.TryGetItemWithValue(targetInt, incrementedItem))
+					resultRawList.Add(incrementedItem, targetInt);
+			}
+		});
+
+		return new ListValue(resultRawList);
+	}
 	CoerceValuesToSingleType(parametersIn){
 		var valType = ValueType.Int;
+		
+		var specialCaseList = null;
 
 		// Find out what the output type is
 		// "higher level" types infect both so that binary operations
@@ -133,14 +204,42 @@ export class NativeFunctionCall extends InkObject{
 			if (val.valueType > valType) {
 				valType = val.valueType;
 			}
+			
+			if (val.valueType == ValueType.List) {
+//				 specialCaseList = val as ListValue;
+				 specialCaseList = val;
+			}
 		});
 
 		// Coerce to this chosen type
 		var parametersOut = [];
-		parametersIn.forEach(val => {
-			var castedValue = val.Cast(valType);
-			parametersOut.push(castedValue);
-		});
+		
+		if (valType == ValueType.List) {
+			parametersIn.forEach(function(val){
+				if (val.valueType == ValueType.List) {
+					parametersOut.push(val);
+				} else if (val.valueType == ValueType.Int) {
+					var intVal = parseInt(val.valueObject);
+					var list = specialCaseList.value.originOfMaxItem;
+
+					var item;
+					if (item = list.TryGetItemWithValue(intVal, item)) {
+						var castedValue = new ListValue(item, intVal);
+						parametersOut.push(castedValue);
+					} else
+						throw new StoryException("Could not find List item with the value " + intVal + " in " + list.name);
+				} else
+					throw new StoryException("Cannot mix Lists and " + val.valueType + " values in this operation");
+			});
+		} 
+
+		// Normal Coercing (with standard casting)
+		else {
+			parametersIn.forEach(function(val){
+				var castedValue = val.Cast(valType);
+				parametersOut.push(castedValue);
+			});
+		}
 
 		return parametersOut;
 	}
@@ -195,6 +294,29 @@ export class NativeFunctionCall extends InkObject{
 			// String operations
 			this.AddStringBinaryOp(this.Add,     (x, y) => {return x + y}); // concat
 			this.AddStringBinaryOp(this.Equal,   (x, y) => {return x === y ? 1 : 0});
+			
+			this.AddListBinaryOp(this.Add, 		 (x, y) => {return x.Union(y)});
+			this.AddListBinaryOp(this.And, 		 (x, y) => {return x.Union(y)});
+			this.AddListBinaryOp(this.Subtract,  (x, y) => {return x.Without(y)});
+			this.AddListBinaryOp(this.Has, 		 (x, y) => {return x.Contains(y) ? 1 : 0});
+			this.AddListBinaryOp(this.Hasnt, 	 (x, y) => {return x.Contains(y) ? 0 : 1});
+			this.AddListBinaryOp(this.Intersect, (x, y) => {return x.Intersect(y)});
+			
+			this.AddListBinaryOp(this.Equal, 				(x, y) => {return x.Equals(y) ? 1 : 0});
+			this.AddListBinaryOp(this.Greater, 				(x, y) => {return x.GreaterThan(y) ? 1 : 0});
+			this.AddListBinaryOp(this.Less, 				(x, y) => {return x.LessThan(y) ? 1 : 0});
+			this.AddListBinaryOp(this.GreaterThanOrEquals, 	(x, y) => {return x.GreaterThanOrEquals(y) ? 1 : 0});
+			this.AddListBinaryOp(this.LessThanOrEquals, 	(x, y) => {return x.LessThanOrEquals(y) ? 1 : 0});
+			this.AddListBinaryOp(this.NotEquals, 			(x, y) => {return !x.Equals(y) ? 1 : 0});
+			
+			this.AddListUnaryOp(this.Not, (x) => {return x.Count == 0 ? 1 : 0});
+
+			this.AddListUnaryOp(this.Invert, (x) => {return x.inverse});
+			this.AddListUnaryOp(this.All, (x) => {return x.all});
+			this.AddListUnaryOp(this.ListMin, (x) => {return x.MinAsList()});
+			this.AddListUnaryOp(this.ListMax, (x) => {return x.MaxAsList()});
+			this.AddListUnaryOp(this.Count,  (x) => {return x.Count});
+			this.AddListUnaryOp(this.ValueOfList,  (x) => {return x.maxItem.Value});
 
 			// Special case: The only operation you can do on divert target values
 			var divertTargetsEqual = (d1, d2) => {
@@ -238,6 +360,13 @@ export class NativeFunctionCall extends InkObject{
 		this.AddOpToNativeFunc(name, 2, ValueType.String, op);
 	}
 	
+	static AddListBinaryOp(name, op){
+		this.AddOpToNativeFunc(name, 2, ValueType.List, op);
+	}
+	static void AddListUnaryOp(name, op){
+		this.AddOpToNativeFunc(name, 1, ValueType.List, op);
+	}
+	
 	toString(){
 		return "Native '" + this.name + "'";
 	}
@@ -248,7 +377,7 @@ NativeFunctionCall.Subtract = "-";
 NativeFunctionCall.Divide   = "/";
 NativeFunctionCall.Multiply = "*";
 NativeFunctionCall.Mod      = "%";
-NativeFunctionCall.Negate   = "~";
+NativeFunctionCall.Negate   = "_";
 
 NativeFunctionCall.Equal    = "==";
 NativeFunctionCall.Greater  = ">";
@@ -263,5 +392,16 @@ NativeFunctionCall.Or       = "||";
 
 NativeFunctionCall.Min      = "MIN";
 NativeFunctionCall.Max      = "MAX";
+
+NativeFunctionCall.Has      = "?";
+NativeFunctionCall.Hasnt    = "!?";
+NativeFunctionCall.Intersect = "^";
+
+NativeFunctionCall.ListMin   = "LIST_MIN";
+NativeFunctionCall.ListMax   = "LIST_MAX";
+NativeFunctionCall.All       = "LIST_ALL";
+NativeFunctionCall.Count     = "LIST_COUNT";
+NativeFunctionCall.ValueOfList = "LIST_VALUE";
+NativeFunctionCall.Invert    = "LIST_INVERT";
 
 NativeFunctionCall._nativeFunctions = null;
