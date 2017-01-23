@@ -610,6 +610,11 @@ export class StoryState{
 		// Create a new base call stack element.
 		this.callStack = new CallStack(funcContainer);
 		this.callStack.currentElement.type = PushPopType.Function;
+		
+		// The variablesState object needs to track the callstack 
+		// we're using so temp variables are created in the right place.
+		// We'll reset this when we restore the original callstack.
+		this._variablesState._callStack = this.callStack;
 
 		// By setting ourselves in external function evaluation mode,
 		// we're saying it's okay to end the flow without a Done or End,
@@ -652,6 +657,7 @@ export class StoryState{
 		this.callStack = this._originalCallstack;
 		this._originalCallstack = null;
 		this._originalEvaluationStackHeight = 0;
+		this._variablesState._callStack = this.callStack;
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
