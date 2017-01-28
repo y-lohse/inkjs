@@ -26,7 +26,7 @@ export class StoryState{
 		this._evaluationStack = [];
 
 		this.callStack = new CallStack(story.rootContentContainer);
-		this._variablesState = new VariablesState(this.callStack);
+		this._variablesState = new VariablesState(this.callStack, story.listDefinitions);
 
 		this._visitCounts = {};
 		this._turnIndices = {};
@@ -337,6 +337,27 @@ export class StoryState{
 		this.OutputStreamDirty();
 	}
 	PushEvaluationStack(obj){
+//		var listValue = obj as ListValue;
+		var listValue = obj;
+		if (listValue instanceof ListValue) {
+
+			// Update origin when list is has something to indicate the list origin
+			var rawList = listValue.value;
+			var names = rawList.originNames;
+			if (names != null) {
+				var origins = [];
+				
+				names.forEach(function(n){
+					var def = null;
+					def = this.story.listDefinitions.TryGetDefinition(n, def);
+					if( origins.indexOf(def) < 0 )
+						origins.push(def);
+				});
+
+				rawList.origins = origins;
+			}
+		}
+		
 		this.evaluationStack.push(obj);
 	}
 	PopEvaluationStack(numberOfObjects){
@@ -623,7 +644,7 @@ export class StoryState{
 					throw "ink arguments when calling EvaluateFunction must be int, float or string";
 				}
 
-				this.evaluationStack.push(Value.Create(args[i]));
+				this.PushEvaluationStack(Value.Create(args[i]));
 			}
 		}
 	}
@@ -707,7 +728,7 @@ export class StoryState{
 
 		copy.callStack = new CallStack(this.callStack);
 		
-		copy._variablesState = new VariablesState(copy.callStack);
+		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
 		copy.variablesState.CopyFrom(this.variablesState);
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
@@ -743,5 +764,5 @@ export class StoryState{
 	}
 }
 
-StoryState.kInkSaveStateVersion = 5;
-StoryState.kMinCompatibleLoadVersion = 4;
+StoryState.kInkSaveStateVersion = 6;
+StoryState.kMinCompatibleLoadVersion = 6;

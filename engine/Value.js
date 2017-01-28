@@ -5,11 +5,12 @@ export var ValueType = {
 	// Used in coersion
 	Int: 0,
 	Float: 1,
-	String: 2,
+	List: 2,
+	String: 3,
 
 	// Not used for coersion described above
-	DivertTarget: 3,
-	VariablePointer: 4
+	DivertTarget: 4,
+	VariablePointer: 5
 }
 
 class AbstractValue extends InkObject{
@@ -47,6 +48,8 @@ class AbstractValue extends InkObject{
 			return new StringValue(val);
 		} else if (val instanceof Path) {
 			return new DivertTargetValue(val);
+		} else if (val instanceof RawList) {
+			return new ListValue(val);
 		}
 	
 		return null;
@@ -249,5 +252,77 @@ export class VariablePointerValue extends Value{
 	}
 	Copy(){
 		return new VariablePointerValue(this.variableName, this.contextIndex);
+	}
+}
+
+export class ListValue extends Value{
+	get valueType(){
+		return ValueType.List;
+	}
+	get isTruthy(){
+		var isTruthy = false;
+		this.value.forEach(function(kv){
+			var listItemIntValue = kv.Value;
+			if (listItemIntValue != 0)
+				isTruthy = true; 
+		});
+		return isTruthy;
+	}
+	Cast(newType){
+		 if (newType == ValueType.Int) {
+			var max = this.value.maxItem;
+			if( max.Key.isNull )
+				return new IntValue(0);
+			else
+				return new IntValue(max.Value);
+		}
+
+		else if (newType == ValueType.Float) {
+			var max = this.value.maxItem;
+			if (max.Key.isNull)
+				return new FloatValue(0.0);
+			else
+				return new FloatValue(parseFloat(max.Value));
+		}
+
+		else if (newType == ValueType.String) {
+			var max = value.maxItem;
+			if (max.Key.isNull)
+				return new StringValue("");
+			else {
+				return new StringValue(max.Key.toString());
+			}
+		}
+
+		if (newType == this.valueType)
+			return this;
+
+		throw "Unexpected type cast of Value to new ValueType";
+	}
+	constructor(listOrSingleItem, singleValue){
+		super(null);
+		
+		if (listOrSingleItemSingleValue instanceof RawList){
+			this.value = new RawList(listOrSingleItemSingleValue);
+		}
+		else if (listOrSingleItem !== undefined && singleValue !== undefined){
+			this.value = new RawList({
+				Key: listOrSingleItem,
+				Value: singleValue
+			});
+		}
+		else{
+			this.value = new RawList();
+		}
+	}
+	static RetainListOriginsForAssignment(oldValue, newValue){
+//		var oldList = oldValue as ListValue;
+		var oldList = oldValue;
+//		var newList = newValue as ListValue;
+		var newList = newValue;
+
+		// When assigning the emtpy list, try to retain any initial origin names
+		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
+			newList.value.SetInitialOriginNames(oldList.value.originNames);
 	}
 }
