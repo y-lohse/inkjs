@@ -3,6 +3,7 @@ import {Container} from './Container';
 import {Path} from './Path';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
+import {ListValue} from './Value';
 
 class Element{
 	constructor(type, container, contentIndex, inExpressionEvaluation){

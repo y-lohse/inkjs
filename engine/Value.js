@@ -303,6 +303,8 @@ export class ListValue extends Value{
 	constructor(listOrSingleItem, singleValue){
 		super(null);
 		
+		this._valueType = ValueType.List;
+		
 		if (listOrSingleItem instanceof RawList){
 			this.value = new RawList(listOrSingleItem);
 		}

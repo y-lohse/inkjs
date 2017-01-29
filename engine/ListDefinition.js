@@ -1,9 +1,10 @@
-
+import {RawListItem} from './RawList';
 
 export class ListDefinition{
 	constructor(name, items){
 		this._name = name || '';
-		this._items = {};
+		this._items = null;
+		this._rawListItemsKeys = null;
 		this._itemNameToValues = items || {};
 	}
 	get name(){
@@ -12,12 +13,24 @@ export class ListDefinition{
 	get items(){
 		if (this._items == null){
 			this._items = {};
+			this._rawListItemsKeys = {};
 			for (var key in this._itemNameToValues){
 				var item = new RawListItem(this.name, key);
+				this._rawListItemsKeys[item] = item;
 				this._items[item] = this._itemNameToValues[key];
 			}
 		}
+		this._items.forEach = this.forEachItems.bind(this);
+		
 		return this._items;
+	}
+	forEachItems(fn){
+		for (var key in this._rawListItemsKeys){
+			fn({
+				Key: this._rawListItemsKeys[key],
+				Value: this._items[key]
+			});
+		}
 	}
 	ValueForItem(item){
 		var intVal = this._itemNameToValues[item.itemName];

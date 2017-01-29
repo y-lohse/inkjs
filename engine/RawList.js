@@ -50,6 +50,7 @@ export class RawListItem{
 //instead RawList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on RawList. This also means directly iterating over the RawList won't work as expected. Maybe we can return a proxy if that's required.
 export class RawList{
 	constructor(otherListOrSingleElement){
+		this._keys = {};
 		this._values = {};
 		this.origins = null;
 		this._originNames = null;
@@ -58,7 +59,10 @@ export class RawList{
 		if (otherListOrSingleElement){
 			if (otherListOrSingleElement instanceof RawList){
 				var otherList = otherListOrSingleElement;
-				this._values = Object.assign(this._values, otherList._values);
+				otherList.forEach((kv)=>{
+					this.Add(kv.Key, kv.Value);
+				});
+				
 				this._originNames = otherList._originNames;
 			}
 			else if (otherListOrSingleElement.hasOwnProperty('Key') && otherListOrSingleElement.hasOwnProperty('Value')){
@@ -70,7 +74,7 @@ export class RawList{
 	forEach(fn){
 		for (var key in this._values){
 			fn({
-				Key: key,
+				Key: this._keys[key],
 				Value: this._values[key]
 			});
 		}
@@ -79,10 +83,12 @@ export class RawList{
 		return key in this._values;
 	}
 	Add(key, value){
+		this._keys[key] = key;
 		this._values[key] = value;
 	}
 	Remove(key){
 		delete this._values[key];
+		delete this._keys[key];
 	}
 	get Count(){
 		return Object.keys(this._values).length;
@@ -172,7 +178,7 @@ export class RawList{
 	Union(otherList){
 		var union = new RawList(this);
 		otherList.forEach(function(kv){
-			union[kv.Key] = kv.Value;
+			union.Add(kv.Key, kv.Value);
 		});
 		return union;
 	}
@@ -207,7 +213,7 @@ export class RawList{
 	}
 	GreaterThanOrEquals(otherList){
 		if (this.Count == 0) return false;
-		if (this.otherList.Count == 0) return true;
+		if (otherList.Count == 0) return true;
 
 		return this.minItem.Value >= otherList.minItem.Value
 			&& this.maxItem.Value >= otherList.maxItem.Value;
@@ -271,5 +277,8 @@ export class RawList{
 		}
 
 		return sb.toString();
+	}
+	valueOf(){
+		return NaN;
 	}
 }
