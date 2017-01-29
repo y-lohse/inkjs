@@ -237,7 +237,8 @@ export class JsonSerialisation{
 				if (propValue = obj["origins"]) {
 //					var namesAsObjs = (List<object>)propValue;
 					var namesAsObjs = propValue;
-					rawList.SetInitialOriginNames(namesAsObjs.Cast<string>().ToList());
+//					rawList.SetInitialOriginNames(namesAsObjs.Cast<string>().ToList());
+					rawList.SetInitialOriginNames(namesAsObjs);
 				}
 				
 				for (var key in listContent){
@@ -547,8 +548,9 @@ export class JsonSerialisation{
 
 		dict["list"] = content;
 
-		if (rawList.length == 0 && rawList.originNames != null && rawList.originNames.length > 0) {
-			dict["origins"] = rawList.originNames.Cast<object> ().ToList ();
+		if (rawList.Count == 0 && rawList.originNames != null && rawList.originNames.length > 0) {
+//			dict["origins"] = rawList.originNames.Cast<object> ().ToList ();
+			dict["origins"] = rawList.originNames;
 		}
 
 		return dict;
