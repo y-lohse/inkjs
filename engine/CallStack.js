@@ -264,7 +264,7 @@ export class CallStack{
 		}
 		
 		var oldValue;
-		if( oldValue = contextElement.temporaryVariables[name]) )
+		if( oldValue = contextElement.temporaryVariables[name] )
 			ListValue.RetainListOriginsForAssignment(oldValue, value);
 
 		contextElement.temporaryVariables[name] = value;

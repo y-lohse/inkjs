@@ -586,7 +586,7 @@ export class JsonSerialisation{
 			var items = {};
 			
 			listDefJson.forEach(function(nameValue, nameValueKey){
-				items[nameValueKey] = parseInt(nameValue));
+				items[nameValueKey] = parseInt(nameValue);
 			});
 
 			var def = new ListDefinition(name, items);

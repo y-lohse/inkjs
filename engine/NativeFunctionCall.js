@@ -363,7 +363,7 @@ export class NativeFunctionCall extends InkObject{
 	static AddListBinaryOp(name, op){
 		this.AddOpToNativeFunc(name, 2, ValueType.List, op);
 	}
-	static void AddListUnaryOp(name, op){
+	static AddListUnaryOp(name, op){
 		this.AddOpToNativeFunc(name, 1, ValueType.List, op);
 	}
 	

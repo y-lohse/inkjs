@@ -17,6 +17,7 @@ import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {StringBuilder} from './StringBuilder';
+import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 
 if (!Number.isInteger) {
 	Number.isInteger = function isInteger (nVal) {
@@ -42,7 +43,7 @@ export class Story extends InkObject{
 			this._mainContentContainer = jsonString;
 			
 			if (lists != null)
-+				this._listDefinitions = new ListDefinitionsOrigin(lists);
+				this._listDefinitions = new ListDefinitionsOrigin(lists);
 		}
 		else{
 			//the original version only accepts a string as a constructor, but this is javascript and it's almost easier to get a JSON value than a string, so we're silently accepting both
@@ -877,7 +878,7 @@ export class Story extends InkObject{
 
 				// Allow either int or a particular list item to be passed for the bounds,
 				// so wrap up a function to handle this casting for us.
-				function IntBound = (obj) => {
+				function IntBound(obj){
 //					var listValue = obj as ListValue;
 					var listValue = obj;
 					if (listValue instanceof ListValue) {
