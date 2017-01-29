@@ -31,23 +31,30 @@ export class ListDefinition{
 
 		return (item.itemName in this._itemNameToValues);
 	}
-	TryGetItemWithValue(val, item){//@CAREFUL: item is an out parameter and gets modified
+	TryGetItemWithValue(val){//, out item
+		//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] == val) {
 				item = new RawListItem(this.name, key);
-				return true;
+				return {
+					item :item,
+					exists: true
+				};
 			}
 		}
 
 		item = RawListItem.Null;
-		return false;
+		return {
+			item :item,
+			exists: false
+		};
 	}
 	ListRange(min, max){
 		var rawList = new RawList();
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] >= min && this._itemNameToValues[key] <= max) {
 				var item = new RawListItem(this.name, key);
-				rawList[item] = this._itemNameToValues[key];//@CAREFUL using item as a key?
+				rawList[item] = this._itemNameToValues[key];
 			}
 		}
 		return new ListValue(rawList);

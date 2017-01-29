@@ -182,9 +182,9 @@ export class NativeFunctionCall extends InkObject{
 				}
 			});
 			if (itemOrigin != null) {
-				var incrementedItem;
-				if (incrementedItem = itemOrigin.TryGetItemWithValue(targetInt, incrementedItem))
-					resultRawList.Add(incrementedItem, targetInt);
+				var incrementedItem = itemOrigin.TryGetItemWithValue(targetInt);
+				if (incrementedItem.exists)
+					resultRawList.Add(incrementedItem.item, targetInt);
 			}
 		});
 
@@ -222,9 +222,9 @@ export class NativeFunctionCall extends InkObject{
 					var intVal = parseInt(val.valueObject);
 					var list = specialCaseList.value.originOfMaxItem;
 
-					var item;
-					if (item = list.TryGetItemWithValue(intVal, item)) {
-						var castedValue = new ListValue(item, intVal);
+					var item = list.TryGetItemWithValue(intVal);
+					if (item.exists) {
+						var castedValue = new ListValue(item.item, intVal);
 						parametersOut.push(castedValue);
 					} else
 						throw new StoryException("Could not find List item with the value " + intVal + " in " + list.name);

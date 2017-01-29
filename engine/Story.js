@@ -850,10 +850,10 @@ export class Story extends InkObject{
 				var generatedListValue = null;
 
 				var foundListDef;
-				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {//@CAREFULL:using an out / boolean here
-					var foundItem;
-					if (foundItem = foundListDef.TryGetItemWithValue(intVal.value, foundItem)) {
-						generatedListValue = new ListValue(foundItem, intVal.value);
+				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {
+					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
+					if (foundItem.exists) {
+						generatedListValue = new ListValue(foundItem.item, intVal.value);
 					}
 				} else {
 					throw new StoryException("Failed to find LIST called " + listNameVal.value);
@@ -909,7 +909,7 @@ export class Story extends InkObject{
 					origins.forEach(function(origin){
 						var rangeFromOrigin = origin.ListRange(minVal, maxVal);
 						rangeFromOrigin.value.forEach(function(kv){
-							result.value[kv.Key] = kv.Value;//@CAREFUL: this probably wont work because assoc array
+							result.value[kv.Key] = kv.Value;
 						});
 					});
 				}

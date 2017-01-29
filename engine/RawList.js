@@ -33,6 +33,15 @@ class RawListItem{
 		return false;
 	}
 	//GetHashCode not implemented
+	toString(){
+		//WARNING: experimental. RawListItem are structs and are used as keys inside hashes. In js, we can't use an object as a key, as the key needs to be a string. C# gets around that with the internal GetHashCode, and the js equivalent to that is toString. So here, toString acts as C#'s GetHashCode
+		var originCode = '0';
+		var itemCode = this.itemName.toString();
+		if (this.originName != null)
+			originCode = originName.toString();
+		
+		return originCode + itemCode;
+	}
 }
 
 //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and RawList class properties.
