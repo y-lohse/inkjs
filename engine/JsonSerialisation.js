@@ -1,5 +1,5 @@
 import {Container} from './Container';
-import {Value, IntValue, FloatValue, StringValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {Value, IntValue, FloatValue, StringValue, DivertTargetValue, VariablePointerValue, ListValue} from './Value';
 import {Glue, GlueType} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
@@ -12,6 +12,9 @@ import {Void} from './Void';
 import {Tag} from './Tag';
 import {Path} from './Path';
 import {Choice} from './Choice';
+import {ListDefinition} from './ListDefinition';
+import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
+import {RawListItem, RawList} from './RawList';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -585,9 +588,10 @@ export class JsonSerialisation{
 			// Cast (string, object) to (string, int) for items
 			var items = {};
 			
-			listDefJson.forEach(function(nameValue, nameValueKey){
+			for (var nameValueKey in listDefJson){
+				var nameValue = listDefJson[nameValueKey];
 				items[nameValueKey] = parseInt(nameValue);
-			});
+			}
 
 			var def = new ListDefinition(name, items);
 			allDefs.push(def);
@@ -618,8 +622,8 @@ _controlCommandNames[ControlCommand.CommandType.SequenceShuffleIndex] = "seq";
 _controlCommandNames[ControlCommand.CommandType.StartThread] = "thread";
 _controlCommandNames[ControlCommand.CommandType.Done] = "done";
 _controlCommandNames[ControlCommand.CommandType.End] = "end";
-_controlCommandNames[ControlCommand.CommandType.End] = "listInt";
-_controlCommandNames[ControlCommand.CommandType.End] = "range";
+_controlCommandNames[ControlCommand.CommandType.ListFromInt] = "listInt";
+_controlCommandNames[ControlCommand.CommandType.ListRange] = "range";
 
 for (var i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
 	if (_controlCommandNames[i] == null)

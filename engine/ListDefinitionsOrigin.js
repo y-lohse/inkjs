@@ -1,8 +1,11 @@
+import {RawListItem} from './RawList';
+import {ListValue} from './Value';
+
 export class ListDefinitionsOrigin{
 	constructor(lists){
 		this._lists = {};
 		
-		lists.forEach(function(list){
+		lists.forEach((list)=>{
 			this._lists[list.name] = list;
 		});
 	}

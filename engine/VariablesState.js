@@ -1,7 +1,7 @@
 //still needs: 
 // - varchanged events
 // - see if the internal getenumarators are needed
-import {Value, VariablePointerValue} from './Value';
+import {Value, VariablePointerValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 

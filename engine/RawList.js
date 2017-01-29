@@ -1,4 +1,6 @@
-class RawListItem{
+import {StringBuilder} from './StringBuilder';
+
+export class RawListItem{
 	constructor(fullNameOrOriginName, itemName){
 		if (itemName !== undefined){
 			this.originName = fullNameOrOriginName;
@@ -38,7 +40,7 @@ class RawListItem{
 		var originCode = '0';
 		var itemCode = this.itemName.toString();
 		if (this.originName != null)
-			originCode = originName.toString();
+			originCode = this.originName.toString();
 		
 		return originCode + itemCode;
 	}
@@ -46,7 +48,7 @@ class RawListItem{
 
 //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and RawList class properties.
 //instead RawList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on RawList. This also means directly iterating over the RawList won't work as expected. Maybe we can return a proxy if that's required.
-class RawList{
+export class RawList{
 	constructor(otherListOrSingleElement){
 		this._values = {};
 		this.origins = null;
@@ -74,7 +76,7 @@ class RawList{
 		}
 	}
 	ContainsKey(key){
-		return key in this._values[key];
+		return key in this._values;
 	}
 	Add(key, value){
 		this._values[key] = value;
@@ -91,9 +93,10 @@ class RawList{
 		var maxOriginName = this.maxItem.Key.originName;
 		var result = null;
 		this.origins.every(function(origin){
-			if (origin.name == maxOriginName)
+			if (origin.name == maxOriginName){
 				result = origin;
 				return false;
+			}
 			else return true;
 		});
 		
@@ -106,7 +109,7 @@ class RawList{
 			else
 				this._originNames.length = 0;
 
-			this.forEach(function(itemAndValue){
+			this.forEach((itemAndValue)=>{
 				this._originNames.push(itemAndValue.Key.originName);
 			});
 		}
@@ -146,8 +149,8 @@ class RawList{
 	get inverse(){
 		var list = new RawList();
 		if (this.origins != null) {
-			this.origins.forEach(function(origin){
-				origin.items.forEach(function(itemAndValue){
+			this.origins.forEach((origin)=>{
+				origin.items.forEach((itemAndValue)=>{
 					if (!this.ContainsKey(itemAndValue.Key))
 						list.Add(itemAndValue.Key, itemAndValue.Value);
 				});
@@ -190,10 +193,10 @@ class RawList{
 	}
 	Contains(otherList){
 		var contains = true;
-		otherList.forEach(function(kv){
-			if (!this.ContainsKey(kv.Key)) forEach = false;
+		otherList.forEach((kv)=>{
+			if (!this.ContainsKey(kv.Key)) contains = false;
 		});
-		return forEach;
+		return contains;
 	}
 	GreaterThan(otherList){
 		if (this.Count == 0) return false;
@@ -254,7 +257,7 @@ class RawList{
 		this.forEach(function(kv){
 			ordered.push(kv);
 		});
-		ordered.sort((x, y) => {
+		ordered.sort((a, b) => {
 			return (a.Value === b.Value) ? 0 : ((a.Value > b.Value) ? 1 : -1);
 		});
 

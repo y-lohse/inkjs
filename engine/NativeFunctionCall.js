@@ -1,5 +1,5 @@
 //misses delegates, probably the returns from function calls
-import {Value, ValueType} from './Value';
+import {Value, ValueType, IntValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {Void} from './Void';
 import {Object as InkObject} from './Object';
@@ -151,7 +151,7 @@ export class NativeFunctionCall extends InkObject{
 
 		// Normal (list • list) operation
 		if (v1.valueType == ValueType.List && v2.valueType == ValueType.List)
-			return CallType([v1, v2]);
+			return this.CallType([v1, v2]);
 
 		throw new StoryException("Can not call use '" + this.name + "' operation on " + v1.valueType + " and " + v2.valueType);
 	}

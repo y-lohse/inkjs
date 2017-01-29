@@ -1,6 +1,6 @@
 import {CallStack} from './CallStack';
 import {VariablesState} from './VariablesState';
-import {ValueType, Value, StringValue} from './Value';
+import {ValueType, Value, StringValue, ListValue} from './Value';
 import {PushPopType} from './PushPop';
 import {Tag} from './Tag';
 import {Glue} from './Glue';
@@ -347,7 +347,7 @@ export class StoryState{
 			if (names != null) {
 				var origins = [];
 				
-				names.forEach(function(n){
+				names.forEach((n)=>{
 					var def = null;
 					def = this.story.listDefinitions.TryGetDefinition(n, def);
 					if( origins.indexOf(def) < 0 )

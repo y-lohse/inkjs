@@ -1,5 +1,6 @@
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
+import {RawList} from './RawList';
 
 export var ValueType = {
 	// Used in coersion
@@ -302,8 +303,8 @@ export class ListValue extends Value{
 	constructor(listOrSingleItem, singleValue){
 		super(null);
 		
-		if (listOrSingleItemSingleValue instanceof RawList){
-			this.value = new RawList(listOrSingleItemSingleValue);
+		if (listOrSingleItem instanceof RawList){
+			this.value = new RawList(listOrSingleItem);
 		}
 		else if (listOrSingleItem !== undefined && singleValue !== undefined){
 			this.value = new RawList({
