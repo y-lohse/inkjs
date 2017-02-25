@@ -88,7 +88,7 @@ export class VariablesState{
 	CopyFrom(toCopy){
 		this._globalVariables = {};
 		for (var name in toCopy._globalVariables){
-			this._globalVariables[name] = toCopy._globalVariables[name].Copy();
+			this._globalVariables[name] = Value.Create(toCopy._globalVariables[name].value);
 		}
 		
 		this.variableChangedEvent = toCopy.variableChangedEvent;

@@ -328,7 +328,4 @@ export class ListValue extends Value{
 		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
 	}
-	Copy(){
-		return new ListValue(this.value);
-	}
 }
