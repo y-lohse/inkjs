@@ -86,7 +86,10 @@ export class VariablesState{
 		this.variableChangedEventCallbacks.push(callback);
 	}
 	CopyFrom(toCopy){
-		this._globalVariables = toCopy._globalVariables;
+		this._globalVariables = {};
+		for (var name in toCopy._globalVariables){
+			this._globalVariables[name] = toCopy._globalVariables[name].Copy();
+		}
 		
 		this.variableChangedEvent = toCopy.variableChangedEvent;
 

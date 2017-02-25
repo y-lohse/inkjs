@@ -56,7 +56,7 @@ class AbstractValue extends InkObject{
 		return null;
 	}
 	Copy(val){
-		return this.Create(val);
+		return AbstractValue.Create(val);
 	}
 }
 
@@ -327,5 +327,8 @@ export class ListValue extends Value{
 		// When assigning the emtpy list, try to retain any initial origin names
 		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
+	}
+	Copy(){
+		return new ListValue(this.value);
 	}
 }

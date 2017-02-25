@@ -263,7 +263,7 @@ export class RawList{
 		this.forEach(function(kv){
 			ordered.push(kv);
 		});
-		ordered.sort((a, b) => {
+		ordered = ordered.sort((a, b) => {
 			return (a.Value === b.Value) ? 0 : ((a.Value > b.Value) ? 1 : -1);
 		});
 
@@ -278,6 +278,7 @@ export class RawList{
 
 		return sb.toString();
 	}
+	//casting a RawList to a Number, for somereason, actually gives a number. This messes up the type detection when creating a Value from a RawList. Returning NaN here prevents that.
 	valueOf(){
 		return NaN;
 	}
