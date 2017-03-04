@@ -255,7 +255,7 @@ export class RawList{
 				equals = false;
 		});
 
-		return true;
+		return equals;
 	}
 	//GetHashCode not implemented
 	toString(){

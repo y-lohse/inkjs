@@ -7,7 +7,7 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue, ListValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {Tag} from './Tag';
@@ -910,7 +910,7 @@ export class Story extends InkObject{
 					origins.forEach(function(origin){
 						var rangeFromOrigin = origin.ListRange(minVal, maxVal);
 						rangeFromOrigin.value.forEach(function(kv){
-							result.value[kv.Key] = kv.Value;
+							result.value.Add(kv.Key, kv.Value);
 						});
 					});
 				}

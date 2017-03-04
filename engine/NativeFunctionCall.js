@@ -2,6 +2,7 @@
 import {Value, ValueType, IntValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {Void} from './Void';
+import {RawList} from './RawList';
 import {Object as InkObject} from './Object';
 
 export class NativeFunctionCall extends InkObject{
@@ -134,7 +135,7 @@ export class NativeFunctionCall extends InkObject{
 	{
 		// List-Int addition/subtraction returns a List (e.g. "alpha" + 1 = "beta")
 		if ((this.name == "+" || this.name == "-") && parameters[0] instanceof ListValue && parameters[1] instanceof IntValue)
-			return CallListIncrementOperation(parameters);
+			return this.CallListIncrementOperation(parameters);
 
 //		var v1 = parameters [0] as Value;
 		var v1 = parameters[0];
@@ -163,7 +164,7 @@ export class NativeFunctionCall extends InkObject{
 
 		var resultRawList = new RawList();
 
-		listVal.value.forEach(function(listItemWithValue){
+		listVal.value.forEach(listItemWithValue => {
 			var listItem = listItemWithValue.Key;
 			var listItemValue = listItemWithValue.Value;
 

@@ -1,4 +1,5 @@
-import {RawListItem} from './RawList';
+import {RawList, RawListItem} from './RawList';
+import {ListValue} from './Value';
 
 export class ListDefinition{
 	constructor(name, items){
@@ -44,7 +45,7 @@ export class ListDefinition{
 
 		return (item.itemName in this._itemNameToValues);
 	}
-	TryGetItemWithValue(val){//, out item
+	TryGetItemWithValue(val, item){//item was an out
 		//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] == val) {
@@ -67,7 +68,7 @@ export class ListDefinition{
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] >= min && this._itemNameToValues[key] <= max) {
 				var item = new RawListItem(this.name, key);
-				rawList[item] = this._itemNameToValues[key];
+				rawList.Add(item, this._itemNameToValues[key]);
 			}
 		}
 		return new ListValue(rawList);
