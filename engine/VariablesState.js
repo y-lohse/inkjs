@@ -1,14 +1,15 @@
 //still needs: 
 // - varchanged events
 // - see if the internal getenumarators are needed
-import {Value, VariablePointerValue} from './Value';
+import {Value, VariablePointerValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 
 export class VariablesState{
-	constructor(callStack){
+	constructor(callStack, listDefsOrigin){
 		this._globalVariables = {};
 		this._callStack = callStack;
+		this._listDefsOrigin = listDefsOrigin;
 		
 		this._batchObservingVariableChanges = null;
 		this._changedVariables = null;
@@ -84,15 +85,16 @@ export class VariablesState{
 		
 		this.variableChangedEventCallbacks.push(callback);
 	}
-	CopyFrom(varState){
-		this._globalVariables = varState._globalVariables;
-		this.variableChangedEvent = varState.variableChangedEvent;
+	CopyFrom(toCopy){
+		this._globalVariables = Object.assign({}, toCopy._globalVariables);
+		
+		this.variableChangedEvent = toCopy.variableChangedEvent;
 
-		if (varState.batchObservingVariableChanges != this.batchObservingVariableChanges) {
+		if (toCopy.batchObservingVariableChanges != this.batchObservingVariableChanges) {
 
-			if (varState.batchObservingVariableChanges) {
+			if (toCopy.batchObservingVariableChanges) {
 				this._batchObservingVariableChanges = true;
-				this._changedVariables = varState._changedVariables;
+				this._changedVariables = toCopy._changedVariables;
 			} else {
 				this._batchObservingVariableChanges = false;
 				this._changedVariables = null;
@@ -120,7 +122,11 @@ export class VariablesState{
 		if (contextIndex == 0 || contextIndex == -1) {
 			if ( varValue = this._globalVariables[name] )
 				return varValue;
-		} 
+			
+			var listItemValue = this._listDefsOrigin.FindSingleItemListWithName(name);
+			if (listItemValue)
+				return listItemValue;
+		}
 
 		// Temporary
 		varValue = this._callStack.GetTemporaryVariableWithName(name, contextIndex);
@@ -180,9 +186,20 @@ export class VariablesState{
 			this._callStack.SetTemporaryVariable(name, value, varAss.isNewDeclaration, contextIndex);
 		}
 	}
+	RetainListOriginsForAssignment(oldValue, newValue){
+//		var oldList = oldValue as ListValue;
+		var oldList = oldValue;
+//		var newList = newValue as ListValue;
+		var newList = newValue;
+		
+		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
+			newList.value.SetInitialOriginNames(oldList.value.originNames);
+	}
 	SetGlobal(variableName, value){
 		var oldValue = null;
 		oldValue = this._globalVariables[variableName];
+		
+		ListValue.RetainListOriginsForAssignment(oldValue, value);
 
 		this._globalVariables[variableName] = value;
 
