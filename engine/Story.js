@@ -7,7 +7,7 @@ import {PushPopType} from './PushPop';
 import {ChoicePoint} from './ChoicePoint';
 import {Choice} from './Choice';
 import {Divert} from './Divert';
-import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue} from './Value';
+import {Value, StringValue, IntValue, DivertTargetValue, VariablePointerValue, ListValue} from './Value';
 import {Path} from './Path';
 import {Void} from './Void';
 import {Tag} from './Tag';
@@ -17,6 +17,7 @@ import {NativeFunctionCall} from './NativeFunctionCall';
 import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {StringBuilder} from './StringBuilder';
+import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 
 if (!Number.isInteger) {
 	Number.isInteger = function isInteger (nVal) {
@@ -25,21 +26,27 @@ if (!Number.isInteger) {
 }
 
 export class Story extends InkObject{
-	constructor(jsonString){
+	constructor(jsonString, lists){
 		super();
 		
-		this.inkVersionCurrent = 15;
-		this.inkVersionMinimumCompatible = 15;
+		lists = lists || null;
+		
+		this.inkVersionCurrent = 16;
+		this.inkVersionMinimumCompatible = 16;
 		
 		this._variableObservers = null;
 		this._externals = {};
 		this._prevContainerSet = null;
+		this._listDefinitions = null;
 		
 		if (jsonString instanceof Container){
 			this._mainContentContainer = jsonString;
+			
+			if (lists != null)
+				this._listDefinitions = new ListDefinitionsOrigin(lists);
 		}
 		else{
-			//the original version only accepts a string as a constructor, but this is javascript and it's almost easier to get a JSON value than a string, so we're silently accepting btoh
+			//the original version only accepts a string as a constructor, but this is javascript and it's almost easier to get a JSON value than a string, so we're silently accepting both
 			var rootObject = (typeof jsonString === 'string') ? JSON.parse(jsonString) : jsonString;
 
 			var versionObj = rootObject["inkVersion"];
@@ -60,6 +67,11 @@ export class Story extends InkObject{
 			var rootToken = rootObject["root"];
 			if (rootToken == null)
 				throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
+			
+			var listDefsObj;
+            if (listDefsObj = rootObject["listDefs"]) {
+                this._listDefinitions = JsonSerialisation.JTokenToListDefinitions(listDefsObj);
+            }
 
 			this._mainContentContainer = JsonSerialisation.JTokenToRuntimeObject(rootToken);
 
@@ -98,6 +110,9 @@ export class Story extends InkObject{
 	get variablesState(){
 		return this.state.variablesState;
 	}
+	get listDefinitions (){
+		return this._listDefinitions;
+	}
 	get state(){
 		return this._state;
 	}
@@ -123,6 +138,9 @@ export class Story extends InkObject{
 		var rootObject = {};
 		rootObject["inkVersion"] = this.inkVersionCurrent;
 		rootObject["root"] = rootContainerJsonList;
+		
+		if (this._listDefinitions != null)
+			rootObject["listDefs"] = JsonSerialisation.ListDefinitionsToJToken(this._listDefinitions);
 
 		return JSON.stringify(rootObject);
 	}
@@ -823,6 +841,82 @@ export class Story extends InkObject{
 			case ControlCommand.CommandType.End:
 				this.state.ForceEnd();
 				break;
+					
+			case ControlCommand.CommandType.ListFromInt:
+//				var intVal = state.PopEvaluationStack () as IntValue;
+				var intVal = parseInt(this.state.PopEvaluationStack());
+//				var listNameVal = state.PopEvaluationStack () as StringValue;
+				var listNameVal = this.state.PopEvaluationStack().toString();
+
+				var generatedListValue = null;
+
+				var foundListDef;
+				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {
+					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
+					if (foundItem.exists) {
+						generatedListValue = new ListValue(foundItem.item, intVal.value);
+					}
+				} else {
+					throw new StoryException("Failed to find LIST called " + listNameVal.value);
+				}
+
+				if (generatedListValue == null)
+					generatedListValue = new ListValue();
+
+				this.state.PushEvaluationStack(generatedListValue);
+				break;
+					
+			case ControlCommand.CommandType.ListRange:
+				var max = this.state.PopEvaluationStack();
+				var min = this.state.PopEvaluationStack();
+
+//				var targetList = state.PopEvaluationStack () as ListValue;
+				var targetList = this.state.PopEvaluationStack();
+
+				if (targetList instanceof ListValue === false || targetList == null || min == null || max == null)
+					throw new StoryException("Expected list, minimum and maximum for LIST_RANGE");
+
+				// Allow either int or a particular list item to be passed for the bounds,
+				// so wrap up a function to handle this casting for us.
+				function IntBound(obj){
+//					var listValue = obj as ListValue;
+					var listValue = obj;
+					if (listValue instanceof ListValue) {
+						return parseInt(listValue.value.maxItem.Value);
+					}
+
+//					var intValue = obj as IntValue;
+					var intValue = obj;
+					if (intValue instanceof IntValue) {
+						return intValue.value;
+					}
+
+					return -1;
+				}
+
+				var minVal = IntBound(min);
+				var maxVal = IntBound(max);
+				if (minVal == -1)
+					throw new StoryException("Invalid min range bound passed to LIST_VALUE(): " + min);
+
+				if (maxVal == -1)
+					throw new StoryException("Invalid max range bound passed to LIST_VALUE(): " + max);
+
+				// Extract the range of items from the origin list
+				var result = new ListValue();
+				var origins = targetList.value.origins;
+
+				if (origins != null) {
+					origins.forEach(function(origin){
+						var rangeFromOrigin = origin.ListRange(minVal, maxVal);
+						rangeFromOrigin.value.forEach(function(kv){
+							result.value.Add(kv.Key, kv.Value);
+						});
+					});
+				}
+
+				this.state.PushEvaluationStack(result);
+				break;
 
 			default:
 				this.Error("unhandled ControlCommand: " + evalCommand);
@@ -871,17 +965,17 @@ export class Story extends InkObject{
 				}
 			}
 
-			this.state.evaluationStack.push( foundValue );
+			this.state.PushEvaluationStack(foundValue);
 
 			return true;
 		}
 
 		// Native function call
-		else if( contentObj instanceof NativeFunctionCall ) {
+		else if (contentObj instanceof NativeFunctionCall) {
 			var func = contentObj;
 			var funcParams = this.state.PopEvaluationStack(func.numberOfParameters);
 			var result = func.Call(funcParams);
-			this.state.evaluationStack.push(result);
+			this.state.PushEvaluationStack(result);
 			return true;
 		}
 

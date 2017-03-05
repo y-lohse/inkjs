@@ -71,6 +71,12 @@ export class ControlCommand extends InkObject{
 	static End(){
 		return new ControlCommand(CommandType.End);
 	}
+	static ListFromInt(){
+		return new ControlCommand(CommandType.ListFromInt);
+	}
+	static ListRange(){
+		return new ControlCommand(CommandType.ListRange);
+	}
 }
 
 var CommandType = {
@@ -94,6 +100,8 @@ var CommandType = {
 	StartThread: 16,
 	Done: 17,
 	End: 18,
+	ListFromInt: 19,
+	ListRange: 20,
 }
 CommandType.TOTAL_VALUES = Object.keys(CommandType).length - 1;//-1 because NotSet shoudn't count
 ControlCommand.CommandType = CommandType;
