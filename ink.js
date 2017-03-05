@@ -4,9 +4,105 @@
   (factory((global.inkjs = global.inkjs || {})));
 }(this, (function (exports) { 'use strict';
 
+  var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
+    return typeof obj;
+  } : function (obj) {
+    return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
+  };
+
+
+
+
+
+
+
+
+
+
+
+  var classCallCheck = function (instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  };
+
+  var createClass = function () {
+    function defineProperties(target, props) {
+      for (var i = 0; i < props.length; i++) {
+        var descriptor = props[i];
+        descriptor.enumerable = descriptor.enumerable || false;
+        descriptor.configurable = true;
+        if ("value" in descriptor) descriptor.writable = true;
+        Object.defineProperty(target, descriptor.key, descriptor);
+      }
+    }
+
+    return function (Constructor, protoProps, staticProps) {
+      if (protoProps) defineProperties(Constructor.prototype, protoProps);
+      if (staticProps) defineProperties(Constructor, staticProps);
+      return Constructor;
+    };
+  }();
+
+
+
+
+
+
+
+  var _extends = Object.assign || function (target) {
+    for (var i = 1; i < arguments.length; i++) {
+      var source = arguments[i];
+
+      for (var key in source) {
+        if (Object.prototype.hasOwnProperty.call(source, key)) {
+          target[key] = source[key];
+        }
+      }
+    }
+
+    return target;
+  };
+
+
+
+  var inherits = function (subClass, superClass) {
+    if (typeof superClass !== "function" && superClass !== null) {
+      throw new TypeError("Super expression must either be null or a function, not " + typeof superClass);
+    }
+
+    subClass.prototype = Object.create(superClass && superClass.prototype, {
+      constructor: {
+        value: subClass,
+        enumerable: false,
+        writable: true,
+        configurable: true
+      }
+    });
+    if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
+  };
+
+
+
+
+
+
+
+
+
+
+
+  var possibleConstructorReturn = function (self, call) {
+    if (!self) {
+      throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
+    }
+
+    return call && (typeof call === "object" || typeof call === "function") ? call : self;
+  };
+
   var Path$1 = function () {
   	function Path() /*polymorphic constructor*/{
-  		babelHelpers.classCallCheck(this, Path);
+  		classCallCheck(this, Path);
 
   		this._isRelative;
   		this._components = [];
@@ -22,7 +118,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Path, [{
+  	createClass(Path, [{
   		key: "PathByAppendingPath",
   		value: function PathByAppendingPath(pathToAppend) {
   			var p = new Path();
@@ -70,17 +166,17 @@
   		}
   	}, {
   		key: "isRelative",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._isRelative;
   		}
   	}, {
   		key: "components",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._components;
   		}
   	}, {
   		key: "head",
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.components.length > 0) {
   				return this.components[0];
   			} else {
@@ -89,7 +185,7 @@
   		}
   	}, {
   		key: "tail",
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.components.length >= 2) {
   				var tailComps = this.components.slice(1, this.components.length); //careful, the original code uses length-1 here. This is because the second argument of List.GetRange is a number of elements to extract, wherease Array.slice uses an index
   				return new Path(tailComps);
@@ -99,12 +195,12 @@
   		}
   	}, {
   		key: "length",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.components.length;
   		}
   	}, {
   		key: "lastComponent",
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.components.length > 0) {
   				return this.components[this.components.length - 1];
   			} else {
@@ -113,7 +209,7 @@
   		}
   	}, {
   		key: "containsNamedComponent",
-  		get: function get() {
+  		get: function get$$1() {
   			for (var i = 0, l = this.components.length; i < l; i++) {
   				if (!this.components[i].isIndex) {
   					return true;
@@ -123,11 +219,11 @@
   		}
   	}, {
   		key: "componentsString",
-  		get: function get() {
+  		get: function get$$1() {
   			var compsStr = this.components.join(".");
   			if (this.isRelative) return "." + compsStr;else return compsStr;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var _this = this;
 
   			this.components.length = 0;
@@ -159,7 +255,7 @@
   		}
   	}], [{
   		key: "self",
-  		get: function get() {
+  		get: function get$$1() {
   			var path = new Path();
   			path._isRelative = true;
   			return path;
@@ -170,7 +266,7 @@
 
   var Component = function () {
   	function Component(indexOrName) {
-  		babelHelpers.classCallCheck(this, Component);
+  		classCallCheck(this, Component);
 
   		if (typeof indexOrName == 'string') {
   			this._index = -1;
@@ -181,7 +277,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Component, [{
+  	createClass(Component, [{
   		key: "toString",
   		value: function toString() {
   			if (this.isIndex) {
@@ -205,22 +301,22 @@
   		}
   	}, {
   		key: "index",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._index;
   		}
   	}, {
   		key: "name",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._name;
   		}
   	}, {
   		key: "isIndex",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.index >= 0;
   		}
   	}, {
   		key: "isParent",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.name == Path$1.parentId;
   		}
   	}], [{
@@ -237,13 +333,13 @@
 
   var Object$1 = function () {
   	function Object() {
-  		babelHelpers.classCallCheck(this, Object);
+  		classCallCheck(this, Object);
 
   		this.parent = null;
   		this._path = null;
   	}
 
-  	babelHelpers.createClass(Object, [{
+  	createClass(Object, [{
   		key: 'ResolvePath',
   		value: function ResolvePath(path) {
   			if (path.isRelative) {
@@ -332,7 +428,7 @@
   		}
   	}, {
   		key: 'path',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._path == null) {
 
   				if (this.parent == null) {
@@ -369,7 +465,7 @@
   		}
   	}, {
   		key: 'rootContentContainer',
-  		get: function get() {
+  		get: function get$$1() {
   			var ancestor = this;
   			while (ancestor.parent) {
   				ancestor = ancestor.parent;
@@ -382,13 +478,13 @@
 
   var StringBuilder = function () {
   	function StringBuilder(str) {
-  		babelHelpers.classCallCheck(this, StringBuilder);
+  		classCallCheck(this, StringBuilder);
 
   		str = typeof str !== 'undefined' ? str.toString() : '';
   		this._string = str;
   	}
 
-  	babelHelpers.createClass(StringBuilder, [{
+  	createClass(StringBuilder, [{
   		key: 'Append',
   		value: function Append(str) {
   			this._string += str;
@@ -415,7 +511,7 @@
   		}
   	}, {
   		key: 'Length',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._string.length;
   		}
   	}]);
@@ -424,7 +520,7 @@
 
   var RawListItem = function () {
   	function RawListItem(fullNameOrOriginName, itemName) {
-  		babelHelpers.classCallCheck(this, RawListItem);
+  		classCallCheck(this, RawListItem);
 
   		if (itemName !== undefined) {
   			this.originName = fullNameOrOriginName;
@@ -436,7 +532,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(RawListItem, [{
+  	createClass(RawListItem, [{
   		key: 'isNull',
   		value: function isNull() {
   			return this.originName == null && this.itemName == null;
@@ -471,7 +567,7 @@
   		}
   	}, {
   		key: 'fullName',
-  		get: function get() {
+  		get: function get$$1() {
   			return (this.originName !== null ? this.originName : "?") + "." + this.itemName;
   		}
   	}], [{
@@ -489,7 +585,7 @@
   	function RawList(otherListOrSingleElement) {
   		var _this = this;
 
-  		babelHelpers.classCallCheck(this, RawList);
+  		classCallCheck(this, RawList);
 
   		this._keys = {};
   		this._values = {};
@@ -512,7 +608,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(RawList, [{
+  	createClass(RawList, [{
   		key: 'forEach',
   		value: function forEach(fn) {
   			for (var key in this._values) {
@@ -677,12 +773,12 @@
   		}
   	}, {
   		key: 'Count',
-  		get: function get() {
+  		get: function get$$1() {
   			return Object.keys(this._values).length;
   		}
   	}, {
   		key: 'originOfMaxItem',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.origins == null) return null;
 
   			var maxOriginName = this.maxItem.Key.originName;
@@ -698,7 +794,7 @@
   		}
   	}, {
   		key: 'originNames',
-  		get: function get() {
+  		get: function get$$1() {
   			var _this3 = this;
 
   			if (this.Count > 0) {
@@ -713,7 +809,7 @@
   		}
   	}, {
   		key: 'maxItem',
-  		get: function get() {
+  		get: function get$$1() {
   			var max = {
   				Key: null,
   				Value: null
@@ -726,7 +822,7 @@
   		}
   	}, {
   		key: 'minItem',
-  		get: function get() {
+  		get: function get$$1() {
   			var min = {
   				Key: null,
   				Value: null
@@ -739,7 +835,7 @@
   		}
   	}, {
   		key: 'inverse',
-  		get: function get() {
+  		get: function get$$1() {
   			var _this4 = this;
 
   			var list = new RawList();
@@ -754,7 +850,7 @@
   		}
   	}, {
   		key: 'all',
-  		get: function get() {
+  		get: function get$$1() {
   			var list = new RawList();
   			if (this.origins != null) {
   				this.origins.forEach(function (origin) {
@@ -782,12 +878,12 @@
   };
 
   var AbstractValue = function (_InkObject) {
-  	babelHelpers.inherits(AbstractValue, _InkObject);
+  	inherits(AbstractValue, _InkObject);
 
   	function AbstractValue(val) {
-  		babelHelpers.classCallCheck(this, AbstractValue);
+  		classCallCheck(this, AbstractValue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (AbstractValue.__proto__ || Object.getPrototypeOf(AbstractValue)).call(this));
+  		var _this = possibleConstructorReturn(this, (AbstractValue.__proto__ || Object.getPrototypeOf(AbstractValue)).call(this));
 
   		_this._valueType;
   		_this._isTruthy;
@@ -795,7 +891,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(AbstractValue, [{
+  	createClass(AbstractValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			throw "Trying to casting an AbstractValue";
@@ -807,17 +903,17 @@
   		}
   	}, {
   		key: 'valueType',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._valueType;
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._isTruthy;
   		}
   	}, {
   		key: 'valueObject',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._valueObject;
   		}
   	}], [{
@@ -848,33 +944,33 @@
   }(Object$1);
 
   var Value = function (_AbstractValue) {
-  	babelHelpers.inherits(Value, _AbstractValue);
+  	inherits(Value, _AbstractValue);
 
   	function Value(val) {
-  		babelHelpers.classCallCheck(this, Value);
+  		classCallCheck(this, Value);
 
-  		var _this2 = babelHelpers.possibleConstructorReturn(this, (Value.__proto__ || Object.getPrototypeOf(Value)).call(this));
+  		var _this2 = possibleConstructorReturn(this, (Value.__proto__ || Object.getPrototypeOf(Value)).call(this));
 
   		_this2.value = val;
   		return _this2;
   	}
 
-  	babelHelpers.createClass(Value, [{
+  	createClass(Value, [{
   		key: 'toString',
   		value: function toString() {
   			return this.value.toString();
   		}
   	}, {
   		key: 'value',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._value;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._value = value;
   		}
   	}, {
   		key: 'valueObject',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.value;
   		}
   	}]);
@@ -882,18 +978,18 @@
   }(AbstractValue);
 
   var IntValue = function (_Value) {
-  	babelHelpers.inherits(IntValue, _Value);
+  	inherits(IntValue, _Value);
 
   	function IntValue(val) {
-  		babelHelpers.classCallCheck(this, IntValue);
+  		classCallCheck(this, IntValue);
 
-  		var _this3 = babelHelpers.possibleConstructorReturn(this, (IntValue.__proto__ || Object.getPrototypeOf(IntValue)).call(this, val || 0));
+  		var _this3 = possibleConstructorReturn(this, (IntValue.__proto__ || Object.getPrototypeOf(IntValue)).call(this, val || 0));
 
   		_this3._valueType = ValueType.Int;
   		return _this3;
   	}
 
-  	babelHelpers.createClass(IntValue, [{
+  	createClass(IntValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -912,12 +1008,12 @@
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.value != 0;
   		}
   	}, {
   		key: 'valueType',
-  		get: function get() {
+  		get: function get$$1() {
   			return ValueType.Int;
   		}
   	}]);
@@ -925,18 +1021,18 @@
   }(Value);
 
   var FloatValue = function (_Value2) {
-  	babelHelpers.inherits(FloatValue, _Value2);
+  	inherits(FloatValue, _Value2);
 
   	function FloatValue(val) {
-  		babelHelpers.classCallCheck(this, FloatValue);
+  		classCallCheck(this, FloatValue);
 
-  		var _this4 = babelHelpers.possibleConstructorReturn(this, (FloatValue.__proto__ || Object.getPrototypeOf(FloatValue)).call(this, val || 0.0));
+  		var _this4 = possibleConstructorReturn(this, (FloatValue.__proto__ || Object.getPrototypeOf(FloatValue)).call(this, val || 0.0));
 
   		_this4._valueType = ValueType.Float;
   		return _this4;
   	}
 
-  	babelHelpers.createClass(FloatValue, [{
+  	createClass(FloatValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -955,12 +1051,12 @@
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._value != 0.0;
   		}
   	}, {
   		key: 'valueType',
-  		get: function get() {
+  		get: function get$$1() {
   			return ValueType.Float;
   		}
   	}]);
@@ -968,12 +1064,12 @@
   }(Value);
 
   var StringValue = function (_Value3) {
-  	babelHelpers.inherits(StringValue, _Value3);
+  	inherits(StringValue, _Value3);
 
   	function StringValue(val) {
-  		babelHelpers.classCallCheck(this, StringValue);
+  		classCallCheck(this, StringValue);
 
-  		var _this5 = babelHelpers.possibleConstructorReturn(this, (StringValue.__proto__ || Object.getPrototypeOf(StringValue)).call(this, val || ''));
+  		var _this5 = possibleConstructorReturn(this, (StringValue.__proto__ || Object.getPrototypeOf(StringValue)).call(this, val || ''));
 
   		_this5._valueType = ValueType.String;
 
@@ -991,7 +1087,7 @@
   		return _this5;
   	}
 
-  	babelHelpers.createClass(StringValue, [{
+  	createClass(StringValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) {
@@ -1021,27 +1117,27 @@
   		}
   	}, {
   		key: 'valueType',
-  		get: function get() {
+  		get: function get$$1() {
   			return ValueType.String;
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.value.length > 0;
   		}
   	}, {
   		key: 'isNewline',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._isNewline;
   		}
   	}, {
   		key: 'isInlineWhitespace',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._isInlineWhitespace;
   		}
   	}, {
   		key: 'isNonWhitespace',
-  		get: function get() {
+  		get: function get$$1() {
   			return !this.isNewline && !this.isInlineWhitespace;
   		}
   	}]);
@@ -1049,18 +1145,18 @@
   }(Value);
 
   var DivertTargetValue = function (_Value4) {
-  	babelHelpers.inherits(DivertTargetValue, _Value4);
+  	inherits(DivertTargetValue, _Value4);
 
   	function DivertTargetValue(targetPath) {
-  		babelHelpers.classCallCheck(this, DivertTargetValue);
+  		classCallCheck(this, DivertTargetValue);
 
-  		var _this6 = babelHelpers.possibleConstructorReturn(this, (DivertTargetValue.__proto__ || Object.getPrototypeOf(DivertTargetValue)).call(this, targetPath));
+  		var _this6 = possibleConstructorReturn(this, (DivertTargetValue.__proto__ || Object.getPrototypeOf(DivertTargetValue)).call(this, targetPath));
 
   		_this6._valueType = ValueType.DivertTarget;
   		return _this6;
   	}
 
-  	babelHelpers.createClass(DivertTargetValue, [{
+  	createClass(DivertTargetValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) return this;
@@ -1074,15 +1170,15 @@
   		}
   	}, {
   		key: 'targetPath',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.value;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.value = value;
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			throw "Shouldn't be checking the truthiness of a divert target";
   		}
   	}]);
@@ -1090,19 +1186,19 @@
   }(Value);
 
   var VariablePointerValue = function (_Value5) {
-  	babelHelpers.inherits(VariablePointerValue, _Value5);
+  	inherits(VariablePointerValue, _Value5);
 
   	function VariablePointerValue(variableName, contextIndex) {
-  		babelHelpers.classCallCheck(this, VariablePointerValue);
+  		classCallCheck(this, VariablePointerValue);
 
-  		var _this7 = babelHelpers.possibleConstructorReturn(this, (VariablePointerValue.__proto__ || Object.getPrototypeOf(VariablePointerValue)).call(this, variableName));
+  		var _this7 = possibleConstructorReturn(this, (VariablePointerValue.__proto__ || Object.getPrototypeOf(VariablePointerValue)).call(this, variableName));
 
   		_this7._valueType = ValueType.VariablePointer;
   		_this7.contextIndex = typeof contextIndex !== 'undefined' ? contextIndex : -1;
   		return _this7;
   	}
 
-  	babelHelpers.createClass(VariablePointerValue, [{
+  	createClass(VariablePointerValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == this.valueType) return this;
@@ -1121,15 +1217,15 @@
   		}
   	}, {
   		key: 'variableName',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.value;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.value = value;
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			throw "Shouldn't be checking the truthiness of a variable pointer";
   		}
   	}]);
@@ -1137,8 +1233,8 @@
   }(Value);
 
   var ListValue = function (_Value6) {
-  	babelHelpers.inherits(ListValue, _Value6);
-  	babelHelpers.createClass(ListValue, [{
+  	inherits(ListValue, _Value6);
+  	createClass(ListValue, [{
   		key: 'Cast',
   		value: function Cast(newType) {
   			if (newType == ValueType.Int) {
@@ -1160,12 +1256,12 @@
   		}
   	}, {
   		key: 'valueType',
-  		get: function get() {
+  		get: function get$$1() {
   			return ValueType.List;
   		}
   	}, {
   		key: 'isTruthy',
-  		get: function get() {
+  		get: function get$$1() {
   			var isTruthy = false;
   			this.value.forEach(function (kv) {
   				var listItemIntValue = kv.Value;
@@ -1176,9 +1272,9 @@
   	}]);
 
   	function ListValue(listOrSingleItem, singleValue) {
-  		babelHelpers.classCallCheck(this, ListValue);
+  		classCallCheck(this, ListValue);
 
-  		var _this8 = babelHelpers.possibleConstructorReturn(this, (ListValue.__proto__ || Object.getPrototypeOf(ListValue)).call(this, null));
+  		var _this8 = possibleConstructorReturn(this, (ListValue.__proto__ || Object.getPrototypeOf(ListValue)).call(this, null));
 
   		_this8._valueType = ValueType.List;
 
@@ -1195,7 +1291,7 @@
   		return _this8;
   	}
 
-  	babelHelpers.createClass(ListValue, null, [{
+  	createClass(ListValue, null, [{
   		key: 'RetainListOriginsForAssignment',
   		value: function RetainListOriginsForAssignment(oldValue, newValue) {
   			//		var oldList = oldValue as ListValue;
@@ -1211,12 +1307,12 @@
   }(Value);
 
   var StoryException = function (_Error) {
-  	babelHelpers.inherits(StoryException, _Error);
+  	inherits(StoryException, _Error);
 
   	function StoryException(message) {
-  		babelHelpers.classCallCheck(this, StoryException);
+  		classCallCheck(this, StoryException);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (StoryException.__proto__ || Object.getPrototypeOf(StoryException)).call(this, message));
+  		var _this = possibleConstructorReturn(this, (StoryException.__proto__ || Object.getPrototypeOf(StoryException)).call(this, message));
 
   		_this.message = message;
   		_this.name = 'StoryException';
@@ -1227,13 +1323,13 @@
   }(Error);
 
   var Container = function (_InkObject) {
-  	babelHelpers.inherits(Container, _InkObject);
+  	inherits(Container, _InkObject);
 
   	//also implements INamedContent. Not sure how to do it cleanly in JS.
   	function Container() {
-  		babelHelpers.classCallCheck(this, Container);
+  		classCallCheck(this, Container);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this));
+  		var _this = possibleConstructorReturn(this, (Container.__proto__ || Object.getPrototypeOf(Container)).call(this));
 
   		_this.name = '';
 
@@ -1254,7 +1350,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Container, [{
+  	createClass(Container, [{
   		key: 'AddContent',
   		value: function AddContent(contentObj) {
   			var _this2 = this;
@@ -1453,20 +1549,20 @@
   		}
   	}, {
   		key: 'hasValidName',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.name != null && this.name.length > 0;
   		}
   	}, {
   		key: 'content',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._content;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.AddContent(value);
   		}
   	}, {
   		key: 'namedOnlyContent',
-  		get: function get() {
+  		get: function get$$1() {
   			var namedOnlyContent = {};
 
   			for (var key in this.namedContent) {
@@ -1485,7 +1581,7 @@
 
   			return namedOnlyContent;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var existingNamedOnly = this.namedOnlyContent;
   			if (existingNamedOnly != null) {
   				for (var key in existingNamedOnly) {
@@ -1503,7 +1599,7 @@
   		}
   	}, {
   		key: 'countFlags',
-  		get: function get() {
+  		get: function get$$1() {
   			var flags = 0;
   			if (this.visitsShouldBeCounted) flags |= this.CountFlags.Visits;
   			if (this.turnIndexShouldBeCounted) flags |= this.CountFlags.Turns;
@@ -1520,7 +1616,7 @@
 
   			return flags;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var flag = value;
   			if ((flag & this.CountFlags.Visits) > 0) this.visitsShouldBeCounted = true;
   			if ((flag & this.CountFlags.Turns) > 0) this.turnIndexShouldBeCounted = true;
@@ -1528,14 +1624,14 @@
   		}
   	}, {
   		key: 'pathToFirstLeafContent',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._pathToFirstLeafContent == null) this._pathToFirstLeafContent = this.path.PathByAppendingPath(this.internalPathToFirstLeafContent);
 
   			return this._pathToFirstLeafContent;
   		}
   	}, {
   		key: 'internalPathToFirstLeafContent',
-  		get: function get() {
+  		get: function get$$1() {
   			var path = new Path();
   			var container = this;
   			while (container instanceof Container) {
@@ -1552,18 +1648,18 @@
   }(Object$1);
 
   var Glue = function (_InkObject) {
-  	babelHelpers.inherits(Glue, _InkObject);
+  	inherits(Glue, _InkObject);
 
   	function Glue(type) {
-  		babelHelpers.classCallCheck(this, Glue);
+  		classCallCheck(this, Glue);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Glue.__proto__ || Object.getPrototypeOf(Glue)).call(this));
+  		var _this = possibleConstructorReturn(this, (Glue.__proto__ || Object.getPrototypeOf(Glue)).call(this));
 
   		_this.glueType = type;
   		return _this;
   	}
 
-  	babelHelpers.createClass(Glue, [{
+  	createClass(Glue, [{
   		key: "toString",
   		value: function toString() {
   			switch (this.glueType) {
@@ -1579,17 +1675,17 @@
   		}
   	}, {
   		key: "isLeft",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.glueType == GlueType.Left;
   		}
   	}, {
   		key: "isBi",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.glueType == GlueType.Bidirectional;
   		}
   	}, {
   		key: "isRight",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.glueType == GlueType.Right;
   		}
   	}]);
@@ -1603,18 +1699,18 @@
   };
 
   var ControlCommand = function (_InkObject) {
-  	babelHelpers.inherits(ControlCommand, _InkObject);
+  	inherits(ControlCommand, _InkObject);
 
   	function ControlCommand(commandType) {
-  		babelHelpers.classCallCheck(this, ControlCommand);
+  		classCallCheck(this, ControlCommand);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (ControlCommand.__proto__ || Object.getPrototypeOf(ControlCommand)).call(this));
+  		var _this = possibleConstructorReturn(this, (ControlCommand.__proto__ || Object.getPrototypeOf(ControlCommand)).call(this));
 
   		_this._commandType = typeof commandType != 'undefined' ? commandType : CommandType.NotSet;
   		return _this;
   	}
 
-  	babelHelpers.createClass(ControlCommand, [{
+  	createClass(ControlCommand, [{
   		key: 'copy',
   		value: function copy() {
   			return new ControlCommand(this.commandType);
@@ -1626,7 +1722,7 @@
   		}
   	}, {
   		key: 'commandType',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._commandType;
   		}
   	}], [{
@@ -1771,12 +1867,12 @@
   };
 
   var Divert = function (_InkObject) {
-  	babelHelpers.inherits(Divert, _InkObject);
+  	inherits(Divert, _InkObject);
 
   	function Divert(stackPushType) {
-  		babelHelpers.classCallCheck(this, Divert);
+  		classCallCheck(this, Divert);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Divert.__proto__ || Object.getPrototypeOf(Divert)).call(this));
+  		var _this = possibleConstructorReturn(this, (Divert.__proto__ || Object.getPrototypeOf(Divert)).call(this));
 
   		_this._targetPath;
   		_this._targetContent;
@@ -1798,7 +1894,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Divert, [{
+  	createClass(Divert, [{
   		key: 'Equals',
   		value: function Equals(obj) {
   			//		var otherDivert = obj as Divert;
@@ -1850,7 +1946,7 @@
   		}
   	}, {
   		key: 'targetPath',
-  		get: function get() {
+  		get: function get$$1() {
   			// Resolve any relative paths to global ones as we come across them
   			if (this._targetPath != null && this._targetPath.isRelative) {
   				var targetObj = this.targetContent;
@@ -1861,13 +1957,13 @@
 
   			return this._targetPath;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._targetPath = value;
   			this._targetContent = null;
   		}
   	}, {
   		key: 'targetContent',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._targetContent == null) {
   				this._targetContent = this.ResolvePath(this._targetPath);
   			}
@@ -1876,12 +1972,12 @@
   		}
   	}, {
   		key: 'targetPathString',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.targetPath == null) return null;
 
   			return this.CompactPathString(this.targetPath);
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			if (value == null) {
   				this.targetPath = null;
   			} else {
@@ -1890,7 +1986,7 @@
   		}
   	}, {
   		key: 'hasVariableTarget',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.variableDivertName != null;
   		}
   	}]);
@@ -1898,12 +1994,12 @@
   }(Object$1);
 
   var ChoicePoint = function (_InkObject) {
-  	babelHelpers.inherits(ChoicePoint, _InkObject);
+  	inherits(ChoicePoint, _InkObject);
 
   	function ChoicePoint(onceOnly) {
-  		babelHelpers.classCallCheck(this, ChoicePoint);
+  		classCallCheck(this, ChoicePoint);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (ChoicePoint.__proto__ || Object.getPrototypeOf(ChoicePoint)).call(this));
+  		var _this = possibleConstructorReturn(this, (ChoicePoint.__proto__ || Object.getPrototypeOf(ChoicePoint)).call(this));
 
   		_this._pathOnChoice;
   		_this.hasCondition;
@@ -1916,7 +2012,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(ChoicePoint, [{
+  	createClass(ChoicePoint, [{
   		key: 'toString',
   		value: function toString() {
   			//		int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
@@ -1931,7 +2027,7 @@
   		}
   	}, {
   		key: 'pathOnChoice',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._pathOnChoice != null && this._pathOnChoice.isRelative) {
   				var choiceTargetObj = this.choiceTarget;
   				if (choiceTargetObj) {
@@ -1940,26 +2036,26 @@
   			}
   			return this._pathOnChoice;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._pathOnChoice = value;
   		}
   	}, {
   		key: 'choiceTarget',
-  		get: function get() {
+  		get: function get$$1() {
   			//return this.ResolvePath (_pathOnChoice) as Container;
   			return this.ResolvePath(this._pathOnChoice);
   		}
   	}, {
   		key: 'pathStringOnChoice',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.CompactPathString(this.pathOnChoice);
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.pathOnChoice = new Path$1(value);
   		}
   	}, {
   		key: 'flags',
-  		get: function get() {
+  		get: function get$$1() {
   			var flags = 0;
   			if (this.hasCondition) flags |= 1;
   			if (this.hasStartContent) flags |= 2;
@@ -1968,7 +2064,7 @@
   			if (this.onceOnly) flags |= 16;
   			return flags;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.hasCondition = (value & 1) > 0;
   			this.hasStartContent = (value & 2) > 0;
   			this.hasChoiceOnlyContent = (value & 4) > 0;
@@ -1980,19 +2076,19 @@
   }(Object$1);
 
   var VariableReference = function (_InkObject) {
-  	babelHelpers.inherits(VariableReference, _InkObject);
+  	inherits(VariableReference, _InkObject);
 
   	function VariableReference(name) {
-  		babelHelpers.classCallCheck(this, VariableReference);
+  		classCallCheck(this, VariableReference);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableReference.__proto__ || Object.getPrototypeOf(VariableReference)).call(this));
+  		var _this = possibleConstructorReturn(this, (VariableReference.__proto__ || Object.getPrototypeOf(VariableReference)).call(this));
 
   		_this.name = name;
   		_this.pathForCount;
   		return _this;
   	}
 
-  	babelHelpers.createClass(VariableReference, [{
+  	createClass(VariableReference, [{
   		key: 'toString',
   		value: function toString() {
   			if (this.name != null) {
@@ -2004,17 +2100,17 @@
   		}
   	}, {
   		key: 'containerForCount',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.ResolvePath(this.pathForCount);
   		}
   	}, {
   		key: 'pathStringForCount',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.pathForCount == null) return null;
 
   			return this.CompactPathString(this.pathForCount);
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			if (value == null) this.pathForCount = null;else this.pathForCount = new Path$1(value);
   		}
   	}]);
@@ -2022,12 +2118,12 @@
   }(Object$1);
 
   var VariableAssignment = function (_InkObject) {
-  	babelHelpers.inherits(VariableAssignment, _InkObject);
+  	inherits(VariableAssignment, _InkObject);
 
   	function VariableAssignment(variableName, isNewDeclaration) {
-  		babelHelpers.classCallCheck(this, VariableAssignment);
+  		classCallCheck(this, VariableAssignment);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (VariableAssignment.__proto__ || Object.getPrototypeOf(VariableAssignment)).call(this));
+  		var _this = possibleConstructorReturn(this, (VariableAssignment.__proto__ || Object.getPrototypeOf(VariableAssignment)).call(this));
 
   		_this._variableName = variableName || null;
   		_this._isNewDeclaration = !!isNewDeclaration;
@@ -2035,19 +2131,19 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(VariableAssignment, [{
+  	createClass(VariableAssignment, [{
   		key: "toString",
   		value: function toString() {
   			return "VarAssign to " + this.variableName;
   		}
   	}, {
   		key: "variableName",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._variableName;
   		}
   	}, {
   		key: "isNewDeclaration",
-  		get: function get() {
+  		get: function get$$1() {
   			return this._isNewDeclaration;
   		}
   	}]);
@@ -2055,11 +2151,11 @@
   }(Object$1);
 
   var Void = function (_InkObject) {
-    babelHelpers.inherits(Void, _InkObject);
+    inherits(Void, _InkObject);
 
     function Void() {
-      babelHelpers.classCallCheck(this, Void);
-      return babelHelpers.possibleConstructorReturn(this, (Void.__proto__ || Object.getPrototypeOf(Void)).apply(this, arguments));
+      classCallCheck(this, Void);
+      return possibleConstructorReturn(this, (Void.__proto__ || Object.getPrototypeOf(Void)).apply(this, arguments));
     }
 
     return Void;
@@ -2067,12 +2163,12 @@
 
   //misses delegates, probably the returns from function calls
   var NativeFunctionCall = function (_InkObject) {
-  	babelHelpers.inherits(NativeFunctionCall, _InkObject);
+  	inherits(NativeFunctionCall, _InkObject);
 
   	function NativeFunctionCall(name) {
-  		babelHelpers.classCallCheck(this, NativeFunctionCall);
+  		classCallCheck(this, NativeFunctionCall);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (NativeFunctionCall.__proto__ || Object.getPrototypeOf(NativeFunctionCall)).call(this));
+  		var _this = possibleConstructorReturn(this, (NativeFunctionCall.__proto__ || Object.getPrototypeOf(NativeFunctionCall)).call(this));
 
   		_this.name = name;
   		_this._numberOfParameters;
@@ -2085,7 +2181,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(NativeFunctionCall, [{
+  	createClass(NativeFunctionCall, [{
   		key: 'Call',
   		value: function Call(parameters) {
   			if (this._prototype) {
@@ -2297,23 +2393,23 @@
   		}
   	}, {
   		key: 'name',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._name;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._name = value;
   			if (!this._isPrototype) this._prototype = NativeFunctionCall._nativeFunctions[this._name];
   		}
   	}, {
   		key: 'numberOfParameters',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._prototype) {
   				return this._prototype.numberOfParameters;
   			} else {
   				return this._numberOfParameters;
   			}
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._numberOfParameters = value;
   		}
   	}], [{
@@ -2614,25 +2710,25 @@
   NativeFunctionCall._nativeFunctions = null;
 
   var Tag = function (_InkObject) {
-  	babelHelpers.inherits(Tag, _InkObject);
+  	inherits(Tag, _InkObject);
 
   	function Tag(tagText) {
-  		babelHelpers.classCallCheck(this, Tag);
+  		classCallCheck(this, Tag);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Tag.__proto__ || Object.getPrototypeOf(Tag)).call(this));
+  		var _this = possibleConstructorReturn(this, (Tag.__proto__ || Object.getPrototypeOf(Tag)).call(this));
 
   		_this._text = tagText.toString() || '';
   		return _this;
   	}
 
-  	babelHelpers.createClass(Tag, [{
+  	createClass(Tag, [{
   		key: 'toString',
   		value: function toString() {
   			return "# " + this._text;
   		}
   	}, {
   		key: 'text',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._text;
   		}
   	}]);
@@ -2641,7 +2737,7 @@
 
   var Choice = function () {
   	function Choice(choice) {
-  		babelHelpers.classCallCheck(this, Choice);
+  		classCallCheck(this, Choice);
 
   		this.text;
   		this.index;
@@ -2654,14 +2750,14 @@
   		if (choice) this.choicePoint = choice;
   	}
 
-  	babelHelpers.createClass(Choice, [{
+  	createClass(Choice, [{
   		key: "pathStringOnChoice",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.choicePoint.pathStringOnChoice;
   		}
   	}, {
   		key: "sourcePath",
-  		get: function get() {
+  		get: function get$$1() {
   			return this.choicePoint.path.componentsString;
   		}
   	}]);
@@ -2670,7 +2766,7 @@
 
   var ListDefinition = function () {
   	function ListDefinition(name, items) {
-  		babelHelpers.classCallCheck(this, ListDefinition);
+  		classCallCheck(this, ListDefinition);
 
   		this._name = name || '';
   		this._items = null;
@@ -2678,7 +2774,7 @@
   		this._itemNameToValues = items || {};
   	}
 
-  	babelHelpers.createClass(ListDefinition, [{
+  	createClass(ListDefinition, [{
   		key: 'forEachItems',
   		value: function forEachItems(fn) {
   			for (var key in this._rawListItemsKeys) {
@@ -2736,12 +2832,12 @@
   		}
   	}, {
   		key: 'name',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._name;
   		}
   	}, {
   		key: 'items',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._items == null) {
   				this._items = {};
   				this._rawListItemsKeys = {};
@@ -2763,7 +2859,7 @@
   	function ListDefinitionsOrigin(lists) {
   		var _this = this;
 
-  		babelHelpers.classCallCheck(this, ListDefinitionsOrigin);
+  		classCallCheck(this, ListDefinitionsOrigin);
 
   		this._lists = {};
 
@@ -2772,7 +2868,7 @@
   		});
   	}
 
-  	babelHelpers.createClass(ListDefinitionsOrigin, [{
+  	createClass(ListDefinitionsOrigin, [{
   		key: 'TryGetDefinition',
   		value: function TryGetDefinition(name, def) {
   			//initially, this function returns a boolean and the second parameter is an out.
@@ -2808,7 +2904,7 @@
   		}
   	}, {
   		key: 'lists',
-  		get: function get() {
+  		get: function get$$1() {
   			var listOfLists = [];
 
   			for (var key in this._lists) {
@@ -2822,10 +2918,10 @@
 
   var JsonSerialisation = function () {
   	function JsonSerialisation() {
-  		babelHelpers.classCallCheck(this, JsonSerialisation);
+  		classCallCheck(this, JsonSerialisation);
   	}
 
-  	babelHelpers.createClass(JsonSerialisation, null, [{
+  	createClass(JsonSerialisation, null, [{
   		key: 'ListToJArray',
   		value: function ListToJArray(serialisables) {
   			var _this = this;
@@ -2932,7 +3028,7 @@
   				if (str == "void") return new Void();
   			}
 
-  			if ((typeof token === 'undefined' ? 'undefined' : babelHelpers.typeof(token)) === 'object' && token instanceof Array === false) {
+  			if ((typeof token === 'undefined' ? 'undefined' : _typeof(token)) === 'object' && token instanceof Array === false) {
   				var obj = token;
   				var propValue;
 
@@ -3417,7 +3513,7 @@
 
   var Element = function () {
   	function Element(type, container, contentIndex, inExpressionEvaluation) {
-  		babelHelpers.classCallCheck(this, Element);
+  		classCallCheck(this, Element);
 
   		this.currentContainer = container;
   		this.currentContentIndex = contentIndex;
@@ -3426,23 +3522,23 @@
   		this.type = type;
   	}
 
-  	babelHelpers.createClass(Element, [{
+  	createClass(Element, [{
   		key: 'Copy',
   		value: function Copy() {
   			var copy = new Element(this.type, this.currentContainer, this.currentContentIndex, this.inExpressionEvaluation);
-  			babelHelpers.extends(copy.temporaryVariables, this.temporaryVariables);
+  			_extends(copy.temporaryVariables, this.temporaryVariables);
   			return copy;
   		}
   	}, {
   		key: 'currentObject',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.currentContainer && this.currentContentIndex < this.currentContainer.content.length) {
   				return this.currentContainer.content[this.currentContentIndex];
   			}
 
   			return null;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var currentObj = value;
   			if (currentObj == null) {
   				this.currentContainer = null;
@@ -3471,7 +3567,7 @@
   	function Thread(jsonToken, storyContext) {
   		var _this = this;
 
-  		babelHelpers.classCallCheck(this, Thread);
+  		classCallCheck(this, Thread);
 
   		this.callstack = [];
   		this.threadIndex = 0;
@@ -3518,7 +3614,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(Thread, [{
+  	createClass(Thread, [{
   		key: 'Copy',
   		value: function Copy() {
   			var copy = new Thread();
@@ -3531,7 +3627,7 @@
   		}
   	}, {
   		key: 'jsonToken',
-  		get: function get() {
+  		get: function get$$1() {
   			var threadJObj = {};
 
   			var jThreadCallstack = [];
@@ -3562,7 +3658,7 @@
   	function CallStack(copyOrrootContentContainer) {
   		var _this2 = this;
 
-  		babelHelpers.classCallCheck(this, CallStack);
+  		classCallCheck(this, CallStack);
 
   		this._threads = [];
   		this._threadCounter = 0;
@@ -3579,7 +3675,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(CallStack, [{
+  	createClass(CallStack, [{
   		key: 'CanPop',
   		value: function CanPop(type) {
   			if (!this.canPop) return false;
@@ -3714,10 +3810,10 @@
   		}
   	}, {
   		key: 'currentThread',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._threads[this._threads.length - 1];
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			if (this._threads.length != 1) console.warn("Shouldn't be directly setting the current thread when we have a stack of them");
 
   			this._threads.length = 0;
@@ -3725,32 +3821,32 @@
   		}
   	}, {
   		key: 'callStack',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.currentThread.callstack;
   		}
   	}, {
   		key: 'elements',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack;
   		}
   	}, {
   		key: 'currentElement',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack[this.callStack.length - 1];
   		}
   	}, {
   		key: 'currentElementIndex',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.length - 1;
   		}
   	}, {
   		key: 'canPop',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.length > 1;
   		}
   	}, {
   		key: 'canPopThread',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._threads.length > 1;
   		}
   	}]);
@@ -3762,7 +3858,7 @@
   // - see if the internal getenumarators are needed
   var VariablesState = function () {
   	function VariablesState(callStack, listDefsOrigin) {
-  		babelHelpers.classCallCheck(this, VariablesState);
+  		classCallCheck(this, VariablesState);
 
   		this._globalVariables = {};
   		this._callStack = callStack;
@@ -3780,10 +3876,10 @@
   		try {
   			//the proxy is used to allow direct manipulation of global variables. It first tries to access the objetcs own property, and if none is found it delegates the call to the $ method, defined below
   			var p = new Proxy(this, {
-  				get: function get(target, name) {
+  				get: function get$$1(target, name) {
   					return name in target ? target[name] : target.$(name);
   				},
-  				set: function set(target, name, value) {
+  				set: function set$$1(target, name, value) {
   					if (name in target) target[name] = value;else target.$(name, value);
   					return true; //returning a fasly value make sthe trap fail
   				}
@@ -3796,7 +3892,7 @@
   		}
   	}
 
-  	babelHelpers.createClass(VariablesState, [{
+  	createClass(VariablesState, [{
   		key: 'ObserveVariableChange',
 
 
@@ -3820,7 +3916,7 @@
   	}, {
   		key: 'CopyFrom',
   		value: function CopyFrom(toCopy) {
-  			this._globalVariables = babelHelpers.extends({}, toCopy._globalVariables);
+  			this._globalVariables = _extends({}, toCopy._globalVariables);
 
   			this.variableChangedEvent = toCopy.variableChangedEvent;
 
@@ -4013,10 +4109,10 @@
   		}
   	}, {
   		key: 'batchObservingVariableChanges',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._batchObservingVariableChanges;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var _this2 = this;
 
   			value = !!value;
@@ -4040,10 +4136,10 @@
   		}
   	}, {
   		key: 'jsonToken',
-  		get: function get() {
+  		get: function get$$1() {
   			return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
   		}
   	}]);
@@ -4054,13 +4150,13 @@
   //Ink uses a seedable PRNG of which there is none in native javascript.
   var PRNG = function () {
   	function PRNG(seed) {
-  		babelHelpers.classCallCheck(this, PRNG);
+  		classCallCheck(this, PRNG);
 
   		this._seed = seed % 2147483647;
   		if (this._seed <= 0) this._seed += 2147483646;
   	}
 
-  	babelHelpers.createClass(PRNG, [{
+  	createClass(PRNG, [{
   		key: "next",
   		value: function next() {
   			return this._seed = this._seed * 16807 % 2147483647;
@@ -4076,7 +4172,7 @@
 
   var StoryState = function () {
   	function StoryState(story) {
-  		babelHelpers.classCallCheck(this, StoryState);
+  		classCallCheck(this, StoryState);
 
   		//actual constructor
   		this.story = story;
@@ -4115,7 +4211,7 @@
   		this.GoToStart();
   	}
 
-  	babelHelpers.createClass(StoryState, [{
+  	createClass(StoryState, [{
   		key: 'MatchRightGlueForLeftGlue',
   		value: function MatchRightGlueForLeftGlue(leftGlue) {
   			if (!leftGlue.isLeft) return null;
@@ -4596,7 +4692,7 @@
   		}
   	}, {
   		key: 'currentChoices',
-  		get: function get() {
+  		get: function get$$1() {
   			// If we can continue generating text content rather than choices,
   			// then we reflect the choice list as being empty, since choices
   			// should always come at the end.
@@ -4605,68 +4701,68 @@
   		}
   	}, {
   		key: 'generatedChoices',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._currentChoices;
   		}
   	}, {
   		key: 'currentErrors',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._currentErrors;
   		}
   	}, {
   		key: 'visitCounts',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._visitCounts;
   		}
   	}, {
   		key: 'turnIndices',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._turnIndices;
   		}
   	}, {
   		key: 'currentTurnIndex',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._currentTurnIndex;
   		}
   	}, {
   		key: 'variablesState',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._variablesState;
   		}
   	}, {
   		key: 'currentContentObject',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.currentElement.currentObject;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.callStack.currentElement.currentObject = value;
   		}
   	}, {
   		key: 'canContinue',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.currentContentObject != null && !this.hasError;
   		}
   	}, {
   		key: 'hasError',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.currentErrors != null && this.currentErrors.length > 0;
   		}
   	}, {
   		key: 'inExpressionEvaluation',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.currentElement.inExpressionEvaluation;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.callStack.currentElement.inExpressionEvaluation = value;
   		}
   	}, {
   		key: 'evaluationStack',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._evaluationStack;
   		}
   	}, {
   		key: 'outputStreamEndsInNewline',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._outputStream.length > 0) {
 
   				for (var i = this._outputStream.length - 1; i >= 0; i--) {
@@ -4684,7 +4780,7 @@
   		}
   	}, {
   		key: 'outputStreamContainsContent',
-  		get: function get() {
+  		get: function get$$1() {
   			for (var i = 0; i < this._outputStream.length; i++) {
   				if (this._outputStream[i] instanceof StringValue) return true;
   			}
@@ -4692,7 +4788,7 @@
   		}
   	}, {
   		key: 'currentGlueIndex',
-  		get: function get() {
+  		get: function get$$1() {
   			for (var i = this._outputStream.length - 1; i >= 0; i--) {
   				var c = this._outputStream[i];
   				//			var glue = c as Glue;
@@ -4704,7 +4800,7 @@
   		}
   	}, {
   		key: 'currentRightGlue',
-  		get: function get() {
+  		get: function get$$1() {
   			for (var i = this._outputStream.length - 1; i >= 0; i--) {
   				var c = this._outputStream[i];
   				//			var glue = c as Glue;
@@ -4716,7 +4812,7 @@
   		}
   	}, {
   		key: 'inStringEvaluation',
-  		get: function get() {
+  		get: function get$$1() {
   			for (var i = this._outputStream.length - 1; i >= 0; i--) {
   				//			var cmd = this._outputStream[i] as ControlCommand;
   				var cmd = this._outputStream[i];
@@ -4729,7 +4825,7 @@
   		}
   	}, {
   		key: 'currentText',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._outputStreamTextDirty) {
   				var sb = new StringBuilder();
 
@@ -4749,7 +4845,7 @@
   		}
   	}, {
   		key: 'currentTags',
-  		get: function get() {
+  		get: function get$$1() {
   			var _this3 = this;
 
   			if (this._outputStreamTagsDirty) {
@@ -4770,35 +4866,35 @@
   		}
   	}, {
   		key: 'outputStream',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._outputStream;
   		}
   	}, {
   		key: 'currentPath',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this.currentContentObject == null) return null;
 
   			return this.currentContentObject.path;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			if (value != null) this.currentContentObject = this.story.ContentAtPath(value);else this.currentContentObject = null;
   		}
   	}, {
   		key: 'currentContainer',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.currentElement.currentContainer;
   		}
   	}, {
   		key: 'previousContentObject',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.callStack.currentThread.previousContentObject;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			this.callStack.currentThread.previousContentObject = value;
   		}
   	}, {
   		key: 'jsonToken',
-  		get: function get() {
+  		get: function get$$1() {
   			var _this4 = this;
 
   			var obj = {};
@@ -4840,7 +4936,7 @@
 
   			return obj;
   		},
-  		set: function set(value) {
+  		set: function set$$1(value) {
   			var _this5 = this;
 
   			var jObject = value;
@@ -4903,12 +4999,12 @@
   }
 
   var Story = function (_InkObject) {
-  	babelHelpers.inherits(Story, _InkObject);
+  	inherits(Story, _InkObject);
 
   	function Story(jsonString, lists) {
-  		babelHelpers.classCallCheck(this, Story);
+  		classCallCheck(this, Story);
 
-  		var _this = babelHelpers.possibleConstructorReturn(this, (Story.__proto__ || Object.getPrototypeOf(Story)).call(this));
+  		var _this = possibleConstructorReturn(this, (Story.__proto__ || Object.getPrototypeOf(Story)).call(this));
 
   		lists = lists || null;
 
@@ -4958,7 +5054,7 @@
   		return _this;
   	}
 
-  	babelHelpers.createClass(Story, [{
+  	createClass(Story, [{
   		key: 'ToJsonString',
   		value: function ToJsonString() {
   			var rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
@@ -5955,7 +6051,7 @@
   			var returnObj = null;
   			if (funcResult != null) {
   				returnObj = Value.Create(funcResult);
-  				if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult === 'undefined' ? 'undefined' : babelHelpers.typeof(funcResult)));
+  				if (returnObj == null) console.warn("Could not create ink value from returned object of type " + (typeof funcResult === 'undefined' ? 'undefined' : _typeof(funcResult)));
   			} else {
   				returnObj = new Void();
   			}
@@ -6388,7 +6484,7 @@
   		}
   	}, {
   		key: 'currentChoices',
-  		get: function get() {
+  		get: function get$$1() {
   			// Don't include invisible choices for external usage.
   			var choices = [];
 
@@ -6403,42 +6499,42 @@
   		}
   	}, {
   		key: 'currentText',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.currentText;
   		}
   	}, {
   		key: 'currentTags',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.currentTags;
   		}
   	}, {
   		key: 'currentErrors',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.currentErrors;
   		}
   	}, {
   		key: 'hasError',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.hasError;
   		}
   	}, {
   		key: 'variablesState',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.variablesState;
   		}
   	}, {
   		key: 'listDefinitions',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._listDefinitions;
   		}
   	}, {
   		key: 'state',
-  		get: function get() {
+  		get: function get$$1() {
   			return this._state;
   		}
   	}, {
   		key: 'mainContentContainer',
-  		get: function get() {
+  		get: function get$$1() {
   			if (this._temporaryEvaluationContainer) {
   				return this._temporaryEvaluationContainer;
   			} else {
@@ -6447,12 +6543,12 @@
   		}
   	}, {
   		key: 'canContinue',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.state.canContinue;
   		}
   	}, {
   		key: 'globalTags',
-  		get: function get() {
+  		get: function get$$1() {
   			return this.TagsAtStartOfFlowContainerWithPathString("");
   		}
   	}]);
