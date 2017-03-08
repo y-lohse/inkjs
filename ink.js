@@ -4108,6 +4108,14 @@
   			}
   		}
   	}, {
+  		key: 'callStack',
+  		get: function get$$1() {
+  			return this._callStack;
+  		},
+  		set: function set$$1(callStack) {
+  			this._callStack = callStack;
+  		}
+  	}, {
   		key: 'batchObservingVariableChanges',
   		get: function get$$1() {
   			return this._batchObservingVariableChanges;
@@ -4547,6 +4555,8 @@
   			this.callStack = new CallStack(funcContainer);
   			this.callStack.currentElement.type = PushPopType.Function;
 
+  			this._variablesState.callStack = this.callStack;
+
   			// By setting ourselves in external function evaluation mode,
   			// we're saying it's okay to end the flow without a Done or End,
   			// but with a ~ return instead.
@@ -4591,6 +4601,8 @@
   			this.callStack = this._originalCallstack;
   			this._originalCallstack = null;
   			this._originalEvaluationStackHeight = 0;
+
+  			this._variablesState.callStack = this.callStack;
 
   			if (returnedObj) {
   				if (returnedObj instanceof Void) return null;
@@ -5383,7 +5395,7 @@
   			if (!newContentObject) return;
 
   			// First, find the previously open set of containers
-  			if (this._prevContainerSet == null) this._prevContainerSet = [];
+  			this._prevContainerSet = [];
   			if (previousContentObject) {
   				//			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
   				var prevAncestor = previousContentObject instanceof Container ? previousContentObject : previousContentObject.parent;
