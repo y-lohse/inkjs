@@ -446,7 +446,7 @@ export class Story extends InkObject{
 			return;
             
 		// First, find the previously open set of containers
-		if (this._prevContainerSet == null) this._prevContainerSet = [];
+		this._prevContainerSet = [];
 		if (previousContentObject) {
 //			Container prevAncestor = previousContentObject as Container ?? previousContentObject.parent as Container;
 			var prevAncestor = (previousContentObject instanceof Container) ? previousContentObject : previousContentObject.parent;
