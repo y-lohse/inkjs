@@ -1,11 +1,11 @@
 {
   "name": "inkjs",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "grunt rollup",
+    "build": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min",
     "watch": "grunt watch",
     "prepublish": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min"
   },

@@ -40,6 +40,12 @@ export class VariablesState{
 //			console.log("ES6 Proxy not available - direct manipulation of global variables can't work, use $() instead.");
 		}
 	}
+	get callStack(){
+		return this._callStack;
+	}
+	set callStack(callStack){
+		this._callStack = callStack;
+	}
 	get batchObservingVariableChanges(){
 		return this._batchObservingVariableChanges;
 	}
