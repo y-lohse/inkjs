@@ -738,6 +738,8 @@ export class StoryState{
 
 		copy.previousContentObject = this.previousContentObject;
 		
+		copy._isExternalFunctionEvaluation = this._isExternalFunctionEvaluation;
+		
 		copy._visitCounts = {};
 		for (var keyValue in this._visitCounts) {
 		      	copy._visitCounts[keyValue] = this._visitCounts[keyValue];
