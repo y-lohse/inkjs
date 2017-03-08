@@ -632,7 +632,7 @@ export class StoryState{
 		this.callStack = new CallStack(funcContainer);
 		this.callStack.currentElement.type = PushPopType.Function;
 		
-		this._variablesState._callStack = this.callStack;
+		this._variablesState.callStack = this.callStack;
 
 		// By setting ourselves in external function evaluation mode,
 		// we're saying it's okay to end the flow without a Done or End,
@@ -676,7 +676,7 @@ export class StoryState{
 		this._originalCallstack = null;
 		this._originalEvaluationStackHeight = 0;
 		
-		this._variablesState._callStack = this.callStack;
+		this._variablesState.callStack = this.callStack;
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
