@@ -126,7 +126,7 @@ export class RawList{
 		this._originNames = [initialOriginName];
 	}
 	SetInitialOriginNames(initialOriginNames){
-		this._originNames = initialOriginNames.slice();//store a copy
+ 		this._originNames = initialOriginNames ? initialOriginNames.slice() : null; //store a copy
 	}
 	get maxItem(){
 		var max = {
