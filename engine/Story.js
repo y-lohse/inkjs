@@ -878,7 +878,7 @@ export class Story extends InkObject{
 
 				// Allow either int or a particular list item to be passed for the bounds,
 				// so wrap up a function to handle this casting for us.
-				function IntBound(obj){
+				var IntBound = function IntBound(obj){
 //					var listValue = obj as ListValue;
 					var listValue = obj;
 					if (listValue instanceof ListValue) {
