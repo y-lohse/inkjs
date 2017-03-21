@@ -851,7 +851,7 @@ export class Story extends InkObject{
 				var generatedListValue = null;
 
 				var foundListDef;
-				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {
+				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal, foundListDef)) {
 					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
 					if (foundItem.exists) {
 						generatedListValue = new ListValue(foundItem.item, intVal.value);
