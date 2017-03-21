@@ -629,7 +629,7 @@ export class Story extends InkObject{
 					var output = this.state.PopEvaluationStack();
 
 					// Functions may evaluate to Void, in which case we skip output
-					if (!(output instanceof Void)) {
+					if (output != null && !(output instanceof Void)) {
 						// TODO: Should we really always blanket convert to string?
 						// It would be okay to have numbers in the output stream the
 						// only problem is when exporting text for viewing, it skips over numbers etc.
