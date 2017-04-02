@@ -638,12 +638,15 @@ export class StoryState{
 		// we're saying it's okay to end the flow without a Done or End,
 		// but with a ~ return instead.
 		this._isExternalFunctionEvaluation = true;
-
+		
+		this.PassArgumentsToEvaluationStack(args);
+	}
+	PassArgumentsToEvaluationStack(args){
 		// Pass arguments onto the evaluation stack
 		if (args != null) {
 			for (var i = 0; i < args.length; i++) {
 				if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
-					throw "ink arguments when calling EvaluateFunction must be int, float or string";
+					throw "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters  must be int, float or string";
 				}
 
 				this.PushEvaluationStack(Value.Create(args[i]));

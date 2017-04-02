@@ -1,6 +1,6 @@
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
-import {RawList} from './RawList';
+import {InkList} from './InkList';
 
 export var ValueType = {
 	// Used in coersion
@@ -49,7 +49,7 @@ class AbstractValue extends InkObject{
 			return new StringValue(val);
 		} else if (val instanceof Path) {
 			return new DivertTargetValue(val);
-		} else if (val instanceof RawList) {
+		} else if (val instanceof InkList) {
 			return new ListValue(val);
 		}
 	
@@ -305,17 +305,17 @@ export class ListValue extends Value{
 		
 		this._valueType = ValueType.List;
 		
-		if (listOrSingleItem instanceof RawList){
-			this.value = new RawList(listOrSingleItem);
+		if (listOrSingleItem instanceof InkList){
+			this.value = new InkList(listOrSingleItem);
 		}
 		else if (listOrSingleItem !== undefined && singleValue !== undefined){
-			this.value = new RawList({
+			this.value = new InkList({
 				Key: listOrSingleItem,
 				Value: singleValue
 			});
 		}
 		else{
-			this.value = new RawList();
+			this.value = new InkList();
 		}
 	}
 	static RetainListOriginsForAssignment(oldValue, newValue){

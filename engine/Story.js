@@ -629,7 +629,7 @@ export class Story extends InkObject{
 					var output = this.state.PopEvaluationStack();
 
 					// Functions may evaluate to Void, in which case we skip output
-					if (!(output instanceof Void)) {
+					if (output != null && !(output instanceof Void)) {
 						// TODO: Should we really always blanket convert to string?
 						// It would be okay to have numbers in the output stream the
 						// only problem is when exporting text for viewing, it skips over numbers etc.
@@ -851,7 +851,7 @@ export class Story extends InkObject{
 				var generatedListValue = null;
 
 				var foundListDef;
-				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {
+				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal, foundListDef)) {
 					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
 					if (foundItem.exists) {
 						generatedListValue = new ListValue(foundItem.item, intVal.value);
@@ -878,7 +878,7 @@ export class Story extends InkObject{
 
 				// Allow either int or a particular list item to be passed for the bounds,
 				// so wrap up a function to handle this casting for us.
-				function IntBound(obj){
+				var IntBound = function IntBound(obj){
 //					var listValue = obj as ListValue;
 					var listValue = obj;
 					if (listValue instanceof ListValue) {
@@ -982,11 +982,13 @@ export class Story extends InkObject{
 		// No control content, must be ordinary content
 		return false;
 	}
-	ChoosePathString(path){
+	ChoosePathString(path, args){
+		args = args || [];
+		this.state.PassArgumentsToEvaluationStack(args);
 		this.ChoosePath(new Path(path));
 	}
-	ChoosePath(path){
-		this.state.SetChosenPath(path);
+	ChoosePath(p){
+		this.state.SetChosenPath(p);
 
 		// Take a note of newly visited containers for read counts etc
 		this.VisitChangedContainersDueToDivert();

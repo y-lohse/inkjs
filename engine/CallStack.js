@@ -198,8 +198,8 @@ export class CallStack{
 	}
 	PushThread(){
 		var newThread = this.currentThread.Copy();
-		newThread.threadIndex = this._threadCounter;
 		this._threadCounter++;
+		newThread.threadIndex = this._threadCounter;
 		this._threads.push(newThread);
 	}
 	PopThread(){

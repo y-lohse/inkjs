@@ -2,7 +2,7 @@
 import {Value, ValueType, IntValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {Void} from './Void';
-import {RawList} from './RawList';
+import {InkList} from './InkList';
 import {Object as InkObject} from './Object';
 
 export class NativeFunctionCall extends InkObject{
@@ -162,7 +162,7 @@ export class NativeFunctionCall extends InkObject{
 		var intVal = listIntParams[1];
 
 
-		var resultRawList = new RawList();
+		var resultInkList = new InkList();
 
 		listVal.value.forEach(listItemWithValue => {
 			var listItem = listItemWithValue.Key;
@@ -185,11 +185,11 @@ export class NativeFunctionCall extends InkObject{
 			if (itemOrigin != null) {
 				var incrementedItem = itemOrigin.TryGetItemWithValue(targetInt);
 				if (incrementedItem.exists)
-					resultRawList.Add(incrementedItem.item, targetInt);
+					resultInkList.Add(incrementedItem.item, targetInt);
 			}
 		});
 
-		return new ListValue(resultRawList);
+		return new ListValue(resultInkList);
 	}
 	CoerceValuesToSingleType(parametersIn){
 		var valType = ValueType.Int;
@@ -293,8 +293,9 @@ export class NativeFunctionCall extends InkObject{
 			this.AddFloatBinaryOp(this.Min,      (x, y) => {return Math.min(x, y)});
 
 			// String operations
-			this.AddStringBinaryOp(this.Add,     (x, y) => {return x + y}); // concat
-			this.AddStringBinaryOp(this.Equal,   (x, y) => {return x === y ? 1 : 0});
+			this.AddStringBinaryOp(this.Add,     	(x, y) => {return x + y}); // concat
+			this.AddStringBinaryOp(this.Equal,   	(x, y) => {return x === y ? 1 : 0});
+			this.AddStringBinaryOp(this.NotEquals,(x, y) => {return !(x === y) ? 1 : 0});
 			
 			this.AddListBinaryOp(this.Add, 		 (x, y) => {return x.Union(y)});
 			this.AddListBinaryOp(this.And, 		 (x, y) => {return x.Union(y)});
