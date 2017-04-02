@@ -982,11 +982,13 @@ export class Story extends InkObject{
 		// No control content, must be ordinary content
 		return false;
 	}
-	ChoosePathString(path){
+	ChoosePathString(path, args){
+		args = args || [];
+		this.state.PassArgumentsToEvaluationStack(args);
 		this.ChoosePath(new Path(path));
 	}
-	ChoosePath(path){
-		this.state.SetChosenPath(path);
+	ChoosePath(p){
+		this.state.SetChosenPath(p);
 
 		// Take a note of newly visited containers for read counts etc
 		this.VisitChangedContainersDueToDivert();

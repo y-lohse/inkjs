@@ -1,6 +1,6 @@
 import {StringBuilder} from './StringBuilder';
 
-export class RawListItem{
+export class InkListItem{
 	constructor(fullNameOrOriginName, itemName){
 		if (itemName !== undefined){
 			this.originName = fullNameOrOriginName;
@@ -13,7 +13,7 @@ export class RawListItem{
 		}
 	}
 	static Null(){
-		return new RawListItem(null, null);
+		return new InkListItem(null, null);
 	}
 	isNull(){
 		return this.originName == null && this.itemName == null;
@@ -25,8 +25,8 @@ export class RawListItem{
 		return this.fullname;
 	}
 	Equals(obj){
-		if (obj instanceof RawListItem) {
-//			var otherItem = (RawListItem)obj;
+		if (obj instanceof InkListItem) {
+//			var otherItem = (InkListItem)obj;
 			var otherItem = obj;
 			return otherItem.itemName   == this.itemName 
 				&& otherItem.originName == this.originName;
@@ -36,7 +36,7 @@ export class RawListItem{
 	}
 	//GetHashCode not implemented
 	toString(){
-		//WARNING: experimental. RawListItem are structs and are used as keys inside hashes. In js, we can't use an object as a key, as the key needs to be a string. C# gets around that with the internal GetHashCode, and the js equivalent to that is toString. So here, toString acts as C#'s GetHashCode
+		//WARNING: experimental. InkListItem are structs and are used as keys inside hashes. In js, we can't use an object as a key, as the key needs to be a string. C# gets around that with the internal GetHashCode, and the js equivalent to that is toString. So here, toString acts as C#'s GetHashCode
 		var originCode = '0';
 		var itemCode = (this.itemName) ? this.itemName.toString() : 'null';
 		if (this.originName != null)
@@ -46,9 +46,9 @@ export class RawListItem{
 	}
 }
 
-//in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and RawList class properties.
-//instead RawList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on RawList. This also means directly iterating over the RawList won't work as expected. Maybe we can return a proxy if that's required.
-export class RawList{
+//in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and InkList class properties.
+//instead InkList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on InkList. This also means directly iterating over the InkList won't work as expected. Maybe we can return a proxy if that's required.
+export class InkList {
 	constructor(otherListOrSingleElement){
 		this._keys = {};
 		this._values = {};
@@ -57,7 +57,7 @@ export class RawList{
 		
 		//polymorphioc constructor
 		if (otherListOrSingleElement){
-			if (otherListOrSingleElement instanceof RawList){
+			if (otherListOrSingleElement instanceof InkList){
 				var otherList = otherListOrSingleElement;
 				otherList.forEach((kv)=>{
 					this.Add(kv.Key, kv.Value);
@@ -78,6 +78,60 @@ export class RawList{
 				Value: this._values[key]
 			});
 		}
+	}
+	AddItem(itemOrItemName){
+		if (itemOrItemName instanceof InkListItem){
+			var item = itemOrItemName;
+			
+			if (item.originName == null) {
+					this.AddItem(item.itemName);
+					return;
+			}
+
+			this.origins.forEach((origin)=>{
+				if (origin.name == item.originName) {
+						var intVal;
+						intVal = origin.TryGetValueForItem(item, intVal);
+						if (intVal !== undefined) {
+								this.Add(item, intVal);
+								return;
+						} else {
+								throw "Could not add the item " + item + " to this list because it doesn't exist in the original list definition in ink.";
+						}
+				}
+			});
+
+			throw "Failed to add item to list because the item was from a new list definition that wasn't previously known to this list. Only items from previously known lists can be used, so that the int value can be found.";
+		}
+		else{
+			var itemName = itemOrItemName;
+			
+			var foundListDef = null;
+
+			this.origins.forEach((origin)=>{
+				if (origin.ContainsItemWithName(itemName)) {
+						if (foundListDef != null) {
+								throw "Could not add the item " + itemName + " to this list because it could come from either " + origin.name + " or " + foundListDef.name;
+						} else {
+								foundListDef = origin;
+						}
+				}
+			});
+
+			if (foundListDef == null)
+					throw "Could not add the item " + itemName + " to this list because it isn't known to any list definitions previously associated with this list.";
+
+			var item = new InkListItem(foundListDef.name, itemName);
+			var itemVal = foundListDef.ValueForItem(item);
+			this.Add(item, itemVal);
+		}
+	}
+	ContainsItemNamed(itemName){
+		var contains = false;
+		this.forEach(itemWithValue => {
+				if (itemWithValue.Key.itemName == itemName) contains = true;
+		});
+		return contains;
 	}
 	ContainsKey(key){
 		return key in this._values;
@@ -126,7 +180,10 @@ export class RawList{
 		this._originNames = [initialOriginName];
 	}
 	SetInitialOriginNames(initialOriginNames){
- 		this._originNames = initialOriginNames ? initialOriginNames.slice() : null; //store a copy
+		if (initialOriginNames == null)
+				this._originNames = null;
+		else
+				this._originNames = initialOriginNames.slice();//store a copy
 	}
 	get maxItem(){
 		var max = {
@@ -153,7 +210,7 @@ export class RawList{
 		return min;
 	}
 	get inverse(){
-		var list = new RawList();
+		var list = new InkList();
 		if (this.origins != null) {
 			this.origins.forEach((origin)=>{
 				origin.items.forEach((itemAndValue)=>{
@@ -165,7 +222,7 @@ export class RawList{
 		return list;
 	}
 	get all(){
-		var list = new RawList();
+		var list = new InkList();
 		if (this.origins != null) {
 			this.origins.forEach(function(origin){
 				origin.items.forEach(function(itemAndValue){
@@ -176,14 +233,14 @@ export class RawList{
 		return list;
 	}
 	Union(otherList){
-		var union = new RawList(this);
+		var union = new InkList(this);
 		otherList.forEach(function(kv){
 			union.Add(kv.Key, kv.Value);
 		});
 		return union;
 	}
 	Intersect(otherList){
-		var intersection = new RawList();
+		var intersection = new InkList();
 		this.forEach(function(kv){
 			if (otherList.ContainsKey(kv.Key))
 				intersection.Add(kv.Key, kv.Value);
@@ -191,7 +248,7 @@ export class RawList{
 		return intersection;
 	}
 	Without(listToRemove){
-		var result = new RawList(this);
+		var result = new InkList(this);
 		listToRemove.forEach(function(kv){
 			result.Remove(kv.Key);
 		});
@@ -233,25 +290,25 @@ export class RawList{
 	}
 	MaxAsList(){
 		if (this.Count > 0)
-			return new RawList(this.maxItem);
+			return new InkList(this.maxItem);
 		else
-			return new RawList();
+			return new InkList();
 	}
 	MinAsList(){
 		if (this.Count > 0)
-			return new RawList(this.minItem);
+			return new InkList(this.minItem);
 		else
-			return new RawList();
+			return new InkList();
 	}
 	Equals(other){
-//		var otherRawList = other as RawList;
-		var otherRawList = other;
-		if (otherRawList instanceof RawList === false) return false;
-		if (otherRawList.Count != this.Count) return false;
+//		var otherInkList = other as InkList;
+		var otherInkList = other;
+		if (otherInkList instanceof InkList === false) return false;
+		if (otherInkList.Count != this.Count) return false;
 
 		var equals = true;
 		this.forEach(function(kv){
-			if (!otherRawList.ContainsKey(kv.Key))
+			if (!otherInkList.ContainsKey(kv.Key))
 				equals = false;
 		});
 
@@ -278,7 +335,7 @@ export class RawList{
 
 		return sb.toString();
 	}
-	//casting a RawList to a Number, for somereason, actually gives a number. This messes up the type detection when creating a Value from a RawList. Returning NaN here prevents that.
+	//casting a InkList to a Number, for somereason, actually gives a number. This messes up the type detection when creating a Value from a InkList. Returning NaN here prevents that.
 	valueOf(){
 		return NaN;
 	}

@@ -1,4 +1,4 @@
-import {RawListItem} from './RawList';
+import {InkListItem} from './InkList';
 import {ListValue} from './Value';
 
 export class ListDefinitionsOrigin{
@@ -22,17 +22,17 @@ export class ListDefinitionsOrigin{
 		return (name in this._lists) ? this._lists[name] : def;
 	}
 	FindSingleItemListWithName(name){
-		var item = RawListItem.Null;
+		var item = InkListItem.Null;
 		var list = null;
 
 		var nameParts = name.split('.');
 		if (nameParts.length == 2) {
-			item = new RawListItem(nameParts[0], nameParts[1]);
+			item = new InkListItem(nameParts[0], nameParts[1]);
 			list = this.TryGetDefinition(item.originName, list);
 		} else {
 			for (var key in this._lists){
 				var listWithItem = this._lists[key];
-				item = new RawListItem(key, name);
+				item = new InkListItem(key, name);
 				if (listWithItem.ContainsItem(item)) {
 					list = listWithItem;
 					break;

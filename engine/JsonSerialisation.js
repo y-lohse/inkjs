@@ -14,7 +14,7 @@ import {Path} from './Path';
 import {Choice} from './Choice';
 import {ListDefinition} from './ListDefinition';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
-import {RawListItem, RawList} from './RawList';
+import {InkListItem, InkList} from './InkList';
 import {Object as InkObject} from './Object';
 
 export class JsonSerialisation{
@@ -236,7 +236,7 @@ export class JsonSerialisation{
 			if (propValue = obj["list"]) {
 //				var listContent = (Dictionary<string, object>)propValue;
 				var listContent = propValue;
-				var rawList = new RawList();
+				var rawList = new InkList();
 				if (propValue = obj["origins"]) {
 //					var namesAsObjs = (List<object>)propValue;
 					var namesAsObjs = propValue;
@@ -246,7 +246,7 @@ export class JsonSerialisation{
 				
 				for (var key in listContent){
 					var nameToVal = listContent[key];
-					var item = new RawListItem(key);
+					var item = new InkListItem(key);
 					var val = parseInt(nameToVal);
 					rawList.Add(item, val);
 				}

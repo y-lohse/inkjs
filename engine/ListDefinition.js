@@ -1,4 +1,4 @@
-import {RawList, RawListItem} from './RawList';
+import {InkList, InkListItem} from './InkList';
 import {ListValue} from './Value';
 
 export class ListDefinition{
@@ -16,7 +16,7 @@ export class ListDefinition{
 			this._items = {};
 			this._rawListItemsKeys = {};
 			for (var key in this._itemNameToValues){
-				var item = new RawListItem(this.name, key);
+				var item = new InkListItem(this.name, key);
 				this._rawListItemsKeys[item] = item;
 				this._items[item] = this._itemNameToValues[key];
 			}
@@ -45,11 +45,14 @@ export class ListDefinition{
 
 		return (item.itemName in this._itemNameToValues);
 	}
+	ContainsItemWithName(itemName){
+		return this._itemNameToValues[itemName] !== undefined;
+	}
 	TryGetItemWithValue(val, item){//item was an out
 		//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] == val) {
-				item = new RawListItem(this.name, key);
+				item = new InkListItem(this.name, key);
 				return {
 					item :item,
 					exists: true
@@ -57,17 +60,21 @@ export class ListDefinition{
 			}
 		}
 
-		item = RawListItem.Null;
+		item = InkListItem.Null;
 		return {
 			item :item,
 			exists: false
 		};
 	}
+	TryGetValueForItem(item, intval){//intval is an out
+		intVal = this._itemNameToValues[item.itemName];
+		return intVal;
+	}
 	ListRange(min, max){
-		var rawList = new RawList();
+		var rawList = new InkList();
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] >= min && this._itemNameToValues[key] <= max) {
-				var item = new RawListItem(this.name, key);
+				var item = new InkListItem(this.name, key);
 				rawList.Add(item, this._itemNameToValues[key]);
 			}
 		}
