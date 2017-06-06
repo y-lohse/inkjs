@@ -773,5 +773,5 @@ export class StoryState{
 	}
 }
 
-StoryState.kInkSaveStateVersion = 6;
+StoryState.kInkSaveStateVersion = 7;
 StoryState.kMinCompatibleLoadVersion = 6;
