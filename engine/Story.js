@@ -765,9 +765,9 @@ export class Story extends InkObject{
 
 				var eitherCount; 
 				if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince)
-					eitherCount = TurnsSinceForContainer(container);
+					eitherCount = this.TurnsSinceForContainer(container);
 				else
-					eitherCount = VisitCountForContainer(container);
+					eitherCount = this.VisitCountForContainer(container);
 
 				this.state.PushEvaluationStack(new IntValue(eitherCount));
 				break;
