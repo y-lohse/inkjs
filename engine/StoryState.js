@@ -734,6 +734,7 @@ export class StoryState{
 		}
 
 		copy.callStack = new CallStack(this.callStack);
+		copy._originalCallstack = this._originalCallstack;
 		
 		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
 		copy.variablesState.CopyFrom(this.variablesState);
