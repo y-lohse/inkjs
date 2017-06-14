@@ -31,7 +31,7 @@ export class Story extends InkObject{
 		
 		lists = lists || null;
 		
-		this.inkVersionCurrent = 16;
+		this.inkVersionCurrent = 17;
 		this.inkVersionMinimumCompatible = 16;
 		
 		this._variableObservers = null;
@@ -748,12 +748,13 @@ export class Story extends InkObject{
 				break;
 
 			case ControlCommand.CommandType.TurnsSince:
+			case ControlCommand.CommandType.ReadCount:
 				var target = this.state.PopEvaluationStack();
 				if( !(target instanceof DivertTargetValue) ) {
 					var extraNote = "";
 					if( target instanceof IntValue )
 						extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-					this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
+					this.Error("TURNS_SINCE / READ_COUNT expected a divert target (knot, stitch, label name), but saw "+target+extraNote);
 					break;
 				}
 
@@ -761,8 +762,14 @@ export class Story extends InkObject{
 				var divertTarget = target;
 //				var container = ContentAtPath (divertTarget.targetPath) as Container;
 				var container = this.ContentAtPath(divertTarget.targetPath);
-				var turnCount = this.TurnsSinceForContainer(container);
-				this.state.PushEvaluationStack(new IntValue(turnCount));
+
+				var eitherCount; 
+				if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince)
+					eitherCount = this.TurnsSinceForContainer(container);
+				else
+					eitherCount = this.VisitCountForContainer(container);
+
+				this.state.PushEvaluationStack(new IntValue(eitherCount));
 				break;
 
 			case ControlCommand.CommandType.Random:

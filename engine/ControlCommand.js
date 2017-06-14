@@ -50,6 +50,9 @@ export class ControlCommand extends InkObject{
 	static TurnsSince(){
 		return new ControlCommand(CommandType.TurnsSince);
 	}
+	static ReadCount(){
+		return new ControlCommand(CommandType.ReadCount);
+	}
 	static Random(){
 		return new ControlCommand(CommandType.Random);
 	}
@@ -102,6 +105,7 @@ var CommandType = {
 	End: 18,
 	ListFromInt: 19,
 	ListRange: 20,
+	ReadCount: 21
 }
 CommandType.TOTAL_VALUES = Object.keys(CommandType).length - 1;//-1 because NotSet shoudn't count
 ControlCommand.CommandType = CommandType;
