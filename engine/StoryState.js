@@ -740,6 +740,7 @@ export class StoryState{
 		copy.variablesState.CopyFrom(this.variablesState);
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+        	copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
