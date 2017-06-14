@@ -147,7 +147,7 @@ export class NativeFunctionCall extends InkObject{
 //			var op = _operationFuncs [ValueType.Int] as BinaryOp<int>;
 			var op = this._operationFuncs[ValueType.Int];
 			var result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
-			return parseInt(result);
+			return new IntValue (result);
 		}
 
 		// Normal (list • list) operation
