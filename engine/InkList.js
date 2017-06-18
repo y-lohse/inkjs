@@ -48,25 +48,37 @@ export class InkListItem{
 
 //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and InkList class properties.
 //instead InkList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on InkList. This also means directly iterating over the InkList won't work as expected. Maybe we can return a proxy if that's required.
+//@TODO: actually we could use a Map for this.
 export class InkList {
-	constructor(otherListOrSingleElement){
+	constructor(polymorphicArgument, originStory){
 		this._keys = {};
 		this._values = {};
 		this.origins = null;
 		this._originNames = null;
 		
 		//polymorphioc constructor
-		if (otherListOrSingleElement){
-			if (otherListOrSingleElement instanceof InkList){
-				var otherList = otherListOrSingleElement;
+		if (polymorphicArgument){
+			if (polymorphicArgument instanceof InkList){
+				var otherList = polymorphicArgument;
 				otherList.forEach((kv)=>{
 					this.Add(kv.Key, kv.Value);
 				});
 				
 				this._originNames = otherList._originNames;
 			}
-			else if (otherListOrSingleElement.hasOwnProperty('Key') && otherListOrSingleElement.hasOwnProperty('Value')){
-				var singleElement = otherListOrSingleElement;
+			else if (typeof polymorphicArgument === 'string'){
+				this.SetInitialOriginName(polymorphicArgument);
+				
+				var def = null;
+				if (def = originStory.listDefinitions.TryGetDefinition(polymorphicArgument, def)){
+					this.origins = [def];
+				}
+				else{
+					throw new Error("InkList origin could not be found in story when constructing new list: " + singleOriginListName);
+				}
+			}
+			else if (polymorphicArgument.hasOwnProperty('Key') && polymorphicArgument.hasOwnProperty('Value')){
+				var singleElement = polymorphicArgument;
 				this.Add(singleElement.Key, singleElement.Value);
 			}
 		}

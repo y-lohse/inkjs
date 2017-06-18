@@ -217,6 +217,9 @@ export class StoryState{
 	set previousContentObject(value){
 		this.callStack.currentThread.previousContentObject = value;
 	}
+	get callstackDepth(){
+		return this.callStack.depth;
+	}
 	get jsonToken(){
 		var obj = {};
 

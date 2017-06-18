@@ -311,7 +311,7 @@ export class NativeFunctionCall extends InkObject{
 			this.AddListBinaryOp(this.NotEquals, 			(x, y) => {return !x.Equals(y) ? 1 : 0});
 
 			this.AddListBinaryOp (this.And, 				(x, y) => {return x.Count > 0 && y.Count > 0 ? 1 : 0});
-            this.AddListBinaryOp (this.Or,  				(x, y) => {return x.Count > 0 || y.Count > 0 ? 1 : 0});
+      this.AddListBinaryOp (this.Or,  				(x, y) => {return x.Count > 0 || y.Count > 0 ? 1 : 0});
 			
 			this.AddListUnaryOp(this.Not, (x) => {return x.Count == 0 ? 1 : 0});
 

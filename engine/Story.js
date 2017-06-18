@@ -1304,11 +1304,16 @@ export class Story extends InkObject{
 		return tags;
 	}
 	BuildStringOfHierarchy(){
-		var sb = new StringBuilder;
+		var sb = new StringBuilder();
 
 		this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
 
-        return sb.toString();
+    return sb.toString();
+	}
+	BuildStringOfContainer(container){
+		var sb = new StringBuilder();
+		container.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
+		return sb.toString();
 	}
 	NextContent(){
 		// Setting previousContentObject is critical for VisitChangedContainersDueToDivert

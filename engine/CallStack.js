@@ -162,6 +162,9 @@ export class CallStack{
 	get elements(){
 		return this.callStack;
 	}
+	get depth(){
+		return this.elements.length;
+	}
 	get currentElement(){
 		return this.callStack[this.callStack.length - 1];
 	}

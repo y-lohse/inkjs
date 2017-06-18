@@ -49,7 +49,7 @@ export class ListDefinition{
 		return this._itemNameToValues[itemName] !== undefined;
 	}
 	TryGetItemWithValue(val, item){//item was an out
-		//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
+		//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool and the item
 		for (var key in this._itemNameToValues){
 			if (this._itemNameToValues[key] == val) {
 				item = new InkListItem(this.name, key);
