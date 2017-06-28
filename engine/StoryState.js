@@ -734,11 +734,13 @@ export class StoryState{
 		}
 
 		copy.callStack = new CallStack(this.callStack);
+		if (this._originalCallstack) { copy._originalCallstack = new CallStack(this._originalCallstack); }
 		
 		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
 		copy.variablesState.CopyFrom(this.variablesState);
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+        	copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
