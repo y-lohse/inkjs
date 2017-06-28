@@ -33,24 +33,24 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		this.AddContent(value);
 	}
 	get namedOnlyContent(){
-		var namedOnlyContent = {};
+		var namedOnlyContentDict = {};
 		
 		for (var key in this.namedContent){
-			namedOnlyContent[key] = this.namedContent[key];
+			namedOnlyContentDict[key] = this.namedContent[key];
 		}
 
 		this.content.forEach(c => {
 //			var named = c as INamedContent;
 			var named = c;
 			if (named.name && named.hasValidName) {
-				delete namedOnlyContent[named.name];
+				delete namedOnlyContentDict[named.name];
 			}
 		});
 
-		if (namedOnlyContent.length == 0)
-			namedOnlyContent = null;
+		if (Object.keys(namedOnlyContentDict).length == 0)
+			namedOnlyContentDict = null;
 
-		return namedOnlyContent;
+		return namedOnlyContentDict;
 	}
 	set namedOnlyContent(value){
 		var existingNamedOnly = this.namedOnlyContent;

@@ -228,10 +228,10 @@ export class JsonSerialisation{
 				varAss.isGlobal = isGlobalVar;
 				return varAss;
 			}
-			if (propValue = obj["#"]){
+			if (obj["#"] !== undefined){
+				propValue = obj["#"]
 				return new Tag(propValue.toString());
 			}
-			
 			//list value
 			if (propValue = obj["list"]) {
 //				var listContent = (Dictionary<string, object>)propValue;
@@ -615,6 +615,7 @@ _controlCommandNames[ControlCommand.CommandType.EndString] = "/str";
 _controlCommandNames[ControlCommand.CommandType.NoOp] = "nop";
 _controlCommandNames[ControlCommand.CommandType.ChoiceCount] = "choiceCnt";
 _controlCommandNames[ControlCommand.CommandType.TurnsSince] = "turns";
+_controlCommandNames[ControlCommand.CommandType.ReadCount] = "readc";
 _controlCommandNames[ControlCommand.CommandType.Random] = "rnd";
 _controlCommandNames[ControlCommand.CommandType.SeedRandom] = "srnd";
 _controlCommandNames[ControlCommand.CommandType.VisitIndex] = "visit";

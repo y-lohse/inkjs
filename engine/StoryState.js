@@ -217,6 +217,9 @@ export class StoryState{
 	set previousContentObject(value){
 		this.callStack.currentThread.previousContentObject = value;
 	}
+	get callstackDepth(){
+		return this.callStack.depth;
+	}
 	get jsonToken(){
 		var obj = {};
 
@@ -734,11 +737,13 @@ export class StoryState{
 		}
 
 		copy.callStack = new CallStack(this.callStack);
+		if (this._originalCallstack) copy._originalCallstack = new CallStack(this._originalCallstack);
 		
 		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
 		copy.variablesState.CopyFrom(this.variablesState);
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+    copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
 		if (this.divertedTargetObject != null)
 			copy.divertedTargetObject = this.divertedTargetObject;
@@ -773,5 +778,5 @@ export class StoryState{
 	}
 }
 
-StoryState.kInkSaveStateVersion = 6;
+StoryState.kInkSaveStateVersion = 7;
 StoryState.kMinCompatibleLoadVersion = 6;
