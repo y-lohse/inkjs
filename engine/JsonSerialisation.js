@@ -228,10 +228,10 @@ export class JsonSerialisation{
 				varAss.isGlobal = isGlobalVar;
 				return varAss;
 			}
-			if (propValue = obj["#"]){
+			if (obj["#"] !== undefined){
+				propValue = obj["#"]
 				return new Tag(propValue.toString());
 			}
-			
 			//list value
 			if (propValue = obj["list"]) {
 //				var listContent = (Dictionary<string, object>)propValue;
