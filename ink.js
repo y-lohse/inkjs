@@ -581,8 +581,9 @@
 
   //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and InkList class properties.
   //instead InkList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on InkList. This also means directly iterating over the InkList won't work as expected. Maybe we can return a proxy if that's required.
+  //@TODO: actually we could use a Map for this.
   var InkList = function () {
-  	function InkList(otherListOrSingleElement) {
+  	function InkList(polymorphicArgument, originStory) {
   		var _this = this;
 
   		classCallCheck(this, InkList);
@@ -593,16 +594,25 @@
   		this._originNames = null;
 
   		//polymorphioc constructor
-  		if (otherListOrSingleElement) {
-  			if (otherListOrSingleElement instanceof InkList) {
-  				var otherList = otherListOrSingleElement;
+  		if (polymorphicArgument) {
+  			if (polymorphicArgument instanceof InkList) {
+  				var otherList = polymorphicArgument;
   				otherList.forEach(function (kv) {
   					_this.Add(kv.Key, kv.Value);
   				});
 
   				this._originNames = otherList._originNames;
-  			} else if (otherListOrSingleElement.hasOwnProperty('Key') && otherListOrSingleElement.hasOwnProperty('Value')) {
-  				var singleElement = otherListOrSingleElement;
+  			} else if (typeof polymorphicArgument === 'string') {
+  				this.SetInitialOriginName(polymorphicArgument);
+
+  				var def = null;
+  				if (def = originStory.listDefinitions.TryGetDefinition(polymorphicArgument, def)) {
+  					this.origins = [def];
+  				} else {
+  					throw new Error("InkList origin could not be found in story when constructing new list: " + singleOriginListName);
+  				}
+  			} else if (polymorphicArgument.hasOwnProperty('Key') && polymorphicArgument.hasOwnProperty('Value')) {
+  				var singleElement = polymorphicArgument;
   				this.Add(singleElement.Key, singleElement.Value);
   			}
   		}
@@ -1621,23 +1631,23 @@
   	}, {
   		key: 'namedOnlyContent',
   		get: function get$$1() {
-  			var namedOnlyContent = {};
+  			var namedOnlyContentDict = {};
 
   			for (var key in this.namedContent) {
-  				namedOnlyContent[key] = this.namedContent[key];
+  				namedOnlyContentDict[key] = this.namedContent[key];
   			}
 
   			this.content.forEach(function (c) {
   				//			var named = c as INamedContent;
   				var named = c;
   				if (named.name && named.hasValidName) {
-  					delete namedOnlyContent[named.name];
+  					delete namedOnlyContentDict[named.name];
   				}
   			});
 
-  			if (namedOnlyContent.length == 0) namedOnlyContent = null;
+  			if (Object.keys(namedOnlyContentDict).length == 0) namedOnlyContentDict = null;
 
-  			return namedOnlyContent;
+  			return namedOnlyContentDict;
   		},
   		set: function set$$1(value) {
   			var existingNamedOnly = this.namedOnlyContent;
@@ -1844,6 +1854,11 @@
   			return new ControlCommand(CommandType.TurnsSince);
   		}
   	}, {
+  		key: 'ReadCount',
+  		value: function ReadCount() {
+  			return new ControlCommand(CommandType.ReadCount);
+  		}
+  	}, {
   		key: 'Random',
   		value: function Random() {
   			return new ControlCommand(CommandType.Random);
@@ -1914,7 +1929,8 @@
   	Done: 17,
   	End: 18,
   	ListFromInt: 19,
-  	ListRange: 20
+  	ListRange: 20,
+  	ReadCount: 21
   };
   CommandType.TOTAL_VALUES = Object.keys(CommandType).length - 1; //-1 because NotSet shoudn't count
   ControlCommand.CommandType = CommandType;
@@ -2338,7 +2354,7 @@
   				//			var op = _operationFuncs [ValueType.Int] as BinaryOp<int>;
   				var op = this._operationFuncs[ValueType.Int];
   				var result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
-  				return parseInt(result);
+  				return new IntValue(result);
   			}
 
   			// Normal (list • list) operation
@@ -2621,9 +2637,6 @@
   				this.AddListBinaryOp(this.Add, function (x, y) {
   					return x.Union(y);
   				});
-  				this.AddListBinaryOp(this.And, function (x, y) {
-  					return x.Union(y);
-  				});
   				this.AddListBinaryOp(this.Subtract, function (x, y) {
   					return x.Without(y);
   				});
@@ -2654,6 +2667,13 @@
   				});
   				this.AddListBinaryOp(this.NotEquals, function (x, y) {
   					return !x.Equals(y) ? 1 : 0;
+  				});
+
+  				this.AddListBinaryOp(this.And, function (x, y) {
+  					return x.Count > 0 && y.Count > 0 ? 1 : 0;
+  				});
+  				this.AddListBinaryOp(this.Or, function (x, y) {
+  					return x.Count > 0 || y.Count > 0 ? 1 : 0;
   				});
 
   				this.AddListUnaryOp(this.Not, function (x) {
@@ -2867,7 +2887,7 @@
   		key: 'TryGetItemWithValue',
   		value: function TryGetItemWithValue(val, item) {
   			//item was an out
-  			//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
+  			//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool and the item
   			for (var key in this._itemNameToValues) {
   				if (this._itemNameToValues[key] == val) {
   					item = new InkListItem(this.name, key);
@@ -3199,10 +3219,10 @@
   					varAss.isGlobal = isGlobalVar;
   					return varAss;
   				}
-  				if (propValue = obj["#"]) {
+  				if (obj["#"] !== undefined) {
+  					propValue = obj["#"];
   					return new Tag(propValue.toString());
   				}
-
   				//list value
   				if (propValue = obj["list"]) {
   					//				var listContent = (Dictionary<string, object>)propValue;
@@ -3570,6 +3590,7 @@
   _controlCommandNames[ControlCommand.CommandType.NoOp] = "nop";
   _controlCommandNames[ControlCommand.CommandType.ChoiceCount] = "choiceCnt";
   _controlCommandNames[ControlCommand.CommandType.TurnsSince] = "turns";
+  _controlCommandNames[ControlCommand.CommandType.ReadCount] = "readc";
   _controlCommandNames[ControlCommand.CommandType.Random] = "rnd";
   _controlCommandNames[ControlCommand.CommandType.SeedRandom] = "srnd";
   _controlCommandNames[ControlCommand.CommandType.VisitIndex] = "visit";
@@ -3901,6 +3922,11 @@
   		key: 'elements',
   		get: function get$$1() {
   			return this.callStack;
+  		}
+  	}, {
+  		key: 'depth',
+  		get: function get$$1() {
+  			return this.elements.length;
   		}
   	}, {
   		key: 'currentElement',
@@ -4741,11 +4767,13 @@
   			}
 
   			copy.callStack = new CallStack(this.callStack);
+  			if (this._originalCallstack) copy._originalCallstack = new CallStack(this._originalCallstack);
 
   			copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
   			copy.variablesState.CopyFrom(this.variablesState);
 
   			copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+  			copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
   			if (this.divertedTargetObject != null) copy.divertedTargetObject = this.divertedTargetObject;
 
@@ -4983,6 +5011,11 @@
   			this.callStack.currentThread.previousContentObject = value;
   		}
   	}, {
+  		key: 'callstackDepth',
+  		get: function get$$1() {
+  			return this.callStack.depth;
+  		}
+  	}, {
   		key: 'jsonToken',
   		get: function get$$1() {
   			var _this4 = this;
@@ -5079,7 +5112,7 @@
   	return StoryState;
   }();
 
-  StoryState.kInkSaveStateVersion = 6;
+  StoryState.kInkSaveStateVersion = 7;
   StoryState.kMinCompatibleLoadVersion = 6;
 
   if (!Number.isInteger) {
@@ -5098,7 +5131,7 @@
 
   		lists = lists || null;
 
-  		_this.inkVersionCurrent = 16;
+  		_this.inkVersionCurrent = 17;
   		_this.inkVersionMinimumCompatible = 16;
 
   		_this._variableObservers = null;
@@ -5770,11 +5803,12 @@
   							break;
 
   						case ControlCommand.CommandType.TurnsSince:
+  						case ControlCommand.CommandType.ReadCount:
   							var target = this.state.PopEvaluationStack();
   							if (!(target instanceof DivertTargetValue)) {
   								var extraNote = "";
   								if (target instanceof IntValue) extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-  								this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
+  								this.Error("TURNS_SINCE / READ_COUNT expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
   								break;
   							}
 
@@ -5782,8 +5816,11 @@
   							var divertTarget = target;
   							//				var container = ContentAtPath (divertTarget.targetPath) as Container;
   							var container = this.ContentAtPath(divertTarget.targetPath);
-  							var turnCount = this.TurnsSinceForContainer(container);
-  							this.state.PushEvaluationStack(new IntValue(turnCount));
+
+  							var eitherCount;
+  							if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince) eitherCount = this.TurnsSinceForContainer(container);else eitherCount = this.VisitCountForContainer(container);
+
+  							this.state.PushEvaluationStack(new IntValue(eitherCount));
   							break;
 
   						case ControlCommand.CommandType.Random:
@@ -6342,6 +6379,13 @@
 
   			this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
 
+  			return sb.toString();
+  		}
+  	}, {
+  		key: 'BuildStringOfContainer',
+  		value: function BuildStringOfContainer(container) {
+  			var sb = new StringBuilder();
+  			container.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
   			return sb.toString();
   		}
   	}, {
