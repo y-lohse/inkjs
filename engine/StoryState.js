@@ -770,7 +770,7 @@ export class StoryState{
 		return copy;
 	}
 	
-	toJson(indented){
+	ToJson(indented){
 		return JSON.stringify(this.jsonToken, null, (indented) ? 2 : 0);
 	}
 	LoadJson(jsonString){
