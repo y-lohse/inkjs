@@ -64,7 +64,31 @@ module.exports = function (grunt) {
         src: exposedFiles
       }
     },
+    env: {
+      es2015: {
+        INK_PATH: 'dist/ink-es2015.js'
+      },
+      legacy: {
+        INK_PATH: 'dist/ink.js'
+      }
+    },
     jasmine_node: {
+      es2015: {
+        options: {
+          jasmine: {
+            spec_dir: 'tests/specs',
+            reporters: {
+              spec: {}
+            }
+          },
+          coverage: {
+            includeAllSources: true,
+            report: ['lcov', 'text-summary'],
+            reportDir: 'tests/coverage'
+          },
+        },
+        src: ['dist/ink-es2015.js']
+      },
       legacy: {
         options: {
           jasmine: {
@@ -89,8 +113,10 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-rollup');
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-jasmine-node-coverage');
+  grunt.loadNpmTasks('grunt-env');
 
   // Default task(s).
   grunt.registerTask('default', ['rollup']);
-  grunt.registerTask('test', ['jasmine_node']);
+  grunt.registerTask('test:es2015', ['env:es2015', 'jasmine_node:es2015']);
+  grunt.registerTask('test:legacy', ['env:legacy', 'jasmine_node:legacy']);
 };
