@@ -14,8 +14,10 @@ module.exports = function (grunt) {
     rollup: {
       options: {
         format: 'umd',
-        moduleId: 'inkjs',
         moduleName: 'inkjs',
+        amd: {
+          id: 'inkjs'
+        }
       },
       release: {
         dest: 'dist/ink-es2015.js',
