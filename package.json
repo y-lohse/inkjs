@@ -6,7 +6,8 @@
   "scripts": {
     "test": "grunt test:legacy && grunt test:es2015",
     "build": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min",
-    "watch": "grunt watch",
+    "watch": "grunt watch:dev",
+    "watch:test": "grunt watch:test",
     "prepublish": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min"
   },
   "author": "Yannick Lohse",

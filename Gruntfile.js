@@ -8,8 +8,14 @@ module.exports = function (grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     watch: {
-      files: ['engine/*.js'],
-      tasks: ['rollup:release']
+      dev: {
+        files: ['engine/*.js'],
+        tasks: ['rollup:release']
+      },
+      test: {
+        files: ['engine/*.js', 'test/*.js', 'tests/specs/*.js', 'tests/inkfiles/*.*', 'Gruntfile.js'],
+        tasks: ['rollup:release', 'test:es2015']
+      }
     },
     rollup: {
       options: {
