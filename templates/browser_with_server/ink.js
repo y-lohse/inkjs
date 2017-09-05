@@ -518,9 +518,9 @@
   	return StringBuilder;
   }();
 
-  var RawListItem = function () {
-  	function RawListItem(fullNameOrOriginName, itemName) {
-  		classCallCheck(this, RawListItem);
+  var InkListItem = function () {
+  	function InkListItem(fullNameOrOriginName, itemName) {
+  		classCallCheck(this, InkListItem);
 
   		if (itemName !== undefined) {
   			this.originName = fullNameOrOriginName;
@@ -532,7 +532,7 @@
   		}
   	}
 
-  	createClass(RawListItem, [{
+  	createClass(InkListItem, [{
   		key: 'isNull',
   		value: function isNull() {
   			return this.originName == null && this.itemName == null;
@@ -545,8 +545,8 @@
   	}, {
   		key: 'Equals',
   		value: function Equals(obj) {
-  			if (obj instanceof RawListItem) {
-  				//			var otherItem = (RawListItem)obj;
+  			if (obj instanceof InkListItem) {
+  				//			var otherItem = (InkListItem)obj;
   				var otherItem = obj;
   				return otherItem.itemName == this.itemName && otherItem.originName == this.originName;
   			}
@@ -558,7 +558,7 @@
   	}, {
   		key: 'toString',
   		value: function toString() {
-  			//WARNING: experimental. RawListItem are structs and are used as keys inside hashes. In js, we can't use an object as a key, as the key needs to be a string. C# gets around that with the internal GetHashCode, and the js equivalent to that is toString. So here, toString acts as C#'s GetHashCode
+  			//WARNING: experimental. InkListItem are structs and are used as keys inside hashes. In js, we can't use an object as a key, as the key needs to be a string. C# gets around that with the internal GetHashCode, and the js equivalent to that is toString. So here, toString acts as C#'s GetHashCode
   			var originCode = '0';
   			var itemCode = this.itemName ? this.itemName.toString() : 'null';
   			if (this.originName != null) originCode = this.originName.toString();
@@ -573,19 +573,20 @@
   	}], [{
   		key: 'Null',
   		value: function Null() {
-  			return new RawListItem(null, null);
+  			return new InkListItem(null, null);
   		}
   	}]);
-  	return RawListItem;
+  	return InkListItem;
   }();
 
-  //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and RawList class properties.
-  //instead RawList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on RawList. This also means directly iterating over the RawList won't work as expected. Maybe we can return a proxy if that's required.
-  var RawList = function () {
-  	function RawList(otherListOrSingleElement) {
+  //in C#, rawlists are based on dictionnary; the equivalent of a dictionnary in js is Object, but we can't use that or it will conflate dictionnary items and InkList class properties.
+  //instead InkList-js has a special _values property wich contains the actual "Dictionnary", and a few Dictionnary methods are re-implemented on InkList. This also means directly iterating over the InkList won't work as expected. Maybe we can return a proxy if that's required.
+  //@TODO: actually we could use a Map for this.
+  var InkList = function () {
+  	function InkList(polymorphicArgument, originStory) {
   		var _this = this;
 
-  		classCallCheck(this, RawList);
+  		classCallCheck(this, InkList);
 
   		this._keys = {};
   		this._values = {};
@@ -593,22 +594,31 @@
   		this._originNames = null;
 
   		//polymorphioc constructor
-  		if (otherListOrSingleElement) {
-  			if (otherListOrSingleElement instanceof RawList) {
-  				var otherList = otherListOrSingleElement;
+  		if (polymorphicArgument) {
+  			if (polymorphicArgument instanceof InkList) {
+  				var otherList = polymorphicArgument;
   				otherList.forEach(function (kv) {
   					_this.Add(kv.Key, kv.Value);
   				});
 
   				this._originNames = otherList._originNames;
-  			} else if (otherListOrSingleElement.hasOwnProperty('Key') && otherListOrSingleElement.hasOwnProperty('Value')) {
-  				var singleElement = otherListOrSingleElement;
+  			} else if (typeof polymorphicArgument === 'string') {
+  				this.SetInitialOriginName(polymorphicArgument);
+
+  				var def = null;
+  				if (def = originStory.listDefinitions.TryGetDefinition(polymorphicArgument, def)) {
+  					this.origins = [def];
+  				} else {
+  					throw new Error("InkList origin could not be found in story when constructing new list: " + singleOriginListName);
+  				}
+  			} else if (polymorphicArgument.hasOwnProperty('Key') && polymorphicArgument.hasOwnProperty('Value')) {
+  				var singleElement = polymorphicArgument;
   				this.Add(singleElement.Key, singleElement.Value);
   			}
   		}
   	}
 
-  	createClass(RawList, [{
+  	createClass(InkList, [{
   		key: 'forEach',
   		value: function forEach(fn) {
   			for (var key in this._values) {
@@ -617,6 +627,64 @@
   					Value: this._values[key]
   				});
   			}
+  		}
+  	}, {
+  		key: 'AddItem',
+  		value: function AddItem(itemOrItemName) {
+  			var _this2 = this;
+
+  			if (itemOrItemName instanceof InkListItem) {
+  				var item = itemOrItemName;
+
+  				if (item.originName == null) {
+  					this.AddItem(item.itemName);
+  					return;
+  				}
+
+  				this.origins.forEach(function (origin) {
+  					if (origin.name == item.originName) {
+  						var intVal;
+  						intVal = origin.TryGetValueForItem(item, intVal);
+  						if (intVal !== undefined) {
+  							_this2.Add(item, intVal);
+  							return;
+  						} else {
+  							throw "Could not add the item " + item + " to this list because it doesn't exist in the original list definition in ink.";
+  						}
+  					}
+  				});
+
+  				throw "Failed to add item to list because the item was from a new list definition that wasn't previously known to this list. Only items from previously known lists can be used, so that the int value can be found.";
+  			} else {
+  				var itemName = itemOrItemName;
+
+  				var foundListDef = null;
+
+  				this.origins.forEach(function (origin) {
+  					if (origin.ContainsItemWithName(itemName)) {
+  						if (foundListDef != null) {
+  							throw "Could not add the item " + itemName + " to this list because it could come from either " + origin.name + " or " + foundListDef.name;
+  						} else {
+  							foundListDef = origin;
+  						}
+  					}
+  				});
+
+  				if (foundListDef == null) throw "Could not add the item " + itemName + " to this list because it isn't known to any list definitions previously associated with this list.";
+
+  				var item = new InkListItem(foundListDef.name, itemName);
+  				var itemVal = foundListDef.ValueForItem(item);
+  				this.Add(item, itemVal);
+  			}
+  		}
+  	}, {
+  		key: 'ContainsItemNamed',
+  		value: function ContainsItemNamed(itemName) {
+  			var contains = false;
+  			this.forEach(function (itemWithValue) {
+  				if (itemWithValue.Key.itemName == itemName) contains = true;
+  			});
+  			return contains;
   		}
   	}, {
   		key: 'ContainsKey',
@@ -643,12 +711,12 @@
   	}, {
   		key: 'SetInitialOriginNames',
   		value: function SetInitialOriginNames(initialOriginNames) {
-  			this._originNames = initialOriginNames.slice(); //store a copy
+  			if (initialOriginNames == null) this._originNames = null;else this._originNames = initialOriginNames.slice(); //store a copy
   		}
   	}, {
   		key: 'Union',
   		value: function Union(otherList) {
-  			var union = new RawList(this);
+  			var union = new InkList(this);
   			otherList.forEach(function (kv) {
   				union.Add(kv.Key, kv.Value);
   			});
@@ -657,7 +725,7 @@
   	}, {
   		key: 'Intersect',
   		value: function Intersect(otherList) {
-  			var intersection = new RawList();
+  			var intersection = new InkList();
   			this.forEach(function (kv) {
   				if (otherList.ContainsKey(kv.Key)) intersection.Add(kv.Key, kv.Value);
   			});
@@ -666,7 +734,7 @@
   	}, {
   		key: 'Without',
   		value: function Without(listToRemove) {
-  			var result = new RawList(this);
+  			var result = new InkList(this);
   			listToRemove.forEach(function (kv) {
   				result.Remove(kv.Key);
   			});
@@ -675,11 +743,11 @@
   	}, {
   		key: 'Contains',
   		value: function Contains(otherList) {
-  			var _this2 = this;
+  			var _this3 = this;
 
   			var contains = true;
   			otherList.forEach(function (kv) {
-  				if (!_this2.ContainsKey(kv.Key)) contains = false;
+  				if (!_this3.ContainsKey(kv.Key)) contains = false;
   			});
   			return contains;
   		}
@@ -719,24 +787,24 @@
   	}, {
   		key: 'MaxAsList',
   		value: function MaxAsList() {
-  			if (this.Count > 0) return new RawList(this.maxItem);else return new RawList();
+  			if (this.Count > 0) return new InkList(this.maxItem);else return new InkList();
   		}
   	}, {
   		key: 'MinAsList',
   		value: function MinAsList() {
-  			if (this.Count > 0) return new RawList(this.minItem);else return new RawList();
+  			if (this.Count > 0) return new InkList(this.minItem);else return new InkList();
   		}
   	}, {
   		key: 'Equals',
   		value: function Equals(other) {
-  			//		var otherRawList = other as RawList;
-  			var otherRawList = other;
-  			if (otherRawList instanceof RawList === false) return false;
-  			if (otherRawList.Count != this.Count) return false;
+  			//		var otherInkList = other as InkList;
+  			var otherInkList = other;
+  			if (otherInkList instanceof InkList === false) return false;
+  			if (otherInkList.Count != this.Count) return false;
 
   			var equals = true;
   			this.forEach(function (kv) {
-  				if (!otherRawList.ContainsKey(kv.Key)) equals = false;
+  				if (!otherInkList.ContainsKey(kv.Key)) equals = false;
   			});
 
   			return equals;
@@ -764,7 +832,7 @@
 
   			return sb.toString();
   		}
-  		//casting a RawList to a Number, for somereason, actually gives a number. This messes up the type detection when creating a Value from a RawList. Returning NaN here prevents that.
+  		//casting a InkList to a Number, for somereason, actually gives a number. This messes up the type detection when creating a Value from a InkList. Returning NaN here prevents that.
 
   	}, {
   		key: 'valueOf',
@@ -795,13 +863,13 @@
   	}, {
   		key: 'originNames',
   		get: function get$$1() {
-  			var _this3 = this;
+  			var _this4 = this;
 
   			if (this.Count > 0) {
   				if (this._originNames == null && this.Count > 0) this._originNames = [];else this._originNames.length = 0;
 
   				this.forEach(function (itemAndValue) {
-  					_this3._originNames.push(itemAndValue.Key.originName);
+  					_this4._originNames.push(itemAndValue.Key.originName);
   				});
   			}
 
@@ -836,13 +904,13 @@
   	}, {
   		key: 'inverse',
   		get: function get$$1() {
-  			var _this4 = this;
+  			var _this5 = this;
 
-  			var list = new RawList();
+  			var list = new InkList();
   			if (this.origins != null) {
   				this.origins.forEach(function (origin) {
   					origin.items.forEach(function (itemAndValue) {
-  						if (!_this4.ContainsKey(itemAndValue.Key)) list.Add(itemAndValue.Key, itemAndValue.Value);
+  						if (!_this5.ContainsKey(itemAndValue.Key)) list.Add(itemAndValue.Key, itemAndValue.Value);
   					});
   				});
   			}
@@ -851,7 +919,7 @@
   	}, {
   		key: 'all',
   		get: function get$$1() {
-  			var list = new RawList();
+  			var list = new InkList();
   			if (this.origins != null) {
   				this.origins.forEach(function (origin) {
   					origin.items.forEach(function (itemAndValue) {
@@ -862,7 +930,7 @@
   			return list;
   		}
   	}]);
-  	return RawList;
+  	return InkList;
   }();
 
   var ValueType = {
@@ -933,7 +1001,7 @@
   				return new StringValue(val);
   			} else if (val instanceof Path$1) {
   				return new DivertTargetValue(val);
-  			} else if (val instanceof RawList) {
+  			} else if (val instanceof InkList) {
   				return new ListValue(val);
   			}
 
@@ -1278,15 +1346,15 @@
 
   		_this8._valueType = ValueType.List;
 
-  		if (listOrSingleItem instanceof RawList) {
-  			_this8.value = new RawList(listOrSingleItem);
+  		if (listOrSingleItem instanceof InkList) {
+  			_this8.value = new InkList(listOrSingleItem);
   		} else if (listOrSingleItem !== undefined && singleValue !== undefined) {
-  			_this8.value = new RawList({
+  			_this8.value = new InkList({
   				Key: listOrSingleItem,
   				Value: singleValue
   			});
   		} else {
-  			_this8.value = new RawList();
+  			_this8.value = new InkList();
   		}
   		return _this8;
   	}
@@ -1563,23 +1631,23 @@
   	}, {
   		key: 'namedOnlyContent',
   		get: function get$$1() {
-  			var namedOnlyContent = {};
+  			var namedOnlyContentDict = {};
 
   			for (var key in this.namedContent) {
-  				namedOnlyContent[key] = this.namedContent[key];
+  				namedOnlyContentDict[key] = this.namedContent[key];
   			}
 
   			this.content.forEach(function (c) {
   				//			var named = c as INamedContent;
   				var named = c;
   				if (named.name && named.hasValidName) {
-  					delete namedOnlyContent[named.name];
+  					delete namedOnlyContentDict[named.name];
   				}
   			});
 
-  			if (namedOnlyContent.length == 0) namedOnlyContent = null;
+  			if (Object.keys(namedOnlyContentDict).length == 0) namedOnlyContentDict = null;
 
-  			return namedOnlyContent;
+  			return namedOnlyContentDict;
   		},
   		set: function set$$1(value) {
   			var existingNamedOnly = this.namedOnlyContent;
@@ -1786,6 +1854,11 @@
   			return new ControlCommand(CommandType.TurnsSince);
   		}
   	}, {
+  		key: 'ReadCount',
+  		value: function ReadCount() {
+  			return new ControlCommand(CommandType.ReadCount);
+  		}
+  	}, {
   		key: 'Random',
   		value: function Random() {
   			return new ControlCommand(CommandType.Random);
@@ -1856,7 +1929,8 @@
   	Done: 17,
   	End: 18,
   	ListFromInt: 19,
-  	ListRange: 20
+  	ListRange: 20,
+  	ReadCount: 21
   };
   CommandType.TOTAL_VALUES = Object.keys(CommandType).length - 1; //-1 because NotSet shoudn't count
   ControlCommand.CommandType = CommandType;
@@ -2280,7 +2354,7 @@
   				//			var op = _operationFuncs [ValueType.Int] as BinaryOp<int>;
   				var op = this._operationFuncs[ValueType.Int];
   				var result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
-  				return parseInt(result);
+  				return new IntValue(result);
   			}
 
   			// Normal (list • list) operation
@@ -2296,7 +2370,7 @@
   			var listVal = listIntParams[0];
   			var intVal = listIntParams[1];
 
-  			var resultRawList = new RawList();
+  			var resultInkList = new InkList();
 
   			listVal.value.forEach(function (listItemWithValue) {
   				var listItem = listItemWithValue.Key;
@@ -2318,11 +2392,11 @@
   				});
   				if (itemOrigin != null) {
   					var incrementedItem = itemOrigin.TryGetItemWithValue(targetInt);
-  					if (incrementedItem.exists) resultRawList.Add(incrementedItem.item, targetInt);
+  					if (incrementedItem.exists) resultInkList.Add(incrementedItem.item, targetInt);
   				}
   			});
 
-  			return new ListValue(resultRawList);
+  			return new ListValue(resultInkList);
   		}
   	}, {
   		key: 'CoerceValuesToSingleType',
@@ -2556,11 +2630,11 @@
   				this.AddStringBinaryOp(this.Equal, function (x, y) {
   					return x === y ? 1 : 0;
   				});
+  				this.AddStringBinaryOp(this.NotEquals, function (x, y) {
+  					return !(x === y) ? 1 : 0;
+  				});
 
   				this.AddListBinaryOp(this.Add, function (x, y) {
-  					return x.Union(y);
-  				});
-  				this.AddListBinaryOp(this.And, function (x, y) {
   					return x.Union(y);
   				});
   				this.AddListBinaryOp(this.Subtract, function (x, y) {
@@ -2593,6 +2667,13 @@
   				});
   				this.AddListBinaryOp(this.NotEquals, function (x, y) {
   					return !x.Equals(y) ? 1 : 0;
+  				});
+
+  				this.AddListBinaryOp(this.And, function (x, y) {
+  					return x.Count > 0 && y.Count > 0 ? 1 : 0;
+  				});
+  				this.AddListBinaryOp(this.Or, function (x, y) {
+  					return x.Count > 0 || y.Count > 0 ? 1 : 0;
   				});
 
   				this.AddListUnaryOp(this.Not, function (x) {
@@ -2798,13 +2879,18 @@
   			return item.itemName in this._itemNameToValues;
   		}
   	}, {
+  		key: 'ContainsItemWithName',
+  		value: function ContainsItemWithName(itemName) {
+  			return this._itemNameToValues[itemName] !== undefined;
+  		}
+  	}, {
   		key: 'TryGetItemWithValue',
   		value: function TryGetItemWithValue(val, item) {
   			//item was an out
-  			//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool an dthe item
+  			//the original function returns a boolean and has a second parameter called item that is an `out`. Both are needed and we can't just return the item because it'll always be truthy. Instead, we return an object containing the bool and the item
   			for (var key in this._itemNameToValues) {
   				if (this._itemNameToValues[key] == val) {
-  					item = new RawListItem(this.name, key);
+  					item = new InkListItem(this.name, key);
   					return {
   						item: item,
   						exists: true
@@ -2812,19 +2898,26 @@
   				}
   			}
 
-  			item = RawListItem.Null;
+  			item = InkListItem.Null;
   			return {
   				item: item,
   				exists: false
   			};
   		}
   	}, {
+  		key: 'TryGetValueForItem',
+  		value: function TryGetValueForItem(item, intval) {
+  			//intval is an out
+  			intVal = this._itemNameToValues[item.itemName];
+  			return intVal;
+  		}
+  	}, {
   		key: 'ListRange',
   		value: function ListRange(min, max) {
-  			var rawList = new RawList();
+  			var rawList = new InkList();
   			for (var key in this._itemNameToValues) {
   				if (this._itemNameToValues[key] >= min && this._itemNameToValues[key] <= max) {
-  					var item = new RawListItem(this.name, key);
+  					var item = new InkListItem(this.name, key);
   					rawList.Add(item, this._itemNameToValues[key]);
   				}
   			}
@@ -2842,7 +2935,7 @@
   				this._items = {};
   				this._rawListItemsKeys = {};
   				for (var key in this._itemNameToValues) {
-  					var item = new RawListItem(this.name, key);
+  					var item = new InkListItem(this.name, key);
   					this._rawListItemsKeys[item] = item;
   					this._items[item] = this._itemNameToValues[key];
   				}
@@ -2877,17 +2970,17 @@
   	}, {
   		key: 'FindSingleItemListWithName',
   		value: function FindSingleItemListWithName(name) {
-  			var item = RawListItem.Null;
+  			var item = InkListItem.Null;
   			var list = null;
 
   			var nameParts = name.split('.');
   			if (nameParts.length == 2) {
-  				item = new RawListItem(nameParts[0], nameParts[1]);
+  				item = new InkListItem(nameParts[0], nameParts[1]);
   				list = this.TryGetDefinition(item.originName, list);
   			} else {
   				for (var key in this._lists) {
   					var listWithItem = this._lists[key];
-  					item = new RawListItem(key, name);
+  					item = new InkListItem(key, name);
   					if (listWithItem.ContainsItem(item)) {
   						list = listWithItem;
   						break;
@@ -3126,15 +3219,15 @@
   					varAss.isGlobal = isGlobalVar;
   					return varAss;
   				}
-  				if (propValue = obj["#"]) {
+  				if (obj["#"] !== undefined) {
+  					propValue = obj["#"];
   					return new Tag(propValue.toString());
   				}
-
   				//list value
   				if (propValue = obj["list"]) {
   					//				var listContent = (Dictionary<string, object>)propValue;
   					var listContent = propValue;
-  					var rawList = new RawList();
+  					var rawList = new InkList();
   					if (propValue = obj["origins"]) {
   						//					var namesAsObjs = (List<object>)propValue;
   						var namesAsObjs = propValue;
@@ -3144,7 +3237,7 @@
 
   					for (var key in listContent) {
   						var nameToVal = listContent[key];
-  						var item = new RawListItem(key);
+  						var item = new InkListItem(key);
   						var val = parseInt(nameToVal);
   						rawList.Add(item, val);
   					}
@@ -3497,6 +3590,7 @@
   _controlCommandNames[ControlCommand.CommandType.NoOp] = "nop";
   _controlCommandNames[ControlCommand.CommandType.ChoiceCount] = "choiceCnt";
   _controlCommandNames[ControlCommand.CommandType.TurnsSince] = "turns";
+  _controlCommandNames[ControlCommand.CommandType.ReadCount] = "readc";
   _controlCommandNames[ControlCommand.CommandType.Random] = "rnd";
   _controlCommandNames[ControlCommand.CommandType.SeedRandom] = "srnd";
   _controlCommandNames[ControlCommand.CommandType.VisitIndex] = "visit";
@@ -3704,8 +3798,8 @@
   		key: 'PushThread',
   		value: function PushThread() {
   			var newThread = this.currentThread.Copy();
-  			newThread.threadIndex = this._threadCounter;
   			this._threadCounter++;
+  			newThread.threadIndex = this._threadCounter;
   			this._threads.push(newThread);
   		}
   	}, {
@@ -3828,6 +3922,11 @@
   		key: 'elements',
   		get: function get$$1() {
   			return this.callStack;
+  		}
+  	}, {
+  		key: 'depth',
+  		get: function get$$1() {
+  			return this.elements.length;
   		}
   	}, {
   		key: 'currentElement',
@@ -4562,11 +4661,16 @@
   			// but with a ~ return instead.
   			this._isExternalFunctionEvaluation = true;
 
+  			this.PassArgumentsToEvaluationStack(args);
+  		}
+  	}, {
+  		key: 'PassArgumentsToEvaluationStack',
+  		value: function PassArgumentsToEvaluationStack(args) {
   			// Pass arguments onto the evaluation stack
   			if (args != null) {
   				for (var i = 0; i < args.length; i++) {
   					if (!(typeof args[i] === 'number' || typeof args[i] === 'string')) {
-  						throw "ink arguments when calling EvaluateFunction must be int, float or string";
+  						throw "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters  must be int, float or string";
   					}
 
   					this.PushEvaluationStack(Value.Create(args[i]));
@@ -4663,11 +4767,13 @@
   			}
 
   			copy.callStack = new CallStack(this.callStack);
+  			if (this._originalCallstack) copy._originalCallstack = new CallStack(this._originalCallstack);
 
   			copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
   			copy.variablesState.CopyFrom(this.variablesState);
 
   			copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+  			copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
   			if (this.divertedTargetObject != null) copy.divertedTargetObject = this.divertedTargetObject;
 
@@ -4905,6 +5011,11 @@
   			this.callStack.currentThread.previousContentObject = value;
   		}
   	}, {
+  		key: 'callstackDepth',
+  		get: function get$$1() {
+  			return this.callStack.depth;
+  		}
+  	}, {
   		key: 'jsonToken',
   		get: function get$$1() {
   			var _this4 = this;
@@ -5001,7 +5112,7 @@
   	return StoryState;
   }();
 
-  StoryState.kInkSaveStateVersion = 6;
+  StoryState.kInkSaveStateVersion = 7;
   StoryState.kMinCompatibleLoadVersion = 6;
 
   if (!Number.isInteger) {
@@ -5020,7 +5131,7 @@
 
   		lists = lists || null;
 
-  		_this.inkVersionCurrent = 16;
+  		_this.inkVersionCurrent = 17;
   		_this.inkVersionMinimumCompatible = 16;
 
   		_this._variableObservers = null;
@@ -5581,7 +5692,7 @@
   								var output = this.state.PopEvaluationStack();
 
   								// Functions may evaluate to Void, in which case we skip output
-  								if (!(output instanceof Void)) {
+  								if (output != null && !(output instanceof Void)) {
   									// TODO: Should we really always blanket convert to string?
   									// It would be okay to have numbers in the output stream the
   									// only problem is when exporting text for viewing, it skips over numbers etc.
@@ -5692,11 +5803,12 @@
   							break;
 
   						case ControlCommand.CommandType.TurnsSince:
+  						case ControlCommand.CommandType.ReadCount:
   							var target = this.state.PopEvaluationStack();
   							if (!(target instanceof DivertTargetValue)) {
   								var extraNote = "";
   								if (target instanceof IntValue) extraNote = ". Did you accidentally pass a read count ('knot_name') instead of a target ('-> knot_name')?";
-  								this.Error("TURNS_SINCE expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
+  								this.Error("TURNS_SINCE / READ_COUNT expected a divert target (knot, stitch, label name), but saw " + target + extraNote);
   								break;
   							}
 
@@ -5704,8 +5816,11 @@
   							var divertTarget = target;
   							//				var container = ContentAtPath (divertTarget.targetPath) as Container;
   							var container = this.ContentAtPath(divertTarget.targetPath);
-  							var turnCount = this.TurnsSinceForContainer(container);
-  							this.state.PushEvaluationStack(new IntValue(turnCount));
+
+  							var eitherCount;
+  							if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince) eitherCount = this.TurnsSinceForContainer(container);else eitherCount = this.VisitCountForContainer(container);
+
+  							this.state.PushEvaluationStack(new IntValue(eitherCount));
   							break;
 
   						case ControlCommand.CommandType.Random:
@@ -5790,7 +5905,7 @@
   							var generatedListValue = null;
 
   							var foundListDef;
-  							if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal.value, foundListDef)) {
+  							if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal, foundListDef)) {
   								var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
   								if (foundItem.exists) {
   									generatedListValue = new ListValue(foundItem.item, intVal.value);
@@ -5815,7 +5930,6 @@
 
   							// Allow either int or a particular list item to be passed for the bounds,
   							// so wrap up a function to handle this casting for us.
-
   							var IntBound = function IntBound(obj) {
   								//					var listValue = obj as ListValue;
   								var listValue = obj;
@@ -5919,13 +6033,15 @@
   		}
   	}, {
   		key: 'ChoosePathString',
-  		value: function ChoosePathString(path) {
+  		value: function ChoosePathString(path, args) {
+  			args = args || [];
+  			this.state.PassArgumentsToEvaluationStack(args);
   			this.ChoosePath(new Path$1(path));
   		}
   	}, {
   		key: 'ChoosePath',
-  		value: function ChoosePath(path) {
-  			this.state.SetChosenPath(path);
+  		value: function ChoosePath(p) {
+  			this.state.SetChosenPath(p);
 
   			// Take a note of newly visited containers for read counts etc
   			this.VisitChangedContainersDueToDivert();
@@ -6263,6 +6379,13 @@
 
   			this.mainContentContainer.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
 
+  			return sb.toString();
+  		}
+  	}, {
+  		key: 'BuildStringOfContainer',
+  		value: function BuildStringOfContainer(container) {
+  			var sb = new StringBuilder();
+  			container.BuildStringOfHierarchy(sb, 0, this.state.currentContentObject);
   			return sb.toString();
   		}
   	}, {
