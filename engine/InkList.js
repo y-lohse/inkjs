@@ -42,7 +42,7 @@ export class InkListItem{
 		if (this.originName != null)
 			originCode = this.originName.toString();
 		
-		return originCode + itemCode;
+		return originCode + "." + itemCode;
 	}
 }
 
