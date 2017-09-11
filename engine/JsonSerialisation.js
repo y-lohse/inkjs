@@ -136,7 +136,7 @@ export class JsonSerialisation{
 			if (obj["^var"]) {
 				propValue = obj["^var"];
 				var varPtr = new VariablePointerValue(propValue.toString());
-				if (obj["ci"]){
+				if ('ci' in obj){
 					propValue = obj["ci"];
 					varPtr.contextIndex = parseInt(propValue);
 				}
