@@ -1,6 +1,8 @@
 //inkjs test script
+#global tag
 
 Ouside content
+#not a global tag
 
 
 
@@ -90,4 +92,24 @@ Diverted to a stitch
 
 
 
+=== tags
+#knot tag
+-> DONE
 
+= line_by_Line
+A line of content #a tag
+Another line of content #tag1 #tag2
+
+#tag above
+Content after a tag # tag after
+#tag below
+-> DONE
+
+= weird
+// tags should be trimmed
+# space around 
+#//void
+# //a space
+#    //multiple spaces
+#0
+-> DONE
