@@ -52,7 +52,6 @@ describe('Tags', function(){
     
     var tags = story.currentTags;
     
-    console.log(tags);
     expect(tags.length).toBe(5);
     expect(tags[0]).toEqual('space around');
     expect(tags[1]).toEqual('');

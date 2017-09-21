@@ -113,3 +113,28 @@ Content after a tag # tag after
 #    //multiple spaces
 #0
 -> DONE
+
+
+
+
+
+=== simple_lists
+= sequence
+{one|two|three|final}
+-> DONE
+
+= cycle
+{&one|two|three}
+-> DONE
+
+= once
+{!one|two|three}
+-> DONE
+
+= shuffle
+{~heads|tails}
+-> DONE
+
+= blanks
+{|||end}
+-> DONE
