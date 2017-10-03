@@ -78,6 +78,10 @@ glue
 = internal_stitch
 -> internal_stitch_target
 
+= divert_var
+~ temp destination = -> divert_knot_target.divert_var_target
+-> destination
+
 = internal_stitch_target
 Diverted to internal stitch
 -> DONE
@@ -88,6 +92,10 @@ Diverted to a knot
 
 = divert_stitch_target
 Diverted to a stitch
+-> DONE
+
+= divert_var_target
+Diverted with a variable
 -> DONE
 
 
@@ -137,4 +145,79 @@ Content after a tag # tag after
 
 = blanks
 {|||end}
+-> DONE
+
+
+
+=== choices
+= basic_choice
+* a choice
+-> DONE
+    
+= multiple_choices
+* choice 1
+* choice 2
+* choice 3
+- -> DONE
+    
+= choice_text
+* always [choice only]output only
+-> DONE
+
+= suppression
+* choice 1
+* choice 2
+- -> DONE
+
+= fallback
+* choice 1
+  -> DONE
+* -> DONE
+
+= sticky
+* disapears
+-> DONE
++ stays
+-> DONE
+
+= conditional
+~ temp truthy = true
+~ temp truthy2 = true
+~ temp falsy = false
+* no condition
+* { truthy } available
+* { falsy } not available
+* { truthy } { truthy2 } multi condition available
+* { truthy } { falsy } multi condition not available
+- -> DONE
+
+
+
+
+
+=== logic
+= vardef
+VAR stringvar = "Emilia"
+VAR intvar = 521
+VAR floatvar = 52.1
+VAR divertvar = -> logic_divert_dest
+variables defined
+-> DONE
+
+= logic_divert_dest
+-> DONE
+
+= math
+~ temp a = 1 + 1
+{a}
+~ temp b = 1 - 1
+{b}
+~ temp c = 1 * 2
+{c}
+~ temp d = 10 / 2
+{d}
+~ temp e = 11 % 2
+{e}
+~ temp f = 1.2 + 3.4
+{f}
 -> DONE

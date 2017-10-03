@@ -94,4 +94,10 @@ describe('Divert', function(){
     expect(story.Continue()).toEqual('Diverted to internal stitch\n');
   });
   
+  it ('should divert with a variable', function(){
+    story.ChoosePathString('divert.divert_var');
+    
+    expect(story.Continue()).toEqual('Diverted with a variable\n');
+  });
+  
 });

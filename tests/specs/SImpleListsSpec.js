@@ -1,6 +1,6 @@
 var testsUtils = require('../common.js');
 
-describe('Content', function(){
+describe('Simple lists', function(){
   
   var story;
   beforeEach(function(){
@@ -57,7 +57,7 @@ describe('Content', function(){
   });
   
   it('should handle blank elements', function(){
-    for (var i = 0; i < 4; ++i){
+    for (var i = 0; i < 3; ++i){
       story.ChoosePathString('simple_lists.blanks');
       expect(story.Continue()).toEqual('');
     }
