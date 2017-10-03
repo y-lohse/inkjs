@@ -46,6 +46,21 @@ describe('Tags', function(){
     expect(tags[1]).toEqual('tag after');
   });
   
+  it('should find tags on choice points', function(){
+    story.ChoosePathString('tags.choice');
+    story.Continue();
+    
+    expect(story.currentChoices.length).toEqual(1);
+    expect(story.currentChoices[0].text).toEqual('a choice');
+    expect(story.currentTags.length).toEqual(0);
+    
+    story.ChooseChoiceIndex(0);
+    
+    expect(story.Continue()).toEqual('a choice\n');
+    expect(story.currentTags.length).toEqual(1);
+    expect(story.currentTags[0]).toEqual('a tag');
+  });
+  
   it('should handle tag edge cases', function(){
     story.ChoosePathString('tags.weird');
     story.Continue();

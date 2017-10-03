@@ -113,6 +113,10 @@ Content after a tag # tag after
 #tag below
 -> DONE
 
+= choice
+* a choice # a tag
+-> DONE
+
 = weird
 // tags should be trimmed
 # space around 
@@ -201,7 +205,7 @@ VAR stringvar = "Emilia"
 VAR intvar = 521
 VAR floatvar = 52.1
 VAR divertvar = -> logic_divert_dest
-variables defined
+variables defined: {stringconst} {intconst} {floatconst}
 -> DONE
 
 = logic_divert_dest
@@ -220,4 +224,42 @@ variables defined
 {e}
 ~ temp f = 1.2 + 3.4
 {f}
+-> DONE
+
+= ifelse
+{
+    - intvar == 521:
+        if text
+    - else:
+        else text
+}
+{
+    - intvar < 521:
+        if text
+    - else:
+        else text
+}
+{
+    - intvar < 521:
+        if text
+    - intvar > 1:
+        elseif text
+    - else:
+        else text
+}
+-> DONE
+
+= stitch_param
+-> stitch_with_param("param")
+-> DONE
+
+= stitch_with_param(what)
+Called with {what}
+-> DONE
+
+= constants
+CONST stringconst = "Emilia"
+CONST intconst = 521
+CONST floatconst = 52.1
+constants defined: {stringconst} {intconst} {floatconst}
 -> DONE
