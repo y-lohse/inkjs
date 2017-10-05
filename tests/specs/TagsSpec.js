@@ -5,6 +5,7 @@ describe('Tags', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should find global tags', function(){

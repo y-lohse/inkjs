@@ -1,11 +1,15 @@
 //inkjs test script
 #global tag
 
+-> game_queries.choicecount
+
 Ouside content
 #not a global tag
 
+EXTERNAL fn_ext(a, b, c)
 
-
+=== function fn_ext(a, b, c)
+~ return a
 
 === knot
 Knot content
@@ -307,6 +311,10 @@ function called
 === function fn_called ===
 ~ return "nested function called"
 
+=== function fn_echo(a) ===
+{a}
+~ return a
+
 
 
 === integration
@@ -320,3 +328,32 @@ mutated 1
 ~ observedVar2 = 5
 mutated 2
 -> DONE
+
+= visit_count
+visited
+-> DONE
+
+= external
+{ fn_ext(1, 2, 3) }
+{ fn_ext(1.1, 2.2, 3.3) }
+{ fn_ext("a", "b", "c") }
+{ fn_ext("a", 1, 2.2) }
+-> DONE
+
+
+=== game_queries
+= choicecount
+* count {CHOICE_COUNT()}
+- 
+* 1 choice
+* count {CHOICE_COUNT()}
+-
+* 1 choice
+* 2 choices
+* count {CHOICE_COUNT()}
+-
+* 1 choice
+* count {CHOICE_COUNT()}
+* 2 choices
+* count {CHOICE_COUNT()}
+- -> DONE

@@ -5,6 +5,7 @@ describe('Content', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should read simple content', function(){
@@ -53,6 +54,7 @@ describe('Glue', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should glue lines together', function(){
@@ -74,6 +76,7 @@ describe('Divert', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should divert to a knot', function(){
@@ -99,5 +102,45 @@ describe('Divert', function(){
     
     expect(story.Continue()).toEqual('Diverted with a variable\n');
   });
+  
+});
+
+
+describe('Game Queries', function(){
+  
+  var story;
+  beforeEach(function(){
+    story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
+  });
+  
+  it('should reuturn a choice count', function(){
+    story.ChoosePathString('game_queries.choicecount');
+    story.Continue();
+    
+    expect(story.currentChoices.length).toEqual(1);
+    expect(story.currentChoices[0].text).toEqual('count 0');
+    
+    story.ChooseChoiceIndex(0);
+    story.Continue();
+    
+    expect(story.currentChoices.length).toEqual(2);
+    expect(story.currentChoices[1].text).toEqual('count 1');
+    
+    story.ChooseChoiceIndex(0);
+    story.Continue();
+    
+    expect(story.currentChoices.length).toEqual(3);
+    expect(story.currentChoices[2].text).toEqual('count 2');
+    
+    story.ChooseChoiceIndex(0);
+    story.Continue();
+    
+    expect(story.currentChoices.length).toEqual(4);
+    expect(story.currentChoices[1].text).toEqual('count 1');
+    expect(story.currentChoices[3].text).toEqual('count 3');
+  });
+  
+
   
 });

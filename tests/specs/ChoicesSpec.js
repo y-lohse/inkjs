@@ -5,6 +5,7 @@ describe('Choices', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should offer a single choice', function(){

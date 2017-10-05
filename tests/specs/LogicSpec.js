@@ -5,6 +5,7 @@ describe('Logic', function(){
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
+    story.allowExternalFunctionFallbacks = true;
   });
   
   it('should define variables', function(){
