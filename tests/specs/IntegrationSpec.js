@@ -38,4 +38,46 @@ describe('Integration', function(){
     expect(story.variablesState['stringvar']).toEqual('Jonas');
   });
   
+  xit('should observe variables', function(){
+    story.ChoosePathString('integration.variable_observer');
+    expect(story.variablesState['observedVar1']).toEqual(1);
+    expect(story.variablesState['observedVar2']).toEqual(2);
+    
+    expect(story.Continue()).toEqual('declared\n');
+    
+    const spy1 = jasmine.createSpy('variable observer spy 1');
+    const spy2 = jasmine.createSpy('variable observer spy 2');
+    const commonSpy = jasmine.createSpy('variable observer spy common');
+    story.ObserveVariable('observedVar1', spy1);
+    story.ObserveVariable('observedVar2', spy2);
+    story.ObserveVariable('observedVar1', commonSpy);
+    story.ObserveVariable('observedVar2', commonSpy);
+    
+    expect(story.variablesState['observedVar1']).toEqual(1);
+    expect(story.variablesState['observedVar2']).toEqual(2);
+    expect(spy1).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(commonSpy).toHaveBeenCalledTimes(0);
+    
+    expect(story.Continue()).toEqual('mutated 1\n');
+    
+    expect(story.variablesState['observedVar1']).toEqual(3);
+    expect(story.variablesState['observedVar2']).toEqual(2);
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledWith('observedVar1', 3);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(commonSpy).toHaveBeenCalledTimes(1);
+    expect(commonSpy).toHaveBeenCalledWith('observedVar1', 3);
+    
+    expect(story.Continue()).toEqual('mutated 2\n');
+    
+    expect(story.variablesState['observedVar1']).toEqual(4);
+    expect(story.variablesState['observedVar2']).toEqual(5);
+    
+    expect(spy1).toHaveBeenCalledTimes(2);
+    expect(spy1).toHaveBeenCalledWith('observedVar1', 4);
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledWith('observedVar2', 5);
+  });
+  
 });

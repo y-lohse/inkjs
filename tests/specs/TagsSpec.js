@@ -9,7 +9,6 @@ describe('Tags', function(){
   
   it('should find global tags', function(){
     var tags = story.globalTags;
-    console.log(tags)
     
     expect(tags.length).toBe(1);
     expect(tags[0]).toEqual('global tag');

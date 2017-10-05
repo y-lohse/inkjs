@@ -40,4 +40,37 @@ describe('Logic', function(){
     story.ChoosePathString('logic.constants');
     expect(story.Continue()).toEqual('constants defined: Emilia 521 52.1\n');
   });
+  
+  it('should call ink functions', function(){
+    story.ChoosePathString('logic.simple_functions');
+    
+    expect(story.Continue()).toEqual('returned\n');
+    expect(story.Continue()).toEqual('function called\n');
+    expect(story.Continue()).toEqual('nested function called\n');
+    expect(story.Continue()).toEqual('Function called inline and returned something\n');
+  });
+  
+  it('should call ink functions', function(){
+    story.ChoosePathString('logic.param_functions');
+    
+    expect(story.variablesState['fnParamA']).toEqual('a');
+    expect(story.variablesState['fnParamB']).toEqual('b');
+    
+    expect(story.Continue()).toEqual('was a\n');
+    expect(story.variablesState['fnParamA']).toEqual('a');
+    expect(story.variablesState['fnParamB']).toEqual('b');
+    
+    expect(story.Continue()).toEqual('was a\n');
+    expect(story.variablesState['fnParamA']).toEqual('was a');
+    expect(story.variablesState['fnParamB']).toEqual('was b');
+    
+    expect(story.canContinue).toBe(false);
+  });
+  
+  it('should call ink functions', function(){
+    story.ChoosePathString('logic.void_function');
+    story.Continue()
+    
+    expect(story.canContinue).toBe(false);
+  });
 });

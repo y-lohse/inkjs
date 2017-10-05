@@ -263,3 +263,60 @@ CONST intconst = 521
 CONST floatconst = 52.1
 constants defined: {stringconst} {intconst} {floatconst}
 -> DONE
+
+= simple_functions
+{fn_with_return()}
+{fn_print()}
+{fn_calls_other()}
+Function called inline and {fn_with_return()} something
+-> DONE
+
+= param_functions
+VAR fnParamA = "a"
+VAR fnParamB = "b"
+{fn_params(fnParamA, fnParamB)}
+{fn_params_ref(fnParamA, fnParamB)}
+-> DONE
+
+= void_function
+{fn_without_return()}
+-> DONE
+
+=== function fn_with_return ===
+~ return "returned"
+
+=== function fn_without_return ===
+~ temp a = 1
+
+=== function fn_print ===
+function called
+
+=== function fn_params(a, b) ===
+~ a = "was a"
+~ b = "was b"
+~return a
+
+=== function fn_params_ref(ref a, ref b) ===
+~ a = "was a"
+~ b = "was b"
+~return a
+
+=== function fn_calls_other ===
+~ return fn_called()
+
+=== function fn_called ===
+~ return "nested function called"
+
+
+
+=== integration
+= variable_observer
+VAR observedVar1 = 1
+VAR observedVar2 = 2
+declared
+~ observedVar1 = 3
+mutated 1
+~ observedVar1 = 4
+~ observedVar2 = 5
+mutated 2
+-> DONE
