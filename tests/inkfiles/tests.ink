@@ -357,3 +357,29 @@ visited
 * 2 choices
 * count {CHOICE_COUNT()}
 - -> DONE
+
+= turnssince_before
+{TURNS_SINCE(-> turnssince)}
+-> turnssince
+
+= turnssince
+{TURNS_SINCE(-> turnssince)}
+* [advance] -> turnssince_1
+
+= turnssince_1
+{TURNS_SINCE(-> turnssince)}
+* [advance] -> turnssince_2
+
+= turnssince_2
+{TURNS_SINCE(-> turnssince)}
+-> DONE
+
+
+=== saveload
+a bit of content
+the next bit
+-> DONE
+= choicepoint
+* choice 1
+* choice 2
+- -> DONE

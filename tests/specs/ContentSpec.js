@@ -141,6 +141,18 @@ describe('Game Queries', function(){
     expect(story.currentChoices[3].text).toEqual('count 3');
   });
   
-
+  it('should return a turn since count', function(){
+    story.ChoosePathString('game_queries.turnssince_before');
+    expect(story.Continue()).toEqual('-1\n');
+    expect(story.Continue()).toEqual('0\n');
+    
+    expect(story.currentChoices.length).toEqual(1);
+    story.ChooseChoiceIndex(0);    
+    expect(story.Continue()).toEqual('1\n');
+    
+    expect(story.currentChoices.length).toEqual(1);
+    story.ChooseChoiceIndex(0);
+    expect(story.Continue()).toEqual('2\n');
+  });
   
 });
