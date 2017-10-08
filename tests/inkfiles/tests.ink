@@ -383,3 +383,84 @@ the next bit
 * choice 1
 * choice 2
 - -> DONE
+
+
+
+=== flow_control
+= tunnel
+tunnel end
+->->
+
+= tunnel_call
+-> tunnel -> DONE
+
+= thread
+thread start
+<- threaded_text
+<- threaded_choice_1
+<- threaded_choice_2
+thread end
+-> DONE
+
+= threaded_text
+threaded text
+-> DONE
+
+= threaded_choice_1
+* first threaded choice
+-> DONE
+
+= threaded_choice_2
+* second threaded choice
+-> DONE
+
+
+
+=== lists
+= basic_list
+LIST kettleState = (cold), boiling, evaporated
+{kettleState}
+~ kettleState = boiling
+{kettleState}
+-> DONE
+
+= increment
+~ kettleState = cold
+{kettleState}
+~ kettleState++
+{kettleState}
+~ kettleState++
+{kettleState}
+~ kettleState--
+{kettleState}
+~ kettleState--
+{kettleState}
+-> DONE
+
+= list_value
+~ kettleState = cold
+{LIST_VALUE(kettleState)}
+~ kettleState++
+{LIST_VALUE(kettleState)}
+~ kettleState++
+{LIST_VALUE(kettleState)}
+-> DONE
+
+= value_from_number
+VAR kettleStateVar = cold
+~ kettleStateVar = kettleState(1)
+{kettleStateVar}
+~ kettleStateVar = kettleState(2)
+{kettleStateVar}
+~ kettleStateVar = kettleState(3)
+{kettleStateVar}
+-> DONE
+
+= defined_value
+LIST primeNumbers = (two = 2), three, five = 5
+{LIST_VALUE(primeNumbers)}
+~ primeNumbers++
+{LIST_VALUE(primeNumbers)}
+~ primeNumbers++
+{LIST_VALUE(primeNumbers)}
+-> DONE
