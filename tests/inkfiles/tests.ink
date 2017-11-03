@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
--> game_queries.choicecount
+//-> lists.listqueries
 
 Ouside content
 #not a global tag
@@ -463,4 +463,54 @@ LIST primeNumbers = (two = 2), three, five = 5
 {LIST_VALUE(primeNumbers)}
 ~ primeNumbers++
 {LIST_VALUE(primeNumbers)}
+-> DONE
+
+= multivalue
+LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
+{DoctorsInSurgery}
+~ DoctorsInSurgery += (Eamonn, Denver) 
+{DoctorsInSurgery}
+~ DoctorsInSurgery -= Eamonn
+{DoctorsInSurgery}
+~ DoctorsInSurgery = ()
+{DoctorsInSurgery}
+~ DoctorsInSurgery -= Eamonn
+~ DoctorsInSurgery -= Eamonn
+{DoctorsInSurgery}
+~ DoctorsInSurgery += Eamonn
+~ DoctorsInSurgery += Eamonn
+{DoctorsInSurgery}
+-> DONE
+
+= listqueries
+~ DoctorsInSurgery = ()
+{DoctorsInSurgery:list is not empty |list is empty}
+~ DoctorsInSurgery += (Eamonn, Denver)
+{LIST_COUNT(DoctorsInSurgery)}
+{LIST_MIN(DoctorsInSurgery)} 
+{LIST_MAX(DoctorsInSurgery)} 
+{DoctorsInSurgery:list is not empty|list is empty}
+{ DoctorsInSurgery == (Eamonn, Denver):exact equality}
+{ DoctorsInSurgery == (Eamonn):exact equality broken|falsy exact equality}
+{ DoctorsInSurgery != (Eamonn):exact inequality}
+{ DoctorsInSurgery != (Eamonn, Denver):exact inequality broken|exact inequality works}
+{ DoctorsInSurgery has Eamonn:has Eamonn}
+{ DoctorsInSurgery has Cartwright:has is broke |has falsy works}
+{ DoctorsInSurgery !? (Eamonn, Cartwright):has not}
+{ DoctorsInSurgery !? (Eamonn, Denver):has not broken|falsy has not}
+{LIST_ALL(DoctorsInSurgery)}
+~ DoctorsInSurgery = ()
+{LIST_MAX(DoctorsInSurgery)}
+{LIST_MIN(DoctorsInSurgery)}
+~ DoctorsInSurgery = (Cartwright)
+{DoctorsInSurgery > (Adams):truthy greater than}
+{DoctorsInSurgery > (Eamonn):broken greater than|falsy greater than}
+{DoctorsInSurgery < (Eamonn):truthy smaller than}
+{DoctorsInSurgery < (Adams):broken smaller than|falsy smaller than}
+{DoctorsInSurgery >= (Adams):truthy greater than or equal}
+{DoctorsInSurgery >= (Cartwright):truthy greater than or equal}
+{DoctorsInSurgery >= (Eamonn):broken greater than or equal|falsy greater than or equal}
+{DoctorsInSurgery <= (Eamonn):truthy smaller than or equal}
+{DoctorsInSurgery <= (Cartwright):truthy smaller than or equal}
+{DoctorsInSurgery <= (Adams):broken smaller than or equal|falsy smaller than or equal}
 -> DONE
