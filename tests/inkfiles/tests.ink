@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
-//-> lists.listqueries
+//-> logic.casts
 
 Ouside content
 #not a global tag
@@ -210,6 +210,14 @@ VAR intvar = 521
 VAR floatvar = 52.1
 VAR divertvar = -> logic_divert_dest
 variables defined: {stringconst} {intconst} {floatconst}
+-> DONE
+
+= casts
+{intvar + 0.5}
+{intvar + "hello"}
+{floatvar:float var is truthy|is falsy and broken}
+{floatvar + "hello"}
+{stringvar:string var is truthy|is falsy and broken}
 -> DONE
 
 = logic_divert_dest
@@ -503,14 +511,38 @@ LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
 {LIST_MAX(DoctorsInSurgery)}
 {LIST_MIN(DoctorsInSurgery)}
 ~ DoctorsInSurgery = (Cartwright)
+
 {DoctorsInSurgery > (Adams):truthy greater than}
 {DoctorsInSurgery > (Eamonn):broken greater than|falsy greater than}
+{DoctorsInSurgery > ():greater than empty}
+{() > DoctorsInSurgery:broken empty greater than|empty greater than}
+
 {DoctorsInSurgery < (Eamonn):truthy smaller than}
 {DoctorsInSurgery < (Adams):broken smaller than|falsy smaller than}
+{DoctorsInSurgery < ():broken smaller than empty|smaller than empty}
+{() < DoctorsInSurgery:empty smaller than|broken empty smaller than}
+
 {DoctorsInSurgery >= (Adams):truthy greater than or equal}
 {DoctorsInSurgery >= (Cartwright):truthy greater than or equal}
 {DoctorsInSurgery >= (Eamonn):broken greater than or equal|falsy greater than or equal}
+{DoctorsInSurgery >= ():greater than or equals empty}
+{() >= DoctorsInSurgery:broken empty greater than or equals|empty greater than or equals}
+
 {DoctorsInSurgery <= (Eamonn):truthy smaller than or equal}
 {DoctorsInSurgery <= (Cartwright):truthy smaller than or equal}
 {DoctorsInSurgery <= (Adams):broken smaller than or equal|falsy smaller than or equal}
+{DoctorsInSurgery <= ():broken smaller than  or equals empty|smaller than or equals empty}
+{() <= DoctorsInSurgery:empty smaller than or equals|broken empty smaller than or equals}
+
+{LIST_RANGE(DoctorsInSurgery, Bernard, Denver)}
+
+LIST GuardsOnDuty = (Smith), (Jones), Carter, Braithwaite
+{GuardsOnDuty}
+~ GuardsOnDuty = LIST_INVERT(GuardsOnDuty)
+{GuardsOnDuty}
+
+LIST CoreValues = strength, courage, compassion, greed, nepotism, self_belief, delusions_of_godhood
+VAR desiredValues = (strength, courage, compassion, self_belief )
+VAR actualValues =  ( greed, nepotism, self_belief, delusions_of_godhood )
+{desiredValues ^ actualValues}
 -> DONE

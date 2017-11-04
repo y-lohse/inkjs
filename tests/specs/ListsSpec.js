@@ -65,10 +65,12 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('Denver\n');
     expect(story.Continue()).toEqual('Eamonn\n');
     expect(story.Continue()).toEqual('list is not empty\n');
+    
     expect(story.Continue()).toEqual('exact equality\n');
     expect(story.Continue()).toEqual('falsy exact equality\n');
     expect(story.Continue()).toEqual('exact inequality\n');
     expect(story.Continue()).toEqual('exact inequality works\n');
+    
     expect(story.Continue()).toEqual('has Eamonn\n');
     expect(story.Continue()).toEqual('has falsy works\n');
     expect(story.Continue()).toEqual('has not\n');
@@ -76,16 +78,33 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('Adams, Bernard, Cartwright, Denver, Eamonn\n');
     expect(story.Continue()).toEqual('\n');
     expect(story.Continue()).toEqual('\n');
+    
     expect(story.Continue()).toEqual('truthy greater than\n');
     expect(story.Continue()).toEqual('falsy greater than\n');
+    expect(story.Continue()).toEqual('greater than empty\n');
+    expect(story.Continue()).toEqual('empty greater than\n');
+    
     expect(story.Continue()).toEqual('truthy smaller than\n');
     expect(story.Continue()).toEqual('falsy smaller than\n');
+    expect(story.Continue()).toEqual('smaller than empty\n');
+    expect(story.Continue()).toEqual('empty smaller than\n');
+    
     expect(story.Continue()).toEqual('truthy greater than or equal\n');
     expect(story.Continue()).toEqual('truthy greater than or equal\n');
     expect(story.Continue()).toEqual('falsy greater than or equal\n');
+    expect(story.Continue()).toEqual('greater than or equals empty\n');
+    expect(story.Continue()).toEqual('empty greater than or equals\n');
+    
     expect(story.Continue()).toEqual('truthy smaller than or equal\n');
     expect(story.Continue()).toEqual('truthy smaller than or equal\n');
     expect(story.Continue()).toEqual('falsy smaller than or equal\n');
+    expect(story.Continue()).toEqual('smaller than or equals empty\n');
+    expect(story.Continue()).toEqual('empty smaller than or equals\n');
+    
+    expect(story.Continue()).toEqual('Bernard, Cartwright, Denver\n');
+    expect(story.Continue()).toEqual('Smith, Jones\n');
+    expect(story.Continue()).toEqual('Carter, Braithwaite\n');
+    expect(story.Continue()).toEqual('self_belief\n');
   });
 
 });

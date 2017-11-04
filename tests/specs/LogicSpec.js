@@ -14,6 +14,15 @@ describe('Logic', function(){
     expect(story.Continue()).toEqual('variables defined: Emilia 521 52.1\n');
   });
   
+  it('should cast variables', function(){
+    story.ChoosePathString('logic.casts');
+    expect(story.Continue()).toEqual('521.5\n');
+    expect(story.Continue()).toEqual('521hello\n');
+    expect(story.Continue()).toEqual('float var is truthy\n');
+    expect(story.Continue()).toEqual('52.1hello\n');
+    expect(story.Continue()).toEqual('string var is truthy\n');
+  });
+  
   it('should perform mathematical operations', function(){
     story.ChoosePathString('logic.math');
     
