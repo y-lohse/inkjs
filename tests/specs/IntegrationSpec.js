@@ -170,14 +170,10 @@ describe('Integration', function(){
   
   describe('Saving and Loading', function(){
     
-    xit('should alias toJson and ToJson', function(){
-      expect(story.state.toJson()).toEqual(story.state.ToJson());
-    });
-    
     it('should continue the story', function(){
       story.ChoosePathString('saveload');
       expect(story.Continue()).toEqual('a bit of content\n');
-      const save = story.state.toJson();
+      const save = story.state.ToJson();
       story.state.LoadJson(save);
       expect(story.Continue()).toEqual('the next bit\n');
     });
@@ -189,7 +185,7 @@ describe('Integration', function(){
       expect(story.currentChoices[0].text).toEqual('choice 1');
       expect(story.currentChoices[1].text).toEqual('choice 2');
       
-      const save = story.state.toJson();
+      const save = story.state.ToJson();
       story.state.LoadJson(save);
       
       expect(story.currentChoices.length).toEqual(2);
