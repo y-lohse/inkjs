@@ -34,7 +34,10 @@ describe('Choices', function(){
   });
   
   xit('should throw when selecting an invalid choice', function(){
+    story.ChoosePathString('choices.multiple_choices');
     
+    story.Continue();
+    expect(story.ChooseChoiceIndex(10)).toThrow();
   });
   
   it('should suppress parts of choice text', function(){

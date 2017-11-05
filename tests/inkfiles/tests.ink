@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
-//-> logic.casts
+-> logic.math
 
 Ouside content
 #not a global tag
@@ -224,18 +224,88 @@ variables defined: {stringconst} {intconst} {floatconst}
 -> DONE
 
 = math
-~ temp a = 1 + 1
-{a}
-~ temp b = 1 - 1
-{b}
-~ temp c = 1 * 2
-{c}
-~ temp d = 10 / 2
-{d}
-~ temp e = 11 % 2
-{e}
-~ temp f = 1.2 + 3.4
-{f}
+//ints
+~ temp int = 5
+{1 + 1}
+{1 - 1}
+{-int}
+{1 * 2}
+{10 / 2}
+{11 % 2}
+
+{1 == 1:int truthy equal|broken}
+{1 == 2:broken|int falsy equal}
+
+{2 > 1:int truthy greater|broken}
+{1 > 2:broken|int falsy greater}
+
+{1 < 2:int truthy lesser|broken}
+{2 < 1:broken|int falsy lesser}
+
+{2 >= 1:int truthy greater or equal|broken}
+{1 >= 2:broken|int falsy greater or equal}
+
+{1 <= 2:int truthy lesser or equal|broken}
+{2 <= 1:broken|int falsy lesser or equal}
+
+{2 != 1:int truthy not equal|broken}
+{1 != 1:broken|int falsy not equal}
+
+~ temp one = 1
+~ temp zero = 0
+{
+-!zero:int truthy not
+- else:broken
+}
+{
+-!one:broken
+-int falsy not
+}
+
+{1 && 1:int truthy and|broken}
+{1 && 0:broken|int falsy and}
+
+{1 || 0:int truthy or|broken}
+{0 || 0:broken|int falsy or}
+
+//floats
+~ temp float = 5.2
+{1.3 + 1.3}
+{1.3 - 1.3}
+{-float}
+{1.5 * 2.4}
+{10.5 / 2.5}
+{11.5 % 2.5}
+
+{1.3 == 1.3:float truthy equal|broken}
+{1.3 == 2.3:broken|float falsy equal}
+
+{2.3 > 1.3:float truthy greater|broken}
+{1.3 > 2.3:broken|float falsy greater}
+
+{1.3 < 2.3:float truthy lesser|broken}
+{2.3 < 1.3:broken|float falsy lesser}
+
+{2.3 >= 1.3:float truthy greater or equal|broken}
+{1.3 >= 2.3:broken|float falsy greater or equal}
+
+{1.3 <= 2.3:float truthy lesser or equal|broken}
+{2.3 <= 1.3:broken|float falsy lesser or equal}
+
+{2.3 != 1.3:float truthy not equal|broken}
+{1.3 != 1.3:broken|float falsy not equal}
+
+~ temp onepointtwo = 1.2
+{
+-!onepointtwo:broken
+-float falsy not
+}
+
+{1.3 && 1.3:float truthy and|broken}
+{1.3 && 0:broken|float falsy and}
+
+{1.3 || 0:float truthy or|broken}
+{0 || 0:broken|float falsy or}
 -> DONE
 
 = ifelse

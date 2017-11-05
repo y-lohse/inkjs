@@ -28,10 +28,71 @@ describe('Logic', function(){
     
     expect(story.Continue()).toEqual('2\n');
     expect(story.Continue()).toEqual('0\n');
+    expect(story.Continue()).toEqual('-5\n');
     expect(story.Continue()).toEqual('2\n');
     expect(story.Continue()).toEqual('5\n');
     expect(story.Continue()).toEqual('1\n');
-    expect(story.Continue()).toEqual('4.6\n');
+    
+    expect(story.Continue()).toEqual('int truthy equal\n');
+    expect(story.Continue()).toEqual('int falsy equal\n');
+    
+    expect(story.Continue()).toEqual('int truthy greater\n');
+    expect(story.Continue()).toEqual('int falsy greater\n');
+    
+    expect(story.Continue()).toEqual('int truthy lesser\n');
+    expect(story.Continue()).toEqual('int falsy lesser\n');
+    
+    expect(story.Continue()).toEqual('int truthy greater or equal\n');
+    expect(story.Continue()).toEqual('int falsy greater or equal\n');
+    
+    expect(story.Continue()).toEqual('int truthy lesser or equal\n');
+    expect(story.Continue()).toEqual('int falsy lesser or equal\n');
+    
+    expect(story.Continue()).toEqual('int truthy not equal\n');
+    expect(story.Continue()).toEqual('int falsy not equal\n');
+    
+    expect(story.Continue()).toEqual('int truthy not\n');
+    expect(story.Continue()).toEqual('int falsy not\n');
+    
+    expect(story.Continue()).toEqual('int truthy and\n');
+    expect(story.Continue()).toEqual('int falsy and\n');
+    
+    expect(story.Continue()).toEqual('int truthy or\n');
+    expect(story.Continue()).toEqual('int falsy or\n');
+    
+    
+    expect(parseFloat(story.Continue())).toBeCloseTo(2.6);
+    expect(parseFloat(story.Continue())).toBeCloseTo(0);
+    expect(parseFloat(story.Continue())).toBeCloseTo(-5.2);
+    expect(parseFloat(story.Continue())).toBeCloseTo(3.6);
+    expect(parseFloat(story.Continue())).toBeCloseTo(4.2);
+    expect(parseFloat(story.Continue())).toBeCloseTo(1.5);
+    
+    expect(story.Continue()).toEqual('float truthy equal\n');
+    expect(story.Continue()).toEqual('float falsy equal\n');
+    
+    expect(story.Continue()).toEqual('float truthy greater\n');
+    expect(story.Continue()).toEqual('float falsy greater\n');
+    
+    expect(story.Continue()).toEqual('float truthy lesser\n');
+    expect(story.Continue()).toEqual('float falsy lesser\n');
+    
+    expect(story.Continue()).toEqual('float truthy greater or equal\n');
+    expect(story.Continue()).toEqual('float falsy greater or equal\n');
+    
+    expect(story.Continue()).toEqual('float truthy lesser or equal\n');
+    expect(story.Continue()).toEqual('float falsy lesser or equal\n');
+    
+    expect(story.Continue()).toEqual('float truthy not equal\n');
+    expect(story.Continue()).toEqual('float falsy not equal\n');
+    
+    expect(story.Continue()).toEqual('float falsy not\n');
+    
+    expect(story.Continue()).toEqual('float truthy and\n');
+    expect(story.Continue()).toEqual('float falsy and\n');
+    
+    expect(story.Continue()).toEqual('float truthy or\n');
+    expect(story.Continue()).toEqual('float falsy or\n');
   });
   
   it('should perform if/else tests', function(){

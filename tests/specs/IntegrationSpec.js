@@ -195,4 +195,12 @@ describe('Integration', function(){
     
   });
   
+  describe('debug tools', function(){
+    
+    it('should return a string of hierarchy', function(){
+      expect(story.BuildStringOfHierarchy()).toBeDefined();
+    });
+    
+  });
+  
 });
