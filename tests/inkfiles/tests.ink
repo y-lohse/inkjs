@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
--> lists.listqueries
+-> logic.random
 
 Ouside content
 #not a global tag
@@ -372,6 +372,12 @@ VAR fnParamB = "b"
 
 = void_function
 {fn_without_return()}
+-> DONE
+
+= random
+~ SEED_RANDOM(25)
+{RANDOM(0, 100)}
+{RANDOM(-50, 50)}
 -> DONE
 
 === function fn_with_return ===
