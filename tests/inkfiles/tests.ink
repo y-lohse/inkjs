@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
--> logic.math
+-> lists.listqueries
 
 Ouside content
 #not a global tag
@@ -306,6 +306,16 @@ variables defined: {stringconst} {intconst} {floatconst}
 
 {1.3 || 0:float truthy or|broken}
 {0 || 0:broken|float falsy or}
+
+//strings
+{"hello" == "hello":truthy string equal|broken}
+{"hello" == "world":broken|falsy string equal}
+{"hello" != "world":truthy string not equal|broken}
+{"hello" != "hello":broken|falsy string not equal}
+
+//divert
+{->ifelse == ->ifelse:truthy divert equal|broken}
+{->ifelse == ->stitch_param:broken|falsy divert equal}
 -> DONE
 
 = ifelse
@@ -603,6 +613,13 @@ LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
 {DoctorsInSurgery <= (Adams):broken smaller than or equal|falsy smaller than or equal}
 {DoctorsInSurgery <= ():broken smaller than  or equals empty|smaller than or equals empty}
 {() <= DoctorsInSurgery:empty smaller than or equals|broken empty smaller than or equals}
+
+{(Eamonn, Cartwright) && (Eamonn, Cartwright):truthy list AND|broken}
+{(Eamonn, Cartwright) && ():broken|falsy list AND}
+{(Eamonn, Cartwright) || (Eamonn, Cartwright):truthy list OR|broken}
+{() || ():broken|falsy list OR}
+{not ():truthy list not|broken}
+{not (Eamonn):broken|falsy list not}
 
 {LIST_RANGE(DoctorsInSurgery, Bernard, Denver)}
 

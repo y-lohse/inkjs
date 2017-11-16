@@ -93,6 +93,13 @@ describe('Logic', function(){
     
     expect(story.Continue()).toEqual('float truthy or\n');
     expect(story.Continue()).toEqual('float falsy or\n');
+    
+    expect(story.Continue()).toEqual('truthy string equal\n');
+    expect(story.Continue()).toEqual('falsy string equal\n');
+    expect(story.Continue()).toEqual('truthy string not equal\n');
+    expect(story.Continue()).toEqual('falsy string not equal\n');
+    expect(story.Continue()).toEqual('truthy divert equal\n');
+    expect(story.Continue()).toEqual('falsy divert equal\n');
   });
   
   it('should perform if/else tests', function(){

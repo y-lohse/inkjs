@@ -101,8 +101,16 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('smaller than or equals empty\n');
     expect(story.Continue()).toEqual('empty smaller than or equals\n');
     
+    expect(story.Continue()).toEqual('truthy list AND\n');
+    expect(story.Continue()).toEqual('falsy list AND\n');
+    expect(story.Continue()).toEqual('truthy list OR\n');
+    expect(story.Continue()).toEqual('falsy list OR\n');
+    expect(story.Continue()).toEqual('truthy list not\n');
+    expect(story.Continue()).toEqual('falsy list not\n');
+    
     expect(story.Continue()).toEqual('Bernard, Cartwright, Denver\n');
     expect(story.Continue()).toEqual('Smith, Jones\n');
+    
     expect(story.Continue()).toEqual('Carter, Braithwaite\n');
     expect(story.Continue()).toEqual('self_belief\n');
   });
