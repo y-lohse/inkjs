@@ -1,4 +1,4 @@
-var inkPath = '../dist/ink.cjs.js',
+var inkPath = '../' + process.env.INK_PATH,
 	inkFileBasePath = 'tests/inkfiles/';
 
 var fs = require('fs'),
