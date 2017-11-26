@@ -60,7 +60,7 @@ export class Object{
 				nearestContainer = this.parent;
 				if (nearestContainer.constructor.name !== 'Container') console.warn("Expected parent to be a container");
 				
-				//Debug.Assert (path.components [0].isParent);
+				//Debug.Assert (path.GetComponent(0).isParent);
 				path = path.tail;
 			}
 			
@@ -72,12 +72,12 @@ export class Object{
 	ConvertPathToRelative(globalPath){
 		var ownPath = this.path;
 
-		var minPathLength = Math.min(globalPath.components.length, ownPath.components.length);
+		var minPathLength = Math.min(globalPath.componentCount, ownPath.componentCount);
 		var lastSharedPathCompIndex = -1;
 
 		for (var i = 0; i < minPathLength; ++i) {
-			var ownComp = ownPath.components[i];
-			var otherComp = globalPath.components[i];
+			var ownComp = ownPath.GetComponent(i);
+			var otherComp = globalPath.GetComponent(i);
 
 			if (ownComp.Equals(otherComp)) {
 				lastSharedPathCompIndex = i;
@@ -90,15 +90,15 @@ export class Object{
 		if (lastSharedPathCompIndex == -1)
 			return globalPath;
 
-		var numUpwardsMoves = (ownPath.components.length-1) - lastSharedPathCompIndex;
+		var numUpwardsMoves = (ownPath.componentCount-1) - lastSharedPathCompIndex;
 
 		var newPathComps = [];
 
 		for(var up = 0; up < numUpwardsMoves; ++up)
 			newPathComps.push(Path.Component.ToParent());
 
-		for (var down = lastSharedPathCompIndex + 1; down < globalPath.components.length; ++down)
-			newPathComps.push(globalPath.components[down]);
+		for (var down = lastSharedPathCompIndex + 1; down < globalPath.componentCount; ++down)
+			newPathComps.push(globalPath.GetComponent(down));
 
 		var relativePath = new Path(newPathComps, true);
 		return relativePath;

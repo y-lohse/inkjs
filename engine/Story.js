@@ -854,11 +854,15 @@ export class Story extends InkObject{
 				var intVal = parseInt(this.state.PopEvaluationStack());
 //				var listNameVal = state.PopEvaluationStack () as StringValue;
 				var listNameVal = this.state.PopEvaluationStack().toString();
+          
+        if (intVal == null) {
+          throw new StoryException("Passed non-integer when creating a list element from a numerical value.");
+        }
 
 				var generatedListValue = null;
 
 				var foundListDef;
-				if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal, foundListDef)) {
+				if (foundListDef = this.listDefinitions.TryListGetDefinition(listNameVal, foundListDef)) {
 					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
 					if (foundItem.exists) {
 						generatedListValue = new ListValue(foundItem.item, intVal.value);
@@ -1223,6 +1227,9 @@ export class Story extends InkObject{
 	ObserveVariable(variableName, observer){
 		if (this._variableObservers == null)
 			this._variableObservers = {};
+    
+    if(!this.state.variablesState.GlobalVariableExistsWithName(variableName))
+      throw new StoryException("Cannot observe variable '"+variableName+"' because it wasn't declared in the ink story.");
 
 		if (this._variableObservers[variableName]) {
 			this._variableObservers[variableName].push(observer);
@@ -1521,6 +1528,9 @@ export class Story extends InkObject{
 			var lineNum = useEndLineNumber ? dm.endLineNumber : dm.startLineNumber;
 			message = "RUNTIME ERROR: '" + dm.fileName + "' line " + lineNum + ": " + message;
 		}
+    else if(this.state.currentPath != null) {
+      message = "RUNTIME ERROR: (" + this.state.currentPath + "): " + message;
+    }
 		else {
 			message = "RUNTIME ERROR: " + message;
 		}

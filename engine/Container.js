@@ -100,16 +100,16 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		return this._pathToFirstLeafContent;
 	}
 	get internalPathToFirstLeafContent(){
-		var path = new Path ();
+    var components = [];
 		var container = this;
 		while (container instanceof Container) {
 			if (container.content.length > 0) {
-				path.components.push(new Path.Component(0));
+				components.push(new Path.Component(0));
 //				container = container.content [0] as Container;
 				container = container.content[0];
 			}
 		}
-		return path;
+		return new Path(components);
 	}
 	
 	AddContent(contentObj){
@@ -144,13 +144,13 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		this.namedContent[namedContentObj.name] = namedContentObj;
 	}
 	ContentAtPath(path, partialPathLength){
-		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.components.length;
+		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.componentCount;
 
 		var currentContainer = this;
 		var currentObj = this;
 
 		for (var i = 0; i < partialPathLength; ++i) {
-			var comp = path.components[i];
+			var comp = path.GetComponent(i);
 			if (!(currentContainer instanceof Container))
 				throw "Path continued, but previous object wasn't a container: " + currentObj;
 			

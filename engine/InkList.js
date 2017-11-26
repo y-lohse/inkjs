@@ -70,7 +70,7 @@ export class InkList {
 				this.SetInitialOriginName(polymorphicArgument);
 				
 				var def = null;
-				if (def = originStory.listDefinitions.TryGetDefinition(polymorphicArgument, def)){
+				if (def = originStory.listDefinitions.TryGetListDefinition(polymorphicArgument, def)){
 					this.origins = [def];
 				}
 				else{
