@@ -4,6 +4,7 @@ import {Path} from './Path';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 import {ListValue} from './Value';
+import {StringBuilder} from './StringBuilder';
 
 class Element{
 	constructor(type, container, contentIndex, inExpressionEvaluation){
@@ -159,6 +160,39 @@ export class CallStack{
 	get callStack(){
 		return this.currentThread.callstack;
 	}
+  get callStackTrace(){
+    var sb = new StringBuilder();
+
+    for (var t = 0; t < this._threads.length; t++) {
+      var thread = this._threads[t];
+      var isCurrent = (t == _threads.length - 1);
+      sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
+
+      for (var i = 0; i < thread.callstack.length; i++) {
+
+        if (thread.callstack[i].type == PushPopType.Function)
+          sb.Append("  [FUNCTION] ");
+        else
+          sb.Append("  [TUNNEL] ");
+
+        var obj = thread.callstack[i].currentObject;
+        if (obj == null) {
+          if (thread.callstack[i].currentContainer != null) {
+            sb.Append("<SOMEWHERE IN ");
+            sb.Append(thread.callstack[i].currentContainer.path.ToString());
+            sb.AppendLine(">");
+          } else {
+            sb.AppendLine("<UNKNOWN STACK ELEMENT>");
+          }
+        } else {
+          var elementStr = obj.path.ToString();
+          sb.AppendLine(elementStr);
+        }
+      }
+    }
+
+    return sb.toString();
+  }
 	get elements(){
 		return this.callStack;
 	}
