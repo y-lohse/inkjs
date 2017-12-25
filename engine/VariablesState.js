@@ -107,6 +107,9 @@ export class VariablesState{
 			}
 		}
 	}
+  GlobalVariableExistsWithName(name){
+    return typeof this._globalVariables[name] !== 'undefined';
+  }
 	GetVariableWithName(name,contextIndex){
 		if (typeof contextIndex === 'undefined') contextIndex = -1;
 		

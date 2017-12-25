@@ -296,6 +296,7 @@ export class NativeFunctionCall extends InkObject{
 			this.AddStringBinaryOp(this.Add,     	(x, y) => {return x + y}); // concat
 			this.AddStringBinaryOp(this.Equal,   	(x, y) => {return x === y ? 1 : 0});
 			this.AddStringBinaryOp(this.NotEquals,(x, y) => {return !(x === y) ? 1 : 0});
+			this.AddStringBinaryOp(this.Has,      (x, y) => {return x.includes(y) ? 1 : 0});
 			
 			this.AddListBinaryOp(this.Add, 		 (x, y) => {return x.Union(y)});
 			this.AddListBinaryOp(this.Subtract,  (x, y) => {return x.Without(y)});

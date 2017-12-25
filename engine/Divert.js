@@ -95,6 +95,11 @@ export class Divert extends InkObject{
 			}
 
 			sb.Append("Divert");
+      
+      if (this.isConditional) {
+        sb.Append("?");
+      }
+      
 			if (this.pushesToStack) {
 				if (this.stackPushType == PushPopType.Function) {
 					sb.Append(" function");
@@ -102,6 +107,9 @@ export class Divert extends InkObject{
 					sb.Append(" tunnel");
 				}
 			}
+      
+      sb.Append(" -> ");
+      sb.Append(this.targetPathString);
 
 			sb.Append(" (");
 			sb.Append(targetStr);

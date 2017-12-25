@@ -346,19 +346,17 @@ export class StoryState{
 
 			// Update origin when list is has something to indicate the list origin
 			var rawList = listValue.value;
-			var names = rawList.originNames;
-			if (names != null) {
-				var origins = [];
-				
-				names.forEach((n)=>{
-					var def = null;
-					def = this.story.listDefinitions.TryGetDefinition(n, def);
-					if( origins.indexOf(def) < 0 )
-						origins.push(def);
-				});
-
-				rawList.origins = origins;
-			}
+      
+      if (rawList.originNames != null) {
+        if (!rawList.origins) rawList.origins = [];
+        rawList.origins.length = 0;
+        
+        rawList.originNames.forEach(n => {
+          var def = null;
+          def = this.story.listDefinitions.TryListGetDefinition(n, def);
+          if (rawList.origins.indexOf(def) < 0) rawList.origins.push(def);
+        });
+      }
 		}
 		
 		this.evaluationStack.push(obj);
@@ -370,11 +368,11 @@ export class StoryState{
 		}
 		else{
 			if(numberOfObjects > this.evaluationStack.length) {
-                throw "trying to pop too many objects";
-            }
+          throw "trying to pop too many objects";
+      }
 
-            var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
-            return popped;
+      var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
+      return popped;
 		}
 	}
 	PeekEvaluationStack(){

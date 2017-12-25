@@ -4,9 +4,19 @@ import {ListValue} from './Value';
 export class ListDefinitionsOrigin{
 	constructor(lists){
 		this._lists = {};
+    this._allUnambiguousListValueCache = {};
 		
 		lists.forEach((list)=>{
 			this._lists[list.name] = list;
+      
+      list.items.forEach(itemWithValue => {
+        var item = itemWithValue.Key;
+        var val = itemWithValue.Value;
+        var listValue = new ListValue(item, val);
+        
+        this._allUnambiguousListValueCache[item.itemName] = listValue;
+        this._allUnambiguousListValueCache[item.fullName] = listValue;
+      });
 		});
 	}
 	get lists(){
@@ -17,34 +27,13 @@ export class ListDefinitionsOrigin{
 		}
 		return listOfLists;
 	}
-	TryGetDefinition(name, def){
+	TryListGetDefinition(name, def){
 		//initially, this function returns a boolean and the second parameter is an out.
 		return (name in this._lists) ? this._lists[name] : def;
 	}
 	FindSingleItemListWithName(name){
-		var item = InkListItem.Null;
-		var list = null;
-
-		var nameParts = name.split('.');
-		if (nameParts.length == 2) {
-			item = new InkListItem(nameParts[0], nameParts[1]);
-			list = this.TryGetDefinition(item.originName, list);
-		} else {
-			for (var key in this._lists){
-				var listWithItem = this._lists[key];
-				item = new InkListItem(key, name);
-				if (listWithItem.ContainsItem(item)) {
-					list = listWithItem;
-					break;
-				}
-			}
-		}
-		
-		if (list != null) {
-			var itemValue = list.ValueForItem(item);
-			return new ListValue(item, itemValue);
-		}
-
-		return null;
+		var val = null;
+    if (typeof this._allUnambiguousListValueCache[name] !== 'undefined') val = this._allUnambiguousListValueCache[name];
+    return val;
 	}
 }
