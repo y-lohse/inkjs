@@ -1,4 +1,4 @@
-var inkPath = '../' + process.env.INK_PATH,
+var inkPath = '../dist/ink-es2015.js',
 	inkFileBasePath = 'tests/inkfiles/';
 
 var fs = require('fs'),

@@ -4,26 +4,34 @@
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
   "scripts": {
-    "test": "grunt test:legacy && grunt test:es2015",
-    "build": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min",
-    "watch": "grunt watch:dev",
-    "watch:test": "grunt watch:test",
-    "prepublish": "grunt rollup:release && grunt rollup:release_min && grunt rollup:legacy && grunt rollup:legacy_min"
+    "test": "istanbul cover jasmine JASMINE_CONFIG_PATH=jasmine.config.json",
+    "build": "rollup -c",
+    "watch": "rollup -c -w",
+    "watch:test": "npm-watch test",
+    "prepublish": "rollup -c"
+  },
+  "watch": {
+    "test": {
+      "patterns": [
+        "tests/specs/*.js",
+        "tests/inkfiles/*.*",
+        "dist/*.js"
+      ],
+      "quiet": true
+    }
   },
   "author": "Yannick Lohse",
   "license": "MIT",
   "devDependencies": {
+    "babel-plugin-external-helpers": "^6.22.0",
     "babel-plugin-transform-object-assign": "^6.8.0",
-    "babel-preset-babili": "0.1.4",
-    "babel-preset-es2015-rollup": "^3.0.0",
-    "grunt": "^1.0.1",
-    "grunt-contrib-watch": "^1.0.0",
-    "grunt-env": "^0.4.4",
-    "grunt-jasmine-node": "^0.3.1",
-    "grunt-jasmine-node-coverage": "^1.2.0",
-    "grunt-rollup": "^2.0.1",
+    "babel-preset-env": "^1.6.1",
+    "istanbul": "^0.4.5",
+    "jasmine": "^2.8.0",
+    "npm-watch": "^0.3.0",
+    "rollup": "^0.53.0",
     "rollup-plugin-babel": "^2.7.1",
-    "rollup-plugin-uglify": "^2.0.1"
+    "rollup-plugin-node-resolve": "^3.0.0"
   },
   "dependencies": {}
 }
