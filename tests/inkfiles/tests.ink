@@ -1,7 +1,7 @@
 //inkjs test script
 #global tag
 
--> logic.random
+-> glue.diverted_glue
 
 Ouside content
 #not a global tag
@@ -64,7 +64,7 @@ glue
 -> DONE
 
 = diverted_glue
-More <> -> diverted_glue_target
+More <>-> diverted_glue_target
 
 = diverted_glue_target
 glue
