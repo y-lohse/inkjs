@@ -1,5 +1,8 @@
 # inkjs
 
+[![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://github.com/y-lohse/inkjs)
+[![npm](https://img.shields.io/npm/v/inkjs.svg)]()
+
 This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. 
 
 inkjs is fully compatible with the original version, has zero dependency and works in all browsers and node.js. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
