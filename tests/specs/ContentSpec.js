@@ -63,7 +63,7 @@ describe('Glue', function(){
     expect(story.Continue()).toEqual('Simple glue\n');
   });
   
-  xit('should glue diverts together', function(){
+  it('should glue diverts together', function(){
     story.ChoosePathString('glue.diverted_glue');
     
     expect(story.Continue()).toEqual('More glue\n');
