@@ -30,7 +30,7 @@
     "istanbul": "0.4.5",
     "jasmine": "2.8.0",
     "npm-watch": "0.3.0",
-    "rollup": "0.53.3",
+    "rollup": "0.53.4",
     "rollup-plugin-babel": "3.0.3",
     "rollup-plugin-node-resolve": "3.0.0"
   },
