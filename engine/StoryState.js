@@ -681,6 +681,9 @@ export class StoryState{
 		this._originalEvaluationStackHeight = 0;
 		
 		this._variablesState.callStack = this.callStack;
+		
+		// No longer in external function eval
+	        this._isExternalFunctionEvaluation = false; 
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
