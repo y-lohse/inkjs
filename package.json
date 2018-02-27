@@ -28,7 +28,7 @@
     "babel-plugin-transform-object-assign": "6.22.0",
     "babel-preset-env": "1.6.1",
     "istanbul": "0.4.5",
-    "jasmine": "3.0.0",
+    "jasmine": "3.1.0",
     "npm-watch": "0.3.0",
     "rollup": "0.56.3",
     "rollup-plugin-babel": "3.0.3",
