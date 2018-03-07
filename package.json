@@ -32,7 +32,7 @@
     "npm-watch": "0.3.0",
     "rollup": "0.56.5",
     "rollup-plugin-babel": "3.0.3",
-    "rollup-plugin-node-resolve": "3.0.3"
+    "rollup-plugin-node-resolve": "3.2.0"
   },
   "dependencies": {}
 }
