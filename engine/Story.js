@@ -28,20 +28,20 @@ if (!Number.isInteger) {
 export class Story extends InkObject{
 	constructor(jsonString, lists){
 		super();
-		
+
 		lists = lists || null;
-		
-		this.inkVersionCurrent = 17;
+
+		this.inkVersionCurrent = 18;
 		this.inkVersionMinimumCompatible = 16;
-		
+
 		this._variableObservers = null;
 		this._externals = {};
 		this._prevContainerSet = null;
 		this._listDefinitions = null;
-		
+
 		if (jsonString instanceof Container){
 			this._mainContentContainer = jsonString;
-			
+
 			if (lists != null)
 				this._listDefinitions = new ListDefinitionsOrigin(lists);
 		}
@@ -67,7 +67,7 @@ export class Story extends InkObject{
 			var rootToken = rootObject["root"];
 			if (rootToken == null)
 				throw "Root node for ink not found. Are you sure it's a valid .ink.json file?";
-			
+
 			var listDefsObj;
             if (listDefsObj = rootObject["listDefs"]) {
                 this._listDefinitions = JsonSerialisation.JTokenToListDefinitions(listDefsObj);
@@ -81,18 +81,18 @@ export class Story extends InkObject{
 			this.ResetState();
 		}
 	}
-	
+
 	get currentChoices(){
 		// Don't include invisible choices for external usage.
 		var choices = [];
-		
+
 		this._state.currentChoices.forEach(c => {
 			if (!c.choicePoint.isInvisibleDefault) {
 				c.index = choices.length;
 				choices.push(c);
 			}
 		});
-		
+
 		return choices;
 	}
 	get currentText(){
@@ -116,7 +116,7 @@ export class Story extends InkObject{
 	get state(){
 		return this._state;
 	}
-	
+
 	get mainContentContainer(){
 		if (this._temporaryEvaluationContainer) {
 			return this._temporaryEvaluationContainer;
@@ -127,18 +127,18 @@ export class Story extends InkObject{
 	get canContinue(){
 		return this.state.canContinue;
 	}
-	
+
 	get globalTags(){
 		return this.TagsAtStartOfFlowContainerWithPathString("");
 	}
-	
+
 	ToJsonString(){
 		var rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
 
 		var rootObject = {};
 		rootObject["inkVersion"] = this.inkVersionCurrent;
 		rootObject["root"] = rootContainerJsonList;
-		
+
 		if (this._listDefinitions != null)
 			rootObject["listDefs"] = JsonSerialisation.ListDefinitionsToJToken(this._listDefinitions);
 
@@ -147,7 +147,7 @@ export class Story extends InkObject{
 	ResetState(){
 		this._state = new StoryState(this);
 		this._state.variablesState.ObserveVariableChange(this.VariableStateDidChangeEvent.bind(this));
-		
+
 		this.ResetGlobals();
 	}
 	ResetErrors(){
@@ -200,7 +200,7 @@ export class Story extends InkObject{
 			//    which are actually built out of text content.
 			// So we have to take a snapshot of the state, continue prospectively,
 			// and rewind if necessary.
-			// This code is slightly fragile :-/ 
+			// This code is slightly fragile :-/
 			//
 
 			do {
@@ -258,8 +258,8 @@ export class Story extends InkObject{
 								// ~ complexCalculation()   // don't actually need this unless it generates text
 								if( stateAtLastNewline == null ) {
                                 	stateAtLastNewline = this.StateSnapshot();
-								}	
-						} 
+								}
+						}
 
 						// Can't continue, so we're about to exit - make sure we
 						// don't have an old state hanging around.
@@ -305,7 +305,7 @@ export class Story extends InkObject{
 			this.AddError(e.Message, e.useEndLineNumber);
 		} finally {
 			this.state.didSafeExit = false;
-			
+
 			this._state.variablesState.batchObservingVariableChanges = false;
 		}
 
@@ -441,10 +441,10 @@ export class Story extends InkObject{
 	VisitChangedContainersDueToDivert(){
 		var previousContentObject = this.state.previousContentObject;
 		var newContentObject = this.state.currentContentObject;
-		
+
 		if (!newContentObject)
 			return;
-            
+
 		// First, find the previously open set of containers
 		this._prevContainerSet = [];
 		if (previousContentObject) {
@@ -466,7 +466,7 @@ export class Story extends InkObject{
 
 			// Check whether this ancestor container is being entered at the start,
 			// by checking whether the child object is the first.
-			var enteringAtStart = currentContainerAncestor.content.length > 0 
+			var enteringAtStart = currentContainerAncestor.content.length > 0
 				&& currentChildOfContainer == currentContainerAncestor.content[0];
 
 			// Mark a visit to this container
@@ -549,7 +549,7 @@ export class Story extends InkObject{
 		// Divert
 		if (contentObj instanceof Divert) {
 			var currentDivert = contentObj;
-			
+
 			if (currentDivert.isConditional) {
 				var conditionValue = this.state.PopEvaluationStack();
 
@@ -557,7 +557,7 @@ export class Story extends InkObject{
 				if (!this.IsTruthy(conditionValue))
 					return true;
 			}
-			
+
 			if (currentDivert.hasVariableTarget) {
 				var varName = currentDivert.variableDivertName;
 
@@ -603,7 +603,7 @@ export class Story extends InkObject{
 			}
 
 			return true;
-		} 
+		}
 
 		// Start/end an expression evaluation? Or print out the result?
 		else if( contentObj instanceof ControlCommand ) {
@@ -657,7 +657,7 @@ export class Story extends InkObject{
 
 				var popType = evalCommand.commandType == ControlCommand.CommandType.PopFunction ?
 					PushPopType.Function : PushPopType.Tunnel;
-					
+
 				var overrideTunnelReturnTarget = null;
 				if (popType == PushPopType.Tunnel) {
 					var popped = this.state.PopEvaluationStack();
@@ -688,11 +688,11 @@ export class Story extends InkObject{
 					var errorMsg = "Found " + names[popType] + ", when expected " + expected;
 
 					this.Error(errorMsg);
-				} 
+				}
 
 				else {
 					this.state.callStack.Pop();
-					
+
 					if (overrideTunnelReturnTarget)
 						this.state.divertedTargetObject = this.ContentAtPath(overrideTunnelReturnTarget.targetPath);
 				}
@@ -730,7 +730,7 @@ export class Story extends InkObject{
 
 				//the C# version uses a Stack for contentStackForString, but we're using a simple array, so we need to reverse it before using it
 				contentStackForString = contentStackForString.reverse();
-					
+
 				// Build string out of the content we collected
 				var sb = new StringBuilder();
 				contentStackForString.forEach(c => {
@@ -763,7 +763,7 @@ export class Story extends InkObject{
 //				var container = ContentAtPath (divertTarget.targetPath) as Container;
 				var container = this.ContentAtPath(divertTarget.targetPath);
 
-				var eitherCount; 
+				var eitherCount;
 				if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince)
 					eitherCount = this.TurnsSinceForContainer(container);
 				else
@@ -797,7 +797,7 @@ export class Story extends InkObject{
 				// Next random number (rather than keeping the Random object around)
 				this.state.previousRandom = nextRandom;
 				break;
-					
+
 			case ControlCommand.CommandType.SeedRandom:
 				var seed = this.state.PopEvaluationStack();
 				if (seed == null || seed instanceof IntValue === false)
@@ -810,7 +810,7 @@ export class Story extends InkObject{
 				// SEED_RANDOM returns nothing.
 				this.state.PushEvaluationStack(new Void());
 				break;
-					
+
 			case ControlCommand.CommandType.VisitIndex:
 				var count = this.VisitCountForContainer(this.state.currentContainer) - 1; // index not count
 				this.state.PushEvaluationStack(new IntValue(count));
@@ -832,12 +832,12 @@ export class Story extends InkObject{
 				// evaluating the content.
 				if (this.state.callStack.canPopThread) {
 					this.state.callStack.PopThread();
-				} 
+				}
 
 				// In normal flow - allow safe exit without warning
 				else {
 					this.state.didSafeExit = true;
-					
+
 					// Stop flow in current thread
 					this.state.currentContentObject = null;
 				}
@@ -848,13 +848,13 @@ export class Story extends InkObject{
 			case ControlCommand.CommandType.End:
 				this.state.ForceEnd();
 				break;
-					
+
 			case ControlCommand.CommandType.ListFromInt:
 //				var intVal = state.PopEvaluationStack () as IntValue;
 				var intVal = parseInt(this.state.PopEvaluationStack());
 //				var listNameVal = state.PopEvaluationStack () as StringValue;
 				var listNameVal = this.state.PopEvaluationStack().toString();
-          
+
         if (intVal == null) {
           throw new StoryException("Passed non-integer when creating a list element from a numerical value.");
         }
@@ -876,7 +876,7 @@ export class Story extends InkObject{
 
 				this.state.PushEvaluationStack(generatedListValue);
 				break;
-					
+
 			case ControlCommand.CommandType.ListRange:
 				var max = this.state.PopEvaluationStack();
 				var min = this.state.PopEvaluationStack();
@@ -941,7 +941,7 @@ export class Story extends InkObject{
 		else if( contentObj instanceof VariableAssignment ) {
 			var varAss = contentObj;
 			var assignedVal = this.state.PopEvaluationStack();
-			
+
 			// When in temporary evaluation, don't create new variables purely within
 			// the temporary context, but attempt to create them globally
 			//var prioritiseHigherInCallStack = _temporaryEvaluationContainer != null;
@@ -1009,7 +1009,7 @@ export class Story extends InkObject{
 		var choices = this.currentChoices;
 		if (choiceIdx < 0 || choiceIdx > choices.length) console.warn("choice out of range");
 
-		// Replace callstack with the one from the thread at the choosing point, 
+		// Replace callstack with the one from the thread at the choosing point,
 		// so that we can jump into the right place in the flow.
 		// This is important in case the flow was forked by a new thread, which
 		// can create multiple leading edges for the story, each of
@@ -1029,10 +1029,10 @@ export class Story extends InkObject{
 	EvaluateFunction(functionName, args, returnTextOutput){
 		//EvaluateFunction behaves slightly differently than the C# version. In C#, you can pass a (second) parameter `out textOutput` to get the text outputted by the function. This is not possible in js. Instead, we maintain the regular signature (functionName, args), plus an optional third parameter returnTextOutput. If set to true, we will return both the textOutput and the returned value, as an object.
 		returnTextOutput = !!returnTextOutput;
-		
+
 		if (functionName == null) {
 			throw "Function is null";
-		} 
+		}
 		else if (functionName == '' || functionName.trim() == '') {
 			throw "Function is empty or white space.";
 		}
@@ -1046,16 +1046,16 @@ export class Story extends InkObject{
 			else
 				throw e;
 		}
-		
+
 		this.state.StartExternalFunctionEvaluation(funcContainer, args);
-		
+
 		// Evaluate the function, and collect the string output
 		var stringOutput = new StringBuilder();
 		while (this.canContinue) {
 			stringOutput.Append(this.Continue());
 		}
 		var textOutput = stringOutput.toString();
-		
+
 		var result = this.state.CompleteExternalFunctionEvaluation();
 
 		return (returnTextOutput) ? {'returned': result, 'output': textOutput} : result;
@@ -1152,7 +1152,7 @@ export class Story extends InkObject{
 
 		this.BindExternalFunctionGeneral(funcName, (args) => {
 			if (args.length < func.length) console.warn("External function expected " + func.length + " arguments");
-			
+
 			var coercedArgs = [];
 			for (var i = 0, l = args.length; i < l; i++){
 				coercedArgs[i] = this.TryCoerce(args[i]);
@@ -1169,11 +1169,11 @@ export class Story extends InkObject{
 			var missingExternals = [];
 			this.ValidateExternalBindings(this._mainContentContainer, missingExternals);
             this._hasValidatedExternals = true;
-			
+
 			// No problem! Validation complete
 			if( missingExternals.length == 0 ) {
 				this._hasValidatedExternals = true;
-			} 
+			}
 
 			// Error for all missing externals
 			else {
@@ -1189,7 +1189,7 @@ export class Story extends InkObject{
 		}
 		else if (containerOrObject instanceof Container){
 			var c = containerOrObject;
-			
+
 			c.content.forEach(innerContent => {
 				this.ValidateExternalBindings(innerContent, missingExternals);
 			});
@@ -1227,7 +1227,7 @@ export class Story extends InkObject{
 	ObserveVariable(variableName, observer){
 		if (this._variableObservers == null)
 			this._variableObservers = {};
-    
+
     if(!this.state.variablesState.GlobalVariableExistsWithName(variableName))
       throw new StoryException("Cannot observe variable '"+variableName+"' because it wasn't declared in the ink story.");
 
@@ -1251,7 +1251,7 @@ export class Story extends InkObject{
 			if (this._variableObservers[specificVariableName]) {
 				this._variableObservers[specificVariableName].splice(this._variableObservers[specificVariableName].indexOf(observer), 1);
 			}
-		} 
+		}
 
 		// Remove observer for all variables
 		else {
@@ -1263,7 +1263,7 @@ export class Story extends InkObject{
 	VariableStateDidChangeEvent(variableName, newValueObj){
 		if (this._variableObservers == null)
 			return;
-		
+
 		var observers = this._variableObservers[variableName];
 		if (typeof observers !== 'undefined') {
 
@@ -1293,11 +1293,11 @@ export class Story extends InkObject{
 				flowContainer = firstContent;
 			else break;
 		}
-		
+
 
 		// Any initial tag objects count as the "main tags" associated with that story/knot/stitch
 		var tags = null;
-		
+
 		flowContainer.content.every(c => {
 //			var tag = c as Runtime.Tag;
 			var tag = c;
@@ -1325,7 +1325,7 @@ export class Story extends InkObject{
 	NextContent(){
 		// Setting previousContentObject is critical for VisitChangedContainersDueToDivert
 		this.state.previousContentObject = this.state.currentContentObject;
-		
+
 		// Divert step?
 		if (this.state.divertedTargetObject != null) {
 
@@ -1366,7 +1366,7 @@ export class Story extends InkObject{
 				}
 
 				didPop = true;
-			} 
+			}
 
 			else if (this.state.callStack.canPopThread) {
 				this.state.callStack.PopThread();
@@ -1459,7 +1459,7 @@ export class Story extends InkObject{
 		if( !container.turnIndexShouldBeCounted ) {
 			this.Error("TURNS_SINCE() for target ("+container.name+" - on "+container.debugMetadata+") unknown. The story may need to be compiled with countAllVisits flag (-c).");
 		}
-		
+
 		var containerPathStr = container.path.toString();
 		var index = this.state.turnIndices[containerPathStr];
 		if (typeof index !== 'undefined') {
@@ -1523,7 +1523,7 @@ export class Story extends InkObject{
 	AddError(message, useEndLineNumber){
 //		var dm = this.currentDebugMetadata;
 		var dm = null;
-		
+
 		if (dm != null) {
 			var lineNum = useEndLineNumber ? dm.endLineNumber : dm.startLineNumber;
 			message = "RUNTIME ERROR: '" + dm.fileName + "' line " + lineNum + ": " + message;
@@ -1536,7 +1536,7 @@ export class Story extends InkObject{
 		}
 
 		this.state.AddError(message);
-		
+
 		// In a broken state don't need to know about any other errors.
 		this.state.ForceEnd();
 	}
