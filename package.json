@@ -26,7 +26,7 @@
     "babel-core": "6.26.3",
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-transform-object-assign": "6.22.0",
-    "babel-preset-env": "1.6.1",
+    "babel-preset-env": "1.7.0",
     "istanbul": "0.4.5",
     "jasmine": "3.1.0",
     "npm-watch": "0.3.0",
