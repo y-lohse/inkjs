@@ -23,8 +23,7 @@ export class ChoicePoint extends InkObject{
 		return this._pathOnChoice;
 	}
 	get choiceTarget(){
-		//return this.ResolvePath (_pathOnChoice) as Container;
-		return this.ResolvePath(this._pathOnChoice);
+		return this.ResolvePath(this._pathOnChoice).container;
 	}
 	get pathStringOnChoice(){
 		return this.CompactPathString(this.pathOnChoice);
@@ -58,7 +57,7 @@ export class ChoicePoint extends InkObject{
 		var targetString = this.pathOnChoice.toString();
 
 		if (targetLineNum != null) {
-			targetString = " line " + targetLineNum;
+			 targetString = " line " + targetLineNum + "("+targetString+")";
 		} 
 
 		return "Choice: -> " + targetString;
