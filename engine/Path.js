@@ -146,6 +146,12 @@ export class Path{
 
 		return true;
 	}
+  PathByAppendingComponent (c) {
+    var p = new Path();
+    p._components.AddRange(this._components);
+    p._components.Add(c);
+    return p;
+  }
 }
 
 class Component{
