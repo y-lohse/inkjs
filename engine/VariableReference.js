@@ -8,7 +8,7 @@ export class VariableReference extends InkObject{
 		this.pathForCount;
 	}
 	get containerForCount(){
-		return this.ResolvePath(this.pathForCount);
+		return this.ResolvePath(this.pathForCount).container;
 	}
 	get pathStringForCount(){
 		if( this.pathForCount == null )
