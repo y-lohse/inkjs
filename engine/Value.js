@@ -1,6 +1,7 @@
 import {Object as InkObject} from './Object';
 import {Path} from './Path';
 import {InkList} from './InkList';
+import {StoryException} from './StoryException';
 
 export var ValueType = {
 	// Used in coersion
@@ -58,6 +59,9 @@ class AbstractValue extends InkObject{
 	Copy(val){
 		return AbstractValue.Create(val);
 	}
+  BadCastException (targetType) {
+    return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
+  }
 }
 
 export class Value extends AbstractValue{
@@ -104,7 +108,7 @@ export class IntValue extends Value{
 			return new StringValue("" + this.value);
 		}
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 }
 
@@ -133,7 +137,7 @@ export class FloatValue extends Value{
 			return new StringValue("" + this.value);
 		}
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 }
 
@@ -194,7 +198,7 @@ export class StringValue extends Value{
 			}
 		}
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 }
 
@@ -218,7 +222,7 @@ export class DivertTargetValue extends Value{
 		if (newType == this.valueType)
 			return this;
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 	toString(){
 		return "DivertTargetValue(" + this.targetPath + ")";
@@ -246,7 +250,7 @@ export class VariablePointerValue extends Value{
 		if (newType == this.valueType)
 			return this;
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 	toString(){
 		return "VariablePointerValue(" + this.variableName + ")";
@@ -298,7 +302,7 @@ export class ListValue extends Value{
 		if (newType == this.valueType)
 			return this;
 
-		throw "Unexpected type cast of Value to new ValueType";
+		throw this.BadCastException(newType);
 	}
 	constructor(listOrSingleItem, singleValue){
 		super(null);
