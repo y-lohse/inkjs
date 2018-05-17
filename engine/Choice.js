@@ -1,19 +1,21 @@
+import {Path} from './Path';
+
 export class Choice{
-	constructor(choice){
+	constructor(){
 		this.text;
 		this.index;
 		this.choicePoint;
 		this.threadAtGeneration;
+    this.sourcePath;
+    this.targetPath;
+    this.isInvisibleDefault = false;
 		
 		this._originalThreadIndex;
-		this._originalChoicePath;
-		
-		if (choice) this.choicePoint = choice;
 	}
 	get pathStringOnChoice(){
-		return this.choicePoint.pathStringOnChoice;
+		return this.targetPath.ToString();
 	}
-	get sourcePath(){
-		return this.choicePoint.path.componentsString;
+  set pathStringOnChoice(value){
+		this.targetPath = new Path(value);
 	}
 }
