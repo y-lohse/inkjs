@@ -203,4 +203,15 @@ describe('Integration', function(){
     
   });
   
+  describe('Exported classes', function(){
+    it('should expose the Story class', function(){
+      expect(testsUtils.inkjs.Story).toBeDefined();
+    });
+    
+    it('should expose the InkList class', function(){
+      console.log(testsUtils.inkjs)
+      expect(testsUtils.inkjs.InkList).toBeDefined();
+    });
+  })
+  
 });
