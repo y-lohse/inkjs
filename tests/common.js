@@ -14,5 +14,6 @@ function loadInkFile(path){
 };
 
 module.exports = {
-	loadInkFile: loadInkFile
+	loadInkFile: loadInkFile,
+  inkjs: inkjs
 };

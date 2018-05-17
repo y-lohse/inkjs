@@ -18,6 +18,7 @@ import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {StringBuilder} from './StringBuilder';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
+export {InkList} from './InkList';
 
 if (!Number.isInteger) {
 	Number.isInteger = function isInteger (nVal) {
