@@ -864,9 +864,9 @@ export class Story extends InkObject{
 
 				var foundListDef;
 				if (foundListDef = this.listDefinitions.TryListGetDefinition(listNameVal, foundListDef)) {
-					var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
+					var foundItem = foundListDef.TryGetItemWithValue(intVal);
 					if (foundItem.exists) {
-						generatedListValue = new ListValue(foundItem.item, intVal.value);
+						generatedListValue = new ListValue(foundItem.item, intVal);
 					}
 				} else {
 					throw new StoryException("Failed to find LIST called " + listNameVal.value);
