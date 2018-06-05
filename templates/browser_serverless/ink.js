@@ -1,7 +1,7 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
-  typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (factory((global.inkjs = {})));
+  typeof define === 'function' && define.amd ? define('inkjs', ['exports'], factory) :
+  (factory((global.inkjs = global.inkjs || {})));
 }(this, (function (exports) { 'use strict';
 
   var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
@@ -9,6 +9,16 @@
   } : function (obj) {
     return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
   };
+
+
+
+
+
+
+
+
+
+
 
   var classCallCheck = function (instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -34,6 +44,12 @@
     };
   }();
 
+
+
+
+
+
+
   var _extends = Object.assign || function (target) {
     for (var i = 1; i < arguments.length; i++) {
       var source = arguments[i];
@@ -47,6 +63,8 @@
 
     return target;
   };
+
+
 
   var inherits = function (subClass, superClass) {
     if (typeof superClass !== "function" && superClass !== null) {
@@ -64,6 +82,16 @@
     if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass;
   };
 
+
+
+
+
+
+
+
+
+
+
   var possibleConstructorReturn = function (self, call) {
     if (!self) {
       throw new ReferenceError("this hasn't been initialised - super() hasn't been called");
@@ -78,13 +106,12 @@
 
   		this._isRelative;
   		this._components = [];
-  		this._componentsString = null;
 
   		if (typeof arguments[0] == 'string') {
   			this.componentsString = arguments[0];
   		} else if (arguments[0] instanceof Component && arguments[1] instanceof Path) {
   			this._components.push(arguments[0]);
-  			this._components = this._components.concat(arguments[1]._components);
+  			this._components = this._components.concat(arguments[1]);
   		} else if (arguments[0] instanceof Array) {
   			this._components = this._components.concat(arguments[0]);
   			this._isRelative = !!arguments[1];
@@ -92,30 +119,25 @@
   	}
 
   	createClass(Path, [{
-  		key: "GetComponent",
-  		value: function GetComponent(index) {
-  			return this._components[index];
-  		}
-  	}, {
   		key: "PathByAppendingPath",
   		value: function PathByAppendingPath(pathToAppend) {
   			var p = new Path();
 
   			var upwardMoves = 0;
-  			for (var i = 0; i < pathToAppend._components.length; ++i) {
-  				if (pathToAppend._components[i].isParent) {
+  			for (var i = 0; i < pathToAppend.components.length; ++i) {
+  				if (pathToAppend.components[i].isParent) {
   					upwardMoves++;
   				} else {
   					break;
   				}
   			}
 
-  			for (var i = 0; i < this._components.length - upwardMoves; ++i) {
-  				p.components.push(this._components[i]);
+  			for (var i = 0; i < this.components.length - upwardMoves; ++i) {
+  				p.components.push(this.components[i]);
   			}
 
-  			for (var i = upwardMoves; i < pathToAppend._components.length; ++i) {
-  				p._components.push(pathToAppend._components[i]);
+  			for (var i = upwardMoves; i < pathToAppend.components.length; ++i) {
+  				p.components.push(pathToAppend.components[i]);
   			}
 
   			return p;
@@ -130,14 +152,14 @@
   		value: function Equals(otherPath) {
   			if (otherPath == null) return false;
 
-  			if (otherPath._components.length != this._components.length) return false;
+  			if (otherPath.components.length != this.components.length) return false;
 
   			if (otherPath.isRelative != this.isRelative) return false;
 
   			//the original code uses SequenceEqual here, so we need to iterate over the components manually.
-  			for (var i = 0, l = otherPath._components.length; i < l; i++) {
+  			for (var i = 0, l = otherPath.components.length; i < l; i++) {
   				//it's not quite clear whether this test should use Equals or a simple == operator, see https://github.com/y-lohse/inkjs/issues/22
-  				if (!otherPath._components[i].Equals(this._components[i])) return false;
+  				if (!otherPath.components[i].Equals(this.components[i])) return false;
   			}
 
   			return true;
@@ -148,15 +170,15 @@
   			return this._isRelative;
   		}
   	}, {
-  		key: "componentCount",
+  		key: "components",
   		get: function get$$1() {
-  			return this._components.length;
+  			return this._components;
   		}
   	}, {
   		key: "head",
   		get: function get$$1() {
-  			if (this._components.length > 0) {
-  				return this._components[0];
+  			if (this.components.length > 0) {
+  				return this.components[0];
   			} else {
   				return null;
   			}
@@ -164,8 +186,8 @@
   	}, {
   		key: "tail",
   		get: function get$$1() {
-  			if (this._components.length >= 2) {
-  				var tailComps = this._components.slice(1, this._components.length); //careful, the original code uses length-1 here. This is because the second argument of List.GetRange is a number of elements to extract, wherease Array.slice uses an index
+  			if (this.components.length >= 2) {
+  				var tailComps = this.components.slice(1, this.components.length); //careful, the original code uses length-1 here. This is because the second argument of List.GetRange is a number of elements to extract, wherease Array.slice uses an index
   				return new Path(tailComps);
   			} else {
   				return Path.self;
@@ -174,14 +196,13 @@
   	}, {
   		key: "length",
   		get: function get$$1() {
-  			return this._components.length;
+  			return this.components.length;
   		}
   	}, {
   		key: "lastComponent",
   		get: function get$$1() {
-  			var lastComponentIdx = this._components.length - 1;
-  			if (lastComponentIdx >= 0) {
-  				return this._components[lastComponentIdx];
+  			if (this.components.length > 0) {
+  				return this.components[this.components.length - 1];
   			} else {
   				return null;
   			}
@@ -199,40 +220,36 @@
   	}, {
   		key: "componentsString",
   		get: function get$$1() {
-  			if (this._componentsString == null) {
-  				this._componentsString = this._components.join(".");
-  				if (this.isRelative) this._componentsString = "." + this._componentsString;
-  			}
-
-  			return this._componentsString;
+  			var compsStr = this.components.join(".");
+  			if (this.isRelative) return "." + compsStr;else return compsStr;
   		},
   		set: function set$$1(value) {
   			var _this = this;
 
-  			this._components.length = 0;
+  			this.components.length = 0;
 
-  			this._componentsString = value;
+  			var componentsStr = value;
 
-  			if (this._componentsString == null || this._componentsString == '') return;
+  			if (componentsStr == null || componentsStr == '') return;
 
   			// When components start with ".", it indicates a relative path, e.g.
   			//   .^.^.hello.5
   			// is equivalent to file system style path:
   			//  ../../hello/5
-  			if (this._componentsString[0] == '.') {
+  			if (componentsStr[0] == '.') {
   				this._isRelative = true;
-  				this._componentsString = this._componentsString.substring(1);
+  				componentsStr = componentsStr.substring(1);
   			}
 
-  			var componentStrings = this._componentsString.split('.');
+  			var componentStrings = componentsStr.split('.');
   			componentStrings.forEach(function (str) {
   				//we need to distinguish between named components that start with a number, eg "42somewhere", and indexed components
   				//the normal parseInt won't do for the detection because it's too relaxed.
   				//see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
   				if (/^(\-|\+)?([0-9]+|Infinity)$/.test(str)) {
-  					_this._components.push(new Component(parseInt(str)));
+  					_this.components.push(new Component(parseInt(str)));
   				} else {
-  					_this._components.push(new Component(str));
+  					_this.components.push(new Component(str));
   				}
   			});
   		}
@@ -334,7 +351,7 @@
   					nearestContainer = this.parent;
   					if (nearestContainer.constructor.name !== 'Container') console.warn("Expected parent to be a container");
 
-  					//Debug.Assert (path.GetComponent(0).isParent);
+  					//Debug.Assert (path.components [0].isParent);
   					path = path.tail;
   				}
 
@@ -348,12 +365,12 @@
   		value: function ConvertPathToRelative(globalPath) {
   			var ownPath = this.path;
 
-  			var minPathLength = Math.min(globalPath.componentCount, ownPath.componentCount);
+  			var minPathLength = Math.min(globalPath.components.length, ownPath.components.length);
   			var lastSharedPathCompIndex = -1;
 
   			for (var i = 0; i < minPathLength; ++i) {
-  				var ownComp = ownPath.GetComponent(i);
-  				var otherComp = globalPath.GetComponent(i);
+  				var ownComp = ownPath.components[i];
+  				var otherComp = globalPath.components[i];
 
   				if (ownComp.Equals(otherComp)) {
   					lastSharedPathCompIndex = i;
@@ -365,14 +382,14 @@
   			// No shared path components, so just use global path
   			if (lastSharedPathCompIndex == -1) return globalPath;
 
-  			var numUpwardsMoves = ownPath.componentCount - 1 - lastSharedPathCompIndex;
+  			var numUpwardsMoves = ownPath.components.length - 1 - lastSharedPathCompIndex;
 
   			var newPathComps = [];
 
   			for (var up = 0; up < numUpwardsMoves; ++up) {
   				newPathComps.push(Path$1.Component.ToParent());
-  			}for (var down = lastSharedPathCompIndex + 1; down < globalPath.componentCount; ++down) {
-  				newPathComps.push(globalPath.GetComponent(down));
+  			}for (var down = lastSharedPathCompIndex + 1; down < globalPath.components.length; ++down) {
+  				newPathComps.push(globalPath.components[down]);
   			}var relativePath = new Path$1(newPathComps, true);
   			return relativePath;
   		}
@@ -546,7 +563,7 @@
   			var itemCode = this.itemName ? this.itemName.toString() : 'null';
   			if (this.originName != null) originCode = this.originName.toString();
 
-  			return originCode + "." + itemCode;
+  			return originCode + itemCode;
   		}
   	}, {
   		key: 'fullName',
@@ -589,7 +606,7 @@
   				this.SetInitialOriginName(polymorphicArgument);
 
   				var def = null;
-  				if (def = originStory.listDefinitions.TryGetListDefinition(polymorphicArgument, def)) {
+  				if (def = originStory.listDefinitions.TryGetDefinition(polymorphicArgument, def)) {
   					this.origins = [def];
   				} else {
   					throw new Error("InkList origin could not be found in story when constructing new list: " + singleOriginListName);
@@ -1442,13 +1459,13 @@
   	}, {
   		key: 'ContentAtPath',
   		value: function ContentAtPath(path, partialPathLength) {
-  			partialPathLength = typeof partialPathLength !== 'undefined' ? partialPathLength : path.componentCount;
+  			partialPathLength = typeof partialPathLength !== 'undefined' ? partialPathLength : path.components.length;
 
   			var currentContainer = this;
   			var currentObj = this;
 
   			for (var i = 0; i < partialPathLength; ++i) {
-  				var comp = path.GetComponent(i);
+  				var comp = path.components[i];
   				if (!(currentContainer instanceof Container)) throw "Path continued, but previous object wasn't a container: " + currentObj;
 
   				currentObj = currentContainer.ContentWithPathComponent(comp);
@@ -1683,16 +1700,16 @@
   	}, {
   		key: 'internalPathToFirstLeafContent',
   		get: function get$$1() {
-  			var components = [];
+  			var path = new Path();
   			var container = this;
   			while (container instanceof Container) {
   				if (container.content.length > 0) {
-  					components.push(new Path.Component(0));
+  					path.components.push(new Path.Component(0));
   					//				container = container.content [0] as Container;
   					container = container.content[0];
   				}
   			}
-  			return new Path(components);
+  			return path;
   		}
   	}]);
   	return Container;
@@ -1979,13 +1996,13 @@
   				var sb = new StringBuilder();
 
   				var targetStr = this.targetPath.toString();
-
-  				sb.Append("Divert");
-
-  				if (this.isConditional) {
-  					sb.Append("?");
+  				//			int? targetLineNum = DebugLineNumberOfPath (targetPath);
+  				var targetLineNum = null;
+  				if (targetLineNum != null) {
+  					targetStr = "line " + targetLineNum;
   				}
 
+  				sb.Append("Divert");
   				if (this.pushesToStack) {
   					if (this.stackPushType == PushPopType.Function) {
   						sb.Append(" function");
@@ -1993,9 +2010,6 @@
   						sb.Append(" tunnel");
   					}
   				}
-
-  				sb.Append(" -> ");
-  				sb.Append(this.targetPathString);
 
   				sb.Append(" (");
   				sb.Append(targetStr);
@@ -2075,7 +2089,13 @@
   	createClass(ChoicePoint, [{
   		key: 'toString',
   		value: function toString() {
+  			//		int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
+  			var targetLineNum = null;
   			var targetString = this.pathOnChoice.toString();
+
+  			if (targetLineNum != null) {
+  				targetString = " line " + targetLineNum;
+  			}
 
   			return "Choice: -> " + targetString;
   		}
@@ -2188,7 +2208,8 @@
   	createClass(VariableAssignment, [{
   		key: "toString",
   		value: function toString() {
-  			return "VarAssign to " + this.variableName;		}
+  			return "VarAssign to " + this.variableName;
+  		}
   	}, {
   		key: "variableName",
   		get: function get$$1() {
@@ -2215,7 +2236,6 @@
   }(Object$1);
 
   //misses delegates, probably the returns from function calls
-
   var NativeFunctionCall = function (_InkObject) {
   	inherits(NativeFunctionCall, _InkObject);
 
@@ -2613,12 +2633,6 @@
   				this.AddStringBinaryOp(this.NotEquals, function (x, y) {
   					return !(x === y) ? 1 : 0;
   				});
-  				this.AddStringBinaryOp(this.Has, function (x, y) {
-  					return x.includes(y) ? 1 : 0;
-  				});
-  				this.AddStringBinaryOp(this.Hasnt, function (x, y) {
-  					return x.includes(y) ? 0 : 1;
-  				});
 
   				this.AddListBinaryOp(this.Add, function (x, y) {
   					return x.Union(y);
@@ -2941,34 +2955,45 @@
   		classCallCheck(this, ListDefinitionsOrigin);
 
   		this._lists = {};
-  		this._allUnambiguousListValueCache = {};
 
   		lists.forEach(function (list) {
   			_this._lists[list.name] = list;
-
-  			list.items.forEach(function (itemWithValue) {
-  				var item = itemWithValue.Key;
-  				var val = itemWithValue.Value;
-  				var listValue = new ListValue(item, val);
-
-  				_this._allUnambiguousListValueCache[item.itemName] = listValue;
-  				_this._allUnambiguousListValueCache[item.fullName] = listValue;
-  			});
   		});
   	}
 
   	createClass(ListDefinitionsOrigin, [{
-  		key: 'TryListGetDefinition',
-  		value: function TryListGetDefinition(name, def) {
+  		key: 'TryGetDefinition',
+  		value: function TryGetDefinition(name, def) {
   			//initially, this function returns a boolean and the second parameter is an out.
   			return name in this._lists ? this._lists[name] : def;
   		}
   	}, {
   		key: 'FindSingleItemListWithName',
   		value: function FindSingleItemListWithName(name) {
-  			var val = null;
-  			if (typeof this._allUnambiguousListValueCache[name] !== 'undefined') val = this._allUnambiguousListValueCache[name];
-  			return val;
+  			var item = InkListItem.Null;
+  			var list = null;
+
+  			var nameParts = name.split('.');
+  			if (nameParts.length == 2) {
+  				item = new InkListItem(nameParts[0], nameParts[1]);
+  				list = this.TryGetDefinition(item.originName, list);
+  			} else {
+  				for (var key in this._lists) {
+  					var listWithItem = this._lists[key];
+  					item = new InkListItem(key, name);
+  					if (listWithItem.ContainsItem(item)) {
+  						list = listWithItem;
+  						break;
+  					}
+  				}
+  			}
+
+  			if (list != null) {
+  				var itemValue = list.ValueForItem(item);
+  				return new ListValue(item, itemValue);
+  			}
+
+  			return null;
   		}
   	}, {
   		key: 'lists',
@@ -3110,7 +3135,7 @@
   				if (obj["^var"]) {
   					propValue = obj["^var"];
   					var varPtr = new VariablePointerValue(propValue.toString());
-  					if ('ci' in obj) {
+  					if (obj["ci"]) {
   						propValue = obj["ci"];
   						varPtr.contextIndex = parseInt(propValue);
   					}
@@ -3894,38 +3919,6 @@
   			return this.currentThread.callstack;
   		}
   	}, {
-  		key: 'callStackTrace',
-  		get: function get$$1() {
-  			var sb = new StringBuilder();
-
-  			for (var t = 0; t < this._threads.length; t++) {
-  				var thread = this._threads[t];
-  				var isCurrent = t == _threads.length - 1;
-  				sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", t + 1, this._threads.length, isCurrent ? "(current) " : "");
-
-  				for (var i = 0; i < thread.callstack.length; i++) {
-
-  					if (thread.callstack[i].type == PushPopType.Function) sb.Append("  [FUNCTION] ");else sb.Append("  [TUNNEL] ");
-
-  					var obj = thread.callstack[i].currentObject;
-  					if (obj == null) {
-  						if (thread.callstack[i].currentContainer != null) {
-  							sb.Append("<SOMEWHERE IN ");
-  							sb.Append(thread.callstack[i].currentContainer.path.ToString());
-  							sb.AppendLine(">");
-  						} else {
-  							sb.AppendLine("<UNKNOWN STACK ELEMENT>");
-  						}
-  					} else {
-  						var elementStr = obj.path.ToString();
-  						sb.AppendLine(elementStr);
-  					}
-  				}
-  			}
-
-  			return sb.toString();
-  		}
-  	}, {
   		key: 'elements',
   		get: function get$$1() {
   			return this.callStack;
@@ -3960,7 +3953,8 @@
   }();
 
   //still needs: 
-
+  // - varchanged events
+  // - see if the internal getenumarators are needed
   var VariablesState = function () {
   	function VariablesState(callStack, listDefsOrigin) {
   		classCallCheck(this, VariablesState);
@@ -4035,11 +4029,6 @@
   					this._changedVariables = null;
   				}
   			}
-  		}
-  	}, {
-  		key: 'GlobalVariableExistsWithName',
-  		value: function GlobalVariableExistsWithName(name) {
-  			return typeof this._globalVariables[name] !== 'undefined';
   		}
   	}, {
   		key: 'GetVariableWithName',
@@ -4374,16 +4363,17 @@
 
   				// Update origin when list is has something to indicate the list origin
   				var rawList = listValue.value;
+  				var names = rawList.originNames;
+  				if (names != null) {
+  					var origins = [];
 
-  				if (rawList.originNames != null) {
-  					if (!rawList.origins) rawList.origins = [];
-  					rawList.origins.length = 0;
-
-  					rawList.originNames.forEach(function (n) {
+  					names.forEach(function (n) {
   						var def = null;
-  						def = _this.story.listDefinitions.TryListGetDefinition(n, def);
-  						if (rawList.origins.indexOf(def) < 0) rawList.origins.push(def);
+  						def = _this.story.listDefinitions.TryGetDefinition(n, def);
+  						if (origins.indexOf(def) < 0) origins.push(def);
   					});
+
+  					rawList.origins = origins;
   				}
   			}
 
@@ -4718,9 +4708,6 @@
 
   			this._variablesState.callStack = this.callStack;
 
-  			// No longer in external function eval
-  			this._isExternalFunctionEvaluation = false;
-
   			if (returnedObj) {
   				if (returnedObj instanceof Void) return null;
 
@@ -4812,8 +4799,8 @@
   			return copy;
   		}
   	}, {
-  		key: 'ToJson',
-  		value: function ToJson(indented) {
+  		key: 'toJson',
+  		value: function toJson(indented) {
   			return JSON.stringify(this.jsonToken, null, indented ? 2 : 0);
   		}
   	}, {
@@ -5915,17 +5902,13 @@
   							//				var listNameVal = state.PopEvaluationStack () as StringValue;
   							var listNameVal = this.state.PopEvaluationStack().toString();
 
-  							if (intVal == null) {
-  								throw new StoryException("Passed non-integer when creating a list element from a numerical value.");
-  							}
-
   							var generatedListValue = null;
 
   							var foundListDef;
-  							if (foundListDef = this.listDefinitions.TryListGetDefinition(listNameVal, foundListDef)) {
-  								var foundItem = foundListDef.TryGetItemWithValue(intVal);
+  							if (foundListDef = this.listDefinitions.TryGetDefinition(listNameVal, foundListDef)) {
+  								var foundItem = foundListDef.TryGetItemWithValue(intVal.value);
   								if (foundItem.exists) {
-  									generatedListValue = new ListValue(foundItem.item, intVal);
+  									generatedListValue = new ListValue(foundItem.item, intVal.value);
   								}
   							} else {
   								throw new StoryException("Failed to find LIST called " + listNameVal.value);
@@ -6305,8 +6288,6 @@
   		value: function ObserveVariable(variableName, observer) {
   			if (this._variableObservers == null) this._variableObservers = {};
 
-  			if (!this.state.variablesState.GlobalVariableExistsWithName(variableName)) throw new StoryException("Cannot observe variable '" + variableName + "' because it wasn't declared in the ink story.");
-
   			if (this._variableObservers[variableName]) {
   				this._variableObservers[variableName].push(observer);
   			} else {
@@ -6589,7 +6570,7 @@
   			var seqPathStr = seqContainer.path.toString();
   			var sequenceHash = 0;
   			for (var i = 0, l = seqPathStr.length; i < l; i++) {
-  				sequenceHash += seqPathStr.charCodeAt(i) || 0;
+  				sequenceHash += seqPathStr.charCodeAt[i] || 0;
   			}
   			var randomSeed = sequenceHash + loopIndex + this.state.storySeed;
   			var random = new PRNG(parseInt(randomSeed));
@@ -6621,9 +6602,12 @@
   	}, {
   		key: 'AddError',
   		value: function AddError(message, useEndLineNumber) {
+  			//		var dm = this.currentDebugMetadata;
+  			var dm = null;
 
-  			if (this.state.currentPath != null) {
-  				message = "RUNTIME ERROR: (" + this.state.currentPath + "): " + message;
+  			if (dm != null) {
+  				var lineNum = useEndLineNumber ? dm.endLineNumber : dm.startLineNumber;
+  				message = "RUNTIME ERROR: '" + dm.fileName + "' line " + lineNum + ": " + message;
   			} else {
   				message = "RUNTIME ERROR: " + message;
   			}
@@ -6707,7 +6691,6 @@
   }(Object$1);
 
   exports.Story = Story;
-  exports.InkList = InkList;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
