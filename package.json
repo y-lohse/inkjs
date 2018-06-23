@@ -31,7 +31,7 @@
     "jasmine": "3.1.0",
     "npm-watch": "0.3.0",
     "rollup": "0.61.2",
-    "rollup-plugin-babel": "3.0.4",
+    "rollup-plugin-babel": "3.0.5",
     "rollup-plugin-node-resolve": "3.3.0"
   },
   "dependencies": {}
