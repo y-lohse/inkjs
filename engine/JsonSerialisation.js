@@ -91,12 +91,7 @@ export class JsonSerialisation{
 				return new StringValue("\n");
 
 			// Glue
-			if (str == "<>")
-				return new Glue(GlueType.Bidirectional);
-			else if(str == "G<")
-				return new Glue(GlueType.Left);
-			else if(str == "G>")
-				return new Glue(GlueType.Right);
+			if (str == "<>") return new Glue();
 
 			// Control commands (would looking up in a hash set be faster?)
 			for (var i = 0; i < _controlCommandNames.length; ++i) {
@@ -360,14 +355,7 @@ export class JsonSerialisation{
 
 //		var glue = obj as Runtime.Glue;
 		var glue = obj;
-		if (glue instanceof Glue) {
-			if (glue.isBi)
-				return "<>";
-			else if (glue.isLeft)
-				return "G<";
-			else
-				return "G>";
-		}
+		if (glue instanceof Glue) return "<>";
 
 //		var controlCmd = obj as ControlCommand;
 		var controlCmd = obj;
@@ -524,16 +512,18 @@ export class JsonSerialisation{
 		var choice = new Choice();
 		choice.text = jObj["text"].toString();
 		choice.index = parseInt(jObj["index"]);
-		choice.originalChoicePath = jObj["originalChoicePath"].toString();
+		choice.sourcePath = jObj["originalChoicePath"].toString();
 		choice.originalThreadIndex = parseInt(jObj["originalThreadIndex"]);
+		choice.pathStringOnChoice = jObj["targetPath"].toString();
 		return choice;
 	}
 	static ChoiceToJObject(choice){
 		var jObj = {};
 		jObj["text"] = choice.text;
 		jObj["index"] = choice.index;
-		jObj["originalChoicePath"] = choice.originalChoicePath;
+		jObj["originalChoicePath"] = choice.sourcePath;
 		jObj["originalThreadIndex"] = choice.originalThreadIndex;
+		jObj["targetPath"] = choice.pathStringOnChoice;
 		return jObj;
 	}
 	static InkListToJObject (listVal){
