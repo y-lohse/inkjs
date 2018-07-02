@@ -2,21 +2,22 @@ import {Path} from './Path';
 import {PushPopType} from './PushPop';
 import {StringBuilder} from './StringBuilder';
 import {Object as InkObject} from './Object';
+import {Pointer} from './Pointer';
 
 export class Divert extends InkObject{
 	constructor(stackPushType){
 		super();
 		this._targetPath;
-		this._targetContent;
-		
+		this._targetPointer;
+
 		this.variableDivertName;
 		this.pushesToStack;
 		this.stackPushType;
-		
+
 		this.isExternal;
 		this.isConditional;
 		this.externalArgs;
-		
+
 		//actual constructor
 		this.pushesToStack = false;
 		if (stackPushType){
@@ -27,24 +28,31 @@ export class Divert extends InkObject{
 	get targetPath(){
 		// Resolve any relative paths to global ones as we come across them
 		if (this._targetPath != null && this._targetPath.isRelative) {
-			var targetObj = this.targetContent;
+			var targetObj = this.targetPointer.Resolve();
 			if (targetObj) {
 				this._targetPath = targetObj.path;
 			}
 		}
-		
+
 		return this._targetPath;
 	}
 	set targetPath(value){
 		this._targetPath = value;
-		this._targetContent = null;
+		this._targetPointer = Pointer.Null;
 	}
-	get targetContent(){
-		if (this._targetContent == null) {
-			this._targetContent = this.ResolvePath(this._targetPath);
+	get targetPointer(){
+		if (this._targetPointer.isNull) {
+			var targetObj = this.ResolvePath(this._targetPath).obj;
+
+			if (this._targetPath.lastComponent.isIndex) {
+				_targetPointer.container = targetObj.parent;
+				_targetPointer.index = this._targetPath.lastComponent.index;
+			} else {
+				_targetPointer = Pointer.StartOf(targetObj);
+			}
 		}
 
-		return this._targetContent;
+		return this._targetPointer;
 	}
 	get targetPathString(){
 		if (this.targetPath == null)
@@ -62,7 +70,7 @@ export class Divert extends InkObject{
 	get hasVariableTarget(){
 		return this.variableDivertName != null;
 	}
-	
+
 	Equals(obj){
 //		var otherDivert = obj as Divert;
 		var otherDivert = obj;
@@ -95,11 +103,11 @@ export class Divert extends InkObject{
 			}
 
 			sb.Append("Divert");
-      
-      if (this.isConditional) {
-        sb.Append("?");
-      }
-      
+
+			if (this.isConditional) {
+				sb.Append("?");
+			}
+
 			if (this.pushesToStack) {
 				if (this.stackPushType == PushPopType.Function) {
 					sb.Append(" function");
@@ -107,9 +115,9 @@ export class Divert extends InkObject{
 					sb.Append(" tunnel");
 				}
 			}
-      
-      sb.Append(" -> ");
-      sb.Append(this.targetPathString);
+
+			sb.Append(" -> ");
+			sb.Append(this.targetPathString);
 
 			sb.Append(" (");
 			sb.Append(targetStr);
