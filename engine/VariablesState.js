@@ -1,4 +1,4 @@
-//still needs: 
+//still needs:
 // - varchanged events
 // - see if the internal getenumarators are needed
 import {Value, VariablePointerValue, ListValue} from './Value';
@@ -8,17 +8,18 @@ import {JsonSerialisation} from './JsonSerialisation';
 export class VariablesState{
 	constructor(callStack, listDefsOrigin){
 		this._globalVariables = {};
+		this._defaultGlobalVariables = {};
 		this._callStack = callStack;
 		this._listDefsOrigin = listDefsOrigin;
-		
+
 		this._batchObservingVariableChanges = null;
 		this._changedVariables = null;
-		
+
 		//the way variableChangedEvent is a bit different than the reference implementation. Originally it uses the C# += operator to add delegates, but in js we need to maintain an actual collection of delegates (ie. callbacks)
 		//to register a new one, there is a special ObserveVariableChange method below.
 		this.variableChangedEvent = null;
 		this.variableChangedEventCallbacks = [];
-		
+
 		//if es6 proxies are available, use them.
 		try{
 			//the proxy is used to allow direct manipulation of global variables. It first tries to access the objetcs own property, and if none is found it delegates the call to the $ method, defined below
@@ -32,7 +33,7 @@ export class VariablesState{
 					return true;//returning a fasly value make sthe trap fail
 				}
 			});
-			
+
 			return p;
 		}
 		catch(e){
@@ -54,9 +55,9 @@ export class VariablesState{
 		this._batchObservingVariableChanges = value;
 		if (value) {
 			this._changedVariables = [];
-		} 
+		}
 
-		// Finished observing variables in a batch - now send 
+		// Finished observing variables in a batch - now send
 		// notifications for changed variables all in one go.
 		else {
 			if (this._changedVariables != null) {
@@ -75,10 +76,10 @@ export class VariablesState{
 	set jsonToken(value){
 		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
 	}
-	
+
 	/**
 	 * This function is specific to the js version of ink. It allows to register a callback that will be called when a variable changes. The original code uses `state.variableChangedEvent += callback` instead.
-	 * @param {function} callback 
+	 * @param {function} callback
 	 */
 	ObserveVariableChange(callback){
 		if (this.variableChangedEvent == null){
@@ -88,12 +89,13 @@ export class VariablesState{
 				});
 			};
 		}
-		
+
 		this.variableChangedEventCallbacks.push(callback);
 	}
 	CopyFrom(toCopy){
 		this._globalVariables = Object.assign({}, toCopy._globalVariables);
-		
+		this._defaultGlobalVariables = Object.assign({}, toCopy._defaultGlobalVariables);
+
 		this.variableChangedEvent = toCopy.variableChangedEvent;
 
 		if (toCopy.batchObservingVariableChanges != this.batchObservingVariableChanges) {
@@ -112,7 +114,7 @@ export class VariablesState{
   }
 	GetVariableWithName(name,contextIndex){
 		if (typeof contextIndex === 'undefined') contextIndex = -1;
-		
+
 		var varValue = this.GetRawVariableWithName(name, contextIndex);
 
 		// Get value from pointer?
@@ -131,7 +133,7 @@ export class VariablesState{
 		if (contextIndex == 0 || contextIndex == -1) {
 			if ( varValue = this._globalVariables[name] )
 				return varValue;
-			
+
 			var listItemValue = this._listDefsOrigin.FindSingleItemListWithName(name);
 			if (listItemValue)
 				return listItemValue;
@@ -139,9 +141,6 @@ export class VariablesState{
 
 		// Temporary
 		varValue = this._callStack.GetTemporaryVariableWithName(name, contextIndex);
-
-		if (varValue == null)
-			throw "RUNTIME ERROR: Variable '"+name+"' could not be found in context '"+contextIndex+"'. This shouldn't be possible so is a bug in the ink engine. Please try to construct a minimal story that reproduces the problem and report to inkle, thank you!";
 
 		return varValue;
 	}
@@ -169,7 +168,7 @@ export class VariablesState{
 				value = fullyResolvedVariablePointer;
 			}
 
-		} 
+		}
 
 		// Assign to existing variable pointer?
 		// Then assign to the variable that the pointer is pointing to by name.
@@ -195,19 +194,24 @@ export class VariablesState{
 			this._callStack.SetTemporaryVariable(name, value, varAss.isNewDeclaration, contextIndex);
 		}
 	}
+
+	SnapshotDefaultGlobals(){
+		this._defaultGlobalVariables = Object.assign({}, this._globalVariables);
+	}
+
 	RetainListOriginsForAssignment(oldValue, newValue){
 //		var oldList = oldValue as ListValue;
 		var oldList = oldValue;
 //		var newList = newValue as ListValue;
 		var newList = newValue;
-		
+
 		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
 	}
 	SetGlobal(variableName, value){
 		var oldValue = null;
 		oldValue = this._globalVariables[variableName];
-		
+
 		ListValue.RetainListOriginsForAssignment(oldValue, value);
 
 		this._globalVariables[variableName] = value;
@@ -230,14 +234,14 @@ export class VariablesState{
 		var valueOfVariablePointedTo = this.GetRawVariableWithName(varPointer.variableName, contextIndex);
 
 		// Extra layer of indirection:
-		// When accessing a pointer to a pointer (e.g. when calling nested or 
+		// When accessing a pointer to a pointer (e.g. when calling nested or
 		// recursive functions that take a variable references, ensure we don't create
 		// a chain of indirection by just returning the final target.
 //		var doubleRedirectionPointer = valueOfVariablePointedTo as VariablePointerValue;
 		var doubleRedirectionPointer = valueOfVariablePointedTo;
 		if (doubleRedirectionPointer instanceof VariablePointerValue) {
 			return doubleRedirectionPointer;
-		} 
+		}
 
 		// Make copy of the variable pointer so we're not using the value direct from
 		// the runtime. Temporary must be local to the current scope.
@@ -254,7 +258,16 @@ export class VariablesState{
 	//the original code uses a magic getter and setter for global variables, allowing things like variableState['varname]. This is not quite possible in js without a Proxy, so it is replaced with this $ function.
 	$(variableName, value){
 		if (typeof value === 'undefined'){
+			// Search main dictionary first.
+			// If it's not found, it might be because the story content has changed,
+			// and the original default value hasn't be instantiated.
+			// Should really warn somehow, but it's difficult to see how...!
 			var varContents = this._globalVariables[variableName];
+
+			if ( typeof varContents === 'undefined' ) {
+				varContents = this._defaultGlobalVariables[variableName];
+			}
+
 			if ( typeof varContents !== 'undefined' )
 	//			return (varContents as Runtime.Value).valueObject;
 				return varContents.valueObject;
@@ -262,10 +275,9 @@ export class VariablesState{
 				return null;
 		}
 		else{
-			if (typeof this._globalVariables[variableName] === 'undefined'){
-				throw new StoryException("Variable '" + variableName + "' doesn't exist, so can't be set.");
-			}
-			
+			if (typeof this._defaultGlobalVariables[variableName] === 'undefined')
+				throw new StoryException("Cannot assign to a variable that hasn't been declared in the story");
+
 			var val = Value.Create(value);
 			if (val == null) {
 				if (value == null) {
