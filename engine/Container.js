@@ -2,25 +2,26 @@ import {StringValue} from './Value';
 import {StoryException} from './StoryException';
 import {StringBuilder} from './StringBuilder';
 import {Object as InkObject} from './Object';
+import {SearchResult} from './SearchResult';
 
 export class Container extends InkObject{//also implements INamedContent. Not sure how to do it cleanly in JS.
 	constructor(){
 		super();
 		this.name = '';
-		
+
 		this._content = [];
 		this.namedContent = {};
-		
+
 		this.visitsShouldBeCounted = false;
 		this.turnIndexShouldBeCounted = false;
 		this.countingAtStartOnly = false;
-		
+
 		this.CountFlags = {
 			Visits: 1,
 			Turns: 2,
 			CountStartOnly: 4
 		};
-		
+
 		this._pathToFirstLeafContent = null;
 	}
 	get hasValidName(){
@@ -34,7 +35,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 	}
 	get namedOnlyContent(){
 		var namedOnlyContentDict = {};
-		
+
 		for (var key in this.namedContent){
 			namedOnlyContentDict[key] = this.namedContent[key];
 		}
@@ -100,7 +101,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		return this._pathToFirstLeafContent;
 	}
 	get internalPathToFirstLeafContent(){
-    var components = [];
+		var components = [];
 		var container = this;
 		while (container instanceof Container) {
 			if (container.content.length > 0) {
@@ -111,7 +112,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		}
 		return new Path(components);
 	}
-	
+
 	AddContent(contentObj){
 		if (contentObj instanceof Array){
 			contentObj.forEach(c => {
@@ -120,11 +121,11 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 		}
 		else{
 			this._content.push(contentObj);
-			
+
 			if (contentObj.parent) {
-                throw "content is already in " + contentObj.parent;
-            }
-			
+				throw "content is already in " + contentObj.parent;
+			}
+
 			contentObj.parent = this;
 
 			this.TryAddNamedContent(contentObj);
@@ -143,23 +144,38 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 		this.namedContent[namedContentObj.name] = namedContentObj;
 	}
-	ContentAtPath(path, partialPathLength){
+	ContentAtPath(path, partialPathStart, partialPathLength){
+		partialPathStart = (typeof partialPathStart !== 'undefined') ? partialPathStart : 0;
 		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.componentCount;
+
+		var result = new SearchResult();
+		result.approximate = false;
 
 		var currentContainer = this;
 		var currentObj = this;
 
-		for (var i = 0; i < partialPathLength; ++i) {
+		for (var i = partialPathStart; i < partialPathLength; ++i) {
 			var comp = path.GetComponent(i);
-			if (!(currentContainer instanceof Container))
-				throw "Path continued, but previous object wasn't a container: " + currentObj;
-			
-			currentObj = currentContainer.ContentWithPathComponent(comp);
+			if (currentContainer == null || !(currentContainer instanceof Container)) {
+				result.approximate = true;
+				break;
+			}
+
+			var foundObj = currentContainer.ContentWithPathComponent(comp);
+
+			if (foundObj == null || !(foundObj instanceof Container)) {
+				result.approximate = true;
+				break;
+			}
+
+			currentObj = foundObj
 //			currentContainer = currentObj as Container;
 			currentContainer = currentObj;
 		}
 
-		return currentObj;
+		result.obj = currentObj;
+
+		return result;
 	}
 	InsertContent(contentObj, index){
 		this.content[i] = contentObj;
@@ -174,7 +190,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 	}
 	AddContentsOfContainer(otherContainer){
 		this.content = this.content.concat(otherContainer.content);
-		
+
 		otherContainer.content.forEach(obj => {
 			obj.parent = this;
 			this.TryAddNamedContent(obj);
@@ -193,7 +209,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 				return null;
 			}
 
-		} 
+		}
 
 		else if (component.isParent) {
 			return this.parent;
@@ -205,7 +221,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 				return foundContent;
 			}
 			else {
-				throw new StoryException("Content '"+component.name+"' not found at path: '"+this.path+"'");
+				throw null;
 			}
 		}
 	}
@@ -215,11 +231,11 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 			this.BuildStringOfHierarchy(sb, 0, null);
 			return sb.toString();
 		}
-		
+
 		function appendIndentation(){
 			var spacesPerIndent = 4;
-			for(var i = 0; i < spacesPerIndent*indentation; ++i) { 
-				sb.Append(" "); 
+			for(var i = 0; i < spacesPerIndent*indentation; ++i) {
+				sb.Append(" ");
 			}
 		}
 
@@ -272,7 +288,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 
 		var onlyNamed = {};
-		
+
 		for (var key in this.namedContent){
 			if (this.content.indexOf(this.namedContent[key]) >= 0) {
 				continue;
@@ -287,7 +303,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 			for (var key in onlyNamed){
 				if (!(onlyNamed[key] instanceof Container)) console.warn("Can only print out named Containers");
-				
+
 				var container = onlyNamed[key];
 				container.BuildStringOfHierarchy(sb, indentation, pointedObj);
 				sb.Append("\n");
