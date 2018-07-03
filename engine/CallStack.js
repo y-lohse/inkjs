@@ -5,47 +5,25 @@ import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 import {ListValue} from './Value';
 import {StringBuilder} from './StringBuilder';
+import {Pointer} from './Pointer';
 
 class Element{
-	constructor(type, container, contentIndex, inExpressionEvaluation){
-		this.currentContainer = container;
-		this.currentContentIndex = contentIndex;
+	constructor(type, pointer, inExpressionEvaluation){
+		this.currentPointer = pointer.copy();
+
 		this.inExpressionEvaluation = inExpressionEvaluation || false;
 		this.temporaryVariables = {};
 		this.type = type;
-	}
-	get currentObject(){
-		if (this.currentContainer && this.currentContentIndex < this.currentContainer.content.length) {
-			return this.currentContainer.content[this.currentContentIndex];
-		}
 
-		return null;
+		this.evaluationStackHeightWhenPushed;
+		this.functionStartInOuputStream;
 	}
-	set currentObject(value){
-		var currentObj = value;
-		if (currentObj == null) {
-			this.currentContainer = null;
-			this.currentContentIndex = 0;
-			return;
-		}
 
-//		currentContainer = currentObj.parent as Container;
-		this.currentContainer = currentObj.parent;
-		if (this.currentContainer instanceof Container)
-			this.currentContentIndex = this.currentContainer.content.indexOf(currentObj);
-
-		// Two reasons why the above operation might not work:
-		//  - currentObj is already the root container
-		//  - currentObj is a named container rather than being an object at an index
-		if (this.currentContainer instanceof Container === false || this.currentContentIndex == -1) {
-//			currentContainer = currentObj as Container;
-			this.currentContainer = currentObj;
-			this.currentContentIndex = 0;
-		}
-	}
 	Copy(){
-		var copy = new Element(this.type, this.currentContainer, this.currentContentIndex, this.inExpressionEvaluation);
+		var copy = new Element(this.type, this.currentPointer, this.inExpressionEvaluation);
 		Object.assign(copy.temporaryVariables, this.temporaryVariables);
+		copy.evaluationStackHeightWhenPushed = this.evaluationStackHeightWhenPushed;
+		copy.functionStartInOuputStream = this.functionStartInOuputStream;
 		return copy;
 	}
 }
@@ -54,57 +32,73 @@ class Thread{
 	constructor(jsonToken, storyContext){
 		this.callstack = [];
 		this.threadIndex = 0;
-		this.previousContentObject = null;
-		
+		this.previousPointer = Pointer.Null;
+
 		if (jsonToken && storyContext){
 			var jThreadObj = jsonToken;
 			this.threadIndex = parseInt(jThreadObj["threadIndex"]);
 
 			var jThreadCallstack = jThreadObj["callstack"];
-			
+
 			jThreadCallstack.forEach(jElTok => {
 				var jElementObj = jElTok;
 
 				var pushPopType = parseInt(jElementObj["type"]);
 
-				var currentContainer = null;
-				var contentIndex = 0;
+				var pointer = Pointer.Null;
 
 				var currentContainerPathStr = null;
 				var currentContainerPathStrToken = jElementObj["cPath"];
 				if (typeof currentContainerPathStrToken !== 'undefined') {
 					currentContainerPathStr = currentContainerPathStrToken.toString();
-//					currentContainer = storyContext.ContentAtPath (new Path(currentContainerPathStr)) as Container;
-					currentContainer = storyContext.ContentAtPath(new Path(currentContainerPathStr));
-					contentIndex = parseInt(jElementObj["idx"]);
+
+					var threadPointerResult = storyContext.ContentAtPath(new Path(currentContainerPathStr));
+					pointer.container = threadPointerResult.container;
+					pointer.index = parseInt(jElementObj["idx"]);
+
+					if (threadPointerResult.obj == null)
+						throw "When loading state, internal story location couldn't be found: " + currentContainerPathStr + ". Has the story changed since this save data was created?"
+					else
+						storyContext.Warning("When loading state, exact internal story location couldn't be found: '" + currentContainerPathStr + "', so it was approximated to '"+pointer.container.path.toString()+"' to recover. Has the story changed since this save data was created?")
 				}
 
 				var inExpressionEvaluation = !!jElementObj["exp"];
 
-				var el = new Element(pushPopType, currentContainer, contentIndex, inExpressionEvaluation);
+				var el = new Element(pushPopType, pointer, inExpressionEvaluation);
 
 				var jObjTemps = jElementObj["temp"];
 				el.temporaryVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(jObjTemps);
 
 				this.callstack.push(el);
 			});
-			
+
 			var prevContentObjPath = jThreadObj["previousContentObject"];
 			if(typeof prevContentObjPath  !== 'undefined') {
 				var prevPath = new Path(prevContentObjPath.toString());
-				this.previousContentObject = storyContext.ContentAtPath(prevPath);
+				this.previousPointer = storyContext.PointerAtPath(prevPath);
 			}
 		}
 	}
+
+	Copy(){
+		var copy = new Thread();
+		copy.threadIndex = this.threadIndex;
+		this.callstack.forEach(e => {
+			copy.callstack.push(e.Copy());
+		});
+		copy.previousPointer = this.previousPointer.copy();
+		return copy;
+	}
+
 	get jsonToken(){
 		var threadJObj = {};
 
 		var jThreadCallstack = [];
 		this.callstack.forEach(el => {
 			var jObj = {};
-			if (el.currentContainer) {
-				jObj["cPath"] = el.currentContainer.path.componentsString;
-				jObj["idx"] = el.currentContentIndex;
+			if (!el.currentPointer.isNull) {
+				jObj["cPath"] = el.currentPointer.path.componentsString;
+				jObj["idx"] = el.currentPointer.index;
 			}
 			jObj["exp"] = el.inExpressionEvaluation;
 			jObj["type"] = parseInt(el.type);
@@ -114,20 +108,11 @@ class Thread{
 
 		threadJObj["callstack"] = jThreadCallstack;
 		threadJObj["threadIndex"] = this.threadIndex;
-		
-		if (this.previousContentObject != null)
-			threadJObj["previousContentObject"] = this.previousContentObject.path.toString();
+
+		if (!this.previousPointer.isNull)
+			threadJObj["previousContentObject"] = this.previousPointer.Resolve().path.toString();
 
 		return threadJObj;
-	}
-	Copy(){
-		var copy = new Thread();
-		copy.threadIndex = this.threadIndex;
-		this.callstack.forEach(e => {
-			copy.callstack.push(e.Copy());
-		});
-		copy.previousContentObject = this.previousContentObject;
-		return copy;
 	}
 }
 
@@ -136,16 +121,16 @@ export class CallStack{
 		this._threads = [];
 		this._threadCounter = 0;
 		this._threads.push(new Thread());
-		
+
 		if (copyOrrootContentContainer instanceof CallStack){
 			this._threads = [];
-			
+
 			copyOrrootContentContainer._threads.forEach(otherThread => {
 				this._threads.push(otherThread.Copy());
 			});
 		}
 		else{
-        	this._threads[0].callstack.push(new Element(PushPopType.Tunnel, copyOrrootContentContainer, 0));
+			this._threads[0].callstack.push(new Element(PushPopType.Tunnel, Pointer.StartOf(copyOrrootContentContainer)));
 		}
 	}
 	get currentThread(){
@@ -153,46 +138,46 @@ export class CallStack{
 	}
 	set currentThread(value){
 		if (this._threads.length != 1) console.warn("Shouldn't be directly setting the current thread when we have a stack of them");
-		
+
 		this._threads.length = 0;
 		this._threads.push(value);
 	}
 	get callStack(){
 		return this.currentThread.callstack;
 	}
-  get callStackTrace(){
-    var sb = new StringBuilder();
+	get callStackTrace(){
+	var sb = new StringBuilder();
 
-    for (var t = 0; t < this._threads.length; t++) {
-      var thread = this._threads[t];
-      var isCurrent = (t == _threads.length - 1);
-      sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
+	for (var t = 0; t < this._threads.length; t++) {
+		var thread = this._threads[t];
+		var isCurrent = (t == _threads.length - 1);
+		sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
 
-      for (var i = 0; i < thread.callstack.length; i++) {
+		for (var i = 0; i < thread.callstack.length; i++) {
 
-        if (thread.callstack[i].type == PushPopType.Function)
-          sb.Append("  [FUNCTION] ");
-        else
-          sb.Append("  [TUNNEL] ");
+		if (thread.callstack[i].type == PushPopType.Function)
+			sb.Append("  [FUNCTION] ");
+		else
+			sb.Append("  [TUNNEL] ");
 
-        var obj = thread.callstack[i].currentObject;
-        if (obj == null) {
-          if (thread.callstack[i].currentContainer != null) {
-            sb.Append("<SOMEWHERE IN ");
-            sb.Append(thread.callstack[i].currentContainer.path.ToString());
-            sb.AppendLine(">");
-          } else {
-            sb.AppendLine("<UNKNOWN STACK ELEMENT>");
-          }
-        } else {
-          var elementStr = obj.path.ToString();
-          sb.AppendLine(elementStr);
-        }
-      }
-    }
+		var obj = thread.callstack[i].currentObject;
+		if (obj == null) {
+			if (thread.callstack[i].currentContainer != null) {
+			sb.Append("<SOMEWHERE IN ");
+			sb.Append(thread.callstack[i].currentContainer.path.ToString());
+			sb.AppendLine(">");
+			} else {
+			sb.AppendLine("<UNKNOWN STACK ELEMENT>");
+			}
+		} else {
+			var elementStr = obj.path.ToString();
+			sb.AppendLine(elementStr);
+		}
+		}
+	}
 
-    return sb.toString();
-  }
+	return sb.toString();
+	}
 	get elements(){
 		return this.callStack;
 	}
@@ -200,7 +185,9 @@ export class CallStack{
 		return this.elements.length;
 	}
 	get currentElement(){
-		return this.callStack[this.callStack.length - 1];
+		var thread = this._threads[this._threads.length - 1];
+		var cs = thread.callStack
+		return cs[cs.length - 1];
 	}
 	get currentElementIndex(){
 		return this.callStack.length - 1;
@@ -209,9 +196,12 @@ export class CallStack{
 		return this.callStack.length > 1;
 	}
 	get canPopThread(){
-		return this._threads.length > 1;
+		return this._threads.length > 1 && !this.elementIsEvaluatedFromGame;
 	}
-	
+	get elementIsEvaluateFromGame(){
+		return this.currentElement.type == PushPopType.FunctionEvaluationFromGame;
+	}
+
 	CanPop(type){
 		if (!this.canPop)
 			return false;
@@ -229,9 +219,20 @@ export class CallStack{
 			throw "Mismatched push/pop in Callstack";
 		}
 	}
-	Push(type){
-		// When pushing to callstack, maintain the current content path, but jump out of expressions by default
-		this.callStack.push(new Element(type, this.currentElement.currentContainer, this.currentElement.currentContentIndex, false));
+	Push(type, externalEvaluationStackHeight, outputStreamLengthWithPushed){
+		externalEvaluationStackHeight = (typeof externalEvaluationStackHeight !== 'undefined') ? externalEvaluationStackHeight : 0
+		outputStreamLengthWithPushed = (typeof outputStreamLengthWithPushed !== 'undefined') ? outputStreamLengthWithPushed : 0
+
+		var element = new Element (
+			type,
+			this.currentElement.currentContainer,
+			false
+		)
+
+		element.evaluationStackHeightWhenPushed = externalEvaluationStackHeight;
+		element.functionStartInOuputStream = outputStreamLengthWithPushed;
+
+		this.callStack.Add (element);
 	}
 	PushThread(){
 		var newThread = this.currentThread.Copy();
@@ -252,7 +253,7 @@ export class CallStack{
 		var jObject = token;
 
 		var jThreads = jObject["threads"];
-		
+
 		jThreads.forEach(jThreadTok => {
 			var thread = new Thread(jThreadTok, storyContext);
 			this._threads.push(thread);
@@ -275,10 +276,10 @@ export class CallStack{
 	}
 	GetTemporaryVariableWithName(name, contextIndex){
 		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
-		
-		if (contextIndex == -1) 
+
+		if (contextIndex == -1)
 			contextIndex = this.currentElementIndex + 1;
-		
+
 		var varValue = null;
 
 		var contextElement = this.callStack[contextIndex - 1];
@@ -291,8 +292,8 @@ export class CallStack{
 	}
 	SetTemporaryVariable(name, value, declareNew, contextIndex){
 		contextIndex = (typeof contextIndex === 'undefined') ? -1 : contextIndex;
-		
-		if (contextIndex == -1) 
+
+		if (contextIndex == -1)
 			contextIndex = this.currentElementIndex + 1;
 
 		var contextElement = this.callStack[contextIndex - 1];
@@ -300,7 +301,7 @@ export class CallStack{
 		if (!declareNew && !contextElement.temporaryVariables[name]) {
 			throw new StoryException("Could not find temporary variable to set: " + name);
 		}
-		
+
 		var oldValue;
 		if( oldValue = contextElement.temporaryVariables[name] )
 			ListValue.RetainListOriginsForAssignment(oldValue, value);
@@ -312,7 +313,7 @@ export class CallStack{
 		// (Shouldn't attempt to access contexts higher in the callstack.)
 		if (this.currentElement.temporaryVariables[name]) {
 			return this.currentElementIndex + 1;
-		} 
+		}
 
 		// Global
 		else {
@@ -323,7 +324,7 @@ export class CallStack{
 		var filtered = this._threads.filter(t => {
 			if (t.threadIndex == index) return t;
 		});
-		
+
 		return filtered[0];
 	}
 }
