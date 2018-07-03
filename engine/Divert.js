@@ -45,10 +45,10 @@ export class Divert extends InkObject{
 			var targetObj = this.ResolvePath(this._targetPath).obj;
 
 			if (this._targetPath.lastComponent.isIndex) {
-				_targetPointer.container = targetObj.parent;
-				_targetPointer.index = this._targetPath.lastComponent.index;
+				this._targetPointer.container = targetObj.parent;
+				this._targetPointer.index = this._targetPath.lastComponent.index;
 			} else {
-				_targetPointer = Pointer.StartOf(targetObj);
+				this._targetPointer = Pointer.StartOf(targetObj);
 			}
 		}
 

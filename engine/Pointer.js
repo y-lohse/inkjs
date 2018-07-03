@@ -7,10 +7,10 @@ export class Pointer{
 	}
 
 	Resolve(){
-		if (index < 0) return this.container;
+		if (this.index < 0) return this.container;
 		if (this.container == null) return null;
 		if (this.container.content.length == 0) return this.container;
-		if (index >= this.container.content.length) return null;
+		if (this.index >= this.container.content.length) return null;
 
 		return this.container.content[index];
 	}
@@ -20,9 +20,9 @@ export class Pointer{
 	}
 
 	get path(){
-		if (this.isNull()) return null;
+		if (this.isNull) return null;
 
-		if (index >= 0)
+		if (this.index >= 0)
 			return this.container.path.PathByAppendingComponent(new Path.Component(index));
 		else
 			return this.container.path;
@@ -32,10 +32,10 @@ export class Pointer{
 		if (!this.container)
 			return "Ink Pointer (null)";
 
-		return "Ink Pointer -> " + container.path.toString() + " -- index " + index;
+		return "Ink Pointer -> " + this.container.path.toString() + " -- index " + this.index;
 	}
 
-	StartOf(container){
+	static StartOf(container){
 		return new Pointer(container, 0);
 	}
 }

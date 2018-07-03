@@ -258,10 +258,6 @@ export class VariablesState{
 	//the original code uses a magic getter and setter for global variables, allowing things like variableState['varname]. This is not quite possible in js without a Proxy, so it is replaced with this $ function.
 	$(variableName, value){
 		if (typeof value === 'undefined'){
-			// Search main dictionary first.
-			// If it's not found, it might be because the story content has changed,
-			// and the original default value hasn't be instantiated.
-			// Should really warn somehow, but it's difficult to see how...!
 			var varContents = this._globalVariables[variableName];
 
 			if ( typeof varContents === 'undefined' ) {
