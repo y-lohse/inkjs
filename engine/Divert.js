@@ -52,7 +52,7 @@ export class Divert extends InkObject{
 			}
 		}
 
-		return this._targetPointer;
+		return this._targetPointer.copy();
 	}
 	get targetPathString(){
 		if (this.targetPath == null)

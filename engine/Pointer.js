@@ -35,6 +35,12 @@ export class Pointer{
 		return "Ink Pointer -> " + this.container.path.toString() + " -- index " + this.index;
 	}
 
+	// This method does not exist in the original C# code, but is here to maintain the
+	// value semantics of Pointer.
+	copy(){
+		return new Pointer(this.container, this.index);
+	}
+
 	static StartOf(container){
 		return new Pointer(container, 0);
 	}
