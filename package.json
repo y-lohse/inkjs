@@ -8,7 +8,8 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "watch:test": "npm-watch test",
-    "prepublish": "rollup -c"
+    "prepublish": "rollup -c",
+    "lint": "eslint engine/**"
   },
   "watch": {
     "test": {
@@ -27,6 +28,7 @@
     "babel-plugin-external-helpers": "6.22.0",
     "babel-plugin-transform-object-assign": "6.22.0",
     "babel-preset-env": "1.7.0",
+    "eslint": "^5.0.1",
     "istanbul": "0.4.5",
     "jasmine": "3.1.0",
     "npm-watch": "0.3.0",
