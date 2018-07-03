@@ -80,16 +80,6 @@ class Thread{
 		}
 	}
 
-	Copy(){
-		var copy = new Thread();
-		copy.threadIndex = this.threadIndex;
-		this.callstack.forEach(e => {
-			copy.callstack.push(e.Copy());
-		});
-		copy.previousPointer = this.previousPointer.copy();
-		return copy;
-	}
-
 	get jsonToken(){
 		var threadJObj = {};
 
@@ -113,6 +103,16 @@ class Thread{
 			threadJObj["previousContentObject"] = this.previousPointer.Resolve().path.toString();
 
 		return threadJObj;
+	}
+
+	Copy(){
+		var copy = new Thread();
+		copy.threadIndex = this.threadIndex;
+		this.callstack.forEach(e => {
+			copy.callstack.push(e.Copy());
+		});
+		copy.previousPointer = this.previousPointer.copy();
+		return copy;
 	}
 }
 
