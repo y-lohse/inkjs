@@ -1,4 +1,4 @@
-import {Path} from 'path.js';
+import {Path} from './Path';
 
 export class Pointer{
 	constructor(container, index){
