@@ -7,9 +7,9 @@ const format = 'umd';
 
 export default [
   {
-    name: moduleName,
     input: inputFile,
     output: {
+      name: moduleName,
       file: 'dist/ink.js',
       format: format
     },
@@ -21,9 +21,9 @@ export default [
     ]
   },
   {
-    name: moduleName,
     input: inputFile,
     output: {
+      name: moduleName,
       file: 'dist/ink-es2015.js',
       format: format
     },
