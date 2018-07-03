@@ -57,9 +57,9 @@ class Thread{
 					pointer.index = parseInt(jElementObj["idx"]);
 
 					if (threadPointerResult.obj == null)
-						throw "When loading state, internal story location couldn't be found: " + currentContainerPathStr + ". Has the story changed since this save data was created?"
+						throw "When loading state, internal story location couldn't be found: " + currentContainerPathStr + ". Has the story changed since this save data was created?";
 					else
-						storyContext.Warning("When loading state, exact internal story location couldn't be found: '" + currentContainerPathStr + "', so it was approximated to '"+pointer.container.path.toString()+"' to recover. Has the story changed since this save data was created?")
+						storyContext.Warning("When loading state, exact internal story location couldn't be found: '" + currentContainerPathStr + "', so it was approximated to '"+pointer.container.path.toString()+"' to recover. Has the story changed since this save data was created?");
 				}
 
 				var inExpressionEvaluation = !!jElementObj["exp"];
@@ -146,37 +146,37 @@ export class CallStack{
 		return this.currentThread.callstack;
 	}
 	get callStackTrace(){
-	var sb = new StringBuilder();
+		var sb = new StringBuilder();
 
-	for (var t = 0; t < this._threads.length; t++) {
-		var thread = this._threads[t];
-		var isCurrent = (t == _threads.length - 1);
-		sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
+		for (var t = 0; t < this._threads.length; t++) {
+			var thread = this._threads[t];
+			var isCurrent = (t == _threads.length - 1);
+			sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
 
-		for (var i = 0; i < thread.callstack.length; i++) {
+			for (var i = 0; i < thread.callstack.length; i++) {
 
-		if (thread.callstack[i].type == PushPopType.Function)
-			sb.Append("  [FUNCTION] ");
-		else
-			sb.Append("  [TUNNEL] ");
+				if (thread.callstack[i].type == PushPopType.Function)
+					sb.Append("  [FUNCTION] ");
+				else
+					sb.Append("  [TUNNEL] ");
 
-		var obj = thread.callstack[i].currentObject;
-		if (obj == null) {
-			if (thread.callstack[i].currentContainer != null) {
-			sb.Append("<SOMEWHERE IN ");
-			sb.Append(thread.callstack[i].currentContainer.path.ToString());
-			sb.AppendLine(">");
-			} else {
-			sb.AppendLine("<UNKNOWN STACK ELEMENT>");
+				var obj = thread.callstack[i].currentObject;
+				if (obj == null) {
+					if (thread.callstack[i].currentContainer != null) {
+					sb.Append("<SOMEWHERE IN ");
+					sb.Append(thread.callstack[i].currentContainer.path.ToString());
+					sb.AppendLine(">");
+					} else {
+					sb.AppendLine("<UNKNOWN STACK ELEMENT>");
+					}
+				} else {
+					var elementStr = obj.path.ToString();
+					sb.AppendLine(elementStr);
+				}
 			}
-		} else {
-			var elementStr = obj.path.ToString();
-			sb.AppendLine(elementStr);
 		}
-		}
-	}
 
-	return sb.toString();
+		return sb.toString();
 	}
 	get elements(){
 		return this.callStack;
@@ -186,7 +186,7 @@ export class CallStack{
 	}
 	get currentElement(){
 		var thread = this._threads[this._threads.length - 1];
-		var cs = thread.callStack
+		var cs = thread.callStack;
 		return cs[cs.length - 1];
 	}
 	get currentElementIndex(){
@@ -220,8 +220,8 @@ export class CallStack{
 		}
 	}
 	Push(type, externalEvaluationStackHeight, outputStreamLengthWithPushed){
-		externalEvaluationStackHeight = (typeof externalEvaluationStackHeight !== 'undefined') ? externalEvaluationStackHeight : 0
-		outputStreamLengthWithPushed = (typeof outputStreamLengthWithPushed !== 'undefined') ? outputStreamLengthWithPushed : 0
+		externalEvaluationStackHeight = (typeof externalEvaluationStackHeight !== 'undefined') ? externalEvaluationStackHeight : 0;
+		outputStreamLengthWithPushed = (typeof outputStreamLengthWithPushed !== 'undefined') ? outputStreamLengthWithPushed : 0;
 
 		var element = new Element (
 			type,
