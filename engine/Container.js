@@ -221,7 +221,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 				return foundContent;
 			}
 			else {
-				throw null;
+				return null;
 			}
 		}
 	}
