@@ -225,7 +225,7 @@ export class CallStack{
 
 		var element = new Element (
 			type,
-			this.currentElement.currentContainer,
+			this.currentElement.currentPointer,
 			false
 		)
 
