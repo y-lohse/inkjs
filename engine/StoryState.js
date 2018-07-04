@@ -489,13 +489,13 @@ export class StoryState{
 			}
 
 			var glueTrimIndex = -1;
-			for (var i = this._outputStream.length; i >=0; i--) {
+			for (var i = this._outputStream.length; i >= 0; i--) {
 				var o = this._outputStream[i];
 				var c = (o instanceof ControlCommand) ? o : null;
 				var g = (o instanceof Glue) ? o : null;
 
 				if (g != null) {
-					glueTrimIndex = i
+					glueTrimIndex = i;
 					break;
 				}
 
@@ -519,7 +519,7 @@ export class StoryState{
 
 				if (text.isNonWhitespace) {
 
-					if ( glueTrimIndex > -1 )
+					if (glueTrimIndex > -1)
 						this.RemoveExistingGlue();
 
 					if (functionTrimIndex > -1) {
@@ -651,7 +651,7 @@ export class StoryState{
 		this._currentTurnIndex++;
 	}
 	StartExternalFunctionEvaluationFromGame(funcContainer, args){
-		this.callStack.Push(PushPopType.FunctionEvaluationFromGame, this.evaluationStack.length)
+		this.callStack.Push(PushPopType.FunctionEvaluationFromGame, this.evaluationStack.length);
 		this.callStack.currentElement.currentPointer = Pointer.StartOf(funcContainer);
 
 		this.PassArgumentsToEvaluationStack(args);
@@ -679,7 +679,7 @@ export class StoryState{
 	}
 	CompleteFunctionEvaluationFromGame(){
 		if (this.callStack.currentElement.type != PushPopType.FunctionEvaluationFromGame) {
-			throw new StoryException("Expected external function evaluation to be complete. Stack trace: "+callStack.callStackTrace)
+			throw new StoryException("Expected external function evaluation to be complete. Stack trace: "+callStack.callStackTrace);
 		}
 
 		var originalEvaluationStackHeight = this.callStack.currentElement.evaluationStackHeightWhenPushed;
