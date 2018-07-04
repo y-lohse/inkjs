@@ -12,12 +12,13 @@ import {JsonSerialisation} from './JsonSerialisation';
 import {Story} from './Story';
 import {PRNG} from './PRNG';
 import {Void} from './Void';
+import {Pointer} from './Pointer';
 
 export class StoryState{
-	constructor(story){		
+	constructor(story){
 		//actual constructor
 		this.story = story;
-		
+
 		this._outputStream = [];
 		this._outputStreamTextDirty = true;
 		this._outputStreamTagsDirty = true;
@@ -31,8 +32,8 @@ export class StoryState{
 		this._visitCounts = {};
 		this._turnIndices = {};
 		this._currentTurnIndex = -1;
-		
-		this.divertedTargetObject = null;
+
+		this.divertedPointer = Pointer.Null;
 
 		var timeSeed = (new Date()).getTime();
 		this.storySeed = (new PRNG(timeSeed)).next() % 100;
@@ -42,12 +43,9 @@ export class StoryState{
 		this._currentText = null;
 		this._currentTags = null;
 		this._currentErrors = null;
-		
+		this._currentWarnings = null;
+
 		this.didSafeExit = false;
-		
-		this._isExternalFunctionEvaluation = false;
-		this._originalCallstack = null;
-		this._originalEvaluationStackHeight = 0;
 
 		this.GoToStart();
 	}
@@ -63,6 +61,9 @@ export class StoryState{
 	}
 	get currentErrors(){
 		return this._currentErrors;
+	}
+	get currentWarnings(){
+		return this._currentWarnings;
 	}
 	get visitCounts(){
 		return this._visitCounts;
@@ -83,10 +84,13 @@ export class StoryState{
 		this.callStack.currentElement.currentObject = value;
 	}
 	get canContinue(){
-		return this.currentContentObject != null && !this.hasError;
+		return !this.currentPointer.isNull && !this.hasError;
 	}
 	get hasError(){
 		return this.currentErrors != null && this.currentErrors.length > 0;
+	}
+	get hasWarning(){
+		return this.currentWarnings != null && this.currentWarnings.length > 0;
 	}
 	get inExpressionEvaluation(){
 		return this.callStack.currentElement.inExpressionEvaluation;
@@ -123,18 +127,6 @@ export class StoryState{
 		}
 		return false;
 	}
-	get currentGlueIndex(){
-		for (var i = this._outputStream.length - 1; i >= 0; i--) {
-			var c = this._outputStream[i];
-//			var glue = c as Glue;
-			var glue = c;
-			if (glue instanceof Glue)
-				return i;
-			else if (c instanceof ControlCommand) // e.g. BeginString
-				break;
-		}
-		return -1;
-	}
 	get currentRightGlue(){
 		for (var i = this._outputStream.length - 1; i >= 0; i--) {
 			var c = this._outputStream[i];
@@ -170,10 +162,10 @@ export class StoryState{
 				}
 			});
 
-			this._currentText = sb.toString();
+			this._currentText = CleanOutputWhitespace(sb.toString());
 			this._outputStreamTextDirty = false;
 		}
-		
+
 		return this._currentText;
 	}
 	get currentTags(){
@@ -187,35 +179,33 @@ export class StoryState{
 					this._currentTags.push(tag.text);
 				}
 			});
-			
+
 			this._outputStreamTagsDirty = false;
 		}
-		
+
 		return this._currentTags;
 	}
 	get outputStream(){
 		return this._outputStream;
 	}
-	get currentPath(){
-		if (this.currentContentObject == null)
+	get currentPathString(){
+		var pointer = currentPointer;
+		if (pointer.isNull)
 			return null;
-
-		return this.currentContentObject.path;
-	}
-	set currentPath(value){
-		if (value != null)
-			this.currentContentObject = this.story.ContentAtPath(value);
 		else
-			this.currentContentObject = null;
+			return pointer.path.toString();
 	}
-	get currentContainer(){
-		return this.callStack.currentElement.currentContainer;
+	get currentPointer(){
+		return this.callStack.currentElement.currentPointer.copy();
 	}
-	get previousContentObject(){
-		return this.callStack.currentThread.previousContentObject;
+	set currentPointer(value){
+		this.callStack.currentElement.currentPointer = value.copy();
 	}
-	set previousContentObject(value){
-		this.callStack.currentThread.previousContentObject = value;
+	get previousPointer(){
+		return this.callStack.currentThread.previousPointer.copy();
+	}
+	set previousPointer(value){
+		this.callStack.currentThread.previousPointer = value.copy();
 	}
 	get callstackDepth(){
 		return this.callStack.depth;
@@ -225,7 +215,6 @@ export class StoryState{
 
 		var choiceThreads = null;
 		this._currentChoices.forEach(c => {
-			c.originalChoicePath = c.choicePoint.path.componentsString;
 			c.originalThreadIndex = c.threadAtGeneration.threadIndex;
 
 			if( this.callStack.ThreadWithIndex(c.originalThreadIndex) == null ) {
@@ -235,7 +224,7 @@ export class StoryState{
 				choiceThreads[c.originalThreadIndex.toString()] = c.threadAtGeneration.jsonToken;
 			}
 		});
-		
+
 		if( this.choiceThreads != null )
 			obj["choiceThreads"] = this.choiceThreads;
 
@@ -248,9 +237,9 @@ export class StoryState{
 		obj["outputStream"] = JsonSerialisation.ListToJArray(this._outputStream);
 
 		obj["currentChoices"] = JsonSerialisation.ListToJArray(this._currentChoices);
-		
-		if( this.divertedTargetObject != null )
-			obj["currentDivertTarget"] = this.divertedTargetObject.path.componentsString;
+
+		if(!this.divertedPointer.isNull)
+			obj["currentDivertTarget"] = this.divertedPointer.path.componentsString;
 
 		obj["visitCounts"] = JsonSerialisation.IntDictionaryToJObject(this.visitCounts);
 		obj["turnIndices"] = JsonSerialisation.IntDictionaryToJObject(this.turnIndices);
@@ -289,7 +278,7 @@ export class StoryState{
 		var currentDivertTargetPath = jObject["currentDivertTarget"];
 		if (currentDivertTargetPath != null) {
 			var divertPath = new Path(currentDivertTargetPath.toString());
-			this.divertedTargetObject = this.story.ContentAtPath(divertPath);
+			this.divertedPointer = this.story.PointerAtPath(divertPath);
 		}
 
 		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject["visitCounts"]);
@@ -299,10 +288,8 @@ export class StoryState{
 
 //		var jChoiceThreads = jObject["choiceThreads"] as JObject;
 		var jChoiceThreads = jObject["choiceThreads"];
-		
-		this._currentChoices.forEach(c => {
-			c.choicePoint = this.story.ContentAtPath(new Path(c.originalChoicePath));
 
+		this._currentChoices.forEach(c => {
 			var foundActiveThread = this.callStack.ThreadWithIndex(c.originalThreadIndex);
 			if( foundActiveThread != null ) {
 				c.threadAtGeneration = foundActiveThread;
@@ -312,31 +299,45 @@ export class StoryState{
 			}
 		});
 	}
-	
-	MatchRightGlueForLeftGlue(leftGlue){
-		if (!leftGlue.isLeft) return null;
-		
-		for (var i = this._outputStream.length - 1; i >= 0; i--) {
-			var c = this._outputStream[i];
-//			var g = c as Glue;
-			var g = c;
-			if (g instanceof Glue && g.isRight && g.parent == leftGlue.parent) {
-				return g;
-			} else if (c instanceof ControlCommand) // e.g. BeginString
-				break;
+
+	CleanOutputWhitespace (str){
+		var sb = new StringBuilder(str.Length);
+
+		var currentWhitespaceStart = -1;
+
+		for (var i = 0; i < str.Length; i++) {
+			var c = st.charAt(i);
+
+			var isInlineWhitespace = (c == ' ') || (c == '\t');
+
+			if (isInlineWhitespace && currentWhitespaceStart == -1)
+				currentWhitespaceStart = i;
+
+			if (!isInlineWhitespace) {
+				if (c != '\n' && currentWhitespaceStart > 0) {
+					sb.Append(str.substr(currentWhitespaceStart, i - currentWhitespaceStart));
+				}
+				currentWhitespaceStart = -1;
+			}
+
+			if (!isInlineWhitespace)
+				sb.Append(c);
 		}
-		
-		return null;
+
+		return sb.toString();
 	}
+
 	GoToStart(){
-		this.callStack.currentElement.currentContainer = this.story.mainContentContainer;
-        this.callStack.currentElement.currentContentIndex = 0;
+		this.callStack.currentElement.currentPointer = Pointer.StartOf(this.story.mainContentContainer);
 	}
 	ResetErrors(){
 		this._currentErrors = null;
+		this._currentWarnings = null;
 	}
-	ResetOutput(){
+	ResetOutput(objs){
+		objs = (typeof objs !== 'undefined') ? objs : null;
 		this._outputStream.length = 0;
+		if (this.objs != null) this._outputStream.push.apply(this._outputStream, objs);
 		this.OutputStreamDirty();
 	}
 	PushEvaluationStack(obj){
@@ -346,19 +347,19 @@ export class StoryState{
 
 			// Update origin when list is has something to indicate the list origin
 			var rawList = listValue.value;
-      
-      if (rawList.originNames != null) {
-        if (!rawList.origins) rawList.origins = [];
-        rawList.origins.length = 0;
-        
-        rawList.originNames.forEach(n => {
-          var def = null;
-          def = this.story.listDefinitions.TryListGetDefinition(n, def);
-          if (rawList.origins.indexOf(def) < 0) rawList.origins.push(def);
-        });
-      }
+
+			if (rawList.originNames != null) {
+			if (!rawList.origins) rawList.origins = [];
+			rawList.origins.length = 0;
+
+			rawList.originNames.forEach(n => {
+				var def = null;
+				def = this.story.listDefinitions.TryListGetDefinition(n, def);
+				if (rawList.origins.indexOf(def) < 0) rawList.origins.push(def);
+			});
+			}
 		}
-		
+
 		this.evaluationStack.push(obj);
 	}
 	PopEvaluationStack(numberOfObjects){
@@ -368,11 +369,11 @@ export class StoryState{
 		}
 		else{
 			if(numberOfObjects > this.evaluationStack.length) {
-          throw "trying to pop too many objects";
-      }
+			throw "trying to pop too many objects";
+		}
 
-      var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
-      return popped;
+		var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
+		return popped;
 		}
 	}
 	PeekEvaluationStack(){
@@ -385,13 +386,18 @@ export class StoryState{
 			var listText = this.TrySplittingHeadTailWhitespace(text);
 			if (listText != null) {
 				listText.forEach(textObj => {
-					this.PushToOutputStreamIndividual(textObj);	
+					this.PushToOutputStreamIndividual(textObj);
 				});
+				this.OutputStreamDirty();
 				return;
 			}
 		}
 
 		this.PushToOutputStreamIndividual(obj);
+		this.OutputStreamDirty();
+	}
+	PopFromOutputStream(count){
+		this.outputStream.splice(this.outputStream.length - count, count);
 		this.OutputStreamDirty();
 	}
 	TrySplittingHeadTailWhitespace(single){
@@ -471,41 +477,66 @@ export class StoryState{
 		var includeInOutput = true;
 
 		if (glue instanceof Glue) {
-			// Found matching left-glue for right-glue? Close it.
-			var existingRightGlue = this.currentRightGlue;
-			var foundMatchingLeftGlue = !!(glue.isLeft && existingRightGlue && glue.parent == existingRightGlue.parent);
-			var matchingRightGlue = null;
-			
-			if (glue.isLeft)
-				matchingRightGlue = this.MatchRightGlueForLeftGlue(glue);
-
-			// Left/Right glue is auto-generated for inline expressions 
-			// where we want to absorb newlines but only in a certain direction.
-			// "Bi" glue is written by the user in their ink with <>
-			if (glue.isLeft || glue.isBi) {
-				this.TrimNewlinesFromOutputStream(matchingRightGlue);
-			}
-
-			includeInOutput = glue.isBi || glue.isRight;
+			this.TrimNewlinesFromOutputStream();
 		}
 
 		else if( text instanceof StringValue ) {
 
-			if (this.currentGlueIndex != -1) {
+			var functionTrimIndex = -1;
+			var currEl = this.callStack.currentElement;
+			if (currEl.type == PushPopType.Function) {
+				functionTrimIndex = currEl.functionStartInOutputStream;
+			}
 
-				// Absorb any new newlines if there's existing glue
-				// in the output stream.
-				// Also trim any extra whitespace (spaces/tabs) if so.
-				if (text.isNewline) {
-					this.TrimFromExistingGlue();
-					includeInOutput = false;
-				} 
+			var glueTrimIndex = -1;
+			for (var i = this._outputStream.length; i >=0; i--) {
+				var o = this._outputStream[i];
+				var c = (o instanceof ControlCommand) ? o : null;
+				var g = (o instanceof Glue) ? o : null;
 
-				// Able to completely reset when 
-				else if (text.isNonWhitespace) {
-					this.RemoveExistingGlue();
+				if (g != null) {
+					glueTrimIndex = i
+					break;
 				}
-			} else if (text.isNewline) {
+
+				else if (c != null && c.commandType == ControlCommand.CommandType.BeginString) {
+					if (i >= functionTrimIndex) {
+						functionTrimIndex = -1;
+					}
+					break;
+				}
+			}
+
+			var trimIndex = -1;
+			if (glueTrimIndex != -1 && functionTrimIndex != -1)
+				trimIndex = Math.min(functionTrimIndex, glueTrimIndex);
+			else if (glueTrimIndex != -1)
+				trimIndex = glueTrimIndex;
+			else
+				trimIndex = functionTrimIndex;
+
+			if (trimIndex != -1) {
+
+				if (text.isNonWhitespace) {
+
+					if ( glueTrimIndex > -1 )
+						this.RemoveExistingGlue();
+
+					if (functionTrimIndex > -1) {
+						var callStackElements = callstack.elements;
+						for (var i = callStackElements.Count - 1; i >= 0; i--) {
+							var el = callStackElements[i];
+							if (el.type == PushPopType.Function) {
+								el.functionStartInOutputStream = -1;
+							} else {
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			else if (text.isNewline) {
 				if (this.outputStreamEndsInNewline || !this.outputStreamContainsContent)
 					includeInOutput = false;
 			}
@@ -518,31 +549,16 @@ export class StoryState{
 	}
 	TrimNewlinesFromOutputStream(rightGlueToStopAt){
 		var removeWhitespaceFrom = -1;
-		var rightGluePos = -1;
-		var foundNonWhitespace = false;
 
-		// Work back from the end, and try to find the point where
-		// we need to start removing content. There are two ways:
-		//  - Start from the matching right-glue (because we just saw a left-glue)
-		//  - Simply work backwards to find the first newline in a string of whitespace
 		var i = this._outputStream.length-1;
 		while (i >= 0) {
 			var obj = this._outputStream[i];
-//			var cmd = obj as ControlCommand;
-			var cmd = obj;
-//			var txt = obj as StringValue;
-			var txt = obj;
-//			var glue = obj as Glue;
-			var glue = obj;
+			var cmd = (obj instanceof ControlCommand) ? obj : null;
+			var txt = (obj instanceof StringValue) ? obj : null;
 
-			if (cmd instanceof ControlCommand || (txt instanceof StringValue && txt.isNonWhitespace)) {
-				foundNonWhitespace = true;
-				if( rightGlueToStopAt == null )
-					break;
-			} else if (rightGlueToStopAt && glue instanceof Glue && glue == rightGlueToStopAt) {
-				rightGluePos = i;
+			if (cmd != null || (txt != null && txt.isNonWhitespace)) {
 				break;
-			} else if (txt instanceof StringValue && txt.isNewline && !foundNonWhitespace) {
+			} else if (txt != null && txt.isNewline) {
 				removeWhitespaceFrom = i;
 			}
 			i--;
@@ -562,30 +578,6 @@ export class StoryState{
 			}
 		}
 
-		if (rightGlueToStopAt && rightGluePos > -1) {
-			i = rightGluePos;
-			while(i < this._outputStream.length) {
-				if (this._outputStream[i] instanceof Glue && (this._outputStream[i]).isRight) {
-					this.outputStream.splice(i, 1);
-				} else {
-					i++;
-				}
-			}
-		}
-		
-		this.OutputStreamDirty();
-	}
-	TrimFromExistingGlue(){
-		var i = this.currentGlueIndex;
-		while (i < this._outputStream.length) {
-//			var txt = _outputStream [i] as StringValue;
-			var txt = this._outputStream[i];
-			if (txt instanceof StringValue && !txt.isNonWhitespace)
-				this._outputStream.splice(i, 1);
-			else
-				i++;
-		}
-		
 		this.OutputStreamDirty();
 	}
 	RemoveExistingGlue(){
@@ -597,7 +589,7 @@ export class StoryState{
 				break;
 			}
 		}
-		
+
 		this.OutputStreamDirty();
 	}
 	ForceEnd(){
@@ -605,41 +597,63 @@ export class StoryState{
 			this.callStack.PopThread();
 
 		while (this.callStack.canPop)
-			this.callStack.Pop();
+			this.PopCallStack()
 
 		this._currentChoices.length = 0;
-		
-		this.currentContentObject = null;
-		this.previousContentObject = null;
+
+		this.currentPointer = Pointer.Null;
+		this.previousPointer = Pointer.Null;
 
 		this.didSafeExit = true;
+	}
+	TrimWhitespaceFromFunctionEnd(){
+		// Debug.Assert (callStack.currentElement.type == PushPopType.Function);
+		var functionStartPoint = this.callStack.currentElement.functionStartInOutputStream;
+
+		if (functionStartPoint == -1) {
+			functionStartPoint = 0;
+		}
+
+		for (var i = this._outputStream.length - 1; i >= functionStartPoint; i--) {
+			var obj = this._outputStream[i];
+			var txt = (obj instanceof StringValue) ? obj : null;
+			var cmd = (obj instanceof ControlCommand) ? obj : null;
+
+			if (txt == null) continue;
+			if (cmd) break;
+
+			if (txt.isNewline || txt.isInlineWhitespace) {
+				this._outputStream.splice(i, 1);
+				this.OutputStreamDirty();
+			} else {
+				break;
+			}
+		}
+	}
+	PopCallStack(popType) {
+		popType = (typeof popType !== 'undefined') ? popType : null;
+
+		if (callStack.currentElement.type == PushPopType.Function)
+			this.TrimWhitespaceFromFunctionEnd();
+
+		callStack.Pop(popType);
 	}
 	SetChosenPath(path){
 		// Changing direction, assume we need to clear current set of choices
 		this._currentChoices.length = 0;
 
-		this.currentPath = path;
+		var newPointer = story.PointerAtPath(path);
+		if (!newPointer.isNull && newPointer.index == -1)
+			newPointer.index = 0;
+
+		this.currentPointer = newPointer;
 
 		this._currentTurnIndex++;
 	}
-	StartExternalFunctionEvaluation(funcContainer, args){
-		 // We'll start a new callstack, so keep hold of the original,
-		// as well as the evaluation stack so we know if the function 
-		// returned something
-		this._originalCallstack = this.callStack;
-		this._originalEvaluationStackHeight = this.evaluationStack.length;
+	StartExternalFunctionEvaluationFromGame(funcContainer, args){
+		this.callStack.Push(PushPopType.FunctionEvaluationFromGame, this.evaluationStack.length)
+		this.callStack.currentElement.currentPointer = Pointer.StartOf(funcContainer);
 
-		// Create a new base call stack element.
-		this.callStack = new CallStack(funcContainer);
-		this.callStack.currentElement.type = PushPopType.Function;
-		
-		this._variablesState.callStack = this.callStack;
-
-		// By setting ourselves in external function evaluation mode,
-		// we're saying it's okay to end the flow without a Done or End,
-		// but with a ~ return instead.
-		this._isExternalFunctionEvaluation = true;
-		
 		this.PassArgumentsToEvaluationStack(args);
 	}
 	PassArgumentsToEvaluationStack(args){
@@ -654,36 +668,33 @@ export class StoryState{
 			}
 		}
 	}
-	TryExitExternalFunctionEvaluation(){
-		if (this._isExternalFunctionEvaluation && this.callStack.elements.length == 1 && this.callStack.currentElement.type == PushPopType.Function) {
-			this.currentContentObject = null;
+	TryExitFunctionEvaluationFromGame(){
+		if (this.callStack.currentElement.type == PushPopType.FunctionEvaluationFromGame) {
+			this.currentPointer = Pointer.Null;
 			this.didSafeExit = true;
 			return true;
 		}
 
 		return false;
 	}
-	CompleteExternalFunctionEvaluation(){
+	CompleteFunctionEvaluationFromGame(){
+		if (this.callStack.currentElement.type != PushPopType.FunctionEvaluationFromGame) {
+			throw new StoryException("Expected external function evaluation to be complete. Stack trace: "+callStack.callStackTrace)
+		}
+
+		var originalEvaluationStackHeight = this.callStack.currentElement.evaluationStackHeightWhenPushed;
 		// Do we have a returned value?
 		// Potentially pop multiple values off the stack, in case we need
-		// to clean up after ourselves (e.g. caller of EvaluateFunction may 
+		// to clean up after ourselves (e.g. caller of EvaluateFunction may
 		// have passed too many arguments, and we currently have no way to check for that)
 		var returnedObj = null;
-		while (this.evaluationStack.length > this._originalEvaluationStackHeight) {
+		while (this.evaluationStack.length > originalEvaluationStackHeight) {
 			var poppedObj = this.PopEvaluationStack();
 			if (returnedObj == null)
 				returnedObj = poppedObj;
 		}
-		
-		// Restore our own state
-		this.callStack = this._originalCallstack;
-		this._originalCallstack = null;
-		this._originalEvaluationStackHeight = 0;
-		
-		this._variablesState.callStack = this.callStack;
-		
-		// No longer in external function eval
-	        this._isExternalFunctionEvaluation = false; 
+
+		this.PopCallStack(PushPopType.FunctionEvaluationFromGame);
 
 		if (returnedObj) {
 			if (returnedObj instanceof Void)
@@ -706,12 +717,14 @@ export class StoryState{
 
 		return null;
 	}
-	AddError(message){
-		if (this._currentErrors == null) {
-			this._currentErrors = [];
+	AddError(message, isWarning){
+		if (!isWarning) {
+			if (this._currentErrors == null) this._currentErrors = [];
+			this._currentErrors.push(message);
+		} else {
+			if (this._currentWarnings == null) this._currentWarnings = [];
+			this._currentWarnings.push(message);
 		}
-
-		this._currentErrors.push(message);
 	}
 	OutputStreamDirty(){
 		this._outputStreamTextDirty = true;
@@ -729,7 +742,7 @@ export class StoryState{
 
 		copy.outputStream.push.apply(copy.outputStream, this._outputStream);
 		this.OutputStreamDirty();
-		
+
 		copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
 
 		if (this.hasError) {
@@ -737,22 +750,23 @@ export class StoryState{
 			copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
 		}
 
+		if (this.hasWarning) {
+			copy.currentWarnings = [];
+			copy.currentWarnings.push.apply(copy.currentWarnings, this.currentWarnings);
+		}
+
 		copy.callStack = new CallStack(this.callStack);
-		if (this._originalCallstack) copy._originalCallstack = new CallStack(this._originalCallstack);
-		
+
 		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
 		copy.variablesState.CopyFrom(this.variablesState);
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
-    copy._originalEvaluationStackHeight = this._originalEvaluationStackHeight;
 
-		if (this.divertedTargetObject != null)
-			copy.divertedTargetObject = this.divertedTargetObject;
+		if (!this.divertedPointer.isNull)
+			copy.divertedPointer = this.divertedPointer.copy();
 
-		copy.previousContentObject = this.previousContentObject;
-		
-		copy._isExternalFunctionEvaluation = this._isExternalFunctionEvaluation;
-		
+		copy.previousPointer = this.previousPointer.copy();
+
 		copy._visitCounts = {};
 		for (var keyValue in this._visitCounts) {
 		      	copy._visitCounts[keyValue] = this._visitCounts[keyValue];
@@ -761,7 +775,7 @@ export class StoryState{
 		for (var keyValue in this._turnIndices) {
 			copy._turnIndices[keyValue] = this._turnIndices[keyValue];
 		}
-  		
+
 		copy._currentTurnIndex = this.currentTurnIndex;
 		copy.storySeed = this.storySeed;
 		copy.previousRandom = this.previousRandom;
@@ -770,7 +784,7 @@ export class StoryState{
 
 		return copy;
 	}
-	
+
 	ToJson(indented){
 		return JSON.stringify(this.jsonToken, null, (indented) ? 2 : 0);
 	}
@@ -779,5 +793,5 @@ export class StoryState{
 	}
 }
 
-StoryState.kInkSaveStateVersion = 7;
-StoryState.kMinCompatibleLoadVersion = 6;
+StoryState.kInkSaveStateVersion = 8;
+StoryState.kMinCompatibleLoadVersion = 8;
