@@ -369,11 +369,11 @@ export class StoryState{
 		}
 		else{
 			if(numberOfObjects > this.evaluationStack.length) {
-			throw "trying to pop too many objects";
-		}
+				throw "trying to pop too many objects";
+			}
 
-		var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
-		return popped;
+			var popped = this.evaluationStack.splice(this.evaluationStack.length - numberOfObjects, numberOfObjects);
+			return popped;
 		}
 	}
 	PeekEvaluationStack(){
