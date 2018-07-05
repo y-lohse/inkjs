@@ -650,7 +650,7 @@ export class StoryState{
 
 		this._currentTurnIndex++;
 	}
-	StartExternalFunctionEvaluationFromGame(funcContainer, args){
+	StartFunctionEvaluationFromGame(funcContainer, args){
 		this.callStack.Push(PushPopType.FunctionEvaluationFromGame, this.evaluationStack.length);
 		this.callStack.currentElement.currentPointer = Pointer.StartOf(funcContainer);
 
