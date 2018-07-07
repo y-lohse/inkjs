@@ -873,7 +873,7 @@ export class Story extends InkObject{
 				var divertTarget = target;
 //				var container = ContentAtPath (divertTarget.targetPath).correctObj as Container;
 				var correctObj = this.ContentAtPath(divertTarget.targetPath).correctObj;
-				var container = (correctObj instanceof Controller) ? correctObj : null;
+				var container = (correctObj instanceof Container) ? correctObj : null;
 
 				var eitherCount;
 				if (container != null) {
