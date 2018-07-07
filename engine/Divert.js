@@ -3,6 +3,7 @@ import {PushPopType} from './PushPop';
 import {StringBuilder} from './StringBuilder';
 import {Object as InkObject} from './Object';
 import {Pointer} from './Pointer';
+import {Container} from './Container';
 
 export class Divert extends InkObject{
 	constructor(stackPushType){
@@ -45,10 +46,10 @@ export class Divert extends InkObject{
 			var targetObj = this.ResolvePath(this._targetPath).obj;
 
 			if (this._targetPath.lastComponent.isIndex) {
-				this._targetPointer.container = targetObj.parent;
+				this._targetPointer.container = (targetObj.parent instanceof Container) ? targetObj.parent : null;
 				this._targetPointer.index = this._targetPath.lastComponent.index;
 			} else {
-				this._targetPointer = Pointer.StartOf(targetObj);
+				this._targetPointer = Pointer.StartOf((targetObj instanceof Container) ? targetObj : null);
 			}
 		}
 
