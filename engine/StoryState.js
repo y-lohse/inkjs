@@ -162,7 +162,7 @@ export class StoryState{
 				}
 			});
 
-			this._currentText = CleanOutputWhitespace(sb.toString());
+			this._currentText = this.CleanOutputWhitespace(sb.toString());
 			this._outputStreamTextDirty = false;
 		}
 
@@ -189,7 +189,7 @@ export class StoryState{
 		return this._outputStream;
 	}
 	get currentPathString(){
-		var pointer = currentPointer;
+		var pointer = this.currentPointer;
 		if (pointer.isNull)
 			return null;
 		else
@@ -301,12 +301,12 @@ export class StoryState{
 	}
 
 	CleanOutputWhitespace (str){
-		var sb = new StringBuilder(str.Length);
+		var sb = new StringBuilder();
 
 		var currentWhitespaceStart = -1;
 
-		for (var i = 0; i < str.Length; i++) {
-			var c = st.charAt(i);
+		for (var i = 0; i < str.length; i++) {
+			var c = str.charAt(i);
 
 			var isInlineWhitespace = (c == ' ') || (c == '\t');
 
@@ -462,7 +462,7 @@ export class StoryState{
 		if (tailLastNewlineIdx != -1 && tailFirstNewlineIdx > headLastNewlineIdx) {
 			listTexts.push(new StringValue("\n"));
 			if (tailLastNewlineIdx < str.length - 1) {
-				var numSpaces = (str.Length - tailLastNewlineIdx) - 1;
+				var numSpaces = (str.length - tailLastNewlineIdx) - 1;
 				var trailingSpaces = new StringValue(str.substring(tailLastNewlineIdx + 1, numSpaces));
 				listTexts.push(trailingSpaces);
 			}
@@ -489,7 +489,7 @@ export class StoryState{
 			}
 
 			var glueTrimIndex = -1;
-			for (var i = this._outputStream.length; i >= 0; i--) {
+			for (var i = this._outputStream.length - 1; i >= 0; i--) {
 				var o = this._outputStream[i];
 				var c = (o instanceof ControlCommand) ? o : null;
 				var g = (o instanceof Glue) ? o : null;
@@ -517,14 +517,18 @@ export class StoryState{
 
 			if (trimIndex != -1) {
 
-				if (text.isNonWhitespace) {
+				if (text.isNewline) {
+					includeInOutput = false;
+				}
+
+				else if (text.isNonWhitespace) {
 
 					if (glueTrimIndex > -1)
 						this.RemoveExistingGlue();
 
 					if (functionTrimIndex > -1) {
-						var callStackElements = callstack.elements;
-						for (var i = callStackElements.Count - 1; i >= 0; i--) {
+						var callStackElements = this.callStack.elements;
+						for (var i = callStackElements.length - 1; i >= 0; i--) {
 							var el = callStackElements[i];
 							if (el.type == PushPopType.Function) {
 								el.functionStartInOutputStream = -1;
@@ -633,16 +637,16 @@ export class StoryState{
 	PopCallStack(popType) {
 		popType = (typeof popType !== 'undefined') ? popType : null;
 
-		if (callStack.currentElement.type == PushPopType.Function)
+		if (this.callStack.currentElement.type == PushPopType.Function)
 			this.TrimWhitespaceFromFunctionEnd();
 
-		callStack.Pop(popType);
+		this.callStack.Pop(popType);
 	}
 	SetChosenPath(path){
 		// Changing direction, assume we need to clear current set of choices
 		this._currentChoices.length = 0;
 
-		var newPointer = story.PointerAtPath(path);
+		var newPointer = this.story.PointerAtPath(path);
 		if (!newPointer.isNull && newPointer.index == -1)
 			newPointer.index = 0;
 
@@ -746,13 +750,13 @@ export class StoryState{
 		copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
 
 		if (this.hasError) {
-			copy.currentErrors = [];
-			copy.currentErrors.push.apply(copy.currentErrors, this.currentErrors);
+			copy._currentErrors = [];
+			copy._currentErrors.push.apply(copy._currentErrors, this.currentErrors);
 		}
 
 		if (this.hasWarning) {
-			copy.currentWarnings = [];
-			copy.currentWarnings.push.apply(copy.currentWarnings, this.currentWarnings);
+			copy._currentWarnings = [];
+			copy._currentWarnings.push.apply(copy._currentWarnings, this.currentWarnings);
 		}
 
 		copy.callStack = new CallStack(this.callStack);
