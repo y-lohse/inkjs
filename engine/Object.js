@@ -49,21 +49,21 @@ export class Object{
 		}
 		return ancestor;
 	}
-	
+
 	ResolvePath(path){
 		if (path.isRelative) {
 			var nearestContainer = this;
 
 			if (nearestContainer instanceof Container === false) {
 				if (this.parent == null) console.warn("Can't resolve relative path because we don't have a parent");
-				
+
 				nearestContainer = this.parent;
 				if (nearestContainer.constructor.name !== 'Container') console.warn("Expected parent to be a container");
-				
+
 				//Debug.Assert (path.GetComponent(0).isParent);
 				path = path.tail;
 			}
-			
+
 			return nearestContainer.ContentAtPath(path);
 		} else {
 			return this.rootContentContainer.ContentAtPath(path);
@@ -106,22 +106,22 @@ export class Object{
 	CompactPathString(otherPath){
 		var globalPathStr = null;
 		var relativePathStr = null;
-		
+
 		if (otherPath.isRelative) {
 			relativePathStr = otherPath.componentsString;
 			globalPathStr = this.path.PathByAppendingPath(otherPath).componentsString;
-		} 
+		}
 		else {
 			var relativePath = this.ConvertPathToRelative(otherPath);
 			relativePathStr = relativePath.componentsString;
 			globalPathStr = otherPath.componentsString;
 		}
 
-		if (relativePathStr.Length < globalPathStr.Length) 
+		if (relativePathStr.length < globalPathStr.length)
 			return relativePathStr;
 		else
 			return globalPathStr;
-	}	
+	}
 	Copy(){
 		throw "Not Implemented";
 	}

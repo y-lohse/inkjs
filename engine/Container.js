@@ -146,7 +146,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 	}
 	ContentAtPath(path, partialPathStart, partialPathLength){
 		partialPathStart = (typeof partialPathStart !== 'undefined') ? partialPathStart : 0;
-		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.componentCount;
+		partialPathLength = (typeof partialPathLength !== 'undefined') ? partialPathLength : path.length;
 
 		var result = new SearchResult();
 		result.approximate = false;
@@ -156,7 +156,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 		for (var i = partialPathStart; i < partialPathLength; ++i) {
 			var comp = path.GetComponent(i);
-			if (currentContainer == null || !(currentContainer instanceof Container)) {
+			if (currentContainer == null) {
 				result.approximate = true;
 				break;
 			}
@@ -170,7 +170,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 			currentObj = foundObj
 //			currentContainer = currentObj as Container;
-			currentContainer = currentObj;
+			currentContainer = (foundObj instanceof Container) ? currentObj : null;
 		}
 
 		result.obj = currentObj;
