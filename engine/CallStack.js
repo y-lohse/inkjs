@@ -150,7 +150,7 @@ export class CallStack{
 
 		for (var t = 0; t < this._threads.length; t++) {
 			var thread = this._threads[t];
-			var isCurrent = (t == _threads.length - 1);
+			var isCurrent = (t == this._threads.length - 1);
 			sb.AppendFormat("=== THREAD {0}/{1} {2}===\n", (t+1), this._threads.length, (isCurrent ? "(current) ":""));
 
 			for (var i = 0; i < thread.callstack.length; i++) {
@@ -160,18 +160,11 @@ export class CallStack{
 				else
 					sb.Append("  [TUNNEL] ");
 
-				var obj = thread.callstack[i].currentObject;
-				if (obj == null) {
-					if (thread.callstack[i].currentContainer != null) {
+				var pointer = thread.callstack[i].currentPointer;
+				if(!pointer.isNull) {
 					sb.Append("<SOMEWHERE IN ");
-					sb.Append(thread.callstack[i].currentContainer.path.ToString());
+					sb.Append(pointer.container.path.toString());
 					sb.AppendLine(">");
-					} else {
-					sb.AppendLine("<UNKNOWN STACK ELEMENT>");
-					}
-				} else {
-					var elementStr = obj.path.ToString();
-					sb.AppendLine(elementStr);
 				}
 			}
 		}
@@ -186,7 +179,7 @@ export class CallStack{
 	}
 	get currentElement(){
 		var thread = this._threads[this._threads.length - 1];
-		var cs = thread.callStack;
+		var cs = thread.callstack;
 		return cs[cs.length - 1];
 	}
 	get currentElementIndex(){
@@ -232,7 +225,7 @@ export class CallStack{
 		element.evaluationStackHeightWhenPushed = externalEvaluationStackHeight;
 		element.functionStartInOuputStream = outputStreamLengthWithPushed;
 
-		this.callStack.Add (element);
+		this.callStack.push (element);
 	}
 	PushThread(){
 		var newThread = this.currentThread.Copy();

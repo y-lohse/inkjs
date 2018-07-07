@@ -31,7 +31,7 @@ class AbstractValue extends InkObject{
 	get valueObject(){
 		return this._valueObject;
 	}
-	
+
 	Cast(newType){
 		throw "Trying to casting an AbstractValue";
 	}
@@ -53,15 +53,15 @@ class AbstractValue extends InkObject{
 		} else if (val instanceof InkList) {
 			return new ListValue(val);
 		}
-	
+
 		return null;
 	}
 	Copy(val){
 		return AbstractValue.Create(val);
 	}
-  BadCastException (targetType) {
-    return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
-  }
+	BadCastException (targetType) {
+		return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
+	}
 }
 
 export class Value extends AbstractValue{
@@ -94,7 +94,7 @@ export class IntValue extends Value{
 	get valueType(){
 		return ValueType.Int;
 	}
-	
+
 	Cast(newType){
 		if (newType == this.valueType) {
 			return this;
@@ -123,7 +123,7 @@ export class FloatValue extends Value{
 	get valueType(){
 		return ValueType.Float;
 	}
-	
+
 	Cast(newType){
 		if (newType == this.valueType) {
 			return this;
@@ -145,16 +145,16 @@ export class StringValue extends Value{
 	constructor(val){
 		super(val || '');
 		this._valueType = ValueType.String;
-		
+
 		this._isNewline = (this.value == "\n");
 		this._isInlineWhitespace = true;
-		
+
 		this.value.split().every(c => {
 			if (c != ' ' && c != '\t'){
 				this._isInlineWhitespace = false;
 				return false;
 			}
-			
+
 			return true;
 		});
 	}
@@ -173,7 +173,7 @@ export class StringValue extends Value{
 	get isNonWhitespace(){
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
-	
+
 	Cast(newType){
 		if (newType == this.valueType) {
 			return this;
@@ -205,7 +205,7 @@ export class StringValue extends Value{
 export class DivertTargetValue extends Value{
 	constructor(targetPath){
 		super(targetPath);
-		
+
 		this._valueType = ValueType.DivertTarget;
 	}
 	get targetPath(){
@@ -217,7 +217,7 @@ export class DivertTargetValue extends Value{
 	get isTruthy(){
 		throw "Shouldn't be checking the truthiness of a divert target";
 	}
-	
+
 	Cast(newType){
 		if (newType == this.valueType)
 			return this;
@@ -232,7 +232,7 @@ export class DivertTargetValue extends Value{
 export class VariablePointerValue extends Value{
 	constructor(variableName, contextIndex){
 		super(variableName);
-		
+
 		this._valueType = ValueType.VariablePointer;
 		this.contextIndex = (typeof contextIndex !== 'undefined') ? contextIndex : -1;
 	}
@@ -245,7 +245,7 @@ export class VariablePointerValue extends Value{
 	get isTruthy(){
 		throw "Shouldn't be checking the truthiness of a variable pointer";
 	}
-	
+
 	Cast(newType){
 		if (newType == this.valueType)
 			return this;
@@ -269,7 +269,7 @@ export class ListValue extends Value{
 		this.value.forEach(function(kv){
 			var listItemIntValue = kv.Value;
 			if (listItemIntValue != 0)
-				isTruthy = true; 
+				isTruthy = true;
 		});
 		return isTruthy;
 	}
@@ -306,9 +306,9 @@ export class ListValue extends Value{
 	}
 	constructor(listOrSingleItem, singleValue){
 		super(null);
-		
+
 		this._valueType = ValueType.List;
-		
+
 		if (listOrSingleItem instanceof InkList){
 			this.value = new InkList(listOrSingleItem);
 		}
