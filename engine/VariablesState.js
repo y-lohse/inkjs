@@ -109,9 +109,9 @@ export class VariablesState{
 			}
 		}
 	}
-  GlobalVariableExistsWithName(name){
-    return typeof this._globalVariables[name] !== 'undefined';
-  }
+	GlobalVariableExistsWithName(name){
+		return typeof this._globalVariables[name] !== 'undefined';
+	}
 	GetVariableWithName(name,contextIndex){
 		if (typeof contextIndex === 'undefined') contextIndex = -1;
 
@@ -125,6 +125,12 @@ export class VariablesState{
 		}
 
 		return varValue;
+	}
+	TryGetDefaultVariableValue (name)
+	{
+		var val = _defaultGlobalVariables[name];
+		if (typeof val === 'undefined') val = null;
+		return val;
 	}
 	GetRawVariableWithName(name, contextIndex){
 		var varValue = null;
