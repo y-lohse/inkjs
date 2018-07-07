@@ -39,12 +39,13 @@ export class Story extends InkObject{
 
 		this._variableObservers = null;
 		this._externals = {};
-		this._prevContainers = new Set();
+		this._prevContainers = [];
 		this._listDefinitions = null;
 
 		this._asyncContinueActive;
 		this._stateAtLastNewline = null;
 		this._recursiveContinueCount = 0;
+		this._temporaryEvaluationContainer = null;
 
 		this._profiler = null;
 
@@ -542,13 +543,13 @@ export class Story extends InkObject{
 			return;
 
 		// First, find the previously open set of containers
-		this._prevContainers.clear();
+		this._prevContainers.length = 0;
 		if (!previousPointer.isNull) {
 //			Container prevAncestor = previousPointer.Resolve() as Container ?? previousPointer.container as Container;
 			var resolvedPreviousAncestor = previousPointer.Resolve();
 			var prevAncestor = (resolvedPreviousAncestor instanceof Container) ? resolvedPreviousAncestor : previousPointer.container;
 			while (prevAncestor instanceof Container) {
-				this._prevContainers.add(prevAncestor);
+				this._prevContainers.push(prevAncestor);
 //				prevAncestor = prevAncestor.parent as Container;
 				prevAncestor = prevAncestor.parent;
 			}
@@ -562,7 +563,7 @@ export class Story extends InkObject{
 
 //		Container currentContainerAncestor = currentChildOfContainer.parent as Container;
 		var currentContainerAncestor = currentChildOfContainer.parent;
-		while (currentContainerAncestor instanceof Container && !this._prevContainers.has(currentContainerAncestor)) {
+		while (currentContainerAncestor instanceof Container && this._prevContainers.indexOf(currentContainerAncestor) < 0) {
 
 			// Check whether this ancestor container is being entered at the start,
 			// by checking whether the child object is the first.
@@ -644,7 +645,6 @@ export class Story extends InkObject{
 		return truthy;
 	}
 	PerformLogicAndFlowControl(contentObj){
-
 		if( contentObj == null ) {
 			return false;
 		}
@@ -739,7 +739,7 @@ export class Story extends InkObject{
 					var output = this.state.PopEvaluationStack();
 
 					// Functions may evaluate to Void, in which case we skip output
-					if (output != null && !(output instanceof Void)) {
+					if (!(output instanceof Void)) {
 						// TODO: Should we really always blanket convert to string?
 						// It would be okay to have numbers in the output stream the
 						// only problem is when exporting text for viewing, it skips over numbers etc.
@@ -792,8 +792,9 @@ export class Story extends InkObject{
 					names[PushPopType.Tunnel] = "tunnel onwards statement (->->)";
 
 					var expected = names[this.state.callStack.currentElement.type];
-					if (!this.state.callStack.canPop)
+					if (!this.state.callStack.canPop) {
 						expected = "end of flow (-> END or choice)";
+					}
 
 					var errorMsg = "Found " + names[popType] + ", when expected " + expected;
 
@@ -887,7 +888,7 @@ export class Story extends InkObject{
 					else
 						eitherCount = 0;
 
-						this.Warning("Failed to find container for " + evalCommand.toString() + " lookup at " + divertTarget.targetPath.toString());
+					this.Warning("Failed to find container for " + evalCommand.toString() + " lookup at " + divertTarget.targetPath.toString());
 				}
 
 				this.state.PushEvaluationStack(new IntValue(eitherCount));
@@ -947,7 +948,6 @@ export class Story extends InkObject{
 				break;
 
 			case ControlCommand.CommandType.Done:
-
 				// We may exist in the context of the initial
 				// act of creating the thread, or in the context of
 				// evaluating the content.
@@ -1139,7 +1139,7 @@ export class Story extends InkObject{
 				if (container != null) {
 					funcDetail = "("+container.path.toString ()+") ";
 				}
-				throw new System.Exception ("Story was running a function "+funcDetail+"when you called ChoosePathString("+path+") - this is almost certainly not not what you want! Full stack trace: \n"+state.callStack.callStackTrace);
+				throw "Story was running a function "+funcDetail+"when you called ChoosePathString("+path+") - this is almost certainly not not what you want! Full stack trace: \n"+this.state.callStack.callStackTrace;
 			}
 		}
 
@@ -1150,7 +1150,7 @@ export class Story extends InkObject{
 	IfAsyncWeCant (activityStr)
 	{
 		if (this._asyncContinueActive)
-			throw new System.Exception ("Can't " + activityStr + ". Story is in the middle of a ContinueAsync(). Make more ContinueAsync() calls or a single Continue() call beforehand.");
+			throw "Can't " + activityStr + ". Story is in the middle of a ContinueAsync(). Make more ContinueAsync() calls or a single Continue() call beforehand.";
 	}
 
 	ChoosePath(p){
@@ -1499,7 +1499,6 @@ export class Story extends InkObject{
 		if (!this.state.divertedPointer.isNull) {
 
 			this.state.currentPointer = this.state.divertedPointer.copy();
-
 			this.state.divertedPointer = Pointer.Null;
 
 			// Internally uses state.previousContentObject and state.currentContentObject
