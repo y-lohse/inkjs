@@ -1,6 +1,6 @@
 import {Container} from './Container';
 import {Value, IntValue, FloatValue, StringValue, DivertTargetValue, VariablePointerValue, ListValue} from './Value';
-import {Glue, GlueType} from './Glue';
+import {Glue} from './Glue';
 import {ControlCommand} from './ControlCommand';
 import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
@@ -28,15 +28,15 @@ export class JsonSerialisation{
 	static JArrayToRuntimeObjList(jArray, skipLast){
 		var count = jArray.length;
 		if (skipLast) count--;
-		
+
 		var list = [];
-		
+
 		for (var i = 0; i < count; i++){
 			var jTok = jArray[i];
 			var runtimeObj = this.JTokenToRuntimeObject(jTok);
 			list.push(runtimeObj);
 		}
-		
+
 		return list;
 	}
 	static JObjectToDictionaryRuntimeObjs(jObject){
@@ -79,7 +79,7 @@ export class JsonSerialisation{
 		if (!isNaN(token) && token !== "\n"){//JS thinks "\n" is a number
 			return Value.Create(token);
 		}
-		
+
 		if (typeof token === 'string'){
 			var str = token.toString();
 
@@ -116,7 +116,7 @@ export class JsonSerialisation{
 			if (str == "void")
 				return new Void ();
 		}
-		
+
 		if (typeof token === 'object' && token instanceof Array === false){
 			var obj = token;
 			var propValue;
@@ -126,7 +126,7 @@ export class JsonSerialisation{
 				propValue = obj["^->"];
 				return new DivertTargetValue(new Path(propValue.toString()));
 			}
-				
+
 			// VariablePointerValue
 			if (obj["^var"]) {
 				propValue = obj["^var"];
@@ -162,7 +162,7 @@ export class JsonSerialisation{
 				pushesToStack = false;
 				divPushType = PushPopType.Function;
 			}
-			
+
 			if (isDivert) {
 				var divert = new Divert();
 				divert.pushesToStack = pushesToStack;
@@ -175,7 +175,7 @@ export class JsonSerialisation{
 					divert.variableDivertName = target;
 				else
 					divert.targetPathString = target;
-				
+
 				divert.isConditional = !!obj["c"];
 
 				if (external) {
@@ -238,29 +238,29 @@ export class JsonSerialisation{
 //					rawList.SetInitialOriginNames(namesAsObjs.Cast<string>().ToList());
 					rawList.SetInitialOriginNames(namesAsObjs);
 				}
-				
+
 				for (var key in listContent){
 					var nameToVal = listContent[key];
 					var item = new InkListItem(key);
 					var val = parseInt(nameToVal);
 					rawList.Add(item, val);
 				}
-				
+
 				return new ListValue(rawList);
 			}
 
 			if (obj["originalChoicePath"] != null)
 				return this.JObjectToChoice(obj);
 		}
-		
+
 		// Array is always a Runtime.Container
 		if (token instanceof Array){
 			return this.JArrayToContainer(token);
 		}
-		
+
 		if (token == null)
                 return null;
-		
+
 		throw "Failed to convert token to runtime object: " + JSON.stringify(token);
 	}
 	static RuntimeObjectToJToken(obj){
@@ -294,7 +294,7 @@ export class JsonSerialisation{
 
 			if (divert.hasVariableTarget)
 				jObj["var"] = true;
-			
+
 			if (divert.isConditional)
 				jObj["c"] = true;
 
@@ -331,7 +331,7 @@ export class JsonSerialisation{
 			else
 				return "^" + strVal.value;
 		}
-		
+
 //		var listVal = obj as ListValue;
 		var listVal = obj;
 		if (listVal instanceof ListValue) {
@@ -407,7 +407,7 @@ export class JsonSerialisation{
 		var voidObj = obj;
 		if (voidObj instanceof Void)
 			return "void";
-	
+
 //		var tag = obj as Tag;
 		var tag = obj;
 		if (tag instanceof Tag) {
@@ -465,7 +465,7 @@ export class JsonSerialisation{
 				terminatingObj["#n"] = container.name;
 
 			jArray.push(terminatingObj);
-		} 
+		}
 
 		// Add null terminator to indicate that there's no dictionary
 		else {
@@ -487,7 +487,7 @@ export class JsonSerialisation{
 		if (terminatingObj != null) {
 
 			var namedOnlyContent = {};
-			
+
 			for (var key in terminatingObj){
 				if (key == "#f") {
 					container.countFlags = parseInt(terminatingObj[key]);
@@ -532,7 +532,7 @@ export class JsonSerialisation{
 		var dict = {};
 
 		var content = {};
-		
+
 		rawList.forEach(function(itemAndValue){
 			var item = itemAndValue.Key;
 			var val = itemAndValue.Value;
@@ -550,7 +550,7 @@ export class JsonSerialisation{
 	}
 	static ListDefinitionsToJToken(origin){
 		var result = {};
-		
+
 		origin.lists.forEach(function(def){
 			var listDefJson = {};
 			def.items.forEach(function(itemToVal){
@@ -558,10 +558,10 @@ export class JsonSerialisation{
 				var val = itemToVal.Value;
 				listDefJson[item.itemName] = val;
 			});
-			
+
 			result[def.name] = listDefJson;
 		});
-		
+
 		return result;
 	}
 	static JTokenToListDefinitions(obj){
@@ -569,7 +569,7 @@ export class JsonSerialisation{
 		var defsObj = obj;
 
 		var allDefs = [];
-		
+
 		for (var key in defsObj){
 			var name = key.toString();
 //			var listDefJson = (Dictionary<string, object>)kv.Value;
@@ -577,7 +577,7 @@ export class JsonSerialisation{
 
 			// Cast (string, object) to (string, int) for items
 			var items = {};
-			
+
 			for (var nameValueKey in listDefJson){
 				var nameValue = listDefJson[nameValueKey];
 				items[nameValueKey] = parseInt(nameValue);

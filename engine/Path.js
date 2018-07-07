@@ -3,7 +3,7 @@ export class Path{
 		this._isRelative;
 		this._components = [];
     this._componentsString = null;
-		
+
 		if (typeof arguments[0] == 'string'){
 			this.componentsString = arguments[0];
 		}
@@ -62,7 +62,7 @@ export class Path{
 		path._isRelative = true;
 		return path;
 	}
-	
+
   GetComponent(index){
     return this._components[index];
   }
@@ -93,14 +93,14 @@ export class Path{
       this._componentsString = this._components.join(".");
       if (this.isRelative) this._componentsString = "." + this._componentsString;
     }
-		
+
     return this._componentsString;
 	}
 	set componentsString(value){
 		this._components.length = 0;
 
 		this._componentsString = value;
-		
+
 		if (this._componentsString == null || this._componentsString == '') return;
 
 		// When components start with ".", it indicates a relative path, e.g.
@@ -137,7 +137,7 @@ export class Path{
 
 		if (otherPath.isRelative != this.isRelative)
 			return false;
-		
+
 		//the original code uses SequenceEqual here, so we need to iterate over the components manually.
 		for (var i = 0, l = otherPath._components.length; i < l; i++){
 			//it's not quite clear whether this test should use Equals or a simple == operator, see https://github.com/y-lohse/inkjs/issues/22
@@ -146,12 +146,12 @@ export class Path{
 
 		return true;
 	}
-  PathByAppendingComponent (c) {
-    var p = new Path();
-    p._components.AddRange(this._components);
-    p._components.Add(c);
-    return p;
-  }
+	PathByAppendingComponent (c) {
+		var p = new Path();
+		p._components.push.apply(p._components, this._components);
+		p._components.push(c);
+		return p;
+	}
 }
 
 class Component{
@@ -177,7 +177,7 @@ class Component{
 	get isParent(){
 		return this.name == Path.parentId;
 	}
-	
+
 	static ToParent(){
 		return new Component(Path.parentId);
 	}
@@ -191,7 +191,7 @@ class Component{
 	Equals(otherComp){
 		if (otherComp != null && otherComp.isIndex == this.isIndex) {
 			if (this.isIndex) {
-				return this.index == otherComp.index;   
+				return this.index == otherComp.index;
 			} else {
 				return this.name == otherComp.name;
 			}

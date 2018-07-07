@@ -1,4 +1,4 @@
-import {Path} from 'path.js';
+import {Path} from './Path';
 
 export class Pointer{
 	constructor(container, index){
@@ -12,7 +12,7 @@ export class Pointer{
 		if (this.container.content.length == 0) return this.container;
 		if (this.index >= this.container.content.length) return null;
 
-		return this.container.content[index];
+		return this.container.content[this.index];
 	}
 
 	get isNull(){
@@ -23,7 +23,7 @@ export class Pointer{
 		if (this.isNull) return null;
 
 		if (this.index >= 0)
-			return this.container.path.PathByAppendingComponent(new Path.Component(index));
+			return this.container.path.PathByAppendingComponent(new Path.Component(this.index));
 		else
 			return this.container.path;
 	}
@@ -44,6 +44,8 @@ export class Pointer{
 	static StartOf(container){
 		return new Pointer(container, 0);
 	}
-}
 
-Pointer.Null = new Pointer(null, -1)
+	static get Null() {
+		return new Pointer(null, -1);
+	}
+}
