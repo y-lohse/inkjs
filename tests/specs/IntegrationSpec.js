@@ -209,7 +209,6 @@ describe('Integration', function(){
     });
     
     it('should expose the InkList class', function(){
-      console.log(testsUtils.inkjs)
       expect(testsUtils.inkjs.InkList).toBeDefined();
     });
   })
