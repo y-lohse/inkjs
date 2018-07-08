@@ -170,7 +170,7 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 			currentObj = foundObj
 //			currentContainer = currentObj as Container;
-			currentContainer = (foundObj instanceof Container) ? currentObj : null;
+			currentContainer = (foundObj instanceof Container) ? foundObj : null;
 		}
 
 		result.obj = currentObj;
