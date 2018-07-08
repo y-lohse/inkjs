@@ -1,5 +1,4 @@
 import {PushPopType} from './PushPop';
-import {Container} from './Container';
 import {Path} from './Path';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
@@ -15,8 +14,8 @@ class Element{
 		this.temporaryVariables = {};
 		this.type = type;
 
-		this.evaluationStackHeightWhenPushed;
-		this.functionStartInOuputStream;
+		this.evaluationStackHeightWhenPushed = 0;
+		this.functionStartInOuputStream = 0;
 	}
 
 	Copy(){
@@ -58,7 +57,7 @@ class Thread{
 
 					if (threadPointerResult.obj == null)
 						throw "When loading state, internal story location couldn't be found: " + currentContainerPathStr + ". Has the story changed since this save data was created?";
-					else
+					else if (threadPointerResult.approximate)
 						storyContext.Warning("When loading state, exact internal story location couldn't be found: '" + currentContainerPathStr + "', so it was approximated to '"+pointer.container.path.toString()+"' to recover. Has the story changed since this save data was created?");
 				}
 
@@ -73,7 +72,7 @@ class Thread{
 			});
 
 			var prevContentObjPath = jThreadObj["previousContentObject"];
-			if(typeof prevContentObjPath  !== 'undefined') {
+			if(typeof prevContentObjPath !== 'undefined') {
 				var prevPath = new Path(prevContentObjPath.toString());
 				this.previousPointer = storyContext.PointerAtPath(prevPath);
 			}
@@ -87,7 +86,7 @@ class Thread{
 		this.callstack.forEach(el => {
 			var jObj = {};
 			if (!el.currentPointer.isNull) {
-				jObj["cPath"] = el.currentPointer.path.componentsString;
+				jObj["cPath"] = el.currentPointer.container.path.componentsString;
 				jObj["idx"] = el.currentPointer.index;
 			}
 			jObj["exp"] = el.inExpressionEvaluation;
@@ -189,7 +188,7 @@ export class CallStack{
 		return this.callStack.length > 1;
 	}
 	get canPopThread(){
-		return this._threads.length > 1 && !this.elementIsEvaluatedFromGame;
+		return this._threads.length > 1 && !this.elementIsEvaluateFromGame;
 	}
 	get elementIsEvaluateFromGame(){
 		return this.currentElement.type == PushPopType.FunctionEvaluationFromGame;
