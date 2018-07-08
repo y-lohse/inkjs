@@ -478,6 +478,7 @@ export class StoryState{
 
 		if (glue instanceof Glue) {
 			this.TrimNewlinesFromOutputStream();
+			includeInOutput = true;
 		}
 
 		else if( text instanceof StringValue ) {
