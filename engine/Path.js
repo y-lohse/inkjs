@@ -79,7 +79,7 @@ export class Path{
 		}
 
 		for (var i = 0; i < this._components.length - upwardMoves; ++i) {
-			p.components.push(this._components[i]);
+			p._components.push(this._components[i]);
 		}
 
 		for(var i = upwardMoves; i < pathToAppend._components.length; ++i) {
@@ -89,12 +89,12 @@ export class Path{
 		return p;
 	}
 	get componentsString(){
-    if (this._componentsString == null) {
-      this._componentsString = this._components.join(".");
-      if (this.isRelative) this._componentsString = "." + this._componentsString;
-    }
+		if (this._componentsString == null) {
+		this._componentsString = this._components.join(".");
+		if (this.isRelative) this._componentsString = "." + this._componentsString;
+		}
 
-    return this._componentsString;
+		return this._componentsString;
 	}
 	set componentsString(value){
 		this._components.length = 0;
