@@ -116,7 +116,7 @@ export class Story extends InkObject{
 	get currentErrors(){
 		return this.state.currentErrors;
 	}
-	get currentErrors(){
+	get currentWarnings(){
 		return this.state.currentWarnings;
 	}
 	get hasError(){
@@ -193,7 +193,7 @@ export class Story extends InkObject{
 			// since we may be doing this reset at initialisation time.
 			this.ContinueInternal();
 
-			this.state.currentPointer = originalPointer.copy();
+			this.state.currentPointer = originalPointer
 		}
 
 		this.state.variablesState.SnapshotDefaultGlobals();
@@ -383,7 +383,7 @@ export class Story extends InkObject{
 	}
 	KnotContainerWithName(name){
 		var namedContainer = this.mainContentContainer.namedContent[name];
-		if (typeof namedContainer !== 'undefined')
+		if (namedContainer instanceof Container)
 			return namedContainer;
 		else
 			return null;
@@ -1092,7 +1092,7 @@ export class Story extends InkObject{
 				foundValue = this.state.variablesState.GetVariableWithName(varRef.name);
 
 				if (foundValue == null) {
-					var defaultVal = state.variablesState.TryGetDefaultVariableValue (varRef.name);
+					var defaultVal = this.state.variablesState.TryGetDefaultVariableValue (varRef.name);
 					if (defaultVal != null) {
 						this.Warning("Variable not found in save state: '" + varRef.name + "', but seems to have been newly created. Assigning value from latest ink's declaration: " + defaultVal);
 						foundValue = defaultVal;
@@ -1135,7 +1135,7 @@ export class Story extends InkObject{
 		} else {
 			if (this.state.callStack.currentElement.type == PushPopType.Function) {
 				var funcDetail = "";
-				var container = state.callStack.currentElement.currentPointer.container;
+				var container = this.state.callStack.currentElement.currentPointer.container;
 				if (container != null) {
 					funcDetail = "("+container.path.toString ()+") ";
 				}
@@ -1691,7 +1691,7 @@ export class Story extends InkObject{
 //		e.useEndLineNumber = useEndLineNumber;
 		throw e;
 	}
-	Warning(message, useEndLineNumber){
+	Warning(message){
 		this.AddError(message, true);
 	}
 	AddError(message, isWarning, useEndLineNumber){
