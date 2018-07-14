@@ -781,6 +781,9 @@ export class StoryState{
 	ToJson(indented){
 		return JSON.stringify(this.jsonToken, null, (indented) ? 2 : 0);
 	}
+	toJson(indented){
+		return this.ToJson(indented);
+	}
 	LoadJson(jsonString){
 		this.jsonToken = JSON.parse(jsonString);
 	}
