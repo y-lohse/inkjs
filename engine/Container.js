@@ -163,13 +163,12 @@ export class Container extends InkObject{//also implements INamedContent. Not su
 
 			var foundObj = currentContainer.ContentWithPathComponent(comp);
 
-			if (foundObj == null || !(foundObj instanceof Container)) {
+			if (foundObj == null) {
 				result.approximate = true;
 				break;
 			}
 
 			currentObj = foundObj
-//			currentContainer = currentObj as Container;
 			currentContainer = (foundObj instanceof Container) ? foundObj : null;
 		}
 
