@@ -1,8 +1,16 @@
 language: node_js
 install:
-  - npm install
+- npm install
 node_js:
-  - "8"
+- '7'
 script:
-  - npm run build
-  - npm run test
+- npm run build
+- npm run test
+deploy:
+  provider: npm
+  email: contact@yannick-lohse.fr
+  api_key:
+    secure: po99ww1KUguKltoYcJ9wVn/J1RXtKyRViRU8egEGrLyJGQlbohX5NLAwOzqub+XE4zD65E5RlAB9UyZMq+yF28uRRlS60Eh+ZxR4xRz/gW3SUqJ+s/ZuUSaOZMaIREFwNTJ44q3vWj+0rZIA3Jhxrrd0DX7qz/7df7bQ4cQiExfJZrhJLQZQItbcz64/AMXRMVVjhDzanemkrbm0E97xScOv0HsiqoxExmqy6foVh0Aj32p352oZdBmT9CHlcYO6pRnky6/y0keCn9NjX5/PUHrBGWmftlZCLCUfo/f7mq37I/5Jk+GE6foQ9SR8Y8ZMeu8yffSdywIYbsHSwbFhejCD0zQPlCC0+S90aWGMQjeljZB6T6aXbCjTO/nsbeOCNxh0W7jp7ZF6FZfvlyDey0YDZrHBCSTrDbBy/WQ+uyZ0vZiNaX1A198NkVT6S/m2x4HvL/Rj9StShSI8OAC92/0WZoKgc3vNoR6mPlkBkmIkc+OD0x2cVFIHDLRdRCedFVxVzpWXOA78wxT7Slk8tDG+r82+UjiiRXM5Jo/pHZli3YpN6wEPIgBYO9uQnc1Zxv45A8ADQTG++yxE113pAsi6JFFuzuyvsP0wjx0dDtqpTAYWh1ADs44T3Q33xStTU5oZnmO6cLcVwrHpbg3HVsGcvJ/FDqVGkF3e9xGOUzU=
+  on:
+    tags: true
+    repo: y-lohse/inkjs
