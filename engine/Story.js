@@ -18,7 +18,7 @@ import {StoryException} from './StoryException';
 import {PRNG} from './PRNG';
 import {StringBuilder} from './StringBuilder';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
-import {Stopwatch} from './Stopwatch';
+import {Stopwatch} from './StopWatch';
 import {Pointer} from './Pointer';
 export {InkList} from './InkList';
 
