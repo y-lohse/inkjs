@@ -356,7 +356,7 @@ export class Story extends InkObject{
 		}
 
 		if (currTagCount > prevTagCount)
-			return OutputStateChange.ExtendedBeyondNewLine;
+			return OutputStateChange.ExtendedBeyondNewline;
 
 		for (var i = prevText.length; i < currText.length; i++) {
 			var c = currText.charAt(i);
