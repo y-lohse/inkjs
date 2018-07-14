@@ -1,6 +1,9 @@
-test/
 tests/
 engine/
 templates/
-Gruntfile.js
 .gitattributes
+.istanbul.yml
+.travis.yml
+jasmine.config.json
+renovate.json
+rollup.config.js

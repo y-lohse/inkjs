@@ -8,7 +8,7 @@
     "build": "rollup -c",
     "watch": "rollup -c -w",
     "watch:test": "npm-watch test",
-    "prepublish": "rollup -c"
+    "prepublishOnly": "rollup -c"
   },
   "watch": {
     "test": {
