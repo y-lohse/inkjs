@@ -127,18 +127,6 @@ export class StoryState{
 		}
 		return false;
 	}
-	get currentRightGlue(){
-		for (var i = this._outputStream.length - 1; i >= 0; i--) {
-			var c = this._outputStream[i];
-//			var glue = c as Glue;
-			var glue = c;
-			if (glue instanceof Glue && glue.isRight)
-				return glue;
-			else if (c instanceof ControlCommand) // e.g. BeginString
-				break;
-		}
-		return null;
-	}
 	get inStringEvaluation(){
 		for (var i = this._outputStream.length - 1; i >= 0; i--) {
 //			var cmd = this._outputStream[i] as ControlCommand;
