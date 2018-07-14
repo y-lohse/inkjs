@@ -40,7 +40,7 @@ describe('Content', function(){
     expect(story.Continue()).toEqual('I… \n');
   });
   
-  it('should print handle an if/else text', function(){
+  it('should handle an if/else text', function(){
     story.ChoosePathString('content.if_else_text');
     
     expect(story.Continue()).toEqual('I saw him. Only for a moment.\n');
