@@ -325,7 +325,7 @@ export class StoryState{
 	ResetOutput(objs){
 		objs = (typeof objs !== 'undefined') ? objs : null;
 		this._outputStream.length = 0;
-		if (this.objs != null) this._outputStream.push.apply(this._outputStream, objs);
+		if (objs != null) this._outputStream.push.apply(this._outputStream, objs);
 		this.OutputStreamDirty();
 	}
 	PushEvaluationStack(obj){
