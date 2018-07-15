@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"target": "es6",
+		"module": "es6",
+		"outDir": "./engine",
+		"rootDir": "./src",
+		"strict": true,
+		"sourceMap": true,
+		"allowJs": true
+	},
+
+	"include": ["src/"],
+	"exclude": ["node_modules", "**/__tests__/*"]
+}
