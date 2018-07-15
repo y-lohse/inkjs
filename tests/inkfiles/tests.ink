@@ -7,9 +7,13 @@ Ouside content
 #not a global tag
 
 EXTERNAL fn_ext(a, b, c)
+EXTERNAL gameInc(x)
 
 === function fn_ext(a, b, c)
 ~ return a
+
+=== function gameInc(x)
+~ return x + 1
 
 === knot
 Knot content
@@ -433,6 +437,13 @@ visited
 { fn_ext("a", "b", "c") }
 { fn_ext("a", 1, 2.2) }
 -> DONE
+
+== function topExternal(x)
+In top external
+~ return gameInc(x)
+
+== function inkInc(x)
+~ return x + 1
 
 
 === game_queries

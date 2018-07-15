@@ -1,49 +1,49 @@
 var testsUtils = require('../common.js');
 
 describe('Integration', function(){
-  
+
   var story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests.json');
     story.allowExternalFunctionFallbacks = true;
   });
-  
+
   it('should load a file', function(){
     expect(story.canContinue).toBe(true);
   });
-  
+
   it ('should jump to a knot', function() {
     story.ChoosePathString('knot');
     expect(story.canContinue).toBe(true);
-    
+
     expect(story.Continue()).toEqual('Knot content\n');
   });
-  
+
   it ('should jump to a stitch', function() {
     story.ChoosePathString('knot.stitch');
     expect(story.canContinue).toBe(true);
-    
+
     expect(story.Continue()).toEqual('Stitch content\n');
   });
-  
+
   it('should read variables from ink', function(){
     expect(story.variablesState['stringvar']).toEqual('Emilia');
     expect(story.variablesState['intvar']).toEqual(521);
     expect(story.variablesState['floatvar']).toEqual(52.1);
     expect(story.variablesState['divertvar'].toString()).toEqual('logic.logic_divert_dest');
   });
-  
+
   it('should write variables to ink', function(){
     expect(story.variablesState['stringvar']).toEqual('Emilia');
     story.variablesState['stringvar'] = 'Jonas';
     expect(story.variablesState['stringvar']).toEqual('Jonas');
   });
-  
+
   xit('should observe variables', function(){
     story.ChoosePathString('integration.variable_observer');
     expect(story.variablesState['observedVar1']).toEqual(1);
     expect(story.variablesState['observedVar2']).toEqual(2);
-    
+
     const spy1 = jasmine.createSpy('variable observer spy 1');
     const spy2 = jasmine.createSpy('variable observer spy 2');
     const commonSpy = jasmine.createSpy('variable observer spy common');
@@ -155,6 +155,7 @@ describe('Integration', function(){
       return a;
     }).and.callThrough();
     story.BindExternalFunction('fn_ext', externalSpy);
+    story.BindExternalFunction('gameInc', ()=>{});
 
     expect(story.ContinueMaximally()).toEqual('1\n1.1\na\na\n');
     expect(externalSpy).toHaveBeenCalledWith(1, 2, 3);
@@ -162,6 +163,23 @@ describe('Integration', function(){
     expect(externalSpy).toHaveBeenCalledWith('a', 'b', 'c');
     expect(externalSpy).toHaveBeenCalledWith('a', 1, 2.2);
   });
+
+  it('should handle callastack changes', function(){
+    story.allowExternalFunctionFallbacks = false;
+    const externalSpy = jasmine.createSpy('external function spy', function(x){
+      x++;
+      x = parseInt(story.EvaluateFunction('inkInc', [x]));
+      return x;
+    }).and.callThrough();
+    story.BindExternalFunction('fn_ext', () => {});
+    story.BindExternalFunction('gameInc', externalSpy);
+
+    const result = story.EvaluateFunction('topExternal', [5], true);
+
+    expect(parseInt(result.returned)).toEqual(7);
+    expect(result.output).toEqual('In top external\n');
+  });
+
 
   it('should return a visit count', function(){
     expect(story.state.VisitCountAtPathString('game_queries.turnssince')).toEqual(0);
