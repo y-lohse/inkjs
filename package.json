@@ -5,10 +5,10 @@
   "main": "dist/ink-es2015.js",
   "scripts": {
     "test": "istanbul cover jasmine JASMINE_CONFIG_PATH=jasmine.config.json",
-    "build": "rollup -c",
-    "watch": "rollup -c -w",
+    "build": "tslint -c tslint.json 'src/**/*.ts' && tsc -p ./ && rollup -c",
+    "watch": "tsc -p ./ && rollup -c -w",
     "watch:test": "npm-watch test",
-    "prepublishOnly": "rollup -c"
+    "prepublishOnly": "tsc -p ./ && rollup -c"
   },
   "watch": {
     "test": {
@@ -32,7 +32,9 @@
     "npm-watch": "0.4.0",
     "rollup": "0.66.0",
     "rollup-plugin-babel": "3.0.7",
-    "rollup-plugin-node-resolve": "3.4.0"
+    "rollup-plugin-node-resolve": "3.4.0",
+    "tslint": "^5.10.0",
+    "typescript": "^2.9.2"
   },
   "dependencies": {}
 }
