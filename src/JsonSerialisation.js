@@ -533,11 +533,10 @@ export class JsonSerialisation{
 
 		var content = {};
 
-		rawList.forEach(function(itemAndValue){
-			var item = itemAndValue.Key;
-			var val = itemAndValue.Value;
+		for (const [key, val] of rawList) {
+			const item = InkListItem.fromSerializedKey(key)
 			content[item.toString()] = val;
-		});
+		}
 
 		dict["list"] = content;
 
@@ -553,11 +552,11 @@ export class JsonSerialisation{
 
 		origin.lists.forEach(function(def){
 			var listDefJson = {};
-			def.items.forEach(function(itemToVal){
-				var item = itemToVal.Key;
-				var val = itemToVal.Value;
+
+			for (const [key, val] of def.items) {
+				const item = InkListItem.fromSerializedKey(key)
 				listDefJson[item.itemName] = val;
-			});
+			}
 
 			result[def.name] = listDefJson;
 		});
@@ -576,11 +575,11 @@ export class JsonSerialisation{
 			var listDefJson = defsObj[key];
 
 			// Cast (string, object) to (string, int) for items
-			var items = {};
+			var items = new Map();
 
 			for (var nameValueKey in listDefJson){
 				var nameValue = listDefJson[nameValueKey];
-				items[nameValueKey] = parseInt(nameValue);
+				items.set(nameValueKey, parseInt(nameValue));
 			}
 
 			var def = new ListDefinition(name, items);

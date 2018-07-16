@@ -2392,7 +2392,7 @@
   				});
   				if (itemOrigin != null) {
   					var incrementedItem = itemOrigin.TryGetItemWithValue(targetInt);
-  					if (incrementedItem.exists) resultInkList.Add(incrementedItem.item, targetInt);
+  					if (incrementedItem.exists) resultInkList.Add(incrementedItem.result, targetInt);
   				}
   			});
 
@@ -3952,7 +3952,7 @@
   	return CallStack;
   }();
 
-  //still needs: 
+  //still needs:
   // - varchanged events
   // - see if the internal getenumarators are needed
   var VariablesState = function () {
@@ -3997,7 +3997,7 @@
 
   		/**
      * This function is specific to the js version of ink. It allows to register a callback that will be called when a variable changes. The original code uses `state.variableChangedEvent += callback` instead.
-     * @param {function} callback 
+     * @param {function} callback
      */
   		value: function ObserveVariableChange(callback) {
   			var _this = this;
@@ -4157,7 +4157,7 @@
   			var valueOfVariablePointedTo = this.GetRawVariableWithName(varPointer.variableName, contextIndex);
 
   			// Extra layer of indirection:
-  			// When accessing a pointer to a pointer (e.g. when calling nested or 
+  			// When accessing a pointer to a pointer (e.g. when calling nested or
   			// recursive functions that take a variable references, ensure we don't create
   			// a chain of indirection by just returning the final target.
   			//		var doubleRedirectionPointer = valueOfVariablePointedTo as VariablePointerValue;
@@ -4228,7 +4228,7 @@
   				this._changedVariables = [];
   			}
 
-  			// Finished observing variables in a batch - now send 
+  			// Finished observing variables in a batch - now send
   			// notifications for changed variables all in one go.
   			else {
   					if (this._changedVariables != null) {
@@ -4496,7 +4496,7 @@
 
   				if (glue.isLeft) matchingRightGlue = this.MatchRightGlueForLeftGlue(glue);
 
-  				// Left/Right glue is auto-generated for inline expressions 
+  				// Left/Right glue is auto-generated for inline expressions
   				// where we want to absorb newlines but only in a certain direction.
   				// "Bi" glue is written by the user in their ink with <>
   				if (glue.isLeft || glue.isBi) {
@@ -4516,7 +4516,7 @@
   						includeInOutput = false;
   					}
 
-  					// Able to completely reset when 
+  					// Able to completely reset when
   					else if (text.isNonWhitespace) {
   							this.RemoveExistingGlue();
   						}
@@ -4645,7 +4645,7 @@
   		key: 'StartExternalFunctionEvaluation',
   		value: function StartExternalFunctionEvaluation(funcContainer, args) {
   			// We'll start a new callstack, so keep hold of the original,
-  			// as well as the evaluation stack so we know if the function 
+  			// as well as the evaluation stack so we know if the function
   			// returned something
   			this._originalCallstack = this.callStack;
   			this._originalEvaluationStackHeight = this.evaluationStack.length;
@@ -4693,7 +4693,7 @@
   		value: function CompleteExternalFunctionEvaluation() {
   			// Do we have a returned value?
   			// Potentially pop multiple values off the stack, in case we need
-  			// to clean up after ourselves (e.g. caller of EvaluateFunction may 
+  			// to clean up after ourselves (e.g. caller of EvaluateFunction may
   			// have passed too many arguments, and we currently have no way to check for that)
   			var returnedObj = null;
   			while (this.evaluationStack.length > this._originalEvaluationStackHeight) {
@@ -5257,7 +5257,7 @@
   				//    which are actually built out of text content.
   				// So we have to take a snapshot of the state, continue prospectively,
   				// and rewind if necessary.
-  				// This code is slightly fragile :-/ 
+  				// This code is slightly fragile :-/
   				//
 
   				do {
@@ -6053,7 +6053,7 @@
   			var choices = this.currentChoices;
   			if (choiceIdx < 0 || choiceIdx > choices.length) console.warn("choice out of range");
 
-  			// Replace callstack with the one from the thread at the choosing point, 
+  			// Replace callstack with the one from the thread at the choosing point,
   			// so that we can jump into the right place in the flow.
   			// This is important in case the flow was forked by a new thread, which
   			// can create multiple leading edges for the story, each of
