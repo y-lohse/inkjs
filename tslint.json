@@ -21,7 +21,8 @@
         ],
         "quotemark": [
             true,
-            "single"
+            "single",
+            "avoid-escape"
         ],
         "semicolon": [
             true,
@@ -39,7 +40,11 @@
         "max-classes-per-file": false,
         "member-ordering": false,
         "radix": false,
-        "prefer-for-of": false
+        "prefer-for-of": false,
+        "max-line-length": false,
+        "whitespace": false,
+        "interface-name": false,
+        "ordered-imports": false
     },
     "rulesDirectory": []
 }
