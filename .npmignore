@@ -1,6 +1,7 @@
 tests/
 engine/
 templates/
+.babelrc
 .gitattributes
 .istanbul.yml
 .travis.yml
