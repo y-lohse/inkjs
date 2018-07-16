@@ -20,6 +20,7 @@ import {StringBuilder} from './StringBuilder';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {Stopwatch} from './StopWatch';
 import {Pointer} from './Pointer';
+import { InkListItem } from './InkList';
 export {InkList} from './InkList';
 
 if (!Number.isInteger) {
@@ -982,11 +983,11 @@ export class Story extends InkObject{
 
 				var generatedListValue = null;
 
-				var foundListDef;
-				if (foundListDef = this.listDefinitions.TryListGetDefinition(listNameVal, foundListDef)) {
-					var foundItem = foundListDef.TryGetItemWithValue(intVal);
+				var foundListDef = this.listDefinitions.TryListGetDefinition(listNameVal, null)
+				if (foundListDef.exists) {
+					var foundItem = foundListDef.result.TryGetItemWithValue(intVal);
 					if (foundItem.exists) {
-						generatedListValue = new ListValue(foundItem.item, intVal);
+						generatedListValue = new ListValue(foundItem.result, intVal);
 					}
 				} else {
 					throw new StoryException("Failed to find LIST called " + listNameVal.value);
@@ -1041,9 +1042,10 @@ export class Story extends InkObject{
 				if (origins != null) {
 					origins.forEach(function(origin){
 						var rangeFromOrigin = origin.ListRange(minVal, maxVal);
-						rangeFromOrigin.value.forEach(function(kv){
-							result.value.Add(kv.Key, kv.Value);
-						});
+						for (const [key, value] of rangeFromOrigin.value){
+							const item = InkListItem.fromSerializedKey(key);
+							result.value.Add(item, value);
+						}
 					});
 				}
 

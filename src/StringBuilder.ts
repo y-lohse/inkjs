@@ -2,7 +2,7 @@ export class StringBuilder{
 
 	private string: string;
 
-	constructor(str: string){
+	constructor(str?: string){
 		str = (typeof str !== 'undefined') ? str.toString() : '';
 		this.string = str;
 	}

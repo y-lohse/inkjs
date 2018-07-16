@@ -2,7 +2,7 @@
 import {Value, ValueType, IntValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {Void} from './Void';
-import {InkList} from './InkList';
+import {InkList, InkListItem} from './InkList';
 import {Object as InkObject} from './Object';
 
 export class NativeFunctionCall extends InkObject{
@@ -10,11 +10,11 @@ export class NativeFunctionCall extends InkObject{
 		super();
 		this.name = name;
 		this._numberOfParameters;
-		
+
 		this._prototype;
 		this._isPrototype;
-		this._operationFuncs = null;	
-		
+		this._operationFuncs = null;
+
 		NativeFunctionCall.GenerateNativeFunctionsIfNecessary();
 	}
 	get name(){
@@ -35,7 +35,7 @@ export class NativeFunctionCall extends InkObject{
 	set numberOfParameters(value){
 		this._numberOfParameters = value;
 	}
-	
+
 	static internalConstructor(name, numberOfParamters){
 		var nativeFunc = new NativeFunctionCall(name);
 		nativeFunc._isPrototype = true;
@@ -57,14 +57,14 @@ export class NativeFunctionCall extends InkObject{
 		if (this.numberOfParameters != parameters.length) {
 			throw "Unexpected number of parameters";
 		}
-		
+
 		var hasList  = false;
 		parameters.forEach(p => {
 			if (p instanceof Void) throw new StoryException("Attempting to perform operation on a void value. Did you forget to 'return' a value from a function you called here?");
 			if (p instanceof ListValue)
 				hasList = true;
 		});
-		
+
 		if (parameters.length == 2 && hasList){
 			return this.CallBinaryListOperation(parameters);
 		}
@@ -114,7 +114,7 @@ export class NativeFunctionCall extends InkObject{
 				var resultVal = opForType(val1.value, val2.value);
 
 				return Value.Create(resultVal);
-			} 
+			}
 
 			// Unary
 			else {
@@ -124,7 +124,7 @@ export class NativeFunctionCall extends InkObject{
 				var resultVal = opForType(val1.value);
 
 				return Value.Create(resultVal);
-			}  
+			}
 		}
 
 		else {
@@ -164,10 +164,8 @@ export class NativeFunctionCall extends InkObject{
 
 		var resultInkList = new InkList();
 
-		listVal.value.forEach(listItemWithValue => {
-			var listItem = listItemWithValue.Key;
-			var listItemValue = listItemWithValue.Value;
-
+		for (const [listItemKey, listItemValue] of listVal.value) {
+			const listItem = InkListItem.fromSerializedKey(listItemKey)
 			// Find + or - operation
 			var intOp = this._operationFuncs[ValueType.Int];
 
@@ -176,24 +174,24 @@ export class NativeFunctionCall extends InkObject{
 
 			// Find this item's origin (linear search should be ok, should be short haha)
 			var itemOrigin = null;
-			listVal.value.origins.forEach(function(origin){
+			for (const origin of listVal.value.origins) {
 				if (origin.name == listItem.originName) {
 					itemOrigin = origin;
-					return false;
+					break;
 				}
-			});
+			}
 			if (itemOrigin != null) {
 				var incrementedItem = itemOrigin.TryGetItemWithValue(targetInt);
 				if (incrementedItem.exists)
-					resultInkList.Add(incrementedItem.item, targetInt);
+					resultInkList.Add(incrementedItem.result, targetInt);
 			}
-		});
+		}
 
 		return new ListValue(resultInkList);
 	}
 	CoerceValuesToSingleType(parametersIn){
 		var valType = ValueType.Int;
-		
+
 		var specialCaseList = null;
 
 		// Find out what the output type is
@@ -205,7 +203,7 @@ export class NativeFunctionCall extends InkObject{
 			if (val.valueType > valType) {
 				valType = val.valueType;
 			}
-			
+
 			if (val.valueType == ValueType.List) {
 //				 specialCaseList = val as ListValue;
 				 specialCaseList = val;
@@ -214,7 +212,7 @@ export class NativeFunctionCall extends InkObject{
 
 		// Coerce to this chosen type
 		var parametersOut = [];
-		
+
 		if (valType == ValueType.List) {
 			parametersIn.forEach(function(val){
 				if (val.valueType == ValueType.List) {
@@ -225,14 +223,14 @@ export class NativeFunctionCall extends InkObject{
 
 					var item = list.TryGetItemWithValue(intVal);
 					if (item.exists) {
-						var castedValue = new ListValue(item.item, intVal);
+						var castedValue = new ListValue(item.result, intVal);
 						parametersOut.push(castedValue);
 					} else
 						throw new StoryException("Could not find List item with the value " + intVal + " in " + list.name);
 				} else
 					throw new StoryException("Cannot mix Lists and " + val.valueType + " values in this operation");
 			});
-		} 
+		}
 
 		// Normal Coercing (with standard casting)
 		else {
@@ -253,8 +251,8 @@ export class NativeFunctionCall extends InkObject{
 			this.AddIntBinaryOp(this.Subtract, (x, y) => {return x - y});
 			this.AddIntBinaryOp(this.Multiply, (x, y) => {return x * y});
 			this.AddIntBinaryOp(this.Divide,   (x, y) => {return parseInt(x / y)});
-			this.AddIntBinaryOp(this.Mod,      (x, y) => {return x % y}); 
-			this.AddIntUnaryOp(this.Negate,   x => {return -x}); 
+			this.AddIntBinaryOp(this.Mod,      (x, y) => {return x % y});
+			this.AddIntUnaryOp(this.Negate,   x => {return -x});
 
 			this.AddIntBinaryOp(this.Equal,    (x, y) => {return x == y ? 1 : 0});
 			this.AddIntBinaryOp(this.Greater,  (x, y) => {return x > y  ? 1 : 0});
@@ -262,7 +260,7 @@ export class NativeFunctionCall extends InkObject{
 			this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => {return x >= y ? 1 : 0});
 			this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => {return x <= y ? 1 : 0});
 			this.AddIntBinaryOp(this.NotEquals, (x, y) => {return x != y ? 1 : 0});
-			this.AddIntUnaryOp(this.Not,       x => {return (x == 0) ? 1 : 0}); 
+			this.AddIntUnaryOp(this.Not,       x => {return (x == 0) ? 1 : 0});
 
 			this.AddIntBinaryOp(this.And,      (x, y) => {return x != 0 && y != 0 ? 1 : 0});
 			this.AddIntBinaryOp(this.Or,       (x, y) => {return x != 0 || y != 0 ? 1 : 0});
@@ -276,7 +274,7 @@ export class NativeFunctionCall extends InkObject{
 			this.AddFloatBinaryOp(this.Multiply, (x, y) => {return x * y});
 			this.AddFloatBinaryOp(this.Divide,   (x, y) => {return x / y});
 			this.AddFloatBinaryOp(this.Mod,      (x, y) => {return x % y}); // TODO: Is this the operation we want for floats?
-			this.AddFloatUnaryOp(this.Negate,   x => {return -x}); 
+			this.AddFloatUnaryOp(this.Negate,   x => {return -x});
 
 			this.AddFloatBinaryOp(this.Equal,    (x, y) => {return x == y ? 1 : 0});
 			this.AddFloatBinaryOp(this.Greater,  (x, y) => {return x > y  ? 1 : 0});
@@ -284,7 +282,7 @@ export class NativeFunctionCall extends InkObject{
 			this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) => {return x >= y ? 1 : 0});
 			this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => {return x <= y ? 1 : 0});
 			this.AddFloatBinaryOp(this.NotEquals, (x, y) => {return x != y ? 1 : 0});
-			this.AddFloatUnaryOp(this.Not,       x => {return (x == 0.0) ? 1 : 0}); 
+			this.AddFloatUnaryOp(this.Not,       x => {return (x == 0.0) ? 1 : 0});
 
 			this.AddFloatBinaryOp(this.And,      (x, y) => {return x != 0.0 && y != 0.0 ? 1 : 0});
 			this.AddFloatBinaryOp(this.Or,       (x, y) => {return x != 0.0 || y != 0.0 ? 1 : 0});
@@ -298,13 +296,13 @@ export class NativeFunctionCall extends InkObject{
 			this.AddStringBinaryOp(this.NotEquals,(x, y) => {return !(x === y) ? 1 : 0});
 			this.AddStringBinaryOp(this.Has,      (x, y) => {return x.includes(y) ? 1 : 0});
 			this.AddStringBinaryOp(this.Hasnt,      (x, y) => {return x.includes(y) ? 0 : 1});
-			
+
 			this.AddListBinaryOp(this.Add, 		 (x, y) => {return x.Union(y)});
 			this.AddListBinaryOp(this.Subtract,  (x, y) => {return x.Without(y)});
 			this.AddListBinaryOp(this.Has, 		 (x, y) => {return x.Contains(y) ? 1 : 0});
 			this.AddListBinaryOp(this.Hasnt, 	 (x, y) => {return x.Contains(y) ? 0 : 1});
 			this.AddListBinaryOp(this.Intersect, (x, y) => {return x.Intersect(y)});
-			
+
 			this.AddListBinaryOp(this.Equal, 				(x, y) => {return x.Equals(y) ? 1 : 0});
 			this.AddListBinaryOp(this.Greater, 				(x, y) => {return x.GreaterThan(y) ? 1 : 0});
 			this.AddListBinaryOp(this.Less, 				(x, y) => {return x.LessThan(y) ? 1 : 0});
@@ -314,7 +312,7 @@ export class NativeFunctionCall extends InkObject{
 
 			this.AddListBinaryOp (this.And, 				(x, y) => {return x.Count > 0 && y.Count > 0 ? 1 : 0});
       this.AddListBinaryOp (this.Or,  				(x, y) => {return x.Count > 0 || y.Count > 0 ? 1 : 0});
-			
+
 			this.AddListUnaryOp(this.Not, (x) => {return x.Count == 0 ? 1 : 0});
 
 			this.AddListUnaryOp(this.Invert, (x) => {return x.inverse});
@@ -347,32 +345,32 @@ export class NativeFunctionCall extends InkObject{
 
 		nativeFunc.AddOpFuncForType(valType, op);
 	}
-	
+
 	static AddIntBinaryOp(name, op){
 		this.AddOpToNativeFunc(name, 2, ValueType.Int, op);
 	}
 	static AddIntUnaryOp(name, op){
 		this.AddOpToNativeFunc(name, 1, ValueType.Int, op);
 	}
-	
+
 	static AddFloatBinaryOp(name, op){
 		this.AddOpToNativeFunc(name, 2, ValueType.Float, op);
 	}
 	static AddFloatUnaryOp(name, op){
 		this.AddOpToNativeFunc(name, 1, ValueType.Float, op);
 	}
-	
+
 	static AddStringBinaryOp(name, op){
 		this.AddOpToNativeFunc(name, 2, ValueType.String, op);
 	}
-	
+
 	static AddListBinaryOp(name, op){
 		this.AddOpToNativeFunc(name, 2, ValueType.List, op);
 	}
 	static AddListUnaryOp(name, op){
 		this.AddOpToNativeFunc(name, 1, ValueType.List, op);
 	}
-	
+
 	toString(){
 		return "Native '" + this.name + "'";
 	}
