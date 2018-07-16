@@ -7,11 +7,10 @@ export class Path{
 
 	// tslint:disable:unified-signatures
 	constructor();
-	constructor(head: Path.Component, tail: Path);
-	constructor(head: Path.Component[]);
-	constructor(head: Path.Component[], relative: boolean);
 	constructor(componentsString: string);
-	constructor(/*polymorphic constructor*/){
+	constructor(head: Path.Component, tail: Path);
+	constructor(head: Path.Component[], relative?: boolean);
+	constructor(){
 		this._components = [];
 		this._componentsString = null;
 		this._isRelative = false;

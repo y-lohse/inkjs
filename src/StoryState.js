@@ -341,9 +341,8 @@ export class StoryState{
 			rawList.origins.length = 0;
 
 			rawList.originNames.forEach(n => {
-				var def = null;
-				def = this.story.listDefinitions.TryListGetDefinition(n, def);
-				if (rawList.origins.indexOf(def) < 0) rawList.origins.push(def);
+				var def = this.story.listDefinitions.TryListGetDefinition(n, null);
+				if (rawList.origins.indexOf(def.result) < 0) rawList.origins.push(def.result);
 			});
 			}
 		}
