@@ -1,4 +1,4 @@
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 import {Path} from './Path';
 
 export class VariableReference extends InkObject{
@@ -22,7 +22,7 @@ export class VariableReference extends InkObject{
 		else
 			this.pathForCount = new Path(value);
 	}
-	
+
 	toString(){
 		if (this.name != null) {
 			return "var(" + this.name + ")";

@@ -1,5 +1,5 @@
 import {Container} from './Container';
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 import {JsonSerialisation} from './JsonSerialisation';
 import {StoryState} from './StoryState';
 import {ControlCommand} from './ControlCommand';
@@ -185,7 +185,7 @@ export class Story extends InkObject{
 		this._state.ForceEnd();
 	}
 	ResetGlobals(){
-		if (this._mainContentContainer.namedContent["global decl"]){
+		if (this._mainContentContainer.namedContent.get("global decl")){
 			var originalPointer = this.state.currentPointer.copy();
 
 			this.ChoosePathString("global decl", false);
@@ -383,7 +383,7 @@ export class Story extends InkObject{
 		return this.mainContentContainer.ContentAtPath(path);
 	}
 	KnotContainerWithName(name){
-		var namedContainer = this.mainContentContainer.namedContent[name];
+		var namedContainer = this.mainContentContainer.namedContent.get(name);
 		if (namedContainer instanceof Container)
 			return namedContainer;
 		else
@@ -409,9 +409,9 @@ export class Story extends InkObject{
 			p.index = -1;
 		}
 
-		if (result.obj == null || result.obj == this.mainContentContainer && pathLengthToUse > 0)
+		if (result.obj == null || result.obj == this.mainContentContainer && pathLengthToUse > 0) {
 			this.Error("Failed to find content at path '" + path + "', and no approximation of it was possible.");
-		else if (result.approximate)
+		} else if (result.approximate)
 			this.Warning("Failed to find content at path '" + path + "', so it was approximated to: '"+result.obj.path+"'.");
 
 		return p;
@@ -1361,8 +1361,8 @@ export class Story extends InkObject{
 					this.ValidateExternalBindings(innerContent, missingExternals);
 				}
 			});
-			for (var key in c.namedContent){
-				this.ValidateExternalBindings(c.namedContent[key], missingExternals);
+			for (let [key, value] in c.namedContent){
+				this.ValidateExternalBindings(value, missingExternals);
 			}
 		}
 		else{
@@ -1382,7 +1382,7 @@ export class Story extends InkObject{
 
 				if (!this._externals[name]) {
 					if( this.allowExternalFunctionFallbacks ) {
-						var fallbackFound = !!this.mainContentContainer.namedContent[name];
+						var fallbackFound = !!this.mainContentContainer.namedContent.get(name);
 						if( !fallbackFound ) {
 							missingExternals.push(name);
 						}

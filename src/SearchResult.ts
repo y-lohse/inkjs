@@ -1,10 +1,9 @@
-import {Container} from "./Container";
+import {InkObject} from './Object';
+import {Container} from './Container';
 
 export class SearchResult{
-	constructor(){
-		this.obj;
-		this.approximate;
-	}
+	public obj: InkObject | null = null;
+	public approximate: boolean = false;
 
 	get correctObj(){
 		return this.approximate ? null : this.obj;
@@ -14,8 +13,8 @@ export class SearchResult{
 		return (this.obj instanceof Container) ? this.obj : null;
 	}
 
-	copy(){
-		var searchResult = new SearchResult()
+	public copy(){
+		const searchResult = new SearchResult();
 		searchResult.obj = this.obj;
 		searchResult.approximate = this.approximate;
 

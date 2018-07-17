@@ -3,7 +3,7 @@ import {Value, ValueType, IntValue, ListValue} from './Value';
 import {StoryException} from './StoryException';
 import {Void} from './Void';
 import {InkList, InkListItem} from './InkList';
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 
 export class NativeFunctionCall extends InkObject{
 	constructor(name){
