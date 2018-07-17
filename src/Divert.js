@@ -1,7 +1,7 @@
 import {Path} from './Path';
 import {PushPopType} from './PushPop';
 import {StringBuilder} from './StringBuilder';
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 import {Pointer} from './Pointer';
 import {Container} from './Container';
 

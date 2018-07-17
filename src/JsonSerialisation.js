@@ -15,7 +15,7 @@ import {Choice} from './Choice';
 import {ListDefinition} from './ListDefinition';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {InkListItem, InkList} from './InkList';
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 
 export class JsonSerialisation{
 	static ListToJArray(serialisables){
@@ -434,7 +434,7 @@ export class JsonSerialisation{
 		//  - null, if neither of the above
 		var namedOnlyContent = container.namedOnlyContent;
 		var countFlags = container.countFlags;
-		if (namedOnlyContent != null && namedOnlyContent.length > 0 || countFlags > 0 || container.name != null) {
+		if (namedOnlyContent != null && namedOnlyContent.size > 0 || countFlags > 0 || container.name != null) {
 
 			var terminatingObj;
 			if (namedOnlyContent != null) {
@@ -486,7 +486,7 @@ export class JsonSerialisation{
 		var terminatingObj = jArray[jArray.length - 1];
 		if (terminatingObj != null) {
 
-			var namedOnlyContent = {};
+			var namedOnlyContent = new Map();
 
 			for (var key in terminatingObj){
 				if (key == "#f") {
@@ -499,7 +499,7 @@ export class JsonSerialisation{
 					var namedSubContainer = namedContentItem;
 					if (namedSubContainer instanceof Container)
 						namedSubContainer.name = key;
-					namedOnlyContent[key] = namedContentItem;
+					namedOnlyContent.set(key, namedContentItem);
 				}
 			}
 

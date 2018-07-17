@@ -14,6 +14,6 @@ export class NullException extends Error{}
  * Throw a NullException.
  * @param name a short description of the offending value (often its name within the code).
  */
-export function throwNullException(name: string) {
+export function throwNullException(name: string): never {
 	throw new NullException(`${name} is null or undefined`);
 }
