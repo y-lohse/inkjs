@@ -5,7 +5,8 @@
   "main": "dist/ink-es2015.js",
   "scripts": {
     "test": "istanbul cover jasmine JASMINE_CONFIG_PATH=jasmine.config.json",
-    "build": "tslint -c tslint.json 'src/**/*.ts' && tsc -p ./ && rollup -c",
+    "build": "tsc -p ./ && rollup -c",
+    "lint": "tslint -c tslint.json 'src/**/*.ts' && ",
     "watch": "tsc -p ./ && rollup -c -w",
     "watch:test": "npm-watch test",
     "prepublishOnly": "tsc -p ./ && rollup -c"
