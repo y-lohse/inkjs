@@ -12,13 +12,12 @@ export class StringBuilder{
 	public Append(str: string){
 		this.string += str;
 	}
-	public AppendLine(str: string){
+	public AppendLine(str?: string){
 		if (typeof str !== 'undefined') this.Append(str);
 		this.string += '\n';
 	}
-	public AppendFormat(format: string){
+	public AppendFormat(format: string, ...args: string[]){
 		// taken from http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
-		const args = Array.prototype.slice.call(arguments, 1);
 		this.string += format.replace(/{(\d+)}/g, (match: string, num: number) => {
 			return typeof args[num] != 'undefined' ? args[num] : match;
 		});

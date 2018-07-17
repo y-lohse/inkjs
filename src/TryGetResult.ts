@@ -27,3 +27,13 @@ export interface TryGetResult<T> {
 	result: T;
 	exists: boolean;
 }
+
+export function tryGetValueFromMap<K, V>(map: Map<K, V>, key: K, /* out */ value: V): TryGetResult<V> {
+	const val = map.get(key);
+
+	if (val) {
+		return { result: val, exists: true };
+	} else {
+		return { result: value, exists: false };
+	}
+}
