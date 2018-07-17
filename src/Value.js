@@ -1,4 +1,4 @@
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 import {Path} from './Path';
 import {InkList} from './InkList';
 import {StoryException} from './StoryException';

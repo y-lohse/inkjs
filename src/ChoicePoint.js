@@ -1,4 +1,4 @@
-import {Object as InkObject} from './Object';
+import {InkObject} from './Object';
 import {Path} from './Path';
 
 export class ChoicePoint extends InkObject{
@@ -10,7 +10,7 @@ export class ChoicePoint extends InkObject{
 		this.hasChoiceOnlyContent;
 		this.onceOnly;
 		this.isInvisibleDefault;
-		
+
 		this.onceOnly = !!onceOnly;
 	}
 	get pathOnChoice(){
@@ -50,7 +50,7 @@ export class ChoicePoint extends InkObject{
 	set pathOnChoice(value){
 		this._pathOnChoice = value;
 	}
-	
+
 	toString(){
 //		int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
 		var targetLineNum = null;
@@ -58,7 +58,7 @@ export class ChoicePoint extends InkObject{
 
 		if (targetLineNum != null) {
 			 targetString = " line " + targetLineNum + "("+targetString+")";
-		} 
+		}
 
 		return "Choice: -> " + targetString;
 	}

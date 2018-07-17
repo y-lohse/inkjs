@@ -128,7 +128,7 @@ export class VariablesState{
 	}
 	TryGetDefaultVariableValue (name)
 	{
-		var val = _defaultGlobalVariables[name];
+		var val = this._defaultGlobalVariables[name];
 		if (typeof val === 'undefined') val = null;
 		return val;
 	}
