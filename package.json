@@ -6,7 +6,7 @@
   "scripts": {
     "test": "istanbul cover jasmine JASMINE_CONFIG_PATH=jasmine.config.json",
     "build": "tsc -p ./ && rollup -c",
-    "lint": "tslint -c tslint.json 'src/**/*.ts' && ",
+    "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch": "tsc -p ./ && rollup -c -w",
     "watch:test": "npm-watch test",
     "prepublishOnly": "tsc -p ./ && rollup -c"
