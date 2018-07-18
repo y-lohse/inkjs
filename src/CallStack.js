@@ -27,7 +27,7 @@ class Element{
 	}
 }
 
-class Thread{
+export class Thread{
 	constructor(jsonToken, storyContext){
 		this.callstack = [];
 		this.threadIndex = 0;
