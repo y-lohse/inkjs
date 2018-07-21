@@ -46,7 +46,7 @@ export class Pointer{
 		return new Pointer(this.container, this.index);
 	}
 
-	public static StartOf(container: Container): Pointer{
+	public static StartOf(container: Container | null): Pointer{
 		return new Pointer(container, 0);
 	}
 
