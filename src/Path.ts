@@ -147,7 +147,7 @@ export class Path{
 	public toString(): string{
 		return this.componentsString;
 	}
-	public Equals(otherPath: Path): boolean{
+	public Equals(otherPath: Path | null): boolean{
 		if (otherPath == null)
 			return false;
 
