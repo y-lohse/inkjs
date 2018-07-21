@@ -52,7 +52,8 @@ export class InkObject{
 		return asOrNull(ancestor, Container);
 	}
 
-	public ResolvePath(path: Path): SearchResult{
+	public ResolvePath(path: Path | null): SearchResult{
+		if (path === null) return throwNullException('path');
 		if (path.isRelative) {
 			let nearestContainer = asOrNull(this, Container);
 

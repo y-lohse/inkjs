@@ -9,8 +9,10 @@ export class StringBuilder{
 	get Length(): number{
 		return this.string.length;
 	}
-	public Append(str: string){
-		this.string += str;
+	public Append(str: string | null){
+		if (str !== null) {
+			this.string += str;
+		}
 	}
 	public AppendLine(str?: string){
 		if (typeof str !== 'undefined') this.Append(str);
