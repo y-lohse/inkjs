@@ -75,8 +75,7 @@ export class JsonSerialisation{
 		return jObj;
 	}
 	static JTokenToRuntimeObject(token){
-		//@TODO probably find a more robust way to detect numbers, isNaN seems happy to accept things that really aren't numberish.
-		if (!isNaN(token) && token !== "\n"){//JS thinks "\n" is a number
+		if (typeof token === 'number' && !isNaN(token)) {
 			return Value.Create(token);
 		}
 
