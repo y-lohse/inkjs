@@ -3,27 +3,24 @@ import {Path} from './Path';
 import {InkList} from './InkList';
 import {StoryException} from './StoryException';
 
-class AbstractValue extends InkObject{
-	constructor(val){
-		super();
-		this._valueType;
-		this._isTruthy;
-		this._valueObject;
-	}
-	get valueType(){
+abstract class AbstractValue extends InkObject{
+	public abstract _valueType: Value.ValueType;
+	public abstract _isTruthy: boolean;
+	public abstract _valueObject: any;
+
+	public get valueType(): Value.ValueType{
 		return this._valueType;
 	}
-	get isTruthy(){
+	public get isTruthy(): boolean{
 		return this._isTruthy;
 	}
-	get valueObject(){
+	public get valueObject(): any{
 		return this._valueObject;
 	}
 
-	Cast(newType){
-		throw "Trying to casting an AbstractValue";
-	}
-	static Create(val){
+	public abstract Cast(newType: Value.ValueType): Value<any>;
+
+	public static Create(val: any): Value<any> | null{
 		// Implicitly convert bools into ints
 		if (typeof val === 'boolean'){
 			var b = !!val;
@@ -44,55 +41,51 @@ class AbstractValue extends InkObject{
 
 		return null;
 	}
-	Copy(val){
+	public Copy(val: any): Value<any> | null{
 		return AbstractValue.Create(val);
 	}
-	BadCastException (targetType) {
+	public BadCastException (targetType: Value.ValueType): StoryException {
 		return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
 	}
 }
 
-export class Value extends AbstractValue{
-	constructor(val){
+export abstract class Value<T> extends AbstractValue{
+	public value: T;
+
+	constructor(val: T){
 		super();
 		this.value = val;
 	}
-	get value(){
-		return this._value;
-	}
-	set value(value){
-		this._value = value;
-	}
-	get valueObject(){
+	public get valueObject(): any{
 		return this.value;
 	}
-	toString(){
+	public toString(): string{
 		return this.value.toString();
 	}
 }
 
-export class IntValue extends Value{
-	constructor(val){
+export class IntValue extends Value<number>{
+	constructor(val: number){
 		super(val || 0);
-		this._valueType = ValueType.Int;
+		this._valueType = Value.ValueType.Int;
 	}
-	get isTruthy(){
+	public get isTruthy(): boolean{
 		return this.value != 0;
 	}
-	get valueType(){
-		return ValueType.Int;
+	public get valueType(): Value.ValueType{
+		return Value.ValueType.Int;
 	}
 
-	Cast(newType){
+	public Cast(newType: Value.ValueType): Value<any> | null{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == ValueType.Float) {
-			return new FloatValue(parseFloat(this.value));
+		if (newType == Value.ValueType.Float) {
+			return new FloatValue(this.value);
 		}
 
-		if (newType == ValueType.String) {
+		if (newType == Value.ValueType.String) {
 			return new StringValue("" + this.value);
 		}
 
@@ -100,28 +93,28 @@ export class IntValue extends Value{
 	}
 }
 
-export class FloatValue extends Value{
-	constructor(val){
+export class FloatValue extends Value<number>{
+	constructor(val: number){
 		super(val || 0.0);
-		this._valueType = ValueType.Float;
+		this._valueType = Value.ValueType.Float;
 	}
-	get isTruthy(){
-		return this._value != 0.0;
+	public get isTruthy(): boolean{
+		return this.value != 0.0;
 	}
-	get valueType(){
-		return ValueType.Float;
+	public get valueType(){
+		return Value.ValueType.Float;
 	}
 
-	Cast(newType){
+	public Cast(newType: Value.ValueType): Value<any> | null{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == ValueType.Int) {
-			return new IntValue(parseInt(this.value));
+		if (newType == Value.ValueType.Int) {
+			return new IntValue(this.value);
 		}
 
-		if (newType == ValueType.String) {
+		if (newType == Value.ValueType.String) {
 			return new StringValue("" + this.value);
 		}
 
@@ -129,15 +122,18 @@ export class FloatValue extends Value{
 	}
 }
 
-export class StringValue extends Value{
-	constructor(val){
+export class StringValue extends Value<string>{
+	public _isNewline: boolean;
+	public _isInlineWhitespace: boolean;
+
+	constructor(val: string){
 		super(val || '');
-		this._valueType = ValueType.String;
+		this._valueType = Value.ValueType.String;
 
 		this._isNewline = (this.value == "\n");
 		this._isInlineWhitespace = true;
 
-		this.value.split().every(c => {
+		this.value.split('').every(c => {
 			if (c != ' ' && c != '\t'){
 				this._isInlineWhitespace = false;
 				return false;
@@ -146,40 +142,40 @@ export class StringValue extends Value{
 			return true;
 		});
 	}
-	get valueType(){
-		return ValueType.String;
+	public get valueType(): Value.ValueType{
+		return Value.ValueType.String;
 	}
-	get isTruthy(){
+	public get isTruthy(): boolean{
 		return this.value.length > 0;
 	}
-	get isNewline(){
+	public get isNewline(): boolean{
 		return this._isNewline;
 	}
-	get isInlineWhitespace(){
+	public get isInlineWhitespace(): boolean{
 		return this._isInlineWhitespace;
 	}
-	get isNonWhitespace(){
+	public get isNonWhitespace(): boolean{
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
 
-	Cast(newType){
+	public Cast(newType: Value.ValueType): Value<any> | null{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == ValueType.Int) {
+		if (newType == Value.ValueType.Int) {
 
-			var parsedInt;
-			if (parsedInt = parseInt(value)) {
+			let parsedInt;
+			if (parsedInt = parseInt(this.value)) {
 				return new IntValue(parsedInt);
 			} else {
 				return null;
 			}
 		}
 
-		if (newType == ValueType.Float) {
-			var parsedFloat;
-			if (parsedFloat = parsedFloat(value)) {
+		if (newType == Value.ValueType.Float) {
+			let parsedFloat;
+			if (parsedFloat = parsedFloat(this.value)) {
 				return new FloatValue(parsedFloat);
 			} else {
 				return null;
@@ -190,29 +186,29 @@ export class StringValue extends Value{
 	}
 }
 
-export class DivertTargetValue extends Value{
-	constructor(targetPath){
+export class DivertTargetValue extends Value<Path>{
+	constructor(targetPath: Path){
 		super(targetPath);
 
-		this._valueType = ValueType.DivertTarget;
+		this._valueType = Value.ValueType.DivertTarget;
 	}
-	get targetPath(){
+	public get targetPath(): Path{
 		return this.value;
 	}
-	set targetPath(value){
+	public set targetPath(value: Path){
 		this.value = value;
 	}
-	get isTruthy(){
+	public get isTruthy(): never{
 		throw "Shouldn't be checking the truthiness of a divert target";
 	}
 
-	Cast(newType){
+	public Cast(newType: Value.ValueType): Value<any>{
 		if (newType == this.valueType)
 			return this;
 
 		throw this.BadCastException(newType);
 	}
-	toString(){
+	public toString(): string{
 		return "DivertTargetValue(" + this.targetPath + ")";
 	}
 }
