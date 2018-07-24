@@ -2,7 +2,11 @@ import {InkObject} from './Object';
 import {Path} from './Path';
 import {InkList, InkListItem} from './InkList';
 import {StoryException} from './StoryException';
+<<<<<<< HEAD
 import {asOrNull, asOrThrows} from './TypeAssertion';
+=======
+import {asOrNull} from './TypeAssertion';
+>>>>>>> Finished first pass
 
 abstract class AbstractValue extends InkObject{
 	public abstract get valueType(): ValueType;
@@ -14,7 +18,7 @@ abstract class AbstractValue extends InkObject{
 	public static Create(val: any): Value<any> | null{
 		// Implicitly convert bools into ints
 		if (typeof val === 'boolean'){
-			var b = !!val;
+			let b = !!val;
 			val = (b) ? 1 : 0;
 		}
 
@@ -35,8 +39,13 @@ abstract class AbstractValue extends InkObject{
 	public Copy(): InkObject {
         return asOrThrows(AbstractValue.Create(this), InkObject);
 	}
+<<<<<<< HEAD
 	public BadCastException (targetType: ValueType): StoryException {
 		return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
+=======
+	public BadCastException(targetType: Value.ValueType): StoryException {
+		return new StoryException('Can\'t cast '+this.valueObject+' from ' + this.valueType+' to '+targetType);
+>>>>>>> Finished first pass
 	}
 }
 
@@ -75,8 +84,13 @@ export class IntValue extends Value<number>{
 			return new FloatValue(this.value);
 		}
 
+<<<<<<< HEAD
 		if (newType == ValueType.String) {
 			return new StringValue("" + this.value);
+=======
+		if (newType == Value.ValueType.String) {
+			return new StringValue('' + this.value);
+>>>>>>> Finished first pass
 		}
 
 		throw this.BadCastException(newType);
@@ -103,8 +117,13 @@ export class FloatValue extends Value<number>{
 			return new IntValue(this.value);
 		}
 
+<<<<<<< HEAD
 		if (newType == ValueType.String) {
 			return new StringValue("" + this.value);
+=======
+		if (newType == Value.ValueType.String) {
+			return new StringValue('' + this.value);
+>>>>>>> Finished first pass
 		}
 
 		throw this.BadCastException(newType);
@@ -118,10 +137,10 @@ export class StringValue extends Value<string>{
 	constructor(val: string){
 		super(val || '');
 
-		this._isNewline = (this.value == "\n");
+		this._isNewline = (this.value == '\n');
 		this._isInlineWhitespace = true;
 
-		this.value.split('').every(c => {
+		this.value.split('').every((c) => {
 			if (c != ' ' && c != '\t'){
 				this._isInlineWhitespace = false;
 				return false;
@@ -189,7 +208,7 @@ export class DivertTargetValue extends Value<Path>{
 		this.value = value;
 	}
 	public get isTruthy(): never{
-		throw "Shouldn't be checking the truthiness of a divert target";
+		throw new Error('Shouldn\'t be checking the truthiness of a divert target');
 	}
 
 	public Cast(newType: ValueType): Value<any>{
@@ -199,11 +218,12 @@ export class DivertTargetValue extends Value<Path>{
 		throw this.BadCastException(newType);
 	}
 	public toString(): string{
-		return "DivertTargetValue(" + this.targetPath + ")";
+		return 'DivertTargetValue(' + this.targetPath + ')';
 	}
 }
 
 export class VariablePointerValue extends Value<string>{
+<<<<<<< HEAD
     _contextIndex: number;
 
 
@@ -219,11 +239,22 @@ export class VariablePointerValue extends Value<string>{
     public set contextIndex(value: number) {
         this._contextIndex = value;
     }
+=======
+	public contextIndex: number;
+
+	constructor(variableName: string, contextIndex: number = -1){
+		super(variableName);
+
+		this._valueType = Value.ValueType.VariablePointer;
+		this.contextIndex = contextIndex;
+	}
+>>>>>>> Finished first pass
 	public get variableName(): string{
 		return this.value;
 	}
 	public set variableName(value: string){
 		this.value = value;
+<<<<<<< HEAD
     }
     public get valueType(): ValueType {
         return ValueType.VariablePointer;
@@ -234,35 +265,63 @@ export class VariablePointerValue extends Value<string>{
 	}
 
     Cast(newType: ValueType): Value<any>{
+=======
+	}
+	get isTruthy(): never{
+		throw new Error('Shouldn\'t be checking the truthiness of a variable pointer');
+	}
+
+	public Cast(newType: Value.ValueType): Value<any>{
+>>>>>>> Finished first pass
 		if (newType == this.valueType)
 			return this;
 
 		throw this.BadCastException(newType);
 	}
-	toString(){
-		return "VariablePointerValue(" + this.variableName + ")";
+	public toString(): string{
+		return 'VariablePointerValue(' + this.variableName + ')';
 	}
+<<<<<<< HEAD
 	Copy(): InkObject{
+=======
+	public Copy(): VariablePointerValue{
+>>>>>>> Finished first pass
 		return new VariablePointerValue(this.variableName, this.contextIndex);
 	}
 }
 
 export class ListValue extends Value<InkList>{
+<<<<<<< HEAD
 	public get isTruthy(): boolean{
 		var isTruthy = false;
 		this.value.forEach(function(value, key, map){
 			var listItemIntValue = value;
+=======
+	public get valueType(): Value.ValueType{
+		return Value.ValueType.List;
+	}
+	public get isTruthy(){
+		let isTruthy = false;
+		this.value.forEach((kv: KeyValuePair<InkListItem, number>) => {
+			let listItemIntValue = kv.Value;
+>>>>>>> Finished first pass
 			if (listItemIntValue != 0)
 				isTruthy = true;
 		});
 		return isTruthy;
 	}
+<<<<<<< HEAD
     public get valueType(): ValueType {
         return ValueType.List;
     }
     Cast(newType: ValueType): Value<any>{
 		 if (newType == ValueType.Int) {
 			var max = this.value.maxItem;
+=======
+	public Cast(newType: Value.ValueType): Value<any>{
+		 if (newType == Value.ValueType.Int) {
+			let max = this.value.maxItem;
+>>>>>>> Finished first pass
 			if( max.Key.isNull )
 				return new IntValue(0);
 			else
@@ -270,7 +329,7 @@ export class ListValue extends Value<InkList>{
 		}
 
 		else if (newType == ValueType.Float) {
-			var max = this.value.maxItem;
+			let max = this.value.maxItem;
 			if (max.Key.isNull)
 				return new FloatValue(0.0);
 			else
@@ -278,43 +337,75 @@ export class ListValue extends Value<InkList>{
 		}
 
 		else if (newType == ValueType.String) {
+<<<<<<< HEAD
 			var max = this.value.maxItem;
+=======
+			let max = value.maxItem;
+>>>>>>> Finished first pass
 			if (max.Key.isNull)
-				return new StringValue("");
+				return new StringValue('');
 			else {
 				return new StringValue(max.Key.toString());
 			}
 		}
 
-		if (newType == this.valueType)
-			return this;
+		 if (newType == this.valueType) return this;
 
-		throw this.BadCastException(newType);
+		 throw this.BadCastException(newType);
 	}
+<<<<<<< HEAD
 	constructor(listOrSingleItem?: InkList | InkListItem, singleValue?: number){
+=======
+	// tslint:disable:unified-signatures
+	constructor()
+	constructor(list: InkList)
+	constructor(listOrSingleItem: InkListItem, singleValue: number)
+	constructor(listOrSingleItem, singleValue){
+		super(null);
+
+		this._valueType = Value.ValueType.List;
+
+>>>>>>> Finished first pass
 		if (listOrSingleItem instanceof InkList){
             super(new InkList(listOrSingleItem));
 		}
+<<<<<<< HEAD
 		else if (listOrSingleItem !== undefined && singleValue !== undefined){
 			super(new InkList({
 				Key: listOrSingleItem,
 				Value: singleValue
 			}));
+=======
+		else if (listOrSingleItem && singleValue){
+			this.value = new InkList({
+				Key: listOrSingleItem,
+				Value: singleValue,
+			});
+>>>>>>> Finished first pass
 		}
 		else{
 			super(new InkList());
 		}
 	}
+<<<<<<< HEAD
 	static RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
         var oldList = asOrNull(oldValue, ListValue);
         var newList = asOrNull(newValue, ListValue);
 
 		// When assigning the empty list, try to retain any initial origin names
+=======
+	public static RetainListOriginsForAssignment(oldValue: any, newValue: any): void{
+		let oldList = asOrNull(oldValue, ListValue);
+		let newList = asOrNull(newValue, ListValue);
+
+		// When assigning the emtpy list, try to retain any initial origin names
+>>>>>>> Finished first pass
 		if (oldList && newList && newList.value.Count == 0)
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
 	}
 }
 
+<<<<<<< HEAD
 export enum ValueType {
     Int = 0,
     Float = 1,
@@ -322,4 +413,15 @@ export enum ValueType {
     String = 3,
     DivertTarget = 4,
     VariablePointer = 5
+=======
+export namespace Value{
+  export enum ValueType {
+	Int = 0,
+  	Float = 1,
+  	List = 2,
+  	String = 3,
+  	DivertTarget = 4,
+  	VariablePointer = 5,
+  }
+>>>>>>> Finished first pass
 }
