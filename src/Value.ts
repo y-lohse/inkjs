@@ -1,24 +1,15 @@
 import {InkObject} from './Object';
 import {Path} from './Path';
-import {InkList} from './InkList';
+import {InkList, InkListItem} from './InkList';
 import {StoryException} from './StoryException';
+import {asOrNull, asOrThrows} from './TypeAssertion';
 
 abstract class AbstractValue extends InkObject{
-	public abstract _valueType: Value.ValueType;
-	public abstract _isTruthy: boolean;
-	public abstract _valueObject: any;
+	public abstract get valueType(): ValueType;
+	public abstract get isTruthy(): boolean;
+	public abstract get valueObject(): any;
 
-	public get valueType(): Value.ValueType{
-		return this._valueType;
-	}
-	public get isTruthy(): boolean{
-		return this._isTruthy;
-	}
-	public get valueObject(): any{
-		return this._valueObject;
-	}
-
-	public abstract Cast(newType: Value.ValueType): Value<any>;
+	public abstract Cast(newType: ValueType): Value<any>;
 
 	public static Create(val: any): Value<any> | null{
 		// Implicitly convert bools into ints
@@ -41,10 +32,10 @@ abstract class AbstractValue extends InkObject{
 
 		return null;
 	}
-	public Copy(val: any): Value<any> | null{
-		return AbstractValue.Create(val);
+	public Copy(): InkObject {
+        return asOrThrows(AbstractValue.Create(this), InkObject);
 	}
-	public BadCastException (targetType: Value.ValueType): StoryException {
+	public BadCastException (targetType: ValueType): StoryException {
 		return new StoryException("Can't cast "+this.valueObject+" from " + this.valueType+" to "+targetType);
 	}
 }
@@ -54,7 +45,7 @@ export abstract class Value<T> extends AbstractValue{
 
 	constructor(val: T){
 		super();
-		this.value = val;
+        this.value = val;
 	}
 	public get valueObject(): any{
 		return this.value;
@@ -67,25 +58,24 @@ export abstract class Value<T> extends AbstractValue{
 export class IntValue extends Value<number>{
 	constructor(val: number){
 		super(val || 0);
-		this._valueType = Value.ValueType.Int;
 	}
 	public get isTruthy(): boolean{
 		return this.value != 0;
 	}
-	public get valueType(): Value.ValueType{
-		return Value.ValueType.Int;
-	}
+    public get valueType(): ValueType {
+        return ValueType.Int;
+    }
 
-	public Cast(newType: Value.ValueType): Value<any> | null{
+	public Cast(newType: ValueType): Value<any>{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == Value.ValueType.Float) {
+		if (newType == ValueType.Float) {
 			return new FloatValue(this.value);
 		}
 
-		if (newType == Value.ValueType.String) {
+		if (newType == ValueType.String) {
 			return new StringValue("" + this.value);
 		}
 
@@ -96,25 +86,24 @@ export class IntValue extends Value<number>{
 export class FloatValue extends Value<number>{
 	constructor(val: number){
 		super(val || 0.0);
-		this._valueType = Value.ValueType.Float;
 	}
 	public get isTruthy(): boolean{
 		return this.value != 0.0;
 	}
 	public get valueType(){
-		return Value.ValueType.Float;
+		return ValueType.Float;
 	}
 
-	public Cast(newType: Value.ValueType): Value<any> | null{
+	public Cast(newType: ValueType): Value<any>{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == Value.ValueType.Int) {
+		if (newType == ValueType.Int) {
 			return new IntValue(this.value);
 		}
 
-		if (newType == Value.ValueType.String) {
+		if (newType == ValueType.String) {
 			return new StringValue("" + this.value);
 		}
 
@@ -128,7 +117,6 @@ export class StringValue extends Value<string>{
 
 	constructor(val: string){
 		super(val || '');
-		this._valueType = Value.ValueType.String;
 
 		this._isNewline = (this.value == "\n");
 		this._isInlineWhitespace = true;
@@ -142,8 +130,8 @@ export class StringValue extends Value<string>{
 			return true;
 		});
 	}
-	public get valueType(): Value.ValueType{
-		return Value.ValueType.String;
+	public get valueType(): ValueType{
+		return ValueType.String;
 	}
 	public get isTruthy(): boolean{
 		return this.value.length > 0;
@@ -158,27 +146,27 @@ export class StringValue extends Value<string>{
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
 
-	public Cast(newType: Value.ValueType): Value<any> | null{
+	public Cast(newType: ValueType): Value<any>{
 		if (newType == this.valueType) {
 			return this;
 		}
 
-		if (newType == Value.ValueType.Int) {
+		if (newType == ValueType.Int) {
 
 			let parsedInt;
 			if (parsedInt = parseInt(this.value)) {
 				return new IntValue(parsedInt);
 			} else {
-				return null;
+                throw this.BadCastException(newType);
 			}
 		}
 
-		if (newType == Value.ValueType.Float) {
+		if (newType == ValueType.Float) {
 			let parsedFloat;
-			if (parsedFloat = parsedFloat(this.value)) {
+			if (parsedFloat = parseFloat(this.value)) {
 				return new FloatValue(parsedFloat);
 			} else {
-				return null;
+                throw this.BadCastException(newType);
 			}
 		}
 
@@ -190,8 +178,10 @@ export class DivertTargetValue extends Value<Path>{
 	constructor(targetPath: Path){
 		super(targetPath);
 
-		this._valueType = Value.ValueType.DivertTarget;
 	}
+    public get valueType(): ValueType {
+        return ValueType.DivertTarget;
+    }
 	public get targetPath(): Path{
 		return this.value;
 	}
@@ -202,7 +192,7 @@ export class DivertTargetValue extends Value<Path>{
 		throw "Shouldn't be checking the truthiness of a divert target";
 	}
 
-	public Cast(newType: Value.ValueType): Value<any>{
+	public Cast(newType: ValueType): Value<any>{
 		if (newType == this.valueType)
 			return this;
 
@@ -213,24 +203,37 @@ export class DivertTargetValue extends Value<Path>{
 	}
 }
 
-export class VariablePointerValue extends Value{
-	constructor(variableName, contextIndex){
+export class VariablePointerValue extends Value<string>{
+    _contextIndex: number;
+
+
+	constructor(variableName: string, contextIndex: number | undefined){
 		super(variableName);
 
-		this._valueType = ValueType.VariablePointer;
-		this.contextIndex = (typeof contextIndex !== 'undefined') ? contextIndex : -1;
+		this._contextIndex = (typeof contextIndex !== 'undefined') ? contextIndex : -1;
 	}
-	get variableName(){
+
+    public get contextIndex(): number{
+        return this._contextIndex;
+    }
+    public set contextIndex(value: number) {
+        this._contextIndex = value;
+    }
+	public get variableName(): string{
 		return this.value;
 	}
-	set variableName(value){
+	public set variableName(value: string){
 		this.value = value;
-	}
-	get isTruthy(){
+    }
+    public get valueType(): ValueType {
+        return ValueType.VariablePointer;
+    }
+	
+	public get isTruthy(): never{
 		throw "Shouldn't be checking the truthiness of a variable pointer";
 	}
 
-	Cast(newType){
+    Cast(newType: ValueType): Value<any>{
 		if (newType == this.valueType)
 			return this;
 
@@ -239,25 +242,25 @@ export class VariablePointerValue extends Value{
 	toString(){
 		return "VariablePointerValue(" + this.variableName + ")";
 	}
-	Copy(){
+	Copy(): InkObject{
 		return new VariablePointerValue(this.variableName, this.contextIndex);
 	}
 }
 
-export class ListValue extends Value{
-	get valueType(){
-		return ValueType.List;
-	}
-	get isTruthy(){
+export class ListValue extends Value<InkList>{
+	public get isTruthy(): boolean{
 		var isTruthy = false;
-		this.value.forEach(function(kv){
-			var listItemIntValue = kv.Value;
+		this.value.forEach(function(value, key, map){
+			var listItemIntValue = value;
 			if (listItemIntValue != 0)
 				isTruthy = true;
 		});
 		return isTruthy;
 	}
-	Cast(newType){
+    public get valueType(): ValueType {
+        return ValueType.List;
+    }
+    Cast(newType: ValueType): Value<any>{
 		 if (newType == ValueType.Int) {
 			var max = this.value.maxItem;
 			if( max.Key.isNull )
@@ -271,11 +274,11 @@ export class ListValue extends Value{
 			if (max.Key.isNull)
 				return new FloatValue(0.0);
 			else
-				return new FloatValue(parseFloat(max.Value));
+				return new FloatValue(max.Value);
 		}
 
 		else if (newType == ValueType.String) {
-			var max = value.maxItem;
+			var max = this.value.maxItem;
 			if (max.Key.isNull)
 				return new StringValue("");
 			else {
@@ -288,43 +291,35 @@ export class ListValue extends Value{
 
 		throw this.BadCastException(newType);
 	}
-	constructor(listOrSingleItem, singleValue){
-		super(null);
-
-		this._valueType = ValueType.List;
-
+	constructor(listOrSingleItem?: InkList | InkListItem, singleValue?: number){
 		if (listOrSingleItem instanceof InkList){
-			this.value = new InkList(listOrSingleItem);
+            super(new InkList(listOrSingleItem));
 		}
 		else if (listOrSingleItem !== undefined && singleValue !== undefined){
-			this.value = new InkList({
+			super(new InkList({
 				Key: listOrSingleItem,
 				Value: singleValue
-			});
+			}));
 		}
 		else{
-			this.value = new InkList();
+			super(new InkList());
 		}
 	}
-	static RetainListOriginsForAssignment(oldValue, newValue){
-//		var oldList = oldValue as ListValue;
-		var oldList = oldValue;
-//		var newList = newValue as ListValue;
-		var newList = newValue;
+	static RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
+        var oldList = asOrNull(oldValue, ListValue);
+        var newList = asOrNull(newValue, ListValue);
 
-		// When assigning the emtpy list, try to retain any initial origin names
-		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
+		// When assigning the empty list, try to retain any initial origin names
+		if (oldList && newList && newList.value.Count == 0)
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
 	}
 }
 
-export namespace Value{
-  export enum ValueType {
+export enum ValueType {
     Int = 0,
-  	Float = 1,
-  	List = 2,
-  	String = 3,
-  	DivertTarget = 4,
-  	VariablePointer = 5
-  }
+    Float = 1,
+    List = 2,
+    String = 3,
+    DivertTarget = 4,
+    VariablePointer = 5
 }

@@ -125,7 +125,7 @@ export class InkObject{
 		else
 			return globalPathStr;
 	}
-	public Copy(){
+	public Copy(): InkObject {
 		throw Error("Not Implemented: Doesn't support copying");
 	}
 	// SetChild works slightly diferently in the js implementation.
