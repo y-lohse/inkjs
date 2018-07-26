@@ -4,6 +4,7 @@ install:
 node_js:
 - '7'
 script:
+- npm run lint
 - npm run build
 - npm run test
 deploy:
