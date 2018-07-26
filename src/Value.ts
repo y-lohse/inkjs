@@ -59,7 +59,7 @@ export abstract class Value<T> extends AbstractValue{
 
 	constructor(val: T){
 		super();
-  this.value = val;
+		this.value = val;
 	}
 	public get valueObject(): any{
 		return this.value;
