@@ -252,7 +252,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			}
 		}
 
-        return this._originNames as string[];
+  return this._originNames as string[];
 	}
 	public SetInitialOriginName(initialOriginName: string){
 		this._originNames = [initialOriginName];
