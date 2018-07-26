@@ -23,15 +23,15 @@ abstract class AbstractValue extends InkObject{
 		}
 
 		if (Number.isInteger(Number(val))) {
-			return new IntValue(val);
+			return new IntValue(Number(val));
 		} else if (!isNaN(val)) {
-			return new FloatValue(val);
+			return new FloatValue(Number(val));
 		} else if (typeof val === 'string') {
-			return new StringValue(val);
+			return new StringValue(String(val));
 		} else if (val instanceof Path) {
-			return new DivertTargetValue(val);
+			return new DivertTargetValue(asOrThrows(val, Path));
 		} else if (val instanceof InkList) {
-			return new ListValue(val);
+			return new ListValue(asOrThrows(val, InkList));
 		}
 
 		return null;
