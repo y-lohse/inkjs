@@ -244,10 +244,10 @@ export class VariablePointerValue extends Value<string>{
 	public _contextIndex: number;
 >>>>>>> linting
 
-	constructor(variableName: string, contextIndex: number | undefined){
+	constructor(variableName: string, contextIndex: number = -1){
 		super(variableName);
 
-		this._contextIndex = (typeof contextIndex !== 'undefined') ? contextIndex : -1;
+		this._contextIndex = contextIndex;
 	}
 
 <<<<<<< HEAD
