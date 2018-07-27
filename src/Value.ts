@@ -4,6 +4,7 @@ import {InkList, InkListItem} from './InkList';
 import {StoryException} from './StoryException';
 import {asOrNull, asOrThrows} from './TypeAssertion';
 import {tryParseInt, tryParseFloat} from './TryGetResult';
+import {throwNullException} from './NullException';
 
 abstract class AbstractValue extends InkObject{
 	public abstract get valueType(): ValueType;
@@ -42,9 +43,9 @@ abstract class AbstractValue extends InkObject{
 }
 
 export abstract class Value<T> extends AbstractValue{
-	public value: T;
+	public value: T | null;
 
-	constructor(val: T){
+	constructor(val: T | null){
 		super();
 		this.value = val;
 	}
@@ -52,6 +53,7 @@ export abstract class Value<T> extends AbstractValue{
 		return this.value;
 	}
 	public toString(){
+		if (this.value === null) return throwNullException('Value.value');
 		return this.value.toString();
 	}
 }
@@ -68,6 +70,8 @@ export class IntValue extends Value<number>{
 	}
 
 	public Cast(newType: ValueType): Value<any>{
+		if (this.value === null) return throwNullException('Value.value');
+
 		if (newType == this.valueType) {
 			return this;
 		}
@@ -96,6 +100,8 @@ export class FloatValue extends Value<number>{
 	}
 
 	public Cast(newType: ValueType): Value<any>{
+		if (this.value === null) return throwNullException('Value.value');
+
 		if (newType == this.valueType) {
 			return this;
 		}
@@ -122,6 +128,8 @@ export class StringValue extends Value<string>{
 		this._isNewline = (this.value == '\n');
 		this._isInlineWhitespace = true;
 
+		if (this.value === null) return throwNullException('Value.value');
+
 		this.value.split('').every((c) => {
 			if (c != ' ' && c != '\t'){
 				this._isInlineWhitespace = false;
@@ -135,6 +143,7 @@ export class StringValue extends Value<string>{
 		return ValueType.String;
 	}
 	public get isTruthy(){
+		if (this.value === null) return throwNullException('Value.value');
 		return this.value.length > 0;
 	}
 	public get isNewline(){
@@ -183,6 +192,7 @@ export class DivertTargetValue extends Value<Path>{
 		return ValueType.DivertTarget;
 	}
 	public get targetPath(){
+		if (this.value === null) return throwNullException('Value.value');
 		return this.value;
 	}
 	public set targetPath(value: Path){
@@ -219,6 +229,7 @@ export class VariablePointerValue extends Value<string>{
 		this._contextIndex = value;
 	}
 	public get variableName(){
+		if (this.value === null) return throwNullException('Value.value');
 		return this.value;
 	}
 	public set variableName(value: string){
@@ -249,6 +260,7 @@ export class VariablePointerValue extends Value<string>{
 export class ListValue extends Value<InkList>{
 	public get isTruthy(){
 		let isTruthy = false;
+		if (this.value === null) return throwNullException('Value.value');
 		this.value.forEach((value, key, map) => {
 			let listItemIntValue = value;
 			if (listItemIntValue != 0)
@@ -260,60 +272,65 @@ export class ListValue extends Value<InkList>{
 		return ValueType.List;
 	}
 	public Cast(newType: ValueType): Value<any>{
-		 if (newType == ValueType.Int) {
+		if (this.value === null) return throwNullException('Value.value');
+
+		if (newType == ValueType.Int) {
 			let max = this.value.maxItem;
 			if( max.Key.isNull )
-				return new IntValue(0);
+			return new IntValue(0);
 			else
-				return new IntValue(max.Value);
+			return new IntValue(max.Value);
 		}
-
 		else if (newType == ValueType.Float) {
 			let max = this.value.maxItem;
 			if (max.Key.isNull)
-				return new FloatValue(0.0);
+			return new FloatValue(0.0);
 			else
-				return new FloatValue(max.Value);
+			return new FloatValue(max.Value);
 		}
-
 		else if (newType == ValueType.String) {
 			let max = this.value.maxItem;
 			if (max.Key.isNull)
-				return new StringValue('');
+			return new StringValue('');
 			else {
 				return new StringValue(max.Key.toString());
 			}
 		}
 
-		 if (newType == this.valueType) return this;
+		if (newType == this.valueType) return this;
 
-		 throw this.BadCastException(newType);
+		throw this.BadCastException(newType);
 	}
 	// tslint:disable:unified-signatures
 	constructor();
 	constructor(list: InkList);
 	constructor(listOrSingleItem: InkListItem, singleValue: number)
 	constructor(listOrSingleItem?: InkListItem | InkList, singleValue?: number){
+		super(null);
+
 		if (listOrSingleItem instanceof InkList){
-			super(new InkList(listOrSingleItem));
+			this.value = new InkList(listOrSingleItem);
 		}
 		else if (listOrSingleItem !== undefined && singleValue !== undefined){
-			super(new InkList({
+			this.value = new InkList({
 				Key: listOrSingleItem,
 				Value: singleValue,
-			}));
+			});
 		}
 		else{
-			super(new InkList());
+			this.value = new InkList();
 		}
 	}
 	public static RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
 		let oldList = asOrNull(oldValue, ListValue);
 		let newList = asOrNull(newValue, ListValue);
 
+		if (newList && newList.value === null) return throwNullException('newList.value');
+		if (oldList && oldList.value === null) return throwNullException('oldList.value');
+
 		// When assigning the empty list, try to retain any initial origin names
-		if (oldList && newList && newList.value.Count == 0)
-			newList.value.SetInitialOriginNames(oldList.value.originNames);
+		if (oldList && newList && newList.value!.Count == 0)
+			newList.value!.SetInitialOriginNames(oldList.value!.originNames);
 	}
 }
 
