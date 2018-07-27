@@ -1,4 +1,3 @@
-import {asOrThrows} from './TypeAssertion';
 import {throwNullException} from './NullException';
 import {StringBuilder} from './StringBuilder';
 import {ListDefinition} from './ListDefinition';
@@ -252,7 +251,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			}
 		}
 
-  return this._originNames as string[];
+		return this._originNames as string[];
 	}
 	public SetInitialOriginName(initialOriginName: string){
 		this._originNames = [initialOriginName];
