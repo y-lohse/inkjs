@@ -3,6 +3,7 @@ import {Path} from './Path';
 import {InkList, InkListItem} from './InkList';
 import {StoryException} from './StoryException';
 import {asOrNull, asOrThrows} from './TypeAssertion';
+import {tryParseInt, tryParseFloat} from './TryGetResult';
 
 abstract class AbstractValue extends InkObject{
 	public abstract get valueType(): ValueType;
@@ -153,18 +154,18 @@ export class StringValue extends Value<string>{
 
 		if (newType == ValueType.Int) {
 
-			let parsedInt;
-			if (parsedInt = parseInt(this.value)) {
-				return new IntValue(parsedInt);
+			let parsedInt = tryParseInt(this.value);
+			if (parsedInt.exists) {
+				return new IntValue(parsedInt.result);
 			} else {
 				throw this.BadCastException(newType);
 			}
 		}
 
 		if (newType == ValueType.Float) {
-			let parsedFloat;
-			if (parsedFloat = parseFloat(this.value)) {
-				return new FloatValue(parsedFloat);
+			let parsedFloat = tryParseFloat(this.value);
+			if (parsedFloat.exists) {
+				return new FloatValue(parsedFloat.result);
 			} else {
 				throw this.BadCastException(newType);
 			}
