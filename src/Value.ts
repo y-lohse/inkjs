@@ -308,17 +308,17 @@ export class ListValue extends Value<InkList>{
 	constructor(listOrSingleItem?: InkListItem | InkList, singleValue?: number){
 		super(null);
 
-		if (listOrSingleItem instanceof InkList){
+		if (!listOrSingleItem && !singleValue) {
+			this.value = new InkList();
+		}
+		else if (listOrSingleItem instanceof InkList) {
 			this.value = new InkList(listOrSingleItem);
 		}
-		else if (listOrSingleItem !== undefined && singleValue !== undefined){
+		else if (listOrSingleItem instanceof InkListItem && typeof singleValue === 'number') {
 			this.value = new InkList({
 				Key: listOrSingleItem,
 				Value: singleValue,
 			});
-		}
-		else{
-			this.value = new InkList();
 		}
 	}
 	public static RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
