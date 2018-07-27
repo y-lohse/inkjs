@@ -32,10 +32,10 @@ abstract class AbstractValue extends InkObject{
 
 		return null;
 	}
-	public Copy(): InkObject {
+	public Copy() {
 		return asOrThrows(AbstractValue.Create(this), InkObject);
 	}
-	public BadCastException(targetType: ValueType): StoryException {
+	public BadCastException(targetType: ValueType) {
 		return new StoryException("Can't cast "+this.valueObject+' from ' + this.valueType+' to '+targetType);
 	}
 }
@@ -47,10 +47,10 @@ export abstract class Value<T> extends AbstractValue{
 		super();
 		this.value = val;
 	}
-	public get valueObject(): any{
+	public get valueObject(){
 		return this.value;
 	}
-	public toString(): string{
+	public toString(){
 		return this.value.toString();
 	}
 }
@@ -59,10 +59,10 @@ export class IntValue extends Value<number>{
 	constructor(val: number){
 		super(val || 0);
 	}
-	public get isTruthy(): boolean{
+	public get isTruthy(){
 		return this.value != 0;
 	}
-	public get valueType(): ValueType {
+	public get valueType() {
 		return ValueType.Int;
 	}
 
@@ -87,7 +87,7 @@ export class FloatValue extends Value<number>{
 	constructor(val: number){
 		super(val || 0.0);
 	}
-	public get isTruthy(): boolean{
+	public get isTruthy(){
 		return this.value != 0.0;
 	}
 	public get valueType(){
@@ -130,19 +130,19 @@ export class StringValue extends Value<string>{
 			return true;
 		});
 	}
-	public get valueType(): ValueType{
+	public get valueType(){
 		return ValueType.String;
 	}
-	public get isTruthy(): boolean{
+	public get isTruthy(){
 		return this.value.length > 0;
 	}
-	public get isNewline(): boolean{
+	public get isNewline(){
 		return this._isNewline;
 	}
-	public get isInlineWhitespace(): boolean{
+	public get isInlineWhitespace(){
 		return this._isInlineWhitespace;
 	}
-	public get isNonWhitespace(): boolean{
+	public get isNonWhitespace(){
 		return !this.isNewline && !this.isInlineWhitespace;
 	}
 
@@ -177,12 +177,11 @@ export class StringValue extends Value<string>{
 export class DivertTargetValue extends Value<Path>{
 	constructor(targetPath: Path){
 		super(targetPath);
-
 	}
-	public get valueType(): ValueType {
+	public get valueType() {
 		return ValueType.DivertTarget;
 	}
-	public get targetPath(): Path{
+	public get targetPath(){
 		return this.value;
 	}
 	public set targetPath(value: Path){
@@ -198,7 +197,7 @@ export class DivertTargetValue extends Value<Path>{
 
 		throw this.BadCastException(newType);
 	}
-	public toString(): string{
+	public toString(){
 		return 'DivertTargetValue(' + this.targetPath + ')';
 	}
 }
@@ -212,19 +211,19 @@ export class VariablePointerValue extends Value<string>{
 		this._contextIndex = contextIndex;
 	}
 
-	public get contextIndex(): number{
+	public get contextIndex(){
 		return this._contextIndex;
 	}
 	public set contextIndex(value: number) {
 		this._contextIndex = value;
 	}
-	public get variableName(): string{
+	public get variableName(){
 		return this.value;
 	}
 	public set variableName(value: string){
 		this.value = value;
 	}
-	public get valueType(): ValueType {
+	public get valueType() {
 		return ValueType.VariablePointer;
 	}
 
@@ -238,16 +237,16 @@ export class VariablePointerValue extends Value<string>{
 
 		throw this.BadCastException(newType);
 	}
-	public toString(): string{
+	public toString(){
 		return 'VariablePointerValue(' + this.variableName + ')';
 	}
-	public Copy(): InkObject{
+	public Copy(){
 		return new VariablePointerValue(this.variableName, this.contextIndex);
 	}
 }
 
 export class ListValue extends Value<InkList>{
-	public get isTruthy(): boolean{
+	public get isTruthy(){
 		let isTruthy = false;
 		this.value.forEach((value, key, map) => {
 			let listItemIntValue = value;
@@ -256,7 +255,7 @@ export class ListValue extends Value<InkList>{
 		});
 		return isTruthy;
 	}
-	public get valueType(): ValueType {
+	public get valueType() {
 		return ValueType.List;
 	}
 	public Cast(newType: ValueType): Value<any>{
