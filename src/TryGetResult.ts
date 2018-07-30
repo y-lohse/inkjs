@@ -37,3 +37,23 @@ export function tryGetValueFromMap<K, V>(map: Map<K, V>, key: K, /* out */ value
 		return { result: value, exists: false };
 	}
 }
+
+export function tryParseInt(value: any, /* out */ defaultValue: number = 0): TryGetResult<number> {
+	let val = parseInt(value);
+
+	if (!Number.isNaN(val)) {
+		return { result: val, exists: true };
+	} else {
+		return { result: defaultValue, exists: false };
+	}
+}
+
+export function tryParseFloat(value: any, /* out */ defaultValue: number = 0): TryGetResult<number> {
+	let val = parseFloat(value);
+
+	if (!Number.isNaN(val)) {
+		return { result: val, exists: true };
+	} else {
+		return { result: defaultValue, exists: false };
+	}
+}
