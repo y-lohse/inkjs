@@ -87,3 +87,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+
+# Vim
+*.swp
