@@ -2,45 +2,41 @@
 // - varchanged events
 // - see if the internal getenumarators are needed
 import {Value, VariablePointerValue, ListValue} from './Value';
+import {VariableAssignment} from './VariableAssignment';
+import {InkObject} from './Object';
+import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 
 export class VariablesState{
-	constructor(callStack, listDefsOrigin){
-		this._globalVariables = {};
-		this._defaultGlobalVariables = {};
+    private _globalVariables: Map<string, InkObject>;
+    private _defaultGlobalVariables: Map<string, InkObject>;
+    private _callStack: any;
+    private _listDefsOrigin: ListDefinitionsOrigin;
+
+    private _batchObservingVariableChanges: boolean = false;
+    private _changedVariables: Array<string> = [];
+
+    //the way variableChangedEvent is a bit different than the reference implementation. Originally it uses the C# += operator to add delegates, but in js we need to maintain an actual collection of delegates (ie. callbacks)
+    //to register a new one, there is a special ObserveVariableChange method below.
+    variableChangedEventCallbacks: Array<(variableName: string, newValue: InkObject) => void> = [];
+    variableChangedEvent(variableName: string, newValue: InkObject): void {
+        this.variableChangedEventCallbacks.forEach(callback => {
+            callback(variableName, newValue);
+        });
+    }
+
+	constructor(callStack: any, listDefsOrigin: ListDefinitionsOrigin){
+		this._globalVariables = new Map();
+		this._defaultGlobalVariables = new Map();
 		this._callStack = callStack;
 		this._listDefsOrigin = listDefsOrigin;
 
-		this._batchObservingVariableChanges = null;
-		this._changedVariables = null;
+		this._batchObservingVariableChanges = false;
+		this._changedVariables = [];
+    }
 
-		//the way variableChangedEvent is a bit different than the reference implementation. Originally it uses the C# += operator to add delegates, but in js we need to maintain an actual collection of delegates (ie. callbacks)
-		//to register a new one, there is a special ObserveVariableChange method below.
-		this.variableChangedEvent = null;
-		this.variableChangedEventCallbacks = [];
 
-		//if es6 proxies are available, use them.
-		try{
-			//the proxy is used to allow direct manipulation of global variables. It first tries to access the objetcs own property, and if none is found it delegates the call to the $ method, defined below
-			var p = new Proxy(this, {
-				get: function(target, name){
-					return (name in target) ? target[name] : target.$(name);
-				},
-				set: function(target, name, value){
-					if (name in target) target[name] = value;
-					else target.$(name, value);
-					return true;//returning a fasly value make sthe trap fail
-				}
-			});
-
-			return p;
-		}
-		catch(e){
-			//thr proxy object is not available in this context. we should warn the dev but writting to the console feels a bit intrusive.
-//			console.log("ES6 Proxy not available - direct manipulation of global variables can't work, use $() instead.");
-		}
-	}
 	get callStack(){
 		return this._callStack;
 	}
@@ -60,39 +56,28 @@ export class VariablesState{
 		// Finished observing variables in a batch - now send
 		// notifications for changed variables all in one go.
 		else {
-			if (this._changedVariables != null) {
-				this._changedVariables.forEach(variableName => {
-					var currentValue = this._globalVariables[variableName];
-					this.variableChangedEvent(variableName, currentValue);
-				});
-			}
-
-			this._changedVariables = null;
+            this._changedVariables.forEach(variableName => {
+                var currentValue = this._globalVariables.get(variableName);
+                this.variableChangedEvent(variableName, currentValue);
+            });
 		}
 	}
 	get jsonToken(){
 		return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
 	}
 	set jsonToken(value){
-		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
+        this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value) as Map<string, InkObject>; // TODO remove the `as` after JsonSerialisation is ported
 	}
 
 	/**
 	 * This function is specific to the js version of ink. It allows to register a callback that will be called when a variable changes. The original code uses `state.variableChangedEvent += callback` instead.
 	 * @param {function} callback
 	 */
-	ObserveVariableChange(callback){
-		if (this.variableChangedEvent == null){
-			this.variableChangedEvent = (variableName, newValue) => {
-				this.variableChangedEventCallbacks.forEach(cb => {
-					cb(variableName, newValue);
-				});
-			};
-		}
-
+    ObserveVariableChange(callback: (variableName: string, newValue: InkObject) => void){
 		this.variableChangedEventCallbacks.push(callback);
 	}
-	CopyFrom(toCopy){
+
+	CopyFrom(toCopy: VariablesState){
 		this._globalVariables = Object.assign({}, toCopy._globalVariables);
 		this._defaultGlobalVariables = Object.assign({}, toCopy._defaultGlobalVariables);
 
@@ -105,14 +90,14 @@ export class VariablesState{
 				this._changedVariables = toCopy._changedVariables;
 			} else {
 				this._batchObservingVariableChanges = false;
-				this._changedVariables = null;
+				this._changedVariables = [];
 			}
 		}
 	}
 	GlobalVariableExistsWithName(name){
-		return typeof this._globalVariables[name] !== 'undefined';
+		return typeof this._globalVariables.get(name) !== 'undefined';
 	}
-	GetVariableWithName(name,contextIndex){
+	GetVariableWithName(name: string,contextIndex: number): InkObject {
 		if (typeof contextIndex === 'undefined') contextIndex = -1;
 
 		var varValue = this.GetRawVariableWithName(name, contextIndex);
@@ -126,18 +111,19 @@ export class VariablesState{
 
 		return varValue;
 	}
-	TryGetDefaultVariableValue (name)
+	TryGetDefaultVariableValue (name: string)
 	{
 		var val = this._defaultGlobalVariables[name];
 		if (typeof val === 'undefined') val = null;
 		return val;
 	}
-	GetRawVariableWithName(name, contextIndex){
+	GetRawVariableWithName(name: string, contextIndex: number){
 		var varValue = null;
 
 		// 0 context = global
 		if (contextIndex == 0 || contextIndex == -1) {
-			if ( varValue = this._globalVariables[name] )
+            // TODO this is a conditional assignment
+			if ( varValue = this._globalVariables.get(name) )
 				return varValue;
 
 			var listItemValue = this._listDefsOrigin.FindSingleItemListWithName(name);
@@ -150,10 +136,10 @@ export class VariablesState{
 
 		return varValue;
 	}
-	ValueAtVariablePointer(pointer){
+	ValueAtVariablePointer(pointer: VariablePointerValue){
 		 return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 	}
-	Assign(varAss, value){
+	Assign(varAss: VariableAssignment, value: InkObject){
 		var name = varAss.variableName;
 		var contextIndex = -1;
 
@@ -162,7 +148,7 @@ export class VariablesState{
 		if (varAss.isNewDeclaration) {
 			setGlobal = varAss.isGlobal;
 		} else {
-			setGlobal = !!this._globalVariables[name];
+			setGlobal = !!this._globalVariables.get(name);
 		}
 
 		// Constructing new variable pointer reference
@@ -205,16 +191,15 @@ export class VariablesState{
 		this._defaultGlobalVariables = Object.assign({}, this._globalVariables);
 	}
 
-	RetainListOriginsForAssignment(oldValue, newValue){
-//		var oldList = oldValue as ListValue;
-		var oldList = oldValue;
-//		var newList = newValue as ListValue;
-		var newList = newValue;
+	RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
+		var oldList = asOrThrows(oldValue, ListValue);
+		var newList = asOrThrows(newValue, ListValue);
 
-		if (oldList instanceof ListValue && newList instanceof ListValue && newList.value.Count == 0)
+        if (newList.value.Count == 0) {
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
+        }
 	}
-	SetGlobal(variableName, value){
+	SetGlobal(variableName: string, value: InkObject){
 		var oldValue = null;
 		oldValue = this._globalVariables[variableName];
 
