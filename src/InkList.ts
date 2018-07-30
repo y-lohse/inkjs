@@ -36,7 +36,7 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	get fullName(){
 		return ((this.originName !== null) ? this.originName : '?') + '.' + this.itemName;
 	}
-	public toString(): string | null{
+	public toString(): string {
 		return this.fullName;
 	}
 	public Equals(obj: InkListItem){
@@ -235,7 +235,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 		return result;
 	}
-	get originNames(){
+	get originNames(): string[]{
 		if (this.Count > 0) {
 			if (this._originNames == null && this.Count > 0)
 				this._originNames = [];
@@ -251,7 +251,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			}
 		}
 
-		return this._originNames;
+		return this._originNames as string[];
 	}
 	public SetInitialOriginName(initialOriginName: string){
 		this._originNames = [initialOriginName];
