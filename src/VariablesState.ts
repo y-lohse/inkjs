@@ -98,8 +98,8 @@ export class VariablesState{
 	}
 
 	CopyFrom(toCopy: VariablesState){
-		this._globalVariables = Object.assign({}, toCopy._globalVariables);
-		this._defaultGlobalVariables = Object.assign({}, toCopy._defaultGlobalVariables);
+		this._globalVariables = new Map(toCopy._globalVariables);
+		this._defaultGlobalVariables = new Map(toCopy._defaultGlobalVariables);
 
 		this.variableChangedEvent = toCopy.variableChangedEvent;
 
