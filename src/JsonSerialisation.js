@@ -40,10 +40,10 @@ export class JsonSerialisation{
 		return list;
 	}
 	static JObjectToDictionaryRuntimeObjs(jObject){
-		var dict = {};
+		var dict = new Map();
 
 		for (var key in jObject){
-			dict[key] = this.JTokenToRuntimeObject(jObject[key]);
+			dict.set(key, this.JTokenToRuntimeObject(jObject[key]));
 		}
 
 		return dict;
