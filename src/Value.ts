@@ -6,7 +6,7 @@ import {asOrNull, asOrThrows} from './TypeAssertion';
 import {tryParseInt, tryParseFloat} from './TryGetResult';
 import {throwNullException} from './NullException';
 
-abstract class AbstractValue extends InkObject{
+export abstract class AbstractValue extends InkObject{
 	public abstract get valueType(): ValueType;
 	public abstract get isTruthy(): boolean;
 	public abstract get valueObject(): any;
