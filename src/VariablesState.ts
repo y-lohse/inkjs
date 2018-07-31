@@ -1,12 +1,10 @@
-//still needs:
-// - varchanged events
-// - see if the internal getenumarators are needed
-import {Value, VariablePointerValue, ListValue} from './Value';
+import {AbstractValue, Value, VariablePointerValue, ListValue} from './Value';
 import {VariableAssignment} from './VariableAssignment';
 import {InkObject} from './Object';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
+import {asOrThrows, asOrNull} from './TypeAssertion';
 
 export class VariablesState{
     private _globalVariables: Map<string, InkObject>;
@@ -34,6 +32,28 @@ export class VariablesState{
 
 		this._batchObservingVariableChanges = false;
 		this._changedVariables = [];
+
+		// TODO should we discourage the use of proxies since they're non-portable and direct access is unsafe?
+		//if es6 proxies are available, use them.
+		try{
+			//the proxy is used to allow direct manipulation of global variables. It first tries to access the objects own property, and if none is found it delegates the call to the $ method, defined below
+			var p = new Proxy(this, {
+				get: function(target: any, name){
+					return (name in target) ? target[name] : target.$(name);
+				},
+				set: function(target: any, name, value){
+					if (name in target) target[name] = value;
+					else target.$(name, value);
+					return true;//returning a falsy value make the trap fail
+				}
+			});
+
+			return p;
+		}
+		catch(e){
+			//thr proxy object is not available in this context. we should warn the dev but writting to the console feels a bit intrusive.
+            //console.log("ES6 Proxy not available - direct manipulation of global variables can't work, use $() instead.");
+        }
     }
 
 
@@ -56,10 +76,10 @@ export class VariablesState{
 		// Finished observing variables in a batch - now send
 		// notifications for changed variables all in one go.
 		else {
-            this._changedVariables.forEach(variableName => {
+		    this._changedVariables.forEach(variableName => {
                 var currentValue = this._globalVariables.get(variableName);
-                this.variableChangedEvent(variableName, currentValue);
-            });
+                this.variableChangedEvent(variableName, currentValue as InkObject);
+		    });
 		}
 	}
 	get jsonToken(){
@@ -94,7 +114,7 @@ export class VariablesState{
 			}
 		}
 	}
-	GlobalVariableExistsWithName(name){
+	GlobalVariableExistsWithName(name: string){
 		return typeof this._globalVariables.get(name) !== 'undefined';
 	}
 	GetVariableWithName(name: string,contextIndex: number): InkObject {
@@ -111,10 +131,9 @@ export class VariablesState{
 
 		return varValue;
 	}
-	TryGetDefaultVariableValue (name: string)
+	TryGetDefaultVariableValue (name: string): InkObject | null
 	{
-		var val = this._defaultGlobalVariables[name];
-		if (typeof val === 'undefined') val = null;
+		let val = asOrNull(this._defaultGlobalVariables.get(name), InkObject);
 		return val;
 	}
 	GetRawVariableWithName(name: string, contextIndex: number){
@@ -140,7 +159,7 @@ export class VariablesState{
 		 return this.GetVariableWithName(pointer.variableName, pointer.contextIndex);
 	}
 	Assign(varAss: VariableAssignment, value: InkObject){
-		var name = varAss.variableName;
+		let name = varAss.variableName as string;
 		var contextIndex = -1;
 
 		// Are we assigning to a global variable?
@@ -195,17 +214,18 @@ export class VariablesState{
 		var oldList = asOrThrows(oldValue, ListValue);
 		var newList = asOrThrows(newValue, ListValue);
 
-        if (newList.value.Count == 0) {
+        if (oldList.value && newList.value && newList.value.Count == 0) {
 			newList.value.SetInitialOriginNames(oldList.value.originNames);
         }
 	}
 	SetGlobal(variableName: string, value: InkObject){
-		var oldValue = null;
-		oldValue = this._globalVariables[variableName];
+		let oldValue = asOrNull(this._globalVariables.get(variableName), InkObject);
 
-		ListValue.RetainListOriginsForAssignment(oldValue, value);
+        if (oldValue) {
+            ListValue.RetainListOriginsForAssignment(oldValue, value);
+        }
 
-		this._globalVariables[variableName] = value;
+		this._globalVariables.set(variableName, value);
 
 		if (this.variableChangedEvent != null && value !== oldValue) {
 
@@ -216,7 +236,7 @@ export class VariablesState{
 			}
 		}
 	}
-	ResolveVariablePointer(varPointer){
+	ResolveVariablePointer(varPointer: VariablePointerValue){
 		var contextIndex = varPointer.contextIndex;
 
 		if( contextIndex == -1 )
@@ -240,29 +260,28 @@ export class VariablesState{
 			return new VariablePointerValue(varPointer.variableName, contextIndex);
 		}
 	}
-	GetContextIndexOfVariableNamed(varName){
-		if (this._globalVariables[varName])
+	GetContextIndexOfVariableNamed(varName: string){
+		if (this._globalVariables.get(varName))
 			return 0;
 
 		return this._callStack.currentElementIndex;
 	}
 	//the original code uses a magic getter and setter for global variables, allowing things like variableState['varname]. This is not quite possible in js without a Proxy, so it is replaced with this $ function.
-	$(variableName, value){
+	$(variableName: string, value: InkObject){
 		if (typeof value === 'undefined'){
-			var varContents = this._globalVariables[variableName];
+			var varContents = this._globalVariables.get(variableName);
 
 			if ( typeof varContents === 'undefined' ) {
-				varContents = this._defaultGlobalVariables[variableName];
+				varContents = this._defaultGlobalVariables.get(variableName);
 			}
 
 			if ( typeof varContents !== 'undefined' )
-	//			return (varContents as Runtime.Value).valueObject;
-				return varContents.valueObject;
+				return (varContents as AbstractValue).valueObject;
 			else
 				return null;
 		}
 		else{
-			if (typeof this._defaultGlobalVariables[variableName] === 'undefined')
+			if (typeof this._defaultGlobalVariables.get(variableName) === 'undefined')
 				throw new StoryException("Cannot assign to a variable that hasn't been declared in the story");
 
 			var val = Value.Create(value);
