@@ -45,11 +45,11 @@ export class CallStack{
 	}
 
 	// tslint:disable:unified-signatures
-	constructor(rootContentContainer: Container)
+	constructor(rootContentContainer: Container | null)
 	constructor(toCopy: CallStack)
 	constructor(){
-		if (arguments[0] instanceof Container) {
-			let rootContentContainer = arguments[0] as Container;
+		if (arguments[0] instanceof Container || arguments[0] === null) {
+			let rootContentContainer = arguments[0] as Container | null;
 
 			this._threads = [];
 			this._threads.push(new CallStack.Thread());

@@ -1,11 +1,11 @@
 import {Path} from './Path';
-import {Thread} from './CallStack';
+import {CallStack} from './CallStack';
 import {throwNullException} from './NullException';
 
 export class Choice{
 	public text: string = '';
 	public index: number = 0;
-	public threadAtGeneration: Thread | null = null;
+	public threadAtGeneration: CallStack.Thread | null = null;
 	public sourcePath: string = '';
 	public targetPath: Path | null = null;
 	public isInvisibleDefault: boolean = false;
