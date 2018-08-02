@@ -321,7 +321,7 @@ export class ListValue extends Value<InkList>{
 			});
 		}
 	}
-	public static RetainListOriginsForAssignment(oldValue: InkObject, newValue: InkObject){
+	public static RetainListOriginsForAssignment(oldValue: InkObject | null, newValue: InkObject){
 		let oldList = asOrNull(oldValue, ListValue);
 		let newList = asOrNull(newValue, ListValue);
 
