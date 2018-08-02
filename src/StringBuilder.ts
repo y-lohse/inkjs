@@ -18,7 +18,7 @@ export class StringBuilder{
 		if (typeof str !== 'undefined') this.Append(str);
 		this.string += '\n';
 	}
-	public AppendFormat(format: string, ...args: string[]){
+	public AppendFormat(format: string, ...args: any[]){
 		// taken from http://stackoverflow.com/questions/610406/javascript-equivalent-to-printf-string-format
 		this.string += format.replace(/{(\d+)}/g, (match: string, num: number) => {
 			return typeof args[num] != 'undefined' ? args[num] : match;
