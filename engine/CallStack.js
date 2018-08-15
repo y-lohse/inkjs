@@ -15,14 +15,14 @@ class Element{
 		this.type = type;
 
 		this.evaluationStackHeightWhenPushed = 0;
-		this.functionStartInOuputStream = 0;
+		this.functionStartInOutputStream = 0;
 	}
 
 	Copy(){
 		var copy = new Element(this.type, this.currentPointer, this.inExpressionEvaluation);
 		Object.assign(copy.temporaryVariables, this.temporaryVariables);
 		copy.evaluationStackHeightWhenPushed = this.evaluationStackHeightWhenPushed;
-		copy.functionStartInOuputStream = this.functionStartInOuputStream;
+		copy.functionStartInOutputStream = this.functionStartInOutputStream;
 		return copy;
 	}
 }
@@ -222,7 +222,7 @@ export class CallStack{
 		)
 
 		element.evaluationStackHeightWhenPushed = externalEvaluationStackHeight;
-		element.functionStartInOuputStream = outputStreamLengthWithPushed;
+		element.functionStartInOutputStream = outputStreamLengthWithPushed;
 
 		this.callStack.push (element);
 	}
