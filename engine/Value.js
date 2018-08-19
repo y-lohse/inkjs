@@ -149,14 +149,17 @@ export class StringValue extends Value{
 		this._isNewline = (this.value == "\n");
 		this._isInlineWhitespace = true;
 
-		this.value.split().every(c => {
-			if (c != ' ' && c != '\t'){
-				this._isInlineWhitespace = false;
-				return false;
-			}
-
-			return true;
-		});
+		// Splitting "" yields [""] which isn't what we want. Thanks JS!
+		if( this.value.length > 0 ) {
+			this.value.split().every(c => {
+				if (c != ' ' && c != '\t'){
+					this._isInlineWhitespace = false;
+					return false;
+				}
+	
+				return true;
+			});
+		}
 	}
 	get valueType(){
 		return ValueType.String;
