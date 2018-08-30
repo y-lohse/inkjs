@@ -85,11 +85,11 @@ export class NativeFunctionCall extends InkObject{
 		}
 
 		let hasList  = false;
-		parameters.forEach((p) => {
+		for (let p of parameters) {
 			if (p instanceof Void) throw new StoryException('Attempting to perform operation on a void value. Did you forget to "return" a value from a function you called here?');
 			if (p instanceof ListValue)
 				hasList = true;
-		});
+		}
 
 		if (parameters.length == 2 && hasList){
 			return this.CallBinaryListOperation(parameters);
@@ -99,22 +99,22 @@ export class NativeFunctionCall extends InkObject{
 		let coercedType = coercedParams[0].valueType;
 
 		if (coercedType == ValueType.Int) {
-			return this.CallT<number>(coercedParams);
+			return this.CallType<number>(coercedParams);
 		} else if (coercedType == ValueType.Float) {
-			return this.CallT<number>(coercedParams);
+			return this.CallType<number>(coercedParams);
 		} else if (coercedType == ValueType.String) {
-			return this.CallT<string>(coercedParams);
+			return this.CallType<string>(coercedParams);
 		} else if (coercedType == ValueType.DivertTarget) {
-			return this.CallT<Path>(coercedParams);
+			return this.CallType<Path>(coercedParams);
 		} else if (coercedType == ValueType.List) {
-			return this.CallT<InkList>(coercedParams);
+			return this.CallType<InkList>(coercedParams);
 		}
 
 		return null;
 	}
 
-	public CallT<T>(parametersOfSingleType: Array<Value<T>>){
-		let param1 = parametersOfSingleType[0];
+	public CallType<T>(parametersOfSingleType: Array<Value<T>>){
+		let param1 = asOrThrows(parametersOfSingleType[0], Value);
 		let valType = param1.valueType;
 
 		let val1 = param1 as Value<T>;
@@ -129,9 +129,9 @@ export class NativeFunctionCall extends InkObject{
 			}
 
 			if (paramCount == 2) {
-				let param2 = parametersOfSingleType[1];
+				let param2 = asOrThrows(parametersOfSingleType[1], Value);
 
-				let val2 = param2;
+				let val2 = param2 as Value<T>;
 
 				let opForType = opForTypeObj as BinaryOp<T>;
 
@@ -176,7 +176,7 @@ export class NativeFunctionCall extends InkObject{
 		}
 
 		if (v1.valueType == ValueType.List && v2.valueType == ValueType.List)
-			return this.CallT<InkList>([v1, v2]);
+			return this.CallType<InkList>([v1, v2]);
 
 		throw new StoryException('Can not call use ' + this.name + ' operation on ' + v1.valueType + ' and ' + v2.valueType);
 	}
@@ -220,7 +220,7 @@ export class NativeFunctionCall extends InkObject{
 
 		let specialCaseList: null | ListValue = null;
 
-		parametersIn.forEach((obj) => {
+		for (let obj of parametersIn) {
 			let val = asOrThrows(obj, Value);
 			if (val.valueType > valType) {
 				valType = val.valueType;
@@ -229,9 +229,8 @@ export class NativeFunctionCall extends InkObject{
 			if (val.valueType == ValueType.List) {
 				 specialCaseList = asOrNull(val, ListValue);
 			}
-		});
+		}
 
-		// Coerce to this chosen type
 		let parametersOut = [];
 
 		if (ValueType[valType] == ValueType[ValueType.List]) {
@@ -271,18 +270,27 @@ export class NativeFunctionCall extends InkObject{
 
 	// tslint:disable:unified-signatures
 	constructor(name: string);
+	constructor(name: string, numberOfParameters: number);
 	constructor();
-	constructor(name?: string) {
+	constructor() {
 		super();
-		NativeFunctionCall.GenerateNativeFunctionsIfNecessary();
-		if (name) this.name = name;
-	}
 
-	public static internalConstructor(name: string, numberOfParamters: number): NativeFunctionCall{
-		let nativeFunc = new NativeFunctionCall(name);
-		nativeFunc._isPrototype = true;
-		nativeFunc.numberOfParameters = numberOfParamters;
-		return nativeFunc;
+		if (arguments.length === 0) {
+			NativeFunctionCall.GenerateNativeFunctionsIfNecessary();
+		}
+		else if (arguments.length === 1) {
+			let name = arguments[0];
+			NativeFunctionCall.GenerateNativeFunctionsIfNecessary();
+			this.name = name;
+		}
+		else if (arguments.length === 2) {
+			let name = arguments[0];
+			let numberOfParameters = arguments[1];
+
+			this._isPrototype = true;
+			this.name = name;
+			this.numberOfParameters = numberOfParameters;
+		}
 	}
 
 	public static GenerateNativeFunctionsIfNecessary(){
@@ -384,7 +392,7 @@ export class NativeFunctionCall extends InkObject{
 		if (this._nativeFunctions === null) return throwNullException('NativeFunctionCall._nativeFunctions');
 		let nativeFunc = this._nativeFunctions.get(name);
 		if (!nativeFunc) {
-			nativeFunc = NativeFunctionCall.internalConstructor(name, args);
+			nativeFunc = new NativeFunctionCall(name, args);
 			this._nativeFunctions.set(name, nativeFunc);
 		}
 
