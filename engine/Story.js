@@ -1355,7 +1355,9 @@ export class Story extends InkObject{
 			var c = containerOrObject;
 
 			c.content.forEach(innerContent => {
-				this.ValidateExternalBindings(innerContent, missingExternals);
+				if( !(innerContent instanceof Container) || !innerContent.hasValidName ) {
+					this.ValidateExternalBindings(innerContent, missingExternals);
+				}
 			});
 			for (var key in c.namedContent){
 				this.ValidateExternalBindings(c.namedContent[key], missingExternals);
