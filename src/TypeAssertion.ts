@@ -1,6 +1,6 @@
 import {INamedContent} from './INamedContent';
 
-export function asOrNull<T>(obj: any, type: { new (): T }){
+export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T }){
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
@@ -8,7 +8,7 @@ export function asOrNull<T>(obj: any, type: { new (): T }){
 	}
 }
 
-export function asOrThrows<T>(obj: any, type: { new (): T }){
+export function asOrThrows<T>(obj: any, type: { new (...arg: any[]): T }){
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
