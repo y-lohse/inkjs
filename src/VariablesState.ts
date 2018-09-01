@@ -7,6 +7,7 @@ import {JsonSerialisation} from './JsonSerialisation';
 import {asOrThrows, asOrNull} from './TypeAssertion';
 import {tryGetValueFromMap} from './TryGetResult';
 import {throwNullException} from './NullException';
+import {CallStack} from './CallStack';
 
 export class VariablesState{
 	// The way variableChangedEvent is a bit different than the reference implementation.
@@ -47,7 +48,7 @@ export class VariablesState{
 	get callStack(){
 		return this._callStack;
 	}
-	set callStack(callStack: any /* CallStack */){
+	set callStack(callStack){
 		this._callStack = callStack;
 	}
 
@@ -86,7 +87,7 @@ export class VariablesState{
 		}
 	}
 
-	constructor(callStack: any /* CallStack */, listDefsOrigin: ListDefinitionsOrigin){
+	constructor(callStack: CallStack, listDefsOrigin: ListDefinitionsOrigin){
 		this._globalVariables = new Map();
 		this._callStack = callStack;
 		this._listDefsOrigin = listDefsOrigin;
@@ -305,7 +306,7 @@ export class VariablesState{
 	private _globalVariables: Map<string, InkObject>;
 	private _defaultGlobalVariables: Map<string, InkObject> = new Map();
 
-	private _callStack: any;
+	private _callStack: CallStack;
 	private _changedVariables: Set<string> | null = new Set();
 	private _listDefsOrigin: ListDefinitionsOrigin;
 }
