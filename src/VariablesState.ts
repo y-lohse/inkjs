@@ -153,7 +153,7 @@ export class VariablesState{
 		return this._globalVariables.has(name);
 	}
 
-	public GetVariableWithName(name: string, contextIndex: number = -1): InkObject {
+	public GetVariableWithName(name: string, contextIndex: number = -1): InkObject | null {
 		let varValue = this.GetRawVariableWithName(name, contextIndex);
 
 		// var varPointer = varValue as VariablePointerValue;
@@ -165,8 +165,8 @@ export class VariablesState{
 		return varValue;
 	}
 
-	public GetRawVariableWithName(name: string, contextIndex: number){
-		let varValue = null;
+	public GetRawVariableWithName(name: string, contextIndex: number) {
+		let varValue: InkObject | null = null;
 
 		if (contextIndex == 0 || contextIndex == -1) {
 			// TODO this is a conditional assignment
