@@ -66,14 +66,13 @@ export class NativeFunctionCall extends InkObject{
 		if (this._prototype) {
 			return this._prototype.numberOfParameters;
 		} else {
-			if (this._numberOfParameters === null) return throwNullException('NativeFunctionCall._numberOfParameters');
 			return this._numberOfParameters;
 		}
 	}
 	set numberOfParameters(value: number){
 		this._numberOfParameters = value;
 	}
-	public _numberOfParameters: number | null = null;
+	public _numberOfParameters: number = 0;
 
 	public Call(parameters: InkObject[]): InkObject | null{
 		if (this._prototype) {
