@@ -1,6 +1,8 @@
 import {INamedContent} from './INamedContent';
 
-export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T }){
+// tslint:disable ban-types
+
+export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T } | Function & { prototype: T }): T | null{
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
@@ -8,11 +10,19 @@ export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T }){
 	}
 }
 
-export function asOrThrows<T>(obj: any, type: { new (...arg: any[]): T }){
+export function asOrThrows<T>(obj: any, type: { new (...arg: any[]): T } | Function & { prototype: T }): T | never{
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
 		throw new Error(`${obj} is not of type ${type}`);
+	}
+}
+
+export function asNumberOrThrows(obj: any){
+	if (typeof obj === 'number') {
+		return obj as number;
+	} else {
+		throw new Error(`${obj} is not a number`);
 	}
 }
 
@@ -27,6 +37,14 @@ export function asINamedContentOrNull(obj: any): INamedContent | null {
 	return null;
 }
 
-function unsafeTypeAssertion<T>(obj: any, type: { new (): T }){
+export function nullIfUndefined<T>(obj: T | undefined): T | null {
+	if (typeof obj === 'undefined') {
+		return null;
+	}
+
+	return obj;
+}
+
+function unsafeTypeAssertion<T>(obj: any, type: { new (): T } | Function & { prototype: T }){
 	return obj as T;
 }
