@@ -2,9 +2,9 @@ import {InkObject} from './Object';
 
 export class VariableAssignment extends InkObject{
 
-	private readonly variableName: string | null;
-	private readonly isNewDeclaration: boolean;
-	private isGlobal: boolean;
+	public readonly variableName: string | null;
+	public readonly isNewDeclaration: boolean;
+	public isGlobal: boolean;
 
 	constructor(variableName: string | null, isNewDeclaration: boolean){
 		super();
