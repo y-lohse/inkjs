@@ -160,11 +160,8 @@ export class NativeFunctionCall extends InkObject{
 		if ((this.name == '+' || this.name == '-') && parameters[0] instanceof ListValue && parameters[1] instanceof IntValue)
 			return this.CallListIncrementOperation(parameters);
 
-		let v1 = asOrNull(parameters[0], Value);
-		let v2 = asOrNull(parameters[1], Value);
-
-		if (v1 === null) return throwNullException('NativeFunctionCall.CallBinaryListOperation v1');
-		if (v2 === null) return throwNullException('NativeFunctionCall.CallBinaryListOperation v2');
+		let v1 = asOrThrows(parameters[0], Value);
+		let v2 = asOrThrows(parameters[1], Value);
 
 		if ((this.name == '&&' || this.name == '||') && (v1.valueType != ValueType.List || v2.valueType != ValueType.List)) {
 			if (this._operationFuncs === null) return throwNullException('NativeFunctionCall._operationFuncs');
