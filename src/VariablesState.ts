@@ -25,7 +25,6 @@ export class VariablesState{
 		return this._batchObservingVariableChanges;
 	}
 	set batchObservingVariableChanges(value: boolean){
-		value = !!value; // TODO: Might have become useless with TypeScript.
 		this._batchObservingVariableChanges = value;
 		if (value) {
 			this._changedVariables = new Set();
