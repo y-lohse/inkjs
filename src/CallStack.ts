@@ -127,7 +127,7 @@ export class CallStack{
 		);
 
 		element.evaluationStackHeightWhenPushed = externalEvaluationStackHeight;
-		element.functionStartInOuputStream = outputStreamLengthWithPushed;
+		element.functionStartInOutputStream = outputStreamLengthWithPushed;
 
 		this.callStack.push (element);
 	}
@@ -247,7 +247,7 @@ export namespace CallStack {
 		public type: PushPopType;
 
 		public evaluationStackHeightWhenPushed: number = 0;
-		public functionStartInOuputStream: number = 0;
+		public functionStartInOutputStream: number = 0;
 
 		constructor(type: PushPopType, pointer: Pointer, inExpressionEvaluation: boolean = false){
 			this.currentPointer = pointer.copy();
@@ -260,7 +260,7 @@ export namespace CallStack {
 			let copy = new Element(this.type, this.currentPointer, this.inExpressionEvaluation);
 			copy.temporaryVariables = new Map(this.temporaryVariables);
 			copy.evaluationStackHeightWhenPushed = this.evaluationStackHeightWhenPushed;
-			copy.functionStartInOuputStream = this.functionStartInOuputStream;
+			copy.functionStartInOutputStream = this.functionStartInOutputStream;
 			return copy;
 		}
 	}
