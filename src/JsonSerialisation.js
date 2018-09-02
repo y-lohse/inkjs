@@ -61,16 +61,16 @@ export class JsonSerialisation{
 		return jsonObj;
 	}
 	static JObjectToIntDictionary(jObject){
-		var dict = {};
+		var dict = new Map();
 		for (var key in jObject){
-			dict[key] = parseInt(jObject[key]);
+			dict.set(key, parseInt(jObject[key]));
 		}
 		return dict;
 	}
 	static IntDictionaryToJObject(dict){
 		var jObj = {};
-		for (var key in dict){
-			jObj[key] = dict[key];
+		for (var key of dict){
+			jObj[key] = dict.get(key);
 		}
 		return jObj;
 	}
