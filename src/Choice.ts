@@ -9,7 +9,7 @@ export class Choice{
 	public sourcePath: string = '';
 	public targetPath: Path | null = null;
 	public isInvisibleDefault: boolean = false;
-	public _originalThreadIndex: number = 0;
+	public originalThreadIndex: number = 0;
 
 	get pathStringOnChoice(): string{
 		if (this.targetPath === null) return throwNullException('Choice.targetPath');

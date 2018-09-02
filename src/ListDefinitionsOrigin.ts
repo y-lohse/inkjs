@@ -2,6 +2,7 @@ import {InkListItem} from './InkList';
 import {ListValue} from './Value';
 import {ListDefinition} from './ListDefinition';
 import {TryGetResult} from './TryGetResult';
+import {throwNullException} from './NullException';
 
 export class ListDefinitionsOrigin{
 	protected _lists: Map<string, ListDefinition>;
@@ -41,7 +42,8 @@ export class ListDefinitionsOrigin{
 
 		return { result: definition, exists: true };
 	}
-	public FindSingleItemListWithName(name: string){
+	public FindSingleItemListWithName(name: string | null){
+		if (name === null) { return throwNullException('name'); }
 		const val = this._allUnambiguousListValueCache.get(name);
 
 		if (typeof val !== 'undefined'){

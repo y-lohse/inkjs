@@ -1616,15 +1616,15 @@ export class Story extends InkObject{
 
 		var count = 0;
 		var containerPathStr = container.path.toString();
-		count = this.state.visitCounts[containerPathStr] || count;
+		count = this.state.visitCounts.get(containerPathStr) || count;
 		return count;
 	}
 	IncrementVisitCountForContainer(container){
 		var count = 0;
 		var containerPathStr = container.path.toString();
-		if (this.state.visitCounts[containerPathStr]) count = this.state.visitCounts[containerPathStr];
+		if (this.state.visitCounts.get(containerPathStr)) count = this.state.visitCounts.get(containerPathStr);
 		count++;
-		this.state.visitCounts[containerPathStr] = count;
+		this.state.visitCounts.set(containerPathStr, count);
 	}
 	RecordTurnIndexVisitToContainer(container){
 		var containerPathStr = container.path.toString();
