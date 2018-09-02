@@ -245,13 +245,14 @@ export class VariablesState{
 		}
 	}
 
-	public SetGlobal(variableName: string, value: InkObject){
+	public SetGlobal(variableName: string | null, value: InkObject){
 		let oldValue = tryGetValueFromMap(this._globalVariables, variableName, null);
 
 		if (oldValue.exists) {
 			ListValue.RetainListOriginsForAssignment(oldValue.result!, value);
 		}
 
+		if (variableName === null) { return throwNullException('variableName'); }
 		this._globalVariables.set(variableName, value);
 
 		// TODO: Not sure !== is equivalent to !value.Equals(oldValue)
