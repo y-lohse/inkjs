@@ -11,7 +11,7 @@ export class ChoicePoint extends InkObject{
 	public isInvisibleDefault: boolean = false;
 	public onceOnly: boolean = true;
 
-	constructor(onceOnly: boolean){
+	constructor(onceOnly: boolean = true){
 		super();
 		this.onceOnly = onceOnly;
 	}
