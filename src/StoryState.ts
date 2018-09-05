@@ -356,7 +356,7 @@ export class StoryState{
 		this.OutputStreamDirty();
 
 		// currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
-		this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject['currentChoices']);
+		this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(jObject['currentChoices']) as Choice[];
 
 		let currentDivertTargetPath = jObject['currentDivertTarget'];
 		if (currentDivertTargetPath != null) {
@@ -844,7 +844,7 @@ export class StoryState{
 		this._outputStreamTagsDirty = true;
 	}
 
-	private _outputStream: any[];
+	private _outputStream: InkObject[];
 	private _outputStreamTextDirty = true;
 	private _outputStreamTagsDirty = true;
 	private _currentChoices: Choice[];

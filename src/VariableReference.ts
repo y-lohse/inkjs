@@ -3,7 +3,7 @@ import {Path} from './Path';
 
 export class VariableReference extends InkObject{
 
-	public name: string;
+	public name: string | null;
 	public pathForCount: Path | null = null;
 
 	get containerForCount(){
@@ -24,7 +24,7 @@ export class VariableReference extends InkObject{
 			this.pathForCount = new Path(value);
 	}
 
-	constructor(name: string){
+	constructor(name: string | null = null){
 		super();
 		this.name = name;
 	}
