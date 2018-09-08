@@ -383,7 +383,7 @@ export class JsonSerialisation{
 		// var controlCmd = obj as ControlCommand;
 		let controlCmd = asOrNull(obj, ControlCommand);
 		if (controlCmd) {
-			return JsonSerialisation._controlCommandNames[Math.floor(controlCmd.commandType)];
+			return JsonSerialisation._controlCommandNames[controlCmd.commandType];
 		}
 
 		// var nativeFunc = obj as Runtime.NativeFunctionCall;
