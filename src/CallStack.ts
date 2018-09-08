@@ -30,10 +30,10 @@ export class CallStack{
 		return this.callStack.length - 1;
 	}
 
-	get currentThread(){
+	get currentThread(): CallStack.Thread {
 		return this._threads[this._threads.length - 1];
 	}
-	set currentThread(value){
+	set currentThread(value: CallStack.Thread){
 		Debug.Assert(this._threads.length == 1, "Shouldn't be directly setting the current thread when we have a stack of them");
 
 		this._threads.length = 0;
@@ -151,7 +151,7 @@ export class CallStack{
 		}
 	}
 
-	public GetTemporaryVariableWithName(name: string, contextIndex: number = -1){
+	public GetTemporaryVariableWithName(name: string | null, contextIndex: number = -1){
 
 		if (contextIndex == -1)
 			contextIndex = this.currentElementIndex + 1;
