@@ -3,15 +3,19 @@ import {Container} from './Container';
 import {InkObject} from './Object';
 
 export class Pointer{
-  public container: Container | null;
-  public index: number;
+  public container: Container | null = null;
+  public index: number = -1;
 
-	constructor(container: Container | null, index: number){
-		this.container = container;
-		this.index = index;
+	constructor();
+	constructor(container: Container | null, index: number)
+	constructor(){
+		if (arguments.length === 2) {
+			this.container = arguments[0];
+			this.index = arguments[1];
+		}
 	}
 
-	public Resolve(): Container | InkObject | null{
+	public Resolve(): InkObject | null{
 		if (this.index < 0) return this.container;
 		if (this.container == null) return null;
 		if (this.container.content.length == 0) return this.container;

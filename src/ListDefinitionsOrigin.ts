@@ -35,7 +35,8 @@ export class ListDefinitionsOrigin{
 
 		return listOfLists;
 	}
-	public TryListGetDefinition(name: string, /* out */ def: ListDefinition): TryGetResult<ListDefinition>{
+	public TryListGetDefinition(name: string | null, /* out */ def: ListDefinition | null): TryGetResult<ListDefinition | null>{
+		if (name === null) { return {result: def, exists: false}; }
 		// initially, this function returns a boolean and the second parameter is an out.
 		const definition = this._lists.get(name);
 		if (!definition) return { result: def, exists: false };
