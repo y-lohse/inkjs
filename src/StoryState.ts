@@ -393,7 +393,7 @@ export class StoryState{
 		this.OutputStreamDirty();
 	}
 
-	public PushToOutputStream(obj: InkObject){
+	public PushToOutputStream(obj: InkObject | null){
 		// var text = obj as StringValue;
 		let text = asOrNull(obj, StringValue);
 		if (text !== null) {
@@ -488,7 +488,7 @@ export class StoryState{
 		return listTexts;
 	}
 
-	public PushToOutputStreamIndividual(obj: InkObject){
+	public PushToOutputStreamIndividual(obj: InkObject | null){
 		let glue = asOrNull(obj, Glue);
 		let text = asOrNull(obj, StringValue);
 
@@ -566,6 +566,7 @@ export class StoryState{
 		}
 
 		if (includeInOutput) {
+			if (obj === null) { return throwNullException('obj'); }
 			this._outputStream.push(obj);
 			this.OutputStreamDirty();
 		}
@@ -748,7 +749,7 @@ export class StoryState{
 		this.callStack.Pop(popType);
 	}
 
-	public SetChosenPath(path: Path){
+	public SetChosenPath(path: Path | null){
 		// Changing direction, assume we need to clear current set of choices
 		this._currentChoices.length = 0;
 

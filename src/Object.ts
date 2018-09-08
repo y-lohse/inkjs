@@ -4,11 +4,50 @@ import {Debug} from './Debug';
 import {asOrNull, asINamedContentOrNull} from './TypeAssertion';
 import { throwNullException } from './NullException';
 import { SearchResult } from './SearchResult';
+import { DebugMetadata } from './DebugMetadata';
 
 export class InkObject{
 
 	public parent: InkObject | null = null;
-	public _path: Path | null = null;
+
+	get debugMetadata(): DebugMetadata | null {
+		if (this._debugMetadata === null) {
+			if (this.parent) {
+				return this.parent.debugMetadata;
+			}
+		}
+
+		return this._debugMetadata;
+	}
+
+	set debugMetadata(value) {
+		this._debugMetadata = value;
+	}
+
+	get ownDebugMetadata() {
+		return this._debugMetadata;
+	}
+
+	private _debugMetadata: DebugMetadata | null = null;
+
+	public DebugLineNumberOfPath(path: Path) {
+		if (path === null)
+			return null;
+
+		// Try to get a line number from debug metadata
+		let root = this.rootContentContainer;
+		if (root) {
+			let targetContent = root.ContentAtPath(path).obj;
+			if (targetContent) {
+				let dm = targetContent.debugMetadata;
+				if (dm !== null) {
+					return dm.startLineNumber;
+				}
+			}
+		}
+
+		return null;
+	}
 
 	get path(){
 		if (this._path == null) {
@@ -44,13 +83,7 @@ export class InkObject{
 
 		return this._path;
 	}
-	get rootContentContainer(){
-		let ancestor: InkObject = this;
-		while (ancestor.parent) {
-			ancestor = ancestor.parent;
-		}
-		return asOrNull(ancestor, Container);
-	}
+	private _path: Path | null = null;
 
 	public ResolvePath(path: Path | null): SearchResult{
 		if (path === null) return throwNullException('path');
@@ -73,6 +106,7 @@ export class InkObject{
 			return contentContainer.ContentAtPath(path);
 		}
 	}
+
 	public ConvertPathToRelative(globalPath: Path){
 		const ownPath = this.path;
 
@@ -107,6 +141,7 @@ export class InkObject{
 		const relativePath = new Path(newPathComps, true);
 		return relativePath;
 	}
+
 	public CompactPathString(otherPath: Path){
 		let globalPathStr = null;
 		let relativePathStr = null;
@@ -126,6 +161,15 @@ export class InkObject{
 		else
 			return globalPathStr;
 	}
+
+	get rootContentContainer(){
+		let ancestor: InkObject = this;
+		while (ancestor.parent) {
+			ancestor = ancestor.parent;
+		}
+		return asOrNull(ancestor, Container);
+	}
+
 	public Copy(): InkObject {
 		throw Error("Not Implemented: Doesn't support copying");
 	}
