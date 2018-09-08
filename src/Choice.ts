@@ -16,7 +16,7 @@ export class Choice extends InkObject{
 		if (this.targetPath === null) return throwNullException('Choice.targetPath');
 		return this.targetPath.toString();
 	}
-  set pathStringOnChoice(value: string){
+	set pathStringOnChoice(value: string){
 		this.targetPath = new Path(value);
 	}
 }

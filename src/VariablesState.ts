@@ -143,7 +143,7 @@ export class VariablesState{
 		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value) as Map<string, InkObject>; // TODO remove the `as` after JsonSerialisation is ported
 	}
 
-	public TryGetDefaultVariableValue(name: string): InkObject | null
+	public TryGetDefaultVariableValue(name: string | null): InkObject | null
 	{
 		let val = tryGetValueFromMap(this._defaultGlobalVariables, name, null);
 		return val.exists ? val.result : null;
@@ -153,7 +153,7 @@ export class VariablesState{
 		return this._globalVariables.has(name);
 	}
 
-	public GetVariableWithName(name: string, contextIndex: number = -1): InkObject | null {
+	public GetVariableWithName(name: string | null, contextIndex: number = -1): InkObject | null {
 		let varValue = this.GetRawVariableWithName(name, contextIndex);
 
 		// var varPointer = varValue as VariablePointerValue;
@@ -165,7 +165,7 @@ export class VariablesState{
 		return varValue;
 	}
 
-	public GetRawVariableWithName(name: string, contextIndex: number) {
+	public GetRawVariableWithName(name: string | null, contextIndex: number) {
 		let varValue: InkObject | null = null;
 
 		if (contextIndex == 0 || contextIndex == -1) {

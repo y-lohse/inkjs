@@ -362,7 +362,7 @@ export class JsonSerialisation{
 		let divTargetVal = asOrNull(obj, DivertTargetValue);
 		if (divTargetVal) {
 			let divTargetJsonObj: JObject = {};
-			if (divTargetVal.value == null) { return throwNullException('divTargetVal.value'); }
+			if (divTargetVal.value === null) { return throwNullException('divTargetVal.value'); }
 			divTargetJsonObj['^->'] = divTargetVal.value.componentsString;
 			return divTargetJsonObj;
 		}
@@ -383,7 +383,7 @@ export class JsonSerialisation{
 		// var controlCmd = obj as ControlCommand;
 		let controlCmd = asOrNull(obj, ControlCommand);
 		if (controlCmd) {
-			return JsonSerialisation._controlCommandNames[controlCmd.commandType];
+			return JsonSerialisation._controlCommandNames[Math.floor(controlCmd.commandType)];
 		}
 
 		// var nativeFunc = obj as Runtime.NativeFunctionCall;
