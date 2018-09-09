@@ -231,7 +231,7 @@ export class Container extends InkObject implements INamedContent{
 		let pointedObj = arguments[2] as InkObject | null;
 
 		function appendIndentation(){
-			let spacesPerIndent = 4; // Truly let in the original code
+			const spacesPerIndent = 4; // Truly const in the original code
 			for(let i = 0; i < spacesPerIndent*indentation; ++i) {
 				sb.Append(' ');
 			}
