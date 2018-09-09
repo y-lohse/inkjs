@@ -16,9 +16,9 @@ export class VariablesState{
 	// special ObserveVariableChange method below.
 	public variableChangedEventCallbacks: Array<(variableName: string, newValue: InkObject) => void> = [];
 	public variableChangedEvent(variableName: string, newValue: InkObject): void {
-		this.variableChangedEventCallbacks.forEach((callback) => {
+		for (let callback of this.variableChangedEventCallbacks) {
 			callback(variableName, newValue);
-		});
+		}
 	}
 
 	get batchObservingVariableChanges(){
