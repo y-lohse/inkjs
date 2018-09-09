@@ -73,11 +73,6 @@ export class Container extends InkObject implements INamedContent{
 		if (this.turnIndexShouldBeCounted) flags |= Container.CountFlags.Turns;
 		if (this.countingAtStartOnly)      flags |= Container.CountFlags.CountStartOnly;
 
-		// If we're only storing CountStartOnly, it serves no purpose,
-		// since it's dependent on the other two to be used at all.
-		// (e.g. for setting the fact that *if* a gather or choice's
-		// content is counted, then is should only be counter at the start)
-		// So this is just an optimisation for storage.
 		if (flags == Container.CountFlags.CountStartOnly) {
 			flags = 0;
 		}
@@ -200,8 +195,6 @@ export class Container extends InkObject implements INamedContent{
 				return this.content[component.index];
 			}
 
-			// When path is out of range, quietly return nil
-			// (useful as we step/increment forwards through content)
 			else {
 				return null;
 			}

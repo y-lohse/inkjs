@@ -44,7 +44,6 @@ export class Story extends InkObject{
 	public inkVersionMinimumCompatible = 18;
 
 	get currentChoices(){
-		// Don't include invisible choices for external usage.
 		let choices: Choice[] = [];
 
 		if (this._state === null) { return throwNullException('this._state'); }
@@ -212,8 +211,6 @@ export class Story extends InkObject{
 
 			this.ChoosePathString('global decl', false);
 
-			// Continue, but without validating external bindings,
-			// since we may be doing this reset at initialisation time.
 			this.ContinueInternal();
 
 			this.state.currentPointer = originalPointer;
@@ -473,18 +470,16 @@ export class Story extends InkObject{
 
 		let shouldAddToStream = true;
 
-		// Get current content
 		let pointer = this.state.currentPointer.copy();
 		if (pointer.isNull) {
 			return;
 		}
-		// Step directly to the first element of content in a container (if necessary)
+
 		// Container containerToEnter = pointer.Resolve () as Container;
 		let containerToEnter = asOrNull(pointer.Resolve(), Container);
 
 		while(containerToEnter) {
 
-			// Mark container as being entered
 			this.VisitContainer(containerToEnter, true);
 
 			// No content? the most we can do is step past it

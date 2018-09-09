@@ -348,7 +348,6 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		if (this.Count == 0) return false;
 		if (otherList.Count == 0) return true;
 
-		// All greater
 		return this.minItem.Value > otherList.maxItem.Value;
 	}
 	public GreaterThanOrEquals(otherList: InkList){
