@@ -55,9 +55,6 @@ export class InkObject{
 			if (this.parent == null) {
 				this._path = new Path();
 			} else {
-				// Maintain a Stack so that the order of the components
-				// is reversed when they're added to the Path.
-				// We're iterating up the hierarchy from the leaves/children to the root.
 				let comps: Path.Component[] = [];
 
 				let child: InkObject = this;

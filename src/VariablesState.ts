@@ -193,7 +193,6 @@ export class VariablesState{
 		if (name === null) { return throwNullException('name'); }
 		let contextIndex = -1;
 
-		// Are we assigning to a global variable?
 		let setGlobal = false;
 		if (varAss.isNewDeclaration) {
 			setGlobal = varAss.isGlobal;
