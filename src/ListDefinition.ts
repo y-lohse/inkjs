@@ -18,8 +18,8 @@ export class ListDefinition{
 	get items(){
 		if (this._items == null){
 			this._items = new Map();
-			for (const [key, value] of this._itemNameToValues){
-				const item = new InkListItem(this.name, key);
+			for (let [key, value] of this._itemNameToValues){
+				let item = new InkListItem(this.name, key);
 				this._items.set(item.serialized(), value);
 			}
 		}
@@ -30,7 +30,7 @@ export class ListDefinition{
 	public ValueForItem(item: InkListItem){
 		if (!item.itemName) return 0;
 
-		const intVal = this._itemNameToValues.get(item.itemName);
+		let intVal = this._itemNameToValues.get(item.itemName);
 		if (typeof intVal !== 'undefined')
 			return intVal;
 		else
@@ -46,7 +46,7 @@ export class ListDefinition{
 		return this._itemNameToValues.has(itemName);
 	}
 	public TryGetItemWithValue(val: number, /* out */ item: InkListItem): TryGetResult<InkListItem>{
-		for (const [key, value] of this._itemNameToValues){
+		for (let [key, value] of this._itemNameToValues){
 			if (value == val) {
 				item = new InkListItem(this.name, key);
 				return { result: item, exists: true };
@@ -58,16 +58,16 @@ export class ListDefinition{
 	}
 	public TryGetValueForItem(item: InkListItem, /* out */ intVal: number): TryGetResult<number>{
 		if (!item.itemName) return { result: 0, exists: false };
-		const value = this._itemNameToValues.get(item.itemName);
+		let value = this._itemNameToValues.get(item.itemName);
 
 		if (!value) return { result: 0, exists: false };
 		return { result: value, exists: true };
 	}
 	public ListRange(min: number, max: number){
-		const rawList = new InkList();
-		for (const [key, value] of this._itemNameToValues){
+		let rawList = new InkList();
+		for (let [key, value] of this._itemNameToValues){
 			if (value >= min && value <= max) {
-				const item = new InkListItem(this.name, key);
+				let item = new InkListItem(this.name, key);
 				rawList.Add(item, value);
 			}
 		}

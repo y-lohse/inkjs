@@ -12,16 +12,16 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	constructor(fullName: string | null)
 	constructor(){
 		if (typeof arguments[1] !== 'undefined'){
-			const originName = arguments[0] as string | null;
-			const itemName = arguments[1] as string | null;
+			let originName = arguments[0] as string | null;
+			let itemName = arguments[1] as string | null;
 
 			this.originName = originName;
 			this.itemName = itemName;
 		}
 		else if (arguments[0]){
-			const fullName = arguments[0] as string;
+			let fullName = arguments[0] as string;
 
-			const nameParts = fullName.toString().split('.');
+			let nameParts = fullName.toString().split('.');
 			this.originName = nameParts[0];
 			this.itemName = nameParts[1];
 		}
@@ -41,7 +41,7 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	}
 	public Equals(obj: InkListItem){
 		if (obj instanceof InkListItem) {
-			const otherItem = obj;
+			let otherItem = obj;
 			return otherItem.itemName == this.itemName
 				&& otherItem.originName == this.originName;
 		}
@@ -73,10 +73,10 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	 * Reconstructs a `InkListItem` from the given SerializedInkListItem.
 	 */
 	public static fromSerializedKey(key: SerializedInkListItem): InkListItem {
-		const obj = JSON.parse(key);
+		let obj = JSON.parse(key);
 		if (!InkListItem.isLikeInkListItem(obj)) return InkListItem.Null;
 
-		const inkListItem = obj as IInkListItem;
+		let inkListItem = obj as IInkListItem;
 
 		return new InkListItem(inkListItem.originName, inkListItem.itemName);
 	}
@@ -117,18 +117,18 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		})());
 
 		if (arguments[0] instanceof InkList){
-			const otherList = arguments[0] as InkList;
+			let otherList = arguments[0] as InkList;
 
 			if (otherList._originNames) {
 				this._originNames = otherList._originNames.slice();
 			}
 		}
 		else if (typeof arguments[0] === 'string'){
-			const singleOriginListName = arguments[0] as string;
-			const originStory = arguments[1] /* as Story */;
+			let singleOriginListName = arguments[0] as string;
+			let originStory = arguments[1] /* as Story */;
 			this.SetInitialOriginName(singleOriginListName);
 
-			const def = originStory.listDefinitions.TryListGetDefinition(singleOriginListName, null);
+			let def = originStory.listDefinitions.TryListGetDefinition(singleOriginListName, null);
 			if (def.exists){
 				this.origins = [def.result];
 			}
@@ -137,7 +137,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			}
 		}
 		else if (typeof arguments[0] === 'object' && arguments[0].hasOwnProperty('Key') && arguments[0].hasOwnProperty('Value')){
-			const singleElement = arguments[0] as KeyValuePair<InkListItem, number>;
+			let singleElement = arguments[0] as KeyValuePair<InkListItem, number>;
 			this.Add(singleElement.Key, singleElement.Value);
 		}
 	}
@@ -145,7 +145,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 	public AddItem(itemOrItemName: InkListItem | string | null){
 		if (itemOrItemName instanceof InkListItem){
-			const item = itemOrItemName;
+			let item = itemOrItemName;
 
 			if (item.originName == null) {
 				this.AddItem(item.itemName);
@@ -154,9 +154,9 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 			if (this.origins === null) return throwNullException('this.origins');
 
-			for (const origin of this.origins) {
+			for (let origin of this.origins) {
 				if (origin.name == item.originName) {
-					const intVal = origin.TryGetValueForItem(item, 0);
+					let intVal = origin.TryGetValueForItem(item, 0);
 					if (intVal.exists) {
 						this.Add(item, intVal.result);
 						return;
@@ -169,13 +169,13 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			throw new Error("Failed to add item to list because the item was from a new list definition that wasn't previously known to this list. Only items from previously known lists can be used, so that the int value can be found.");
 		}
 		else {
-			const itemName = itemOrItemName as string | null;
+			let itemName = itemOrItemName as string | null;
 
 			let foundListDef: ListDefinition | null = null;
 
 			if (this.origins === null) return throwNullException('this.origins');
 
-			for (const origin of this.origins) {
+			for (let origin of this.origins) {
 				if (itemName === null) return throwNullException('itemName');
 
 				if (origin.ContainsItemWithName(itemName)) {
@@ -190,14 +190,14 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			if (foundListDef == null)
 				throw new Error('Could not add the item ' + itemName + " to this list because it isn't known to any list definitions previously associated with this list.");
 
-			const item = new InkListItem(foundListDef.name, itemName);
-			const itemVal = foundListDef.ValueForItem(item);
+			let item = new InkListItem(foundListDef.name, itemName);
+			let itemVal = foundListDef.ValueForItem(item);
 			this.Add(item, itemVal);
 		}
 	}
 	public ContainsItemNamed(itemName: string | null){
-		for (const [key, value] of this) {
-			const item = InkListItem.fromSerializedKey(key);
+		for (let [key, value] of this) {
+			let item = InkListItem.fromSerializedKey(key);
 			if (item.itemName == itemName) return true;
 		}
 
@@ -207,7 +207,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return this.has(key.serialized());
 	}
 	public Add(key: InkListItem, value: number){
-		const serializedKey = key.serialized();
+		let serializedKey = key.serialized();
 		if (this.has(serializedKey)) {
 			// Throw an exception to match the C# behavior.
 			throw new Error(`The Map already contains an entry for ${key}`);
@@ -223,7 +223,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 	get originOfMaxItem(): ListDefinition | null{
 		if (this.origins == null) return null;
 
-		const maxOriginName = this.maxItem.Key.originName;
+		let maxOriginName = this.maxItem.Key.originName;
 		let result = null;
 		this.origins.every((origin)=>{
 			if (origin.name == maxOriginName){
@@ -244,8 +244,8 @@ export class InkList extends Map<SerializedInkListItem, number> {
 				this._originNames.length = 0;
 			}
 
-			for (const [key, value] of this) {
-				const item = InkListItem.fromSerializedKey(key);
+			for (let [key, value] of this) {
+				let item = InkListItem.fromSerializedKey(key);
 				if (item.originName === null) return throwNullException('item.originName');
 				this._originNames.push(item.originName);
 			}
@@ -267,8 +267,8 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			Key: InkListItem.Null,
 			Value: 0,
 		};
-		for (const [key, value] of this) {
-			const item = InkListItem.fromSerializedKey(key);
+		for (let [key, value] of this) {
+			let item = InkListItem.fromSerializedKey(key);
 			if (max.Key.isNull || value > max.Value)
 				max = { Key: item, Value: value };
 		}
@@ -280,8 +280,8 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			Key: InkListItem.Null,
 			Value: 0,
 		};
-		for (const [key, value] of this) {
-			const item = InkListItem.fromSerializedKey(key);
+		for (let [key, value] of this) {
+			let item = InkListItem.fromSerializedKey(key);
 			if (min.Key.isNull || value < min.Value) {
 				min = { Key: item, Value: value };
 			}
@@ -289,11 +289,11 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return min;
 	}
 	get inverse(){
-		const list = new InkList();
+		let list = new InkList();
 		if (this.origins != null) {
-			for (const origin of this.origins) {
-				for (const [key, value] of origin.items) {
-					const item = InkListItem.fromSerializedKey(key);
+			for (let origin of this.origins) {
+				for (let [key, value] of origin.items) {
+					let item = InkListItem.fromSerializedKey(key);
 					if (!this.ContainsKey(item))
 						list.Add(item, value);
 				}
@@ -302,11 +302,11 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return list;
 	}
 	get all(){
-		const list = new InkList();
+		let list = new InkList();
 		if (this.origins != null) {
-			for(const origin of this.origins) {
-				for (const [key, value] of origin.items) {
-					const item = InkListItem.fromSerializedKey(key);
+			for(let origin of this.origins) {
+				for (let [key, value] of origin.items) {
+					let item = InkListItem.fromSerializedKey(key);
 					list.set(item.serialized(), value);
 				}
 			}
@@ -314,15 +314,15 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return list;
 	}
 	public Union(otherList: InkList){
-		const union = new InkList(this);
-		for(const [key, value] of otherList) {
+		let union = new InkList(this);
+		for(let [key, value] of otherList) {
 			union.set(key, value);
 		}
 		return union;
 	}
 	public Intersect(otherList: InkList){
-		const intersection = new InkList();
-		for(const [key, value] of this) {
+		let intersection = new InkList();
+		for(let [key, value] of this) {
 			if (otherList.has(key))
 				intersection.set(key, value);
 		}
@@ -330,15 +330,15 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return intersection;
 	}
 	public Without(listToRemove: InkList){
-		const result = new InkList(this);
-		for(const [key, value] of listToRemove) {
+		let result = new InkList(this);
+		for(let [key, value] of listToRemove) {
 			result.delete(key);
 		}
 
 		return result;
 	}
 	public Contains(otherList: InkList){
-		for(const [key, value] of otherList) {
+		for(let [key, value] of otherList) {
 			if (!this.has(key)) return false;
 		}
 
@@ -387,7 +387,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		if (otherInkList instanceof InkList === false) return false;
 		if (otherInkList.Count != this.Count) return false;
 
-		for(const [key, value] of this) {
+		for(let [key, value] of this) {
 			if (!otherInkList.has(key))
 				return false;
 		}
@@ -398,8 +398,8 @@ export class InkList extends Map<SerializedInkListItem, number> {
 	public toString(){
 		let ordered: Array<KeyValuePair<InkListItem, number>> = [];
 
-		for(const [key, value] of this) {
-			const item = InkListItem.fromSerializedKey(key);
+		for(let [key, value] of this) {
+			let item = InkListItem.fromSerializedKey(key);
 			ordered.push({ Key: item, Value: value });
 		}
 
@@ -407,12 +407,12 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			return (a.Value === b.Value) ? 0 : ((a.Value > b.Value) ? 1 : -1);
 		});
 
-		const sb = new StringBuilder();
+		let sb = new StringBuilder();
 		for (let i = 0; i < ordered.length; i++) {
 			if (i > 0)
 				sb.Append(', ');
 
-			const item = ordered[i].Key;
+			let item = ordered[i].Key;
 			if (item.itemName === null) return throwNullException('item.itemName');
 			sb.Append(item.itemName);
 		}

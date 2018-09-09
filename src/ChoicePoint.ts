@@ -17,7 +17,7 @@ export class ChoicePoint extends InkObject{
 	}
 	get pathOnChoice(): Path | null{
 		if (this._pathOnChoice != null && this._pathOnChoice.isRelative) {
-			const choiceTargetObj = this.choiceTarget;
+			let choiceTargetObj = this.choiceTarget;
 			if (choiceTargetObj) {
 				this._pathOnChoice = choiceTargetObj.path;
 			}
@@ -57,7 +57,7 @@ export class ChoicePoint extends InkObject{
 	public toString(): string{
 		if (this.pathOnChoice === null) return throwNullException('ChoicePoint.pathOnChoice');
 		// int? targetLineNum = DebugLineNumberOfPath (pathOnChoice);
-		const targetLineNum = null;
+		let targetLineNum = null;
 		let targetString = this.pathOnChoice.toString();
 
 		if (targetLineNum != null) {
