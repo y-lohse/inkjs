@@ -8,7 +8,6 @@ import {throwNullException} from './NullException';
 
 export class Divert extends InkObject{
 	get targetPath(){
-		// Resolve any relative paths to global ones as we come across them
 		if (this._targetPath != null && this._targetPath.isRelative) {
 			let targetObj = this.targetPointer.Resolve();
 			if (targetObj) {

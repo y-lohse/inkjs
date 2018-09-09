@@ -122,10 +122,6 @@ export class Path{
 
 		if (this._componentsString == null || this._componentsString == '') return;
 
-		// When components start with ".", it indicates a relative path, e.g.
-		//   .^.^.hello.5
-		// is equivalent to file system style path:
-		//  ../../hello/5
 		if (this._componentsString[0] == '.') {
 			this._isRelative = true;
 			this._componentsString = this._componentsString.substring(1);

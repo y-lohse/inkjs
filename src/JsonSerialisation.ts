@@ -52,7 +52,6 @@ export class JsonSerialisation{
 		let jsonObj: JObject = {};
 
 		for (let [key, value] of dictionary){
-			// var runtimeObj = keyVal.Value as Runtime.Object;
 			let runtimeObj = asOrNull(value, InkObject);
 			if (runtimeObj != null)
 				jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
@@ -391,7 +390,6 @@ export class JsonSerialisation{
 		if (nativeFunc) {
 			let name = nativeFunc.name;
 
-			// Avoid collision with ^ used to indicate a string
 			if (name == '^') name = 'L^';
 			return name;
 		}
@@ -451,11 +449,6 @@ export class JsonSerialisation{
 	public static ContainerToJArray(container: Container){
 		let jArray = this.ListToJArray(container.content);
 
-		// Container is always an array [...]
-		// But the final element is always either:
-		//  - a dictionary containing the named content, as well as possibly
-		//    the key "#" with the count flags
-		//  - null, if neither of the above
 		let namedOnlyContent = container.namedOnlyContent;
 		let countFlags = container.countFlags;
 		if (namedOnlyContent != null && namedOnlyContent.size > 0 || countFlags > 0 || container.name != null) {
@@ -464,7 +457,6 @@ export class JsonSerialisation{
 			if (namedOnlyContent != null) {
 				terminatingObj = this.DictionaryRuntimeObjsToJObject(namedOnlyContent);
 
-				// Strip redundant names from containers if necessary
 				for (let key in terminatingObj){
 					if (terminatingObj.hasOwnProperty(key)) {
 						// var subContainerJArray = namedContentObj.Value as JArray;
@@ -505,11 +497,6 @@ export class JsonSerialisation{
 		let container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
 
-		// Final object in the array is always a combination of
-		//  - named content
-		//  - a "#" key with the countFlags
-		// (if either exists at all, otherwise null)
-		// var terminatingObj = jArray [jArray.Count - 1] as JObject;
 		let terminatingObj = jArray[jArray.length - 1] as JObject;
 		if (terminatingObj != null) {
 
