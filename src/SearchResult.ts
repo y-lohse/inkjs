@@ -14,7 +14,7 @@ export class SearchResult{
 	}
 
 	public copy(){
-		const searchResult = new SearchResult();
+		let searchResult = new SearchResult();
 		searchResult.obj = this.obj;
 		searchResult.approximate = this.approximate;
 

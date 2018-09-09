@@ -1102,8 +1102,8 @@ export class Story extends InkObject{
 					for(let origin of origins) {
 						let rangeFromOrigin = origin.ListRange(minVal, maxVal);
 						if (rangeFromOrigin.value === null) { return rangeFromOrigin.value; }
-						for (const [key, value] of rangeFromOrigin.value){
-							const item = InkListItem.fromSerializedKey(key);
+						for (let [key, value] of rangeFromOrigin.value){
+							let item = InkListItem.fromSerializedKey(key);
 							result.value.Add(item, value);
 						}
 					}

@@ -208,7 +208,7 @@ export class CallStack{
 	}
 
 	get callStackTrace(){
-		const sb = new StringBuilder();
+		let sb = new StringBuilder();
 
 		for (let t = 0; t < this._threads.length; t++) {
 			let thread = this._threads[t];
@@ -294,7 +294,7 @@ export namespace CallStack {
 
 					let currentContainerPathStr: string;
 					// TODO: jElementObj.TryGetValue ("cPath", out currentContainerPathStrToken);
-					const currentContainerPathStrToken = jElementObj['cPath'];
+					let currentContainerPathStrToken = jElementObj['cPath'];
 					if (typeof currentContainerPathStrToken !== 'undefined') {
 						currentContainerPathStr = currentContainerPathStrToken.toString();
 

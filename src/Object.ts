@@ -58,14 +58,14 @@ export class InkObject{
 				// Maintain a Stack so that the order of the components
 				// is reversed when they're added to the Path.
 				// We're iterating up the hierarchy from the leaves/children to the root.
-				const comps: Path.Component[] = [];
+				let comps: Path.Component[] = [];
 
 				let child: InkObject = this;
 				let container = asOrNull(child.parent, Container);
 
 				while (container !== null) {
 
-					const namedChild = asINamedContentOrNull(child);
+					let namedChild = asINamedContentOrNull(child);
 					if (namedChild != null && namedChild.hasValidName) {
 						comps.unshift(new Path.Component(namedChild.name));
 					} else {
@@ -101,21 +101,21 @@ export class InkObject{
 			if (nearestContainer === null) { return throwNullException('nearestContainer'); }
 			return nearestContainer.ContentAtPath(path);
 		} else {
-			const contentContainer = this.rootContentContainer;
+			let contentContainer = this.rootContentContainer;
 			if (contentContainer === null) { return throwNullException('contentContainer'); }
 			return contentContainer.ContentAtPath(path);
 		}
 	}
 
 	public ConvertPathToRelative(globalPath: Path){
-		const ownPath = this.path;
+		let ownPath = this.path;
 
-		const minPathLength = Math.min(globalPath.length, ownPath.length);
+		let minPathLength = Math.min(globalPath.length, ownPath.length);
 		let lastSharedPathCompIndex = -1;
 
 		for (let i = 0; i < minPathLength; ++i) {
-			const ownComp = ownPath.GetComponent(i);
-			const otherComp = globalPath.GetComponent(i);
+			let ownComp = ownPath.GetComponent(i);
+			let otherComp = globalPath.GetComponent(i);
 
 			if (ownComp.Equals(otherComp)) {
 				lastSharedPathCompIndex = i;
@@ -128,9 +128,9 @@ export class InkObject{
 		if (lastSharedPathCompIndex == -1)
 			return globalPath;
 
-		const numUpwardsMoves = (ownPath.componentCount-1) - lastSharedPathCompIndex;
+		let numUpwardsMoves = (ownPath.componentCount-1) - lastSharedPathCompIndex;
 
-		const newPathComps: Path.Component[] = [];
+		let newPathComps: Path.Component[] = [];
 
 		for(let up = 0; up < numUpwardsMoves; ++up)
 			newPathComps.push(Path.Component.ToParent());
@@ -138,7 +138,7 @@ export class InkObject{
 		for (let down = lastSharedPathCompIndex + 1; down < globalPath.componentCount; ++down)
 			newPathComps.push(globalPath.GetComponent(down));
 
-		const relativePath = new Path(newPathComps, true);
+		let relativePath = new Path(newPathComps, true);
 		return relativePath;
 	}
 
@@ -151,7 +151,7 @@ export class InkObject{
 			globalPathStr = this.path.PathByAppendingPath(otherPath).componentsString;
 		}
 		else {
-			const relativePath = this.ConvertPathToRelative(otherPath);
+			let relativePath = this.ConvertPathToRelative(otherPath);
 			relativePathStr = relativePath.componentsString;
 			globalPathStr = otherPath.componentsString;
 		}
