@@ -12,12 +12,12 @@ export class ListDefinitionsOrigin{
 		this._lists = new Map();
 		this._allUnambiguousListValueCache = new Map();
 
-		for (const list of lists){
+		for (let list of lists){
 			this._lists.set(list.name, list);
 
-			for (const [key, val] of list.items){
-				const item = InkListItem.fromSerializedKey(key);
-				const listValue = new ListValue(item, val);
+			for (let [key, val] of list.items){
+				let item = InkListItem.fromSerializedKey(key);
+				let listValue = new ListValue(item, val);
 
 				if (!item.itemName) { throw new Error('item.itemName is null or undefined.'); }
 
@@ -27,9 +27,9 @@ export class ListDefinitionsOrigin{
 		}
 	}
 	get lists(): ListDefinition[]{
-		const listOfLists: ListDefinition[] = [];
+		let listOfLists: ListDefinition[] = [];
 
-		for (const [key, value] of this._lists){
+		for (let [key, value] of this._lists){
 			listOfLists.push(value);
 		}
 
@@ -38,14 +38,14 @@ export class ListDefinitionsOrigin{
 	public TryListGetDefinition(name: string | null, /* out */ def: ListDefinition | null): TryGetResult<ListDefinition | null>{
 		if (name === null) { return {result: def, exists: false}; }
 		// initially, this function returns a boolean and the second parameter is an out.
-		const definition = this._lists.get(name);
+		let definition = this._lists.get(name);
 		if (!definition) return { result: def, exists: false };
 
 		return { result: definition, exists: true };
 	}
 	public FindSingleItemListWithName(name: string | null){
 		if (name === null) { return throwNullException('name'); }
-		const val = this._allUnambiguousListValueCache.get(name);
+		let val = this._allUnambiguousListValueCache.get(name);
 
 		if (typeof val !== 'undefined'){
 			return val;

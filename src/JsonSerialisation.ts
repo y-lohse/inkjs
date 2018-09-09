@@ -564,8 +564,8 @@ export class JsonSerialisation{
 
 		let content: JObject = {};
 
-		for (const [key, val] of rawList) {
-			const item = InkListItem.fromSerializedKey(key);
+		for (let [key, val] of rawList) {
+			let item = InkListItem.fromSerializedKey(key);
 			content[item.toString()] = val;
 		}
 
@@ -585,8 +585,8 @@ export class JsonSerialisation{
 		for (let def of origin.lists) {
 			let listDefJson: JObject = {};
 
-			for (const [key, val] of def.items) {
-				const item = InkListItem.fromSerializedKey(key);
+			for (let [key, val] of def.items) {
+				let item = InkListItem.fromSerializedKey(key);
 				if (item.itemName === null) { return throwNullException('item.itemName'); }
 				listDefJson[item.itemName] = val;
 			}

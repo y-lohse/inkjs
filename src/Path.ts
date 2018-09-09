@@ -16,18 +16,18 @@ export class Path{
 		this._isRelative = false;
 
 		if (typeof arguments[0] == 'string'){
-			const componentsString = arguments[0] as string;
+			let componentsString = arguments[0] as string;
 			this.componentsString = componentsString;
 		}
 		else if (arguments[0] instanceof Path.Component && arguments[1] instanceof Path){
-			const head = arguments[0] as Path.Component;
-			const tail = arguments[1] as Path;
+			let head = arguments[0] as Path.Component;
+			let tail = arguments[1] as Path;
 			this._components.push(head);
 			this._components = this._components.concat(tail._components);
 		}
 		else if (arguments[0] instanceof Array){
-			const head = arguments[0] as Path.Component[];
-			const relative = !!arguments[1] as boolean;
+			let head = arguments[0] as Path.Component[];
+			let relative = !!arguments[1] as boolean;
 			this._components = this._components.concat(head);
 			this._isRelative = relative;
 		}
@@ -50,7 +50,7 @@ export class Path{
 		if (this._components.length >= 2) {
 			// careful, the original code uses length-1 here. This is because the second argument of
 			// List.GetRange is a number of elements to extract, wherease Array.slice uses an index
-			const tailComps = this._components.slice(1, this._components.length);
+			let tailComps = this._components.slice(1, this._components.length);
 			return new Path(tailComps);
 		}
 		else {
@@ -61,7 +61,7 @@ export class Path{
 		return this._components.length;
 	}
 	get lastComponent(): Path.Component | null{
-		const lastComponentIdx = this._components.length - 1;
+		let lastComponentIdx = this._components.length - 1;
 		if (lastComponentIdx >= 0) {
 			return this._components[lastComponentIdx];
 		} else {
@@ -77,7 +77,7 @@ export class Path{
 		return false;
 	}
 	static get self(): Path{
-		const path = new Path();
+		let path = new Path();
 		path._isRelative = true;
 		return path;
 	}
@@ -86,7 +86,7 @@ export class Path{
 		return this._components[index];
 	}
 	public PathByAppendingPath(pathToAppend: Path): Path{
-		const p = new Path();
+		let p = new Path();
 
 		let upwardMoves = 0;
 		for (let i = 0; i < pathToAppend._components.length; ++i) {
@@ -131,7 +131,7 @@ export class Path{
 			this._componentsString = this._componentsString.substring(1);
 		}
 
-		const componentStrings = this._componentsString.split('.');
+		let componentStrings = this._componentsString.split('.');
 		componentStrings.forEach((str) => {
 			// we need to distinguish between named components that start with a number, eg "42somewhere", and indexed components
 			// the normal parseInt won't do for the detection because it's too relaxed.
@@ -167,7 +167,7 @@ export class Path{
 		return true;
 	}
 	public PathByAppendingComponent(c: Path.Component): Path{
-		const p = new Path();
+		let p = new Path();
 		p._components.push.apply(p._components, this._components);
 		p._components.push(c);
 		return p;

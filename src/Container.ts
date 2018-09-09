@@ -33,13 +33,13 @@ export class Container extends InkObject implements INamedContent{
 	get namedOnlyContent(){
 		let namedOnlyContentDict: Map<string, InkObject> | null = new Map();
 
-		for (const [key, value] of this.namedContent){
-			const inkObject = asOrThrows(value, InkObject);
+		for (let [key, value] of this.namedContent){
+			let inkObject = asOrThrows(value, InkObject);
 			namedOnlyContentDict.set(key, inkObject);
 		}
 
-		for (const c of this.content){
-			const named = asINamedContentOrNull(c);
+		for (let c of this.content){
+			let named = asINamedContentOrNull(c);
 			if (named != null && named.hasValidName) {
 				namedOnlyContentDict.delete(named.name);
 			}
@@ -51,9 +51,9 @@ export class Container extends InkObject implements INamedContent{
 		return namedOnlyContentDict;
 	}
 	set namedOnlyContent(value: Map<string, InkObject> | null){
-		const existingNamedOnly = this.namedOnlyContent;
+		let existingNamedOnly = this.namedOnlyContent;
 		if (existingNamedOnly != null) {
-			for (const [key, val] of existingNamedOnly){
+			for (let [key, val] of existingNamedOnly){
 				this.namedContent.delete(key);
 			}
 		}
@@ -61,8 +61,8 @@ export class Container extends InkObject implements INamedContent{
 		if (value == null)
 			return;
 
-		for (const [key, val] of value){
-			const named = asINamedContentOrNull(val);
+		for (let [key, val] of value){
+			let named = asINamedContentOrNull(val);
 			if (named != null)
 				this.AddToNamedContentOnly(named);
 		}
@@ -85,7 +85,7 @@ export class Container extends InkObject implements INamedContent{
 		return flags;
 	}
 	set countFlags(value: number){
-		const flag: Container.CountFlags = value;
+		let flag: Container.CountFlags = value;
 		if ((flag & Container.CountFlags.Visits) > 0) this.visitsShouldBeCounted = true;
 		if ((flag & Container.CountFlags.Turns) > 0)  this.turnIndexShouldBeCounted = true;
 		if ((flag & Container.CountFlags.CountStartOnly) > 0) this.countingAtStartOnly = true;
@@ -97,7 +97,7 @@ export class Container extends InkObject implements INamedContent{
 		return this._pathToFirstLeafContent;
 	}
 	get internalPathToFirstLeafContent(){
-		const components: Path.Component[] = [];
+		let components: Path.Component[] = [];
 		let container: Container = this;
 		while (container instanceof Container) {
 			if (container.content.length > 0) {
@@ -110,14 +110,14 @@ export class Container extends InkObject implements INamedContent{
 
 	public AddContent(contentObjOrList: InkObject | InkObject[]){
 		if (contentObjOrList instanceof Array){
-			const contentList = contentObjOrList as InkObject[];
+			let contentList = contentObjOrList as InkObject[];
 
-			for (const c of contentList) {
+			for (let c of contentList) {
 				this.AddContent(c);
 			}
 		}
 		else{
-			const contentObj = contentObjOrList as InkObject;
+			let contentObj = contentObjOrList as InkObject;
 			this._content.push(contentObj);
 
 			if (contentObj.parent) {
@@ -130,14 +130,14 @@ export class Container extends InkObject implements INamedContent{
 		}
 	}
 	public TryAddNamedContent(contentObj: InkObject){
-		const namedContentObj = asINamedContentOrNull(contentObj);
+		let namedContentObj = asINamedContentOrNull(contentObj);
 		if (namedContentObj != null && namedContentObj.hasValidName){
 			this.AddToNamedContentOnly(namedContentObj);
 		}
 	}
 	public AddToNamedContentOnly(namedContentObj: INamedContent){
 		Debug.AssertType(namedContentObj, InkObject, 'Can only add Runtime.Objects to a Runtime.Container');
-		const runtimeObj = asOrThrows(namedContentObj, InkObject);
+		let runtimeObj = asOrThrows(namedContentObj, InkObject);
 		runtimeObj.parent = this;
 
 		this.namedContent.set(namedContentObj.name, namedContentObj);
@@ -146,20 +146,20 @@ export class Container extends InkObject implements INamedContent{
 		if (partialPathLength == -1)
 			partialPathLength = path.length;
 
-		const result = new SearchResult();
+		let result = new SearchResult();
 		result.approximate = false;
 
 		let currentContainer: Container | null = this;
 		let currentObj: InkObject = this;
 
 		for (let i = partialPathStart; i < partialPathLength; ++i) {
-			const comp = path.GetComponent(i);
+			let comp = path.GetComponent(i);
 			if (currentContainer == null) {
 				result.approximate = true;
 				break;
 			}
 
-			const foundObj: InkObject | null = currentContainer.ContentWithPathComponent(comp);
+			let foundObj: InkObject | null = currentContainer.ContentWithPathComponent(comp);
 
 			if (foundObj == null) {
 				result.approximate = true;
@@ -188,7 +188,7 @@ export class Container extends InkObject implements INamedContent{
 	public AddContentsOfContainer(otherContainer: Container){
 		this.content = this.content.concat(otherContainer.content);
 
-		for (const obj of otherContainer.content) {
+		for (let obj of otherContainer.content) {
 			obj.parent = this;
 			this.TryAddNamedContent(obj);
 		}
@@ -214,7 +214,7 @@ export class Container extends InkObject implements INamedContent{
 
 		else {
 			if (component.name === null) { return throwNullException('component.name'); }
-			const foundContent = tryGetValueFromMap(this.namedContent, component.name, null);
+			let foundContent = tryGetValueFromMap(this.namedContent, component.name, null);
 			if (foundContent.exists){
 				return asOrThrows(foundContent.result, InkObject);
 			}
@@ -235,10 +235,10 @@ export class Container extends InkObject implements INamedContent{
 
 		sb = arguments[0] as StringBuilder;
 		let indentation = arguments[1] as number;
-		const pointedObj = arguments[2] as InkObject | null;
+		let pointedObj = arguments[2] as InkObject | null;
 
 		function appendIndentation(){
-			const spacesPerIndent = 4; // Truly const in the original code
+			let spacesPerIndent = 4; // Truly let in the original code
 			for(let i = 0; i < spacesPerIndent*indentation; ++i) {
 				sb.Append(' ');
 			}
@@ -261,11 +261,11 @@ export class Container extends InkObject implements INamedContent{
 
 		for (let i = 0; i < this.content.length; ++i) {
 
-			const obj = this.content[i];
+			let obj = this.content[i];
 
 			if (obj instanceof Container) {
 
-				const container = obj as Container;
+				let container = obj as Container;
 
 				container.BuildStringOfHierarchy(sb, indentation, pointedObj);
 
@@ -291,9 +291,9 @@ export class Container extends InkObject implements INamedContent{
 			sb.AppendLine();
 		}
 
-		const onlyNamed: Map<string, INamedContent> = new Map();
+		let onlyNamed: Map<string, INamedContent> = new Map();
 
-		for (const [key, value] of this.namedContent){
+		for (let [key, value] of this.namedContent){
 			if (this.content.indexOf(asOrThrows(value, InkObject)) >= 0) {
 				continue;
 			} else {
@@ -305,9 +305,9 @@ export class Container extends InkObject implements INamedContent{
 			appendIndentation();
 			sb.AppendLine('-- named: --');
 
-			for (const [key, value] of onlyNamed){
+			for (let [key, value] of onlyNamed){
 				Debug.AssertType(value, Container, 'Can only print out named Containers');
-				const container = value as Container;
+				let container = value as Container;
 				container.BuildStringOfHierarchy(sb, indentation, pointedObj);
 				sb.AppendLine();
 			}

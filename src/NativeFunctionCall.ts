@@ -195,7 +195,7 @@ export class NativeFunctionCall extends InkObject{
 
 			let itemOrigin = null;
 			if (listVal.value.origins === null) return throwNullException('NativeFunctionCall.CallListIncrementOperation listVal.value.origins');
-			for (const origin of listVal.value.origins) {
+			for (let origin of listVal.value.origins) {
 				if (origin.name == listItem.originName) {
 					itemOrigin = origin;
 					break;
