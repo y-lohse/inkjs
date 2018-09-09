@@ -261,11 +261,11 @@ export class ListValue extends Value<InkList>{
 	public get isTruthy(){
 		let isTruthy = false;
 		if (this.value === null) return throwNullException('Value.value');
-		this.value.forEach((value, key, map) => {
+		for (let [key, value] of this.value) {
 			let listItemIntValue = value;
 			if (listItemIntValue != 0)
 				isTruthy = true;
-		});
+		}
 		return isTruthy;
 	}
 	public get valueType() {

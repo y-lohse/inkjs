@@ -132,7 +132,7 @@ export class Path{
 		}
 
 		let componentStrings = this._componentsString.split('.');
-		componentStrings.forEach((str) => {
+		for (let str of componentStrings) {
 			// we need to distinguish between named components that start with a number, eg "42somewhere", and indexed components
 			// the normal parseInt won't do for the detection because it's too relaxed.
 			// see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/parseInt
@@ -142,7 +142,7 @@ export class Path{
 			else{
 				this._components.push(new Path.Component(str));
 			}
-		});
+		}
 	}
 	public toString(): string{
 		return this.componentsString;
