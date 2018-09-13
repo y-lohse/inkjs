@@ -29,7 +29,7 @@
     "babel-preset-env": "1.7.0",
     "istanbul": "0.4.5",
     "jasmine": "3.2.0",
-    "npm-watch": "0.3.0",
+    "npm-watch": "0.4.0",
     "rollup": "0.65.2",
     "rollup-plugin-babel": "3.0.7",
     "rollup-plugin-node-resolve": "3.4.0"
