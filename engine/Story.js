@@ -1099,7 +1099,7 @@ export class Story extends InkObject{
 
 						// Save for future usage, preventing future errors
 						// Only do this for variables that are known to be globals, not those that may be missing temps.
-						state.variablesState.SetGlobal(varRef.name, foundValue);
+						this.state.variablesState.SetGlobal(varRef.name, foundValue);
 					} else {
 						this.Warning ("Variable not found: '" + varRef.name + "'. Using default value of 0 (false). This can happen with temporary variables if the declaration hasn't yet been hit.");
 						foundValue = new IntValue(0);
