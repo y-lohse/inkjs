@@ -264,7 +264,6 @@ export class NativeFunctionCall extends InkObject{
 		return parametersOut;
 	}
 
-	// tslint:disable:unified-signatures
 	constructor(name: string);
 	constructor(name: string, numberOfParameters: number);
 	constructor();
