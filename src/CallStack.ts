@@ -44,7 +44,6 @@ export class CallStack{
 		return this.callStack.length > 1;
 	}
 
-	// tslint:disable:unified-signatures
 	constructor(rootContentContainer: Container | null)
 	constructor(toCopy: CallStack)
 	constructor(){
@@ -64,7 +63,6 @@ export class CallStack{
 			}
 		}
 	}
-	// tslint:unable:unified-signatures
 
 	public SetJsonToken(jObject: any, storyContext: any /* Story */){
 		this._threads.length = 0;

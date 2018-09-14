@@ -99,7 +99,6 @@ export class Story extends InkObject{
 	public StartProfiling(){ /* */ }
 	public EndProfiling(){ /* */ }
 
-	// tslint:disable unified-signatures
 	constructor(contentContainer: Container, lists: ListDefinition[] | null);
 	constructor(jsonString: string);
 	constructor(json: JObject);

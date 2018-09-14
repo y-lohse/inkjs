@@ -48,7 +48,8 @@
         "no-bitwise": false,
         "prefer-const": false,
         "no-string-literal": false,
-        "no-console": false
+        "no-console": false,
+        "unified-signatures": false
     },
     "rulesDirectory": []
 }

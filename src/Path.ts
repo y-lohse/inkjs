@@ -5,7 +5,6 @@ export class Path{
 	public _components: Path.Component[];
 	public _componentsString: string | null;
 
-	// tslint:disable:unified-signatures
 	constructor();
 	constructor(componentsString: string);
 	constructor(head: Path.Component, tail: Path);
@@ -32,7 +31,6 @@ export class Path{
 			this._isRelative = relative;
 		}
 	}
-	// tslint:enable:unified-signatures
 	get isRelative(){
 		return this._isRelative;
 	}

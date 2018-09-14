@@ -7,7 +7,6 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 	public readonly originName: string | null = null;
 	public readonly itemName: string | null = null;
 
-	// tslint:disable:unified-signatures
 	constructor(originName: string | null, itemName: string | null)
 	constructor(fullName: string | null)
 	constructor(){
@@ -26,7 +25,6 @@ export class InkListItem implements IInkListItem{ // InkListItem is a struct
 			this.itemName = nameParts[1];
 		}
 	}
-	// tslint:enable:unified-signatures
 	public static get Null(){
 		return new InkListItem(null, null);
 	}
@@ -99,7 +97,6 @@ export class InkList extends Map<SerializedInkListItem, number> {
 	public origins: ListDefinition[] | null = null;
 	public _originNames: string[] | null = [];
 
-	// tslint:disable:unified-signatures
 	constructor()
 	constructor(otherList: InkList)
 	constructor(singleOriginListName: string, originStory: /* Story */ any)
@@ -141,7 +138,6 @@ export class InkList extends Map<SerializedInkListItem, number> {
 			this.Add(singleElement.Key, singleElement.Value);
 		}
 	}
-	// tslint:enable:unified-signatures
 
 	public AddItem(itemOrItemName: InkListItem | string | null){
 		if (itemOrItemName instanceof InkListItem){

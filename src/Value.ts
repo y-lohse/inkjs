@@ -303,7 +303,6 @@ export class ListValue extends Value<InkList>{
 
 		throw this.BadCastException(newType);
 	}
-	// tslint:disable:unified-signatures
 	constructor();
 	constructor(list: InkList);
 	constructor(listOrSingleItem: InkListItem, singleValue: number)
