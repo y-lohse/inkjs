@@ -130,14 +130,16 @@ export class StringValue extends Value<string>{
 
 		if (this.value === null) return throwNullException('Value.value');
 
-		this.value.split('').every((c) => {
-			if (c != ' ' && c != '\t'){
-				this._isInlineWhitespace = false;
-				return false;
-			}
+		if (this.value.length > 0) {
+			this.value.split('').every((c) => {
+				if (c != ' ' && c != '\t'){
+					this._isInlineWhitespace = false;
+					return false;
+				}
 
-			return true;
-		});
+				return true;
+			});
+		}
 	}
 	public get valueType(){
 		return ValueType.String;
