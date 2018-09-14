@@ -164,7 +164,7 @@ describe('Integration', function(){
     expect(externalSpy).toHaveBeenCalledWith('a', 1, 2.2);
   });
 
-  it('should handle callastack changes', function(){
+  it('should handle callstack changes', function(){
     story.allowExternalFunctionFallbacks = false;
     const externalSpy = jasmine.createSpy('external function spy', function(x){
       x++;
