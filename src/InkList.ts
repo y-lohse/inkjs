@@ -1,6 +1,7 @@
 import {throwNullException} from './NullException';
 import {StringBuilder} from './StringBuilder';
 import {ListDefinition} from './ListDefinition';
+import {Story} from './Story';
 
 export class InkListItem implements IInkListItem{ // InkListItem is a struct
 
@@ -99,7 +100,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
 	constructor()
 	constructor(otherList: InkList)
-	constructor(singleOriginListName: string, originStory: /* Story */ any)
+	constructor(singleOriginListName: string, originStory: Story)
 	constructor(singleElement: KeyValuePair<InkListItem, number>)
 	constructor(){
 		// Trying to be smart here, this emulates the constructor inheritance found
