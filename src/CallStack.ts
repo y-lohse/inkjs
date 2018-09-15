@@ -1,5 +1,6 @@
 import {PushPopType} from './PushPop';
 import {Path} from './Path';
+import {Story} from './Story';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
 import {ListValue} from './Value';
@@ -64,7 +65,7 @@ export class CallStack{
 		}
 	}
 
-	public SetJsonToken(jObject: any, storyContext: any /* Story */){
+	public SetJsonToken(jObject: any, storyContext: Story){
 		this._threads.length = 0;
 
 		// TODO: (List<object>) jObject ["threads"];
@@ -269,7 +270,7 @@ export namespace CallStack {
 		public previousPointer: Pointer = Pointer.Null;
 
 		constructor();
-		constructor(jThreadObj: any, storyContext: any /* Story */);
+		constructor(jThreadObj: any, storyContext: Story);
 		constructor(){
 			this.callstack = [];
 
