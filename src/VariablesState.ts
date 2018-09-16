@@ -91,8 +91,7 @@ export class VariablesState{
 		this._callStack = callStack;
 		this._listDefsOrigin = listDefsOrigin;
 
-		// TODO should we discourage the use of proxies since they're non-portable
-		// and direct access is unsafe? if es6 proxies are available, use them.
+		// if es6 proxies are available, use them.
 		try{
 			// the proxy is used to allow direct manipulation of global variables.
 			// It first tries to access the objects own property, and if none is
