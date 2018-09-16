@@ -139,7 +139,7 @@ export class VariablesState{
 		return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
 	}
 	set jsonToken(value){
-		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value) as Map<string, InkObject>; // TODO remove the `as` after JsonSerialisation is ported
+		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
 	}
 
 	public TryGetDefaultVariableValue(name: string | null): InkObject | null
