@@ -13,7 +13,7 @@ export class ControlCommand extends InkObject{
 		this._commandType = commandType;
 	}
 
-	public copy(){ // TODO: Capitalise
+	public Copy(){
 		return new ControlCommand(this.commandType);
 	}
 	public static EvalStart(){
