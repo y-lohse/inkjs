@@ -168,7 +168,7 @@ export class VariablesState{
 		let varValue: InkObject | null = null;
 
 		if (contextIndex == 0 || contextIndex == -1) {
-			// TODO this is a conditional assignment
+			// this is a conditional assignment
 			let variableValue = tryGetValueFromMap(this._globalVariables, name, null);
 			if (variableValue.exists)
 				return variableValue.result;
