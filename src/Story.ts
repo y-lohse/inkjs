@@ -1202,7 +1202,7 @@ export class Story extends InkObject{
 			throw new Error("Can't " + activityStr + '. Story is in the middle of a ContinueAsync(). Make more ContinueAsync() calls or a single Continue() call beforehand.');
 	}
 
-	public ChoosePath(p: Path | null){
+	public ChoosePath(p: Path){
 		this.state.SetChosenPath(p);
 
 		// Take a note of newly visited containers for read counts etc
@@ -1216,6 +1216,7 @@ export class Story extends InkObject{
 
 		let choiceToChoose = choices[choiceIdx];
 		if (choiceToChoose.threadAtGeneration === null) { return throwNullException('choiceToChoose.threadAtGeneration'); }
+		if (choiceToChoose.targetPath === null) { return throwNullException('choiceToChoose.targetPath'); }
 
 		this.state.callStack.currentThread = choiceToChoose.threadAtGeneration;
 
@@ -1655,6 +1656,8 @@ export class Story extends InkObject{
 			return false;
 
 		let choice = invisibleChoices[0];
+
+		if (choice.targetPath === null) { return throwNullException('choice.targetPath'); }
 
 		this.ChoosePath(choice.targetPath);
 
