@@ -86,7 +86,7 @@ export class VariablesState{
 		}
 	}
 
-	constructor(callStack: CallStack, listDefsOrigin: ListDefinitionsOrigin){
+	constructor(callStack: CallStack, listDefsOrigin: ListDefinitionsOrigin | null){
 		this._globalVariables = new Map();
 		this._callStack = callStack;
 		this._listDefsOrigin = listDefsOrigin;
@@ -173,6 +173,7 @@ export class VariablesState{
 			if (variableValue.exists)
 				return variableValue.result;
 
+			if (this._listDefsOrigin === null) return throwNullException('VariablesState._listDefsOrigin');
 			let listItemValue = this._listDefsOrigin.FindSingleItemListWithName(name);
 			if (listItemValue)
 				return listItemValue;
@@ -306,5 +307,5 @@ export class VariablesState{
 
 	private _callStack: CallStack;
 	private _changedVariables: Set<string> | null = new Set();
-	private _listDefsOrigin: ListDefinitionsOrigin;
+	private _listDefsOrigin: ListDefinitionsOrigin | null;
 }
