@@ -12,7 +12,7 @@ import {JsonSerialisation} from './JsonSerialisation';
 import {PRNG} from './PRNG';
 import {Void} from './Void';
 import {Pointer} from './Pointer';
-import { tryGetValueFromMap } from './TryGetResult';
+import {tryGetValueFromMap} from './TryGetResult';
 import {Choice} from './Choice';
 import {asOrNull, asOrThrows, nullIfUndefined} from './TypeAssertion';
 import {JObject} from './JObject';
@@ -20,6 +20,7 @@ import {Debug} from './Debug';
 import {Container} from './Container';
 import {InkObject} from './Object';
 import { throwNullException } from './NullException';
+import { Story } from './Story';
 
 export class StoryState{
 
@@ -108,7 +109,7 @@ export class StoryState{
 	public previousRandom: number = 0;
 	public didSafeExit: boolean = false;
 
-	public story: any /* Story */;
+	public story: Story;
 
 	get currentPathString(){
 		let pointer = this.currentPointer;
@@ -221,7 +222,7 @@ export class StoryState{
 		this.callStack.currentElement.inExpressionEvaluation = value;
 	}
 
-	constructor(story: any /* Story */){
+	constructor(story: Story){
 		this.story = story;
 
 		this._outputStream = [];
@@ -672,7 +673,9 @@ export class StoryState{
 				rawList.origins.length = 0;
 
 				for (let n of rawList.originNames) {
+					if (this.story.listDefinitions === null) return throwNullException('StoryState.story.listDefinitions');
 					let def = this.story.listDefinitions.TryListGetDefinition(n, null);
+					if (def.result === null) return throwNullException('StoryState def.result');
 					if (rawList.origins.indexOf(def.result) < 0) rawList.origins.push(def.result);
 				}
 			}
@@ -749,7 +752,7 @@ export class StoryState{
 		this.callStack.Pop(popType);
 	}
 
-	public SetChosenPath(path: Path | null){
+	public SetChosenPath(path: Path){
 		// Changing direction, assume we need to clear current set of choices
 		this._currentChoices.length = 0;
 
