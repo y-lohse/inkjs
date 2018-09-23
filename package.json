@@ -34,8 +34,8 @@
     "rollup": "0.66.2",
     "rollup-plugin-babel": "3.0.7",
     "rollup-plugin-node-resolve": "3.4.0",
-    "tslint": "^5.10.0",
-    "typescript": "^2.9.2"
+    "tslint": "5.10.0",
+    "typescript": "2.9.2"
   },
   "dependencies": {}
 }
