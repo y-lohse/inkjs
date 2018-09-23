@@ -276,7 +276,7 @@ export class JsonSerialisation{
 			return this.JArrayToContainer(token);
 		}
 
-		if (token == null) // TODO: Check is undefined?
+		if (token === null || token === undefined)
 			return null;
 
 		throw new Error('Failed to convert token to runtime object: ' + JSON.stringify(token));
