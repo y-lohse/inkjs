@@ -15,7 +15,7 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('boiling\n');
   });
 
-  it('sould increment/decrement', function(){
+  it('should increment/decrement', function(){
     story.ChoosePathString('lists.increment');
 
     expect(story.Continue()).toEqual('cold\n');
@@ -41,7 +41,7 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('evaporated\n');
   });
 
-  xit('shuld handle user defined values', function(){
+  xit('should handle user defined values', function(){
     story.ChoosePathString('lists.defined_value');
     expect(story.Continue()).toEqual('2\n');
     expect(story.Continue()).toEqual('3\n');
