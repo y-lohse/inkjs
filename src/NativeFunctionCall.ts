@@ -29,6 +29,11 @@ export class NativeFunctionCall extends InkObject{
 	public static readonly Or: string       = '||';
 	public static readonly Min: string      = 'MIN';
 	public static readonly Max: string      = 'MAX';
+	public static readonly Pow: string      = 'POW';
+	public static readonly Floor: string    = 'FLOOR';
+	public static readonly Ceiling: string  = 'CEILING';
+	public static readonly Int: string      = 'INT';
+	public static readonly Float: string    = 'FLOAT';
 	public static readonly Has: string      = '?';
 	public static readonly Hasnt: string    = '!?';
 	public static readonly Intersect: string = '^';
@@ -288,6 +293,10 @@ export class NativeFunctionCall extends InkObject{
 		}
 	}
 
+	public static Identity<T>(t: T): any {
+		return t;
+	}
+
 	public static GenerateNativeFunctionsIfNecessary(){
 		if (this._nativeFunctions == null) {
 			this._nativeFunctions = new Map();
@@ -314,6 +323,12 @@ export class NativeFunctionCall extends InkObject{
 			this.AddIntBinaryOp(this.Max,      (x, y) => Math.max(x, y));
 			this.AddIntBinaryOp(this.Min,      (x, y) => Math.min(x, y));
 
+			this.AddIntBinaryOp(this.Pow,      (x, y) => Math.pow(x, y));
+			this.AddIntUnaryOp(this.Floor,     NativeFunctionCall.Identity);
+			this.AddIntUnaryOp(this.Ceiling,   NativeFunctionCall.Identity);
+			this.AddIntUnaryOp(this.Int,       NativeFunctionCall.Identity);
+			this.AddIntUnaryOp(this.Float,     (x) => x);
+
 			// Float operations
 			this.AddFloatBinaryOp(this.Add,      (x, y) => x + y);
 			this.AddFloatBinaryOp(this.Subtract, (x, y) => x - y);
@@ -335,6 +350,12 @@ export class NativeFunctionCall extends InkObject{
 
 			this.AddFloatBinaryOp(this.Max,      (x, y) => Math.max(x, y));
 			this.AddFloatBinaryOp(this.Min,      (x, y) => Math.min(x, y));
+
+			this.AddFloatBinaryOp(this.Pow,      (x, y) => Math.pow(x, y));
+			this.AddFloatUnaryOp(this.Floor,     (x) => Math.floor(x));
+			this.AddFloatUnaryOp(this.Ceiling,   (x) => Math.ceil(x));
+			this.AddFloatUnaryOp(this.Int,       (x) => Math.floor(x));
+			this.AddFloatUnaryOp(this.Float,     NativeFunctionCall.Identity);
 
 			// String operations
 			this.AddStringBinaryOp(this.Add,     	(x, y) => x + y); // concat
@@ -371,7 +392,11 @@ export class NativeFunctionCall extends InkObject{
 			let divertTargetsEqual = (d1: Path, d2: Path) => {
 				return d1.Equals(d2) ? 1 : 0;
 			};
+			let divertTargetsNotEqual = (d1: Path, d2: Path) => {
+				return d1.Equals (d2) ? 0 : 1;
+			};
 			this.AddOpToNativeFunc(this.Equal, 2, ValueType.DivertTarget, divertTargetsEqual);
+			this.AddOpToNativeFunc(this.NotEquals, 2, ValueType.DivertTarget, divertTargetsNotEqual);
 		}
 	}
 

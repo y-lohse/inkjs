@@ -127,7 +127,7 @@ Content after a tag # tag after
 
 = weird
 // tags should be trimmed
-# space around 
+# space around
 #//void
 # //a space
 #    //multiple spaces
@@ -165,13 +165,13 @@ Content after a tag # tag after
 = basic_choice
 * a choice
 -> DONE
-    
+
 = multiple_choices
 * choice 1
 * choice 2
 * choice 3
 - -> DONE
-    
+
 = choice_text
 * always [choice only]output only
 -> DONE
@@ -449,7 +449,7 @@ In top external
 === game_queries
 = choicecount
 * count {CHOICE_COUNT()}
-- 
+-
 * 1 choice
 * count {CHOICE_COUNT()}
 -
@@ -573,7 +573,7 @@ LIST primeNumbers = (two = 2), three, five = 5
 = multivalue
 LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
 {DoctorsInSurgery}
-~ DoctorsInSurgery += (Eamonn, Denver) 
+~ DoctorsInSurgery += (Eamonn, Denver)
 {DoctorsInSurgery}
 ~ DoctorsInSurgery -= Eamonn
 {DoctorsInSurgery}
@@ -592,8 +592,8 @@ LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
 {DoctorsInSurgery:list is not empty |list is empty}
 ~ DoctorsInSurgery += (Eamonn, Denver)
 {LIST_COUNT(DoctorsInSurgery)}
-{LIST_MIN(DoctorsInSurgery)} 
-{LIST_MAX(DoctorsInSurgery)} 
+{LIST_MIN(DoctorsInSurgery)}
+{LIST_MAX(DoctorsInSurgery)}
 {DoctorsInSurgery:list is not empty|list is empty}
 { DoctorsInSurgery == (Eamonn, Denver):exact equality}
 { DoctorsInSurgery == (Eamonn):exact equality broken|falsy exact equality}

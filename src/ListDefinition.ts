@@ -63,14 +63,4 @@ export class ListDefinition{
 		if (!value) return { result: 0, exists: false };
 		return { result: value, exists: true };
 	}
-	public ListRange(min: number, max: number){
-		let rawList = new InkList();
-		for (let [key, value] of this._itemNameToValues){
-			if (value >= min && value <= max) {
-				let item = new InkListItem(this.name, key);
-				rawList.Add(item, value);
-			}
-		}
-		return new ListValue(rawList);
-	}
 }

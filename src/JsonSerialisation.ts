@@ -628,6 +628,7 @@ export class JsonSerialisation{
 		_controlCommandNames[ControlCommand.CommandType.EndString] = '/str';
 		_controlCommandNames[ControlCommand.CommandType.NoOp] = 'nop';
 		_controlCommandNames[ControlCommand.CommandType.ChoiceCount] = 'choiceCnt';
+		_controlCommandNames[ControlCommand.CommandType.Turns] = 'turn';
 		_controlCommandNames[ControlCommand.CommandType.TurnsSince] = 'turns';
 		_controlCommandNames[ControlCommand.CommandType.ReadCount] = 'readc';
 		_controlCommandNames[ControlCommand.CommandType.Random] = 'rnd';
@@ -639,6 +640,7 @@ export class JsonSerialisation{
 		_controlCommandNames[ControlCommand.CommandType.End] = 'end';
 		_controlCommandNames[ControlCommand.CommandType.ListFromInt] = 'listInt';
 		_controlCommandNames[ControlCommand.CommandType.ListRange] = 'range';
+		_controlCommandNames[ControlCommand.CommandType.ListRandom] = 'lrnd';
 
 		for (let i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
 			if (_controlCommandNames[i] == null)

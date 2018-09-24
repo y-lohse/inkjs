@@ -49,6 +49,9 @@ export class ControlCommand extends InkObject{
 	public static ChoiceCount(){
 		return new ControlCommand(ControlCommand.CommandType.ChoiceCount);
 	}
+	public static Turns(){
+		return new ControlCommand(ControlCommand.CommandType.Turns);
+	}
 	public static TurnsSince(){
 		return new ControlCommand(ControlCommand.CommandType.TurnsSince);
 	}
@@ -82,6 +85,9 @@ export class ControlCommand extends InkObject{
 	public static ListRange(){
 		return new ControlCommand(ControlCommand.CommandType.ListRange);
 	}
+	public static ListRandom(){
+		return new ControlCommand (ControlCommand.CommandType.ListRandom);
+	}
 	public toString(){
 		return this.commandType.toString();
 	}
@@ -101,6 +107,7 @@ export namespace ControlCommand {
 		EndString,
 		NoOp,
 		ChoiceCount,
+		Turns,
 		TurnsSince,
 		Random,
 		SeedRandom,
@@ -111,6 +118,7 @@ export namespace ControlCommand {
 		End,
 		ListFromInt,
 		ListRange,
+		ListRandom,
 		ReadCount,
 
 		TOTAL_VALUES,

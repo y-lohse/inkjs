@@ -71,7 +71,7 @@ export class VariablesState{
 		}
 		else{
 			if (typeof this._defaultGlobalVariables.get(variableName) === 'undefined')
-				throw new StoryException("Cannot assign to a variable that hasn't been declared in the story");
+				throw new StoryException('Cannot assign to a variable ('+variableName+") that hasn't been declared in the story");
 
 			let val = Value.Create(value);
 			if (val == null) {

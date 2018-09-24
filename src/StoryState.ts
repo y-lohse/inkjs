@@ -173,6 +173,7 @@ export class StoryState{
 		let sb = new StringBuilder();
 
 		let currentWhitespaceStart = -1;
+		let startOfLine = 0;
 
 		for (let i = 0; i < str.length; i++) {
 			let c = str.charAt(i);
@@ -183,11 +184,14 @@ export class StoryState{
 				currentWhitespaceStart = i;
 
 			if (!isInlineWhitespace) {
-				if (c != '\n' && currentWhitespaceStart > 0) {
-					sb.Append(str.substr(currentWhitespaceStart, i - currentWhitespaceStart));
+				if (c != '\n' && currentWhitespaceStart > 0 && currentWhitespaceStart != startOfLine) {
+					sb.Append(' ');
 				}
 				currentWhitespaceStart = -1;
 			}
+
+			if (c == '\n')
+				startOfLine = i + 1;
 
 			if (!isInlineWhitespace)
 				sb.Append(c);
@@ -376,7 +380,7 @@ export class StoryState{
 		for(let c of this._currentChoices) {
 			let foundActiveThread = this.callStack.ThreadWithIndex(c.originalThreadIndex);
 			if( foundActiveThread != null ) {
-				c.threadAtGeneration = foundActiveThread;
+				c.threadAtGeneration = foundActiveThread.Copy();
 			} else {
 				let jSavedChoiceThread = jChoiceThreads[c.originalThreadIndex.toString()];
 				c.threadAtGeneration = new CallStack.Thread(jSavedChoiceThread, this.story);
@@ -752,7 +756,7 @@ export class StoryState{
 		this.callStack.Pop(popType);
 	}
 
-	public SetChosenPath(path: Path){
+	public SetChosenPath(path: Path, incrementingTurnIndex: boolean){
 		// Changing direction, assume we need to clear current set of choices
 		this._currentChoices.length = 0;
 
@@ -762,7 +766,8 @@ export class StoryState{
 
 		this.currentPointer = newPointer;
 
-		this._currentTurnIndex++;
+		if (incrementingTurnIndex)
+			this._currentTurnIndex++;
 	}
 
 	public StartFunctionEvaluationFromGame(funcContainer: Container, args: any[]){
