@@ -379,6 +379,39 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		else
 			return new InkList();
 	}
+	public ListWithSubRange(minBound: any, maxBound: any)
+	{
+		if (this.Count == 0) return new InkList();
+
+		let ordered = this.orderedItems;
+
+		let minValue = 0;
+		let maxValue = Number.MAX_SAFE_INTEGER;
+
+		if (Number.isInteger(minBound)) {
+			minValue = minBound;
+		} else {
+			if (minBound instanceof InkList && minBound.Count > 0 )
+				minValue = minBound.minItem.Value;
+		}
+
+		if (Number.isInteger(maxBound)) {
+			maxValue = maxBound;
+		} else {
+			if (minBound instanceof InkList && (minBound).Count > 0)
+				maxValue = maxBound.maxItem.Value;
+		}
+
+		let subList = new InkList();
+		subList.SetInitialOriginNames(this.originNames);
+		for (let item of ordered) {
+			if (item.Value >= minValue && item.Value <= maxValue ) {
+				subList.Add(item.Key, item.Value);
+			}
+		}
+
+		return subList;
+	}
 	public Equals(otherInkList: InkList){
 		if (otherInkList instanceof InkList === false) return false;
 		if (otherInkList.Count != this.Count) return false;
@@ -391,17 +424,33 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		return true;
 	}
 	// GetHashCode not implemented
-	public toString(){
-		let ordered: Array<KeyValuePair<InkListItem, number>> = [];
+	get orderedItems() {
+		// List<KeyValuePair<InkListItem, int>>
+		let ordered = new Array<KeyValuePair<InkListItem, number>>();
 
 		for(let [key, value] of this) {
 			let item = InkListItem.fromSerializedKey(key);
 			ordered.push({ Key: item, Value: value });
 		}
 
-		ordered = ordered.sort((a, b) => {
-			return (a.Value === b.Value) ? 0 : ((a.Value > b.Value) ? 1 : -1);
+		ordered.sort((x, y) => {
+			if (x.Key.originName === null) { return throwNullException('x.Key.originName'); }
+			if (y.Key.originName === null) { return throwNullException('y.Key.originName'); }
+
+			if (x.Value == y.Value) {
+				return x.Key.originName.localeCompare(y.Key.originName);
+			} else {
+				// TODO: refactor this bit into a numberCompareTo method?
+				if (x.Value < y.Value)
+					return -1;
+				return x.Value > y.Value ? 1 : 0;
+			}
 		});
+
+		return ordered;
+	}
+	public toString(){
+		let ordered = this.orderedItems;
 
 		let sb = new StringBuilder();
 		for (let i = 0; i < ordered.length; i++) {
@@ -457,7 +506,7 @@ interface IInkListItem{
 	readonly originName: string | null;
 	readonly itemName: string | null;
 }
-interface KeyValuePair<K, V> {
+export interface KeyValuePair<K, V> {
 	Key: K;
 	Value: V;
 }

@@ -21,7 +21,7 @@ import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {ListDefinition} from './ListDefinition';
 import {Stopwatch} from './StopWatch';
 import {Pointer} from './Pointer';
-import {InkListItem } from './InkList';
+import {InkList, InkListItem, KeyValuePair} from './InkList';
 import {JObject} from './JObject';
 import {asOrNull, asOrThrows} from './TypeAssertion';
 import {DebugMetadata} from './DebugMetadata';
@@ -39,7 +39,7 @@ if (!Number.isInteger) {
 
 export class Story extends InkObject{
 
-	public inkVersionCurrent = 18;
+	public inkVersionCurrent = 19;
 
 	public inkVersionMinimumCompatible = 18;
 
@@ -208,7 +208,7 @@ export class Story extends InkObject{
 		if (this._mainContentContainer.namedContent.get('global decl')){
 			let originalPointer = this.state.currentPointer.copy();
 
-			this.ChoosePathString('global decl', false);
+			this.ChoosePath(new Path('global decl'), false);
 
 			this.ContinueInternal();
 
@@ -605,7 +605,7 @@ export class Story extends InkObject{
 
 		// Container currentContainerAncestor = currentChildOfContainer.parent as Container;
 		let currentContainerAncestor = asOrNull(currentChildOfContainer.parent, Container);
-		while (currentContainerAncestor && this._prevContainers.indexOf(currentContainerAncestor) < 0) {
+		while (currentContainerAncestor && (this._prevContainers.indexOf(currentContainerAncestor) < 0 || currentContainerAncestor.countingAtStartOnly)) {
 
 			// Check whether this ancestor container is being entered at the start,
 			// by checking whether the child object is the first.
@@ -900,6 +900,10 @@ export class Story extends InkObject{
 				this.state.PushEvaluationStack(new IntValue(choiceCount));
 				break;
 
+			case ControlCommand.CommandType.Turns:
+				this.state.PushEvaluationStack (new IntValue (this.state.currentTurnIndex+1));
+				break;
+
 			case ControlCommand.CommandType.TurnsSince:
 			case ControlCommand.CommandType.ReadCount:
 				let target = this.state.PopEvaluationStack();
@@ -934,7 +938,7 @@ export class Story extends InkObject{
 				this.state.PushEvaluationStack(new IntValue(eitherCount));
 				break;
 
-			case ControlCommand.CommandType.Random:
+			case ControlCommand.CommandType.Random: {
 				let maxInt = asOrNull(this.state.PopEvaluationStack(), IntValue);
 				let minInt = asOrNull(this.state.PopEvaluationStack(), IntValue);
 
@@ -963,6 +967,7 @@ export class Story extends InkObject{
 				// Next random number (rather than keeping the Random object around)
 				this.state.previousRandom = nextRandom;
 				break;
+			}
 
 			case ControlCommand.CommandType.SeedRandom:
 				let seed = asOrNull(this.state.PopEvaluationStack(), IntValue);
@@ -1050,61 +1055,67 @@ export class Story extends InkObject{
 				break;
 
 			case ControlCommand.CommandType.ListRange:
-				let max = this.state.PopEvaluationStack();
-				let min = this.state.PopEvaluationStack();
+				let max = asOrNull(this.state.PopEvaluationStack(), Value);
+				let min = asOrNull(this.state.PopEvaluationStack(), Value);
 
 				// var targetList = state.PopEvaluationStack () as ListValue;
 				let targetList = asOrNull(this.state.PopEvaluationStack(), ListValue);
 
-				if (targetList instanceof ListValue === false || targetList == null || min == null || max == null)
+				if (targetList === null || min === null || max === null)
 					throw new StoryException('Expected list, minimum and maximum for LIST_RANGE');
 
-				// Allow either int or a particular list item to be passed for the bounds,
-				// so wrap up a function to handle this casting for us.
-				let intBound = (obj: InkObject): number => {
-					// var listValue = obj as ListValue;
-					let listValue = asOrNull(obj, ListValue);
-					if (listValue) {
-						if (listValue.value === null) { return throwNullException('listValue.value'); }
-						return Math.floor(listValue.value.maxItem.Value) || -1;
-					}
-
-					// var intValue = obj as IntValue;
-					let intValue = obj;
-					if (intValue instanceof IntValue) {
-						return intValue.value || -1;
-					}
-
-					return -1;
-				};
-
-				let minVal = intBound(min);
-				let maxVal = intBound(max);
-				if (minVal == -1)
-					throw new StoryException('Invalid min range bound passed to LIST_VALUE(): ' + min);
-
-				if (maxVal == -1)
-					throw new StoryException('Invalid max range bound passed to LIST_VALUE(): ' + max);
-
-				// Extract the range of items from the origin list
-				let result = new ListValue();
-				if (result.value === null) { return throwNullException('result.value'); }
 				if (targetList.value === null) { return throwNullException('targetList.value'); }
-				let origins = targetList.value.origins;
+				let result = targetList.value.ListWithSubRange(min.valueObject, max.valueObject);
 
-				if (origins != null) {
-					for(let origin of origins) {
-						let rangeFromOrigin = origin.ListRange(minVal, maxVal);
-						if (rangeFromOrigin.value === null) { return rangeFromOrigin.value; }
-						for (let [key, value] of rangeFromOrigin.value){
-							let item = InkListItem.fromSerializedKey(key);
-							result.value.Add(item, value);
-						}
+				this.state.PushEvaluationStack (new ListValue(result));
+				break;
+
+			case ControlCommand.CommandType.ListRandom: {
+				let listVal = this.state.PopEvaluationStack() as ListValue;
+				if (listVal === null)
+					throw new StoryException('Expected list for LIST_RANDOM');
+
+				let list = listVal.value;
+
+				let newList: InkList | null = null;
+
+				if (list === null) { throw throwNullException('list'); }
+				if (list.Count == 0) {
+					newList = new InkList();
+				} else {
+					// Generate a random index for the element to take
+					let resultSeed = this.state.storySeed + this.state.previousRandom;
+					let random = new PRNG(resultSeed);
+
+					let nextRandom = random.next();
+					let listItemIndex = nextRandom % list.Count;
+
+					// This bit is a little different from the original
+					// C# code, since iterators do not work in the same way.
+					// First, we iterate listItemIndex - 1 times, calling next().
+					// The listItemIndex-th time is made outside of the loop,
+					// in order to retrieve the value.
+					let listEnumerator = list.entries();
+					for (let i = 0; i <= listItemIndex - 1; i++) {
+						listEnumerator.next();
 					}
+					let value = listEnumerator.next().value;
+					let randomItem: KeyValuePair<InkListItem, number> = {
+						Key: InkListItem.fromSerializedKey(value[0]),
+						Value: value[1],
+					};
+
+					// Origin list is simply the origin of the one element
+					if (randomItem.Key.originName === null) { return throwNullException('randomItem.Key.originName'); }
+					newList = new InkList(randomItem.Key.originName, this);
+					newList.Add(randomItem.Key, randomItem.Value);
+
+					this.state.previousRandom = nextRandom;
 				}
 
-				this.state.PushEvaluationStack(result);
+				this.state.PushEvaluationStack(new ListValue(newList));
 				break;
+			}
 
 			default:
 				this.Error('unhandled ControlCommand: ' + evalCommand);
@@ -1202,8 +1213,8 @@ export class Story extends InkObject{
 			throw new Error("Can't " + activityStr + '. Story is in the middle of a ContinueAsync(). Make more ContinueAsync() calls or a single Continue() call beforehand.');
 	}
 
-	public ChoosePath(p: Path){
-		this.state.SetChosenPath(p);
+	public ChoosePath(p: Path, incrementingTurnIndex: boolean = true){
+		this.state.SetChosenPath(p, incrementingTurnIndex);
 
 		// Take a note of newly visited containers for read counts etc
 		this.VisitChangedContainersDueToDivert();
@@ -1490,8 +1501,9 @@ export class Story extends InkObject{
 				observers.splice(observers.indexOf(observer), 1);
 			}
 		} else {
-			for (let [key, value] of this._variableObservers){
-				let varName = key;
+			let keys = this._variableObservers.keys();
+
+			for (let varName of keys){
 				let observers = this._variableObservers.get(varName)!;
 				observers.splice(observers.indexOf(observer), 1);
 			}
@@ -1659,7 +1671,7 @@ export class Story extends InkObject{
 
 		if (choice.targetPath === null) { return throwNullException('choice.targetPath'); }
 
-		this.ChoosePath(choice.targetPath);
+		this.ChoosePath(choice.targetPath, false);
 
 		return true;
 	}

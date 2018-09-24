@@ -261,14 +261,8 @@ export class VariablePointerValue extends Value<string>{
 
 export class ListValue extends Value<InkList>{
 	public get isTruthy(){
-		let isTruthy = false;
-		if (this.value === null) return throwNullException('Value.value');
-		for (let [key, value] of this.value) {
-			let listItemIntValue = value;
-			if (listItemIntValue != 0)
-				isTruthy = true;
-		}
-		return isTruthy;
+		if (this.value === null) { return throwNullException('this.value'); }
+		return this.value.Count > 0;
 	}
 	public get valueType() {
 		return ValueType.List;
