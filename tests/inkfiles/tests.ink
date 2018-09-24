@@ -638,7 +638,7 @@ LIST DoctorsInSurgery = Adams, Bernard, Cartwright, Denver, Eamonn
 {not ():truthy list not|broken}
 {not (Eamonn):broken|falsy list not}
 
-{LIST_RANGE(DoctorsInSurgery, Bernard, Denver)}
+{LIST_RANGE(LIST_ALL(DoctorsInSurgery), Bernard, Denver)}
 
 LIST GuardsOnDuty = (Smith), (Jones), Carter, Braithwaite
 {GuardsOnDuty}
