@@ -1671,6 +1671,10 @@ export class Story extends InkObject{
 
 		if (choice.targetPath === null) { return throwNullException('choice.targetPath'); }
 
+		// Invisible choice may have been generated on a different thread,
+		// in which case we need to restore it before we continue.
+		this.state.callStack.currentThread = choice.threadAtGeneration;
+
 		this.ChoosePath(choice.targetPath, false);
 
 		return true;
