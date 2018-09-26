@@ -31,7 +31,7 @@ describe('Content', function(){
   it('should print a truthy conditional text', function(){
     story.ChoosePathString('content.if_text_truthy');
 
-    expect(story.Continue()).toEqual('I…  I saw him. Only for a moment.\n');
+    expect(story.Continue()).toEqual('I… I saw him. Only for a moment.\n');
   });
 
   it('should print a falsy conditional text', function(){
