@@ -1,5 +1,4 @@
 tests/
-engine/
 templates/
 .babelrc
 .gitattributes
@@ -8,3 +7,5 @@ templates/
 jasmine.config.json
 renovate.json
 rollup.config.js
+src
+.rpt2_cache
