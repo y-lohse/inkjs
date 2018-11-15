@@ -1671,6 +1671,10 @@ export class Story extends InkObject{
 
 		if (choice.targetPath === null) { return throwNullException('choice.targetPath'); }
 
+		if (choice.threadAtGeneration === null) { return throwNullException('choice.threadAtGeneration'); }
+
+		this.state.callStack.currentThread = choice.threadAtGeneration;
+
 		this.ChoosePath(choice.targetPath, false);
 
 		return true;
