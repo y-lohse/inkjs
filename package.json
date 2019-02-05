@@ -2,7 +2,7 @@
   "name": "inkjs",
   "version": "1.8.0-beta.1",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
-  "main": "engine/main.js",
+  "main": "dist/ink-es2015.js",
   "scripts": {
     "coverage": "istanbul cover tests/specs.js",
     "test": "node tests/specs.js",
