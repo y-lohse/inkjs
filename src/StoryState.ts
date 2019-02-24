@@ -333,6 +333,7 @@ export class StoryState{
 		obj['turnIndices'] = JsonSerialisation.IntDictionaryToJObject(this.turnIndices);
 		obj['turnIdx'] = this.currentTurnIndex;
 		obj['storySeed'] = this.storySeed;
+		obj['previousRandom'] = this.previousRandom;
 
 		obj['inkSaveVersion'] = this.kInkSaveStateVersion;
 
@@ -373,6 +374,7 @@ export class StoryState{
 		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject['turnIndices']) as Map<string, number>;
 		this._currentTurnIndex = parseInt(jObject['turnIdx']);
 		this.storySeed = parseInt(jObject['storySeed']);
+		this.previousRandom = parseInt(jObject['previousRandom']);
 
 		// var jChoiceThreads = jObject["choiceThreads"] as JObject;
 		let jChoiceThreads = jObject['choiceThreads'];
