@@ -1,6 +1,6 @@
 export namespace Debug {
 	// tslint:disable no-string-throw
-	export function AssertType<T>(variable: any, type: { new (): T }, message: string): void | never {
+	export function AssertType<T>(variable: any, type: new () => T, message: string): void | never {
 		Assert(variable instanceof type, message);
 	}
 

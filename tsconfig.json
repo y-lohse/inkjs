@@ -1,12 +1,12 @@
 {
 	"compilerOptions": {
 		"target": "es6",
-		"module": "es6",
+		"module": "commonjs",
 		"outDir": "./engine",
 		"rootDir": "./src",
 		"strict": true,
 		"sourceMap": true,
-		"allowJs": true
+		"declaration": true
 	},
 
 	"include": ["src/"],

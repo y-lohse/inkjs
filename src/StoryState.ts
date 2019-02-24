@@ -264,12 +264,12 @@ export class StoryState{
 
 		if (this.hasError) {
 			copy._currentErrors = [];
-			copy._currentErrors.push.apply(copy._currentErrors, this.currentErrors);
+			copy._currentErrors.push.apply(copy._currentErrors, this.currentErrors || []);
 		}
 
 		if (this.hasWarning) {
 			copy._currentWarnings = [];
-			copy._currentWarnings.push.apply(copy._currentWarnings, this.currentWarnings);
+			copy._currentWarnings.push.apply(copy._currentWarnings, this.currentWarnings || []);
 		}
 
 		copy.callStack = new CallStack(this.callStack);

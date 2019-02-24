@@ -2,7 +2,7 @@ import {INamedContent} from './INamedContent';
 
 // tslint:disable ban-types
 
-export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T } | Function & { prototype: T }): T | null{
+export function asOrNull<T>(obj: any, type: (new (...arg: any[]) => T) | Function & { prototype: T }): T | null{
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
@@ -10,7 +10,7 @@ export function asOrNull<T>(obj: any, type: { new (...arg: any[]): T } | Functio
 	}
 }
 
-export function asOrThrows<T>(obj: any, type: { new (...arg: any[]): T } | Function & { prototype: T }): T | never{
+export function asOrThrows<T>(obj: any, type: (new (...arg: any[]) => T) | Function & { prototype: T }): T | never{
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);
 	} else {
@@ -45,6 +45,6 @@ export function nullIfUndefined<T>(obj: T | undefined): T | null {
 	return obj;
 }
 
-function unsafeTypeAssertion<T>(obj: any, type: { new (): T } | Function & { prototype: T }){
+function unsafeTypeAssertion<T>(obj: any, type: (new () => T) | Function & { prototype: T }){
 	return obj as T;
 }
