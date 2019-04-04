@@ -30,7 +30,7 @@
     "babel-plugin-transform-object-assign": "6.22.0",
     "babel-preset-env": "1.7.0",
     "istanbul": "1.1.0-alpha.1",
-    "jasmine": "3.3.1",
+    "jasmine": "3.4.0",
     "jasmine-ts-console-reporter": "3.1.1",
     "npm-watch": "0.6.0",
     "rollup": "1.8.0",
