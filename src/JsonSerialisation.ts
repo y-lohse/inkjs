@@ -132,7 +132,7 @@ export class JsonSerialisation{
 				return new Void ();
 		}
 
-		if (typeof token === 'object' && token instanceof Array === false){
+		if (typeof token === 'object' && !Array.isArray(token)){
 			let obj: JObject = token;
 			let propValue;
 
@@ -272,7 +272,7 @@ export class JsonSerialisation{
 		}
 
 		// Array is always a Runtime.Container
-		if (token instanceof Array){
+		if (Array.isArray(token)){
 			return this.JArrayToContainer(token);
 		}
 
