@@ -6,7 +6,7 @@ import {PushPopType} from './PushPop';
 import {Divert} from './Divert';
 import {ChoicePoint} from './ChoicePoint';
 import {VariableReference} from './VariableReference';
-import {VariableAssignment} from './VariableAssignment';`
+import {VariableAssignment} from './VariableAssignment';
 import {NativeFunctionCall} from './NativeFunctionCall';
 import {Void} from './Void';
 import {Tag} from './Tag';
