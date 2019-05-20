@@ -666,7 +666,7 @@ export class Story extends InkObject{
 		choice.targetPath = choicePoint.pathOnChoice;
 		choice.sourcePath = choicePoint.path.toString();
 		choice.isInvisibleDefault = choicePoint.isInvisibleDefault;
-		choice.threadAtGeneration = this.state.callStack.currentThread.Copy();
+		choice.threadAtGeneration = this.state.callStack.ForkThread();
 
 		choice.text = (startText + choiceOnlyText).replace(/^[ \t]+|[ \t]+$/g, '');
 

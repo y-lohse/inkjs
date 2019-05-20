@@ -45,16 +45,14 @@ export class CallStack{
 		return this.callStack.length > 1;
 	}
 
-	constructor(rootContentContainer: Container | null)
+	constructor(storyContext: Story)
 	constructor(toCopy: CallStack)
 	constructor(){
-		if (arguments[0] instanceof Container || arguments[0] === null) {
-			let rootContentContainer = arguments[0] as Container | null;
+		if (arguments[0] instanceof Story) {
+			let storyContext = arguments[0] as Story;
 
-			this._threads = [];
-			this._threads.push(new CallStack.Thread());
-
-			this._threads[0].callstack.push(new CallStack.Element(PushPopType.Tunnel, Pointer.StartOf(rootContentContainer)));
+			this._startOfRoot = Pointer.StartOf(storyContext.rootContentContainer);
+			this.Reset();
 		} else {
 			let toCopy = arguments[0] as CallStack;
 
@@ -62,7 +60,15 @@ export class CallStack{
 			for (let otherThread of toCopy._threads) {
 				this._threads.push(otherThread.Copy());
 			}
+			this._startOfRoot = toCopy._startOfRoot;
 		}
+	}
+
+	public Reset() {
+		this._threads = [];
+		this._threads.push(new CallStack.Thread());
+
+		this._threads[0].callstack.push(new CallStack.Element(PushPopType.Tunnel, this._startOfRoot));
 	}
 
 	public SetJsonToken(jObject: any, storyContext: Story){
@@ -80,6 +86,7 @@ export class CallStack{
 
 		// TODO: (int)jObject ["threadCounter"];
 		this._threadCounter = parseInt(jObject['threadCounter']);
+		this._startOfRoot = Pointer.StartOf(storyContext.rootContentContainer);
 	}
 	public GetJsonToken(){
 		let jObject: any = {};
@@ -102,6 +109,14 @@ export class CallStack{
 		newThread.threadIndex = this._threadCounter;
 		this._threads.push(newThread);
 	}
+
+	public ForkThread(){
+		let forkedThread = this.currentThread.Copy();
+		this._threadCounter++;
+		forkedThread.threadIndex = this._threadCounter;
+		return forkedThread;
+	}
+
 	public PopThread(){
 		if (this.canPopThread) {
 			this._threads.splice(this._threads.indexOf(this.currentThread), 1);// should be equivalent to a pop()
@@ -234,8 +249,9 @@ export class CallStack{
 		return sb.toString();
 	}
 
-	public _threads: CallStack.Thread[];
+	public _threads!: CallStack.Thread[]; // Banged because it's initialized in Reset().
 	public _threadCounter: number = 0;
+	public _startOfRoot: Pointer = Pointer.Null;
 }
 
 export namespace CallStack {
