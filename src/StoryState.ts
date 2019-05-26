@@ -234,7 +234,7 @@ export class StoryState{
 
 		this._evaluationStack = [];
 
-		this.callStack = new CallStack(story.rootContentContainer);
+		this.callStack = new CallStack(story);
 		this._variablesState = new VariablesState(this.callStack, story.listDefinitions);
 
 		this._visitCounts = new Map();
@@ -712,11 +712,7 @@ export class StoryState{
 	}
 
 	public ForceEnd(){
-		while (this.callStack.canPopThread)
-			this.callStack.PopThread();
-
-		while (this.callStack.canPop)
-			this.PopCallStack();
+		this.callStack.Reset();
 
 		this._currentChoices.length = 0;
 
