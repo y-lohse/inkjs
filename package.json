@@ -3,6 +3,7 @@
   "version": "1.10.2",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
+  "types": "ink.d.ts",
   "scripts": {
     "test": "INK_TEST=dist jest && INK_TEST=legacy jest && jest --coverage && npm run-script test:remap",
     "test:remap": "npm run-script test:remap:lcov && npm run-script test:remap:html && npm run-script test:remap:json",
