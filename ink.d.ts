@@ -1,8 +1,8 @@
 import { Story, InkList } from './engine/Story'
 
 declare interface Inkjs {
-    Story: Story
-    InkList: InkList
+    Story: typeof Story
+    InkList: typeof InkList
 }
 
 declare let inkjs: Inkjs
