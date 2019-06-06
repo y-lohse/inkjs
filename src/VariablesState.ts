@@ -121,6 +121,7 @@ export class VariablesState{
 		this._defaultGlobalVariables = new Map(toCopy._defaultGlobalVariables);
 
 		this.variableChangedEvent = toCopy.variableChangedEvent;
+		this.variableChangedEventCallbacks = toCopy.variableChangedEventCallbacks;
 
 		if (toCopy.batchObservingVariableChanges != this.batchObservingVariableChanges) {
 
