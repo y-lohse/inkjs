@@ -33,7 +33,7 @@ describe('Lists', function(){
     expect(story.Continue()).toEqual('3\n');
   });
 
-  xit('should set names from values', function(){
+  it('should set names from values', function(){
     story.ChoosePathString('lists.value_from_number');
 
     expect(story.Continue()).toEqual('cold\n');
