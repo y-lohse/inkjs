@@ -39,7 +39,7 @@ describe('Integration', function(){
     expect(story.variablesState['stringvar']).toEqual('Jonas');
   });
 
-  xit('should observe variables', function(){
+  it('should observe variables', function(){
     story.ChoosePathString('integration.variable_observer');
     expect(story.variablesState['observedVar1']).toEqual(1);
     expect(story.variablesState['observedVar2']).toEqual(2);
@@ -57,29 +57,28 @@ describe('Integration', function(){
     expect(story.variablesState['observedVar1']).toEqual(1);
     expect(story.variablesState['observedVar2']).toEqual(2);
     expect(spy1).toHaveBeenCalledTimes(0);
-    expect(commonSpy).toHaveBeenCalledWith('observedVar1', 2);
-//    expect(spy2).toHaveBeenCalledTimes(0);
-//    expect(commonSpy).toHaveBeenCalledTimes(0);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(commonSpy).toHaveBeenCalledTimes(0);
+    
+    expect(story.Continue()).toEqual('mutated 1\n');
 
-//    expect(story.Continue()).toEqual('mutated 1\n');
+    expect(story.variablesState['observedVar1']).toEqual(3);
+    expect(story.variablesState['observedVar2']).toEqual(2);
+    expect(spy1).toHaveBeenCalledTimes(1);
+    expect(spy1).toHaveBeenCalledWith('observedVar1', 3);
+    expect(spy2).toHaveBeenCalledTimes(0);
+    expect(commonSpy).toHaveBeenCalledTimes(1);
+    expect(commonSpy).toHaveBeenCalledWith('observedVar1', 3);
 
-//    expect(story.variablesState['observedVar1']).toEqual(3);
-//    expect(story.variablesState['observedVar2']).toEqual(2);
-//    expect(spy1).toHaveBeenCalledTimes(1);
-//    expect(spy1).toHaveBeenCalledWith('observedVar1', 3);
-//    expect(spy2).toHaveBeenCalledTimes(0);
-//    expect(commonSpy).toHaveBeenCalledTimes(1);
-//    expect(commonSpy).toHaveBeenCalledWith('observedVar1', 3);
-//
-//    expect(story.Continue()).toEqual('mutated 2\n');
-//
-//    expect(story.variablesState['observedVar1']).toEqual(4);
-//    expect(story.variablesState['observedVar2']).toEqual(5);
-//
-//    expect(spy1).toHaveBeenCalledTimes(2);
-//    expect(spy1).toHaveBeenCalledWith('observedVar1', 4);
-//    expect(spy1).toHaveBeenCalledTimes(1);
-//    expect(spy1).toHaveBeenCalledWith('observedVar2', 5);
+    expect(story.Continue()).toEqual('mutated 2\n');
+
+    expect(story.variablesState['observedVar1']).toEqual(4);
+    expect(story.variablesState['observedVar2']).toEqual(5);
+
+    expect(spy1).toHaveBeenCalledTimes(2);
+    expect(spy1).toHaveBeenCalledWith('observedVar1', 4);
+    expect(spy2).toHaveBeenCalledTimes(1);
+    expect(spy2).toHaveBeenCalledWith('observedVar2', 5);
   });
 
   it('should increment the read count on each visit', function(){
