@@ -1,8 +1,4 @@
 {
-  "presets": [
-    ["env", {
-      "modules": false
-    }]
-  ],
-  "plugins": ["external-helpers", "transform-object-assign"]
+  "presets": ["@babel/preset-env"],
+  "plugins": ["@babel/transform-object-assign"]
 }

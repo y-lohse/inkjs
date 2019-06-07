@@ -6,7 +6,7 @@ var fs = require('fs'),
 
 function loadInkFile(path){
 	path = inkFileBasePath + path;
-	
+
 	var content = fs.readFileSync(path, 'UTF-8')
 		.replace(/^\uFEFF/, '');//strip the BOM
 
