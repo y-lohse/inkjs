@@ -42,7 +42,7 @@ export abstract class AbstractValue extends InkObject{
 	}
 }
 
-export abstract class Value<T> extends AbstractValue{
+export abstract class Value<T extends { toString?: () => string; }> extends AbstractValue{
 	public value: T | null;
 
 	constructor(val: T | null){
@@ -54,7 +54,12 @@ export abstract class Value<T> extends AbstractValue{
 	}
 	public toString(){
 		if (this.value === null) return throwNullException('Value.value');
-		return this.value.toString();
+
+		if (typeof this.value.toString === 'function') {
+			return this.value.toString();
+		} else {
+			return `${this.value}`;
+		}
 	}
 }
 
