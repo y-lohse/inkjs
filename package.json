@@ -4,23 +4,11 @@
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
   "scripts": {
-    "coverage": "istanbul cover tests/specs.js",
-    "test": "node tests/specs.js",
+    "test": "jest",
     "build": "tsc -p ./ && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch": "tsc -p ./ && rollup -c -w",
-    "watch:test": "npm-watch test",
     "prepublishOnly": "tsc -p ./ && rollup -c"
-  },
-  "watch": {
-    "test": {
-      "patterns": [
-        "tests/specs/*.js",
-        "tests/inkfiles/*.*",
-        "dist/*.js"
-      ],
-      "quiet": true
-    }
   },
   "author": "Yannick Lohse",
   "license": "MIT",
@@ -28,10 +16,7 @@
     "@babel/core": "7.4.5",
     "@babel/plugin-transform-object-assign": "7.2.0",
     "@babel/preset-env": "7.4.5",
-    "istanbul": "1.1.0-alpha.1",
-    "jasmine": "3.4.0",
-    "jasmine-ts-console-reporter": "3.1.1",
-    "npm-watch": "0.6.0",
+    "jest": "^24.8.0",
     "rollup": "1.14.4",
     "rollup-plugin-babel": "4.3.2",
     "rollup-plugin-node-resolve": "5.0.1",

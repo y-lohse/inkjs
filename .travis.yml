@@ -6,7 +6,7 @@ node_js:
 script:
 - npm run lint
 - npm run build
-- npm run coverage
+- npm run test -- --coverage
 deploy:
   provider: npm
   skip_cleanup: true
