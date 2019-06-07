@@ -32,6 +32,7 @@ export default [
       typescript(tsconfig),
       babel({
         exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
       }),
       uglify(),
       sourcemaps()
