@@ -42,7 +42,7 @@ export abstract class AbstractValue extends InkObject{
 	}
 }
 
-export abstract class Value<T> extends AbstractValue{
+export abstract class Value<T extends { toString: () => string; }> extends AbstractValue{
 	public value: T | null;
 
 	constructor(val: T | null){
