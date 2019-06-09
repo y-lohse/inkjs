@@ -1,5 +1,12 @@
-var inkPath = '../engine/runtime.js',
-	inkFileBasePath = 'tests/inkfiles/';
+var inkPath = '../engine/runtime.js'
+
+if (process.env.INK_TEST === "dist") {
+	inkPath = '../dist/ink-es2015.js'
+} else if (process.env.INK_TEST === "legacy") {
+	inkPath = '../dist/ink.js'
+}
+
+var inkFileBasePath = 'tests/inkfiles/';
 
 var fs = require('fs'),
 	inkjs = require(inkPath);
@@ -15,5 +22,5 @@ function loadInkFile(path){
 
 module.exports = {
 	loadInkFile: loadInkFile,
-  inkjs: inkjs
+	inkjs: inkjs
 };

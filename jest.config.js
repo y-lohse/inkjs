@@ -11,5 +11,6 @@ module.exports = {
   testEnvironment: "node",
   testMatch: [
     "**/tests/**/?(*.)+(spec|test).[tj]s?(x)"
-  ]
+  ],
+  transform: {}
 };
