@@ -17,7 +17,7 @@
     "@babel/plugin-transform-object-assign": "7.2.0",
     "@babel/preset-env": "7.4.5",
     "jest": "24.8.0",
-    "rollup": "1.14.5",
+    "rollup": "1.14.6",
     "rollup-plugin-babel": "4.3.2",
     "rollup-plugin-node-resolve": "5.0.1",
     "rollup-plugin-sourcemaps": "0.4.2",
