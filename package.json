@@ -4,7 +4,7 @@
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "main": "dist/ink-es2015.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest --coverage && INK_TEST=dist jest && INK_TEST=legacy jest",
     "build": "tsc -p ./ && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "watch": "tsc -p ./ && rollup -c -w",

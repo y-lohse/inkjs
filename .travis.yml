@@ -6,7 +6,7 @@ node_js:
 script:
 - npm run lint
 - npm run build
-- npm run test -- --coverage
+- npm run test
 deploy:
   provider: npm
   skip_cleanup: true
@@ -19,3 +19,6 @@ deploy:
 notifications:
   email:
     on_failure: change
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) -cF ios
