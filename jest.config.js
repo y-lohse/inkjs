@@ -6,7 +6,6 @@ module.exports = {
   coverageDirectory: "coverage",
   coverageReporters: [
     "json",
-    "text-summary"
   ],
   testEnvironment: "node",
   testMatch: [
