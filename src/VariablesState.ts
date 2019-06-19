@@ -121,7 +121,8 @@ export class VariablesState{
 		this._defaultGlobalVariables = new Map(toCopy._defaultGlobalVariables);
 
 		this.variableChangedEvent = toCopy.variableChangedEvent;
-		this.variableChangedEventCallbacks = toCopy.variableChangedEventCallbacks;
+		this.variableChangedEventCallbacks = toCopy.variableChangedEventCallbacks; // inkjs specificity that has to be copied along the rest of the structure
+
 
 		if (toCopy.batchObservingVariableChanges != this.batchObservingVariableChanges) {
 

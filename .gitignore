@@ -40,6 +40,9 @@ jspm_packages
 # Build cache
 .rpt2_cache
 
+# Editors
+.vscode
+
 # =========================
 # Operating System Files
 # =========================

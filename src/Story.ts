@@ -1897,5 +1897,5 @@ export namespace Story{
 	}
 
 	export type VariableObserver = (variableName: string, newValue: any) => void;
-	export type ExternalFunction = (args: any[]) => any;
+	export type ExternalFunction = (...args: any) => any;
 }
