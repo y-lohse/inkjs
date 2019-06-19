@@ -1,7 +1,8 @@
 # inkjs
 
-[![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://github.com/y-lohse/inkjs)
-[![npm](https://img.shields.io/npm/v/inkjs.svg)]()
+[![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://travis-ci.org/y-lohse/inkjs)
+[![npm](https://img.shields.io/npm/v/inkjs.svg)](https://www.npmjs.com/package/inkjs)
+[![codecov](https://codecov.io/gh/y-lohse/inkjs/branch/master/graph/badge.svg)](https://codecov.io/gh/y-lohse/inkjs)
 
 This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. 
 
