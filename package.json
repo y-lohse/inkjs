@@ -29,7 +29,7 @@
     "rollup-plugin-terser": "5.0.0",
     "rollup-plugin-typescript2": "0.21.2",
     "rollup-plugin-uglify": "6.0.2",
-    "tslint": "5.17.0",
+    "tslint": "5.18.0",
     "typescript": "3.5.2"
   },
   "dependencies": {}
