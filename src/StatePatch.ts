@@ -24,8 +24,8 @@ export class StatePatch {
 		}
 	}
 
-	public TryGetGlobal(name: string, /* out */ value: InkObject | null) {
-		if (this._globals.has(name)) {
+	public TryGetGlobal(name: string | null, /* out */ value: InkObject | null) {
+		if (name != null && this._globals.has(name)) {
 			return { result: this._globals.get(name), exists: true };
 		}
 
