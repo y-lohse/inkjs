@@ -1,12 +1,13 @@
 language: node_js
 install:
+- npm install -g codecov
 - npm install
 node_js:
 - '7'
 script:
 - npm run lint
 - npm run build
-- npm run coverage
+- npm run test
 deploy:
   provider: npm
   skip_cleanup: true
@@ -19,3 +20,5 @@ deploy:
 notifications:
   email:
     on_failure: change
+after_success:
+  - codecov

@@ -1,0 +1,5 @@
+coverage:
+	ignore:
+		- templates/*
+		- tests/*
+		- dist/*
