@@ -24,7 +24,7 @@ import {throwNullException} from './NullException';
 
 export class JsonSerialisation{
 	public static ListToJArray(serialisables: InkObject[]) {
-		return serialisables.map(s => this.RuntimeObjectToJToken(s));
+		return serialisables.map((s) => this.RuntimeObjectToJToken(s));
 	}
 
 	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false) {
@@ -105,7 +105,7 @@ export class JsonSerialisation{
 			if (str === '<>') return new Glue();
 
 			// Control commands (would looking up in a hash set be faster?)
-			let cmdIdx = JsonSerialisation._controlCommandNames.findIndex(cmdName => (str === cmdName));
+			let cmdIdx = JsonSerialisation._controlCommandNames.findIndex((cmdName) => (str === cmdName));
 			if (cmdIdx !== -1)
 				return new ControlCommand(cmdIdx);
 
@@ -315,7 +315,7 @@ export class JsonSerialisation{
 		if (choicePoint !== null) {
 			let jObj: object = {
 				'*': choicePoint.pathStringOnChoice,
-				'flg': choicePoint.flags
+				'flg': choicePoint.flags,
 			};
 
 			return jObj as JObject;
@@ -360,7 +360,7 @@ export class JsonSerialisation{
 		if (varPtrVal !== null) {
 			let varPtrJsonObj: object = {
 				'^var': varPtrVal.value,
-				'ci': varPtrVal.contextIndex
+				'ci': varPtrVal.contextIndex,
 			};
 
 			return varPtrJsonObj as JObject;
@@ -525,11 +525,11 @@ export class JsonSerialisation{
 
 	public static ChoiceToJObject(choice: Choice) {
 		let jObj: object = {
-			'text': choice.text,
-			'index': choice.index,
-			'originalChoicePath': choice.sourcePath,
-			'originalThreadIndex': choice.originalThreadIndex,
-			'targetPath': choice.pathStringOnChoice
+			index: choice.index,
+			text: choice.text,
+			originalChoicePath: choice.sourcePath,
+			originalThreadIndex: choice.originalThreadIndex,
+			targetPath: choice.pathStringOnChoice,
 		};
 
 		return jObj as JObject;
