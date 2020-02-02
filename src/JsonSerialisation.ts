@@ -23,7 +23,7 @@ import {throwNullException} from './NullException';
 // tslint:disable no-conditional-assignment
 
 export class JsonSerialisation {
-	public static ListToJArray(serialisables: InkObject[]): JObject[] {
+	public static ListToJArray(serialisables: InkObject[]): any[] {
 		return serialisables.map((s) => this.RuntimeObjectToJToken(s));
 	}
 
@@ -273,7 +273,7 @@ export class JsonSerialisation {
 		throw new Error('Failed to convert token to runtime object: ' + JSON.stringify(token));
 	}
 
-	public static RuntimeObjectToJToken(obj: InkObject): JObject {
+	public static RuntimeObjectToJToken(obj: InkObject): any {
 		// var container = obj as Container;
 		let container = asOrNull(obj, Container);
 		if (container !== null) {
@@ -313,12 +313,10 @@ export class JsonSerialisation {
 		// var choicePoint = obj as ChoicePoint;
 		let choicePoint = asOrNull(obj, ChoicePoint);
 		if (choicePoint !== null) {
-			let jObj: object = {
+			return {
 				'*': choicePoint.pathStringOnChoice,
 				'flg': choicePoint.flags,
-			};
-
-			return jObj as JObject;
+			} as JObject;
 		}
 
 		// var intVal = obj as IntValue;
@@ -337,33 +335,31 @@ export class JsonSerialisation {
 			if (strVal.isNewline)
 				return '\n';
 			else
-				return '^' + strVal.value;
+				return '^' + (strVal as StringValue).value;
 		}
 
 		// var listVal = obj as ListValue;
 		let listVal = asOrNull(obj, ListValue);
 		if (listVal !== null) {
-			return this.InkListToJObject(listVal);
+			return this.InkListToJObject(listVal as ListValue);
 		}
 
 		// var divTargetVal = obj as DivertTargetValue;
 		let divTargetVal = asOrNull(obj, DivertTargetValue);
 		if (divTargetVal !== null) {
-			let divTargetJsonObj: object = {};
+			let divTargetJsonObj: JObject = {};
 			if (divTargetVal.value === null) { return throwNullException('divTargetVal.value'); }
 			divTargetJsonObj['^->'] = divTargetVal.value.componentsString;
-			return divTargetJsonObj as JObject;
+			return divTargetJsonObj;
 		}
 
 		// var varPtrVal = obj as VariablePointerValue;
 		let varPtrVal = asOrNull(obj, VariablePointerValue);
 		if (varPtrVal !== null) {
-			let varPtrJsonObj: object = {
+			return {
 				'^var': varPtrVal.value,
 				'ci': varPtrVal.contextIndex,
-			};
-
-			return varPtrJsonObj as JObject;
+			} as JObject;
 		}
 
 		// var glue = obj as Runtime.Glue;
@@ -422,20 +418,19 @@ export class JsonSerialisation {
 		// var tag = obj as Tag;
 		let tag = asOrNull(obj, Tag);
 		if (tag !== null) {
-			let jObj: object = { '#': tag.text };
-			return jObj as JObject;
+			return { '#': tag.text } as JObject;
 		}
 
 		// Used when serialising save state only
 		// var choice = obj as Choice;
 		let choice = asOrNull(obj, Choice);
 		if (choice !== null)
-			return this.ChoiceToJObject(choice);
+			return this.ChoiceToJObject(choice as Choice);
 
 		throw new Error('Failed to convert runtime object to Json token: ' + obj);
 	}
 
-	public static ContainerToJArray(container: Container): JObject {
+	public static ContainerToJArray(container: Container) {
 		let jArray = this.ListToJArray(container.content);
 
 		let namedOnlyContent = container.namedOnlyContent;
@@ -452,7 +447,7 @@ export class JsonSerialisation {
 						let subContainerJArray = terminatingObj[key];
 						if (subContainerJArray != null) {
 							// var attrJObj = subContainerJArray [subContainerJArray.Count - 1] as JObject;
-							let attrJObj = subContainerJArray[subContainerJArray.length - 1] as object;
+							let attrJObj = subContainerJArray[subContainerJArray.length - 1] as JObject;
 							if (attrJObj != null) {
 								delete attrJObj['#n'];
 								if (Object.keys(attrJObj).length === 0)
@@ -524,15 +519,13 @@ export class JsonSerialisation {
 	}
 
 	public static ChoiceToJObject(choice: Choice) {
-		let jObj: object = {
+		return {
 			index: choice.index,
 			originalChoicePath: choice.sourcePath,
 			originalThreadIndex: choice.originalThreadIndex,
 			targetPath: choice.pathStringOnChoice,
 			text: choice.text,
-		};
-
-		return jObj as JObject;
+		} as JObject;
 	}
 
 	public static InkListToJObject(listVal: ListValue) {
