@@ -628,7 +628,7 @@ export class JsonSerialisation {
 		_controlCommandNames[ControlCommand.CommandType.ListRandom] = 'lrnd';
 
 		for (let i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
-			if (typeof _controlCommandNames[i] !== 'undefined')
+			if (typeof _controlCommandNames[i] === 'undefined')
 				throw new Error('Control command not accounted for in serialisation');
 		}
 
