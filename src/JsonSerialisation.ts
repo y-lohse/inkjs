@@ -23,23 +23,17 @@ import {throwNullException} from './NullException';
 // tslint:disable no-conditional-assignment
 
 export class JsonSerialisation{
-	public static ListToJArray(serialisables: InkObject[]){
-		let jArray: any[] = [];
-		for (let s of serialisables) {
-			jArray.push(this.RuntimeObjectToJToken(s));
-		}
-		return jArray;
+	public static ListToJArray(serialisables: InkObject[]) {
+		return serialisables.map(s => this.RuntimeObjectToJToken(s));
 	}
 
-	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false){
-		let count = jArray.length;
+	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false) {
 		if (skipLast)
-			count--;
+			jArray = jArray.slice(0, -1);
 
 		let list: InkObject[] = [];
 
-		for (let i = 0; i < count; i++){
-			let jTok = jArray[i];
+		for (let jTok of jArray) {
 			let runtimeObj = this.JTokenToRuntimeObject(jTok);
 			if (runtimeObj === null) { return throwNullException('runtimeObj'); }
 			list.push(runtimeObj);
@@ -48,22 +42,22 @@ export class JsonSerialisation{
 		return list;
 	}
 
-	public static DictionaryRuntimeObjsToJObject(dictionary: Map<string, InkObject>){
-		let jsonObj: JObject = {};
+	public static DictionaryRuntimeObjsToJObject(dictionary: Map<string, InkObject>) {
+		let jsonObj: object = {};
 
-		for (let [key, value] of dictionary){
+		for (let [key, value] of dictionary) {
 			let runtimeObj = asOrNull(value, InkObject);
-			if (runtimeObj != null)
+			if (runtimeObj !== null)
 				jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
 		}
 
-		return jsonObj;
+		return jsonObj as JObject;
 	}
 
-	public static JObjectToDictionaryRuntimeObjs(jObject: JObject){
+	public static JObjectToDictionaryRuntimeObjs(jObject: JObject | object) {
 		let dict: Map<string, InkObject> = new Map();
 
-		for (let key in jObject){
+		for (let key in jObject) {
 			if (jObject.hasOwnProperty(key)) {
 				let inkObject = this.JTokenToRuntimeObject(jObject[key]);
 				if (inkObject === null) { return throwNullException('inkObject'); }
@@ -74,70 +68,70 @@ export class JsonSerialisation{
 		return dict;
 	}
 
-	public static JObjectToIntDictionary(jObject: JObject){
+	public static JObjectToIntDictionary(jObject: JObject | object) {
 		let dict: Map<string, number> = new Map();
-		for (let key in jObject){
+		for (let key in jObject) {
 			if (jObject.hasOwnProperty(key)) {
 				dict.set(key, parseInt(jObject[key]));
 			}
 		}
 		return dict;
 	}
-	public static IntDictionaryToJObject(dict: Map<string, number>){
-		let jObj: JObject = {};
-		for (let [key, value] of dict){
+
+	public static IntDictionaryToJObject(dict: Map<string, number>) {
+		let jObj: object = {};
+		for (let [key, value] of dict) {
 			jObj[key] = asNumberOrThrows(value);
 		}
-		return jObj;
+		return jObj as JObject;
 	}
+
 	public static JTokenToRuntimeObject(token: any): InkObject | null {
-		if (typeof token === 'number' && !isNaN(token)){
+		if (typeof token === 'number' && !isNaN(token)) {
 			return Value.Create(token);
 		}
 
-		if (typeof token === 'string'){
+		if (typeof token === 'string') {
 			let str = token.toString();
 
 			// String value
 			let firstChar = str[0];
-			if (firstChar == '^')
+			if (firstChar === '^')
 				return new StringValue(str.substring(1));
-			else if(firstChar == '\n' && str.length == 1)
+			else if (firstChar === '\n' && str.length === 1)
 				return new StringValue('\n');
 
 			// Glue
-			if (str == '<>') return new Glue();
+			if (str === '<>') return new Glue();
 
 			// Control commands (would looking up in a hash set be faster?)
-			for (let i = 0; i < JsonSerialisation._controlCommandNames.length; ++i) {
-				let cmdName = JsonSerialisation._controlCommandNames[i];
-				if (str == cmdName) {
-					return new ControlCommand(i);
-				}
-			}
+			let cmdIdx = JsonSerialisation._controlCommandNames.findIndex(cmdName => (str === cmdName));
+			if (cmdIdx !== -1)
+				return new ControlCommand(cmdIdx);
 
 			// Native functions
-			if (str == 'L^') str = '^';
-			if( NativeFunctionCall.CallExistsWithName(str) )
+			if (str === 'L^')
+				str = '^';
+			if (NativeFunctionCall.CallExistsWithName(str))
 				return NativeFunctionCall.CallWithName(str);
 
 			// Pop
-			if (str == '->->')
+			if (str === '->->')
 				return ControlCommand.PopTunnel();
-			else if (str == '~ret')
+			else if (str === '~ret')
 				return ControlCommand.PopFunction();
 
 			// Void
-			if (str == 'void')
-				return new Void ();
+			if (str === 'void')
+				return new Void();
 		}
 
-		if (typeof token === 'object' && !Array.isArray(token)){
+		if (typeof token === 'object' && !Array.isArray(token)) {
 			let obj: JObject = token;
 			let propValue;
 
 			// Divert target value to path
-			if (obj['^->']){
+			if (obj['^->']) {
 				propValue = obj['^->'];
 				return new DivertTargetValue(new Path(propValue.toString()));
 			}
@@ -146,7 +140,7 @@ export class JsonSerialisation{
 			if (obj['^var']) {
 				propValue = obj['^var'];
 				let varPtr = new VariablePointerValue(propValue.toString());
-				if ('ci' in obj){
+				if ('ci' in obj) {
 					propValue = obj['ci'];
 					varPtr.contextIndex = parseInt(propValue);
 				}
@@ -160,18 +154,15 @@ export class JsonSerialisation{
 			let external = false;
 			if (propValue = obj['->']) {
 				isDivert = true;
-			}
-			else if (propValue = obj['f()']) {
+			} else if (propValue = obj['f()']) {
 				isDivert = true;
 				pushesToStack = true;
 				divPushType = PushPopType.Function;
-			}
-			else if (propValue = obj['->t->']) {
+			} else if (propValue = obj['->t->']) {
 				isDivert = true;
 				pushesToStack = true;
 				divPushType = PushPopType.Tunnel;
-			}
-			else if (propValue = obj['x()']) {
+			} else if (propValue = obj['x()']) {
 				isDivert = true;
 				external = true;
 				pushesToStack = false;
@@ -238,7 +229,7 @@ export class JsonSerialisation{
 				varAss.isGlobal = isGlobalVar;
 				return varAss;
 			}
-			if (obj['#'] !== undefined){
+			if (obj['#'] !== undefined) {
 				propValue = obj['#'];
 				return new Tag(propValue.toString());
 			}
@@ -246,7 +237,7 @@ export class JsonSerialisation{
 			// List value
 			if (propValue = obj['list']) {
 				// var listContent = (Dictionary<string, object>)propValue;
-				let listContent: JObject = propValue;
+				let listContent = propValue as Record<string, object>;
 				let rawList = new InkList();
 				if (propValue = obj['origins']) {
 					// var namesAsObjs = (List<object>)propValue;
@@ -255,7 +246,7 @@ export class JsonSerialisation{
 					rawList.SetInitialOriginNames(namesAsObjs);
 				}
 
-				for (let key in listContent){
+				for (let key in listContent) {
 					if (listContent.hasOwnProperty(key)) {
 						let nameToVal = listContent[key];
 						let item = new InkListItem(key);
@@ -272,7 +263,7 @@ export class JsonSerialisation{
 		}
 
 		// Array is always a Runtime.Container
-		if (Array.isArray(token)){
+		if (Array.isArray(token)) {
 			return this.JArrayToContainer(token);
 		}
 
@@ -282,33 +273,29 @@ export class JsonSerialisation{
 		throw new Error('Failed to convert token to runtime object: ' + JSON.stringify(token));
 	}
 
-	public static RuntimeObjectToJToken(obj: InkObject){
+	public static RuntimeObjectToJToken(obj: InkObject) {
 		// var container = obj as Container;
 		let container = asOrNull(obj, Container);
-		if (container) {
+		if (container !== null) {
 			return this.ContainerToJArray(container);
 		}
 
 		// var divert = obj as Divert;
 		let divert = asOrNull(obj, Divert);
-		if (divert) {
+		if (divert !== null) {
 			let divTypeKey = '->';
-			if (divert.isExternal)
+			if (divert.isExternal) {
 				divTypeKey = 'x()';
-			else if (divert.pushesToStack) {
-				if (divert.stackPushType == PushPopType.Function)
+			} else if (divert.pushesToStack) {
+				if (divert.stackPushType === PushPopType.Function)
 					divTypeKey = 'f()';
-				else if (divert.stackPushType == PushPopType.Tunnel)
+				else if (divert.stackPushType === PushPopType.Tunnel)
 					divTypeKey = '->t->';
 			}
 
-			let targetStr;
-			if (divert.hasVariableTarget)
-				targetStr = divert.variableDivertName;
-			else
-				targetStr = divert.targetPathString;
+			let targetStr = (divert.hasVariableTarget) ? divert.variableDivertName : divert.targetPathString;
 
-			let jObj: JObject = {};
+			let jObj: object = {};
 			jObj[divTypeKey] = targetStr;
 
 			if (divert.hasVariableTarget)
@@ -320,31 +307,33 @@ export class JsonSerialisation{
 			if (divert.externalArgs > 0)
 				jObj['exArgs'] = divert.externalArgs;
 
-			return jObj;
+			return jObj as JObject;
 		}
 
 		// var choicePoint = obj as ChoicePoint;
 		let choicePoint = asOrNull(obj, ChoicePoint);
-		if (choicePoint) {
-			let jObj: JObject = {};
-			jObj['*'] = choicePoint.pathStringOnChoice;
-			jObj['flg'] = choicePoint.flags;
-			return jObj;
+		if (choicePoint !== null) {
+			let jObj: object = {
+				'*': choicePoint.pathStringOnChoice,
+				'flg': choicePoint.flags
+			};
+
+			return jObj as JObject;
 		}
 
 		// var intVal = obj as IntValue;
 		let intVal = asOrNull(obj, IntValue);
-		if (intVal)
+		if (intVal !== null)
 			return intVal.value;
 
 		// var floatVal = obj as FloatValue;
 		let floatVal = asOrNull(obj, FloatValue);
-		if (floatVal)
+		if (floatVal !== null)
 			return floatVal.value;
 
 		// var strVal = obj as StringValue;
 		let strVal = asOrNull(obj, StringValue);
-		if (strVal) {
+		if (strVal !== null) {
 			if (strVal.isNewline)
 				return '\n';
 			else
@@ -353,52 +342,53 @@ export class JsonSerialisation{
 
 		// var listVal = obj as ListValue;
 		let listVal = asOrNull(obj, ListValue);
-		if (listVal) {
+		if (listVal !== null) {
 			return this.InkListToJObject(listVal);
 		}
 
 		// var divTargetVal = obj as DivertTargetValue;
 		let divTargetVal = asOrNull(obj, DivertTargetValue);
-		if (divTargetVal) {
-			let divTargetJsonObj: JObject = {};
+		if (divTargetVal !== null) {
+			let divTargetJsonObj: object = {};
 			if (divTargetVal.value === null) { return throwNullException('divTargetVal.value'); }
 			divTargetJsonObj['^->'] = divTargetVal.value.componentsString;
-			return divTargetJsonObj;
+			return divTargetJsonObj as JObject;
 		}
 
 		// var varPtrVal = obj as VariablePointerValue;
 		let varPtrVal = asOrNull(obj, VariablePointerValue);
-		if (varPtrVal) {
-			let varPtrJsonObj: JObject = {};
-			varPtrJsonObj['^var'] = varPtrVal.value;
-			varPtrJsonObj['ci'] = varPtrVal.contextIndex;
-			return varPtrJsonObj;
+		if (varPtrVal !== null) {
+			let varPtrJsonObj: object = {
+				'^var': varPtrVal.value,
+				'ci': varPtrVal.contextIndex
+			};
+
+			return varPtrJsonObj as JObject;
 		}
 
 		// var glue = obj as Runtime.Glue;
 		let glue = asOrNull(obj, Glue);
-		if (glue) return '<>';
+		if (glue !== null) return '<>';
 
 		// var controlCmd = obj as ControlCommand;
 		let controlCmd = asOrNull(obj, ControlCommand);
-		if (controlCmd) {
+		if (controlCmd !== null) {
 			return JsonSerialisation._controlCommandNames[controlCmd.commandType];
 		}
 
 		// var nativeFunc = obj as Runtime.NativeFunctionCall;
 		let nativeFunc = asOrNull(obj, NativeFunctionCall);
-		if (nativeFunc) {
+		if (nativeFunc !== null) {
 			let name = nativeFunc.name;
-
-			if (name == '^') name = 'L^';
+			if (name === '^') name = 'L^';
 			return name;
 		}
 
 		// Variable reference
 		// var varRef = obj as VariableReference;
 		let varRef = asOrNull(obj, VariableReference);
-		if (varRef) {
-			let jObj: JObject = {};
+		if (varRef !== null) {
+			let jObj: object = {};
 			let readCountPath = varRef.pathStringForCount;
 			if (readCountPath != null) {
 				jObj['CNT?'] = readCountPath;
@@ -406,47 +396,46 @@ export class JsonSerialisation{
 				jObj['VAR?'] = varRef.name;
 			}
 
-			return jObj;
+			return jObj as JObject;
 		}
 
 		// Variable assignment
 		// var varAss = obj as VariableAssignment;
 		let varAss = asOrNull(obj, VariableAssignment);
-		if (varAss) {
+		if (varAss !== null) {
 			let key = varAss.isGlobal ? 'VAR=' : 'temp=';
-			let jObj: JObject = {};
+			let jObj: object = {};
 			jObj[key] = varAss.variableName;
 
 			// Reassignment?
 			if (!varAss.isNewDeclaration)
 				jObj['re'] = true;
 
-			return jObj;
+			return jObj as JObject;
 		}
 
 		// var voidObj = obj as Void;
 		let voidObj = asOrNull(obj, Void);
-		if (voidObj)
+		if (voidObj !== null)
 			return 'void';
 
 		// var tag = obj as Tag;
 		let tag = asOrNull(obj, Tag);
-		if (tag) {
-			let jObj: JObject = {};
-			jObj['#'] = tag.text;
-			return jObj;
+		if (tag !== null) {
+			let jObj: object = { '#': tag.text };
+			return jObj as JObject;
 		}
 
 		// Used when serialising save state only
 		// var choice = obj as Choice;
 		let choice = asOrNull(obj, Choice);
-		if (choice)
+		if (choice !== null)
 			return this.ChoiceToJObject(choice);
 
 		throw new Error('Failed to convert runtime object to Json token: ' + obj);
 	}
 
-	public static ContainerToJArray(container: Container){
+	public static ContainerToJArray(container: Container) {
 		let jArray = this.ListToJArray(container.content);
 
 		let namedOnlyContent = container.namedOnlyContent;
@@ -457,29 +446,30 @@ export class JsonSerialisation{
 			if (namedOnlyContent != null) {
 				terminatingObj = this.DictionaryRuntimeObjsToJObject(namedOnlyContent);
 
-				for (let key in terminatingObj){
+				for (let key in terminatingObj) {
 					if (terminatingObj.hasOwnProperty(key)) {
 						// var subContainerJArray = namedContentObj.Value as JArray;
 						let subContainerJArray = terminatingObj[key];
 						if (subContainerJArray != null) {
 							// var attrJObj = subContainerJArray [subContainerJArray.Count - 1] as JObject;
-							let attrJObj = subContainerJArray[subContainerJArray.length - 1] as JObject;
+							let attrJObj = subContainerJArray[subContainerJArray.length - 1] as object;
 							if (attrJObj != null) {
 								delete attrJObj['#n'];
-								if (Object.keys(attrJObj).length == 0)
+								if (Object.keys(attrJObj).length === 0)
 									subContainerJArray[subContainerJArray.length - 1] = null;
 							}
 						}
 					}
 				}
 
-			} else
+			} else {
 				terminatingObj = {};
+			}
 
-			if( countFlags > 0 )
+			if (countFlags > 0)
 				terminatingObj['#f'] = countFlags;
 
-			if( container.name != null )
+			if (container.name != null)
 				terminatingObj['#n'] = container.name;
 
 			jArray.push(terminatingObj);
@@ -493,19 +483,19 @@ export class JsonSerialisation{
 		return jArray;
 	}
 
-	public static JArrayToContainer(jArray: any[]){
+	public static JArrayToContainer(jArray: any[]) {
 		let container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
 
-		let terminatingObj = jArray[jArray.length - 1] as JObject;
+		let terminatingObj = jArray[jArray.length - 1] as object;
 		if (terminatingObj != null) {
 
 			let namedOnlyContent = new Map();
 
-			for (let key in terminatingObj){
-				if (key == '#f') {
+			for (let key in terminatingObj) {
+				if (key === '#f') {
 					container.countFlags = parseInt(terminatingObj[key]);
-				} else if (key == '#n') {
+				} else if (key === '#n') {
 					container.name = terminatingObj[key].toString();
 				} else {
 					let namedContentItem = this.JTokenToRuntimeObject(terminatingObj[key]);
@@ -523,7 +513,7 @@ export class JsonSerialisation{
 		return container;
 	}
 
-	public static JObjectToChoice(jObj: JObject){
+	public static JObjectToChoice(jObj: JObject | object) {
 		let choice = new Choice();
 		choice.text = jObj['text'].toString();
 		choice.index = parseInt(jObj['index']);
@@ -533,23 +523,25 @@ export class JsonSerialisation{
 		return choice;
 	}
 
-	public static ChoiceToJObject(choice: Choice){
-		let jObj: JObject = {};
-		jObj['text'] = choice.text;
-		jObj['index'] = choice.index;
-		jObj['originalChoicePath'] = choice.sourcePath;
-		jObj['originalThreadIndex'] = choice.originalThreadIndex;
-		jObj['targetPath'] = choice.pathStringOnChoice;
-		return jObj;
+	public static ChoiceToJObject(choice: Choice) {
+		let jObj: object = {
+			'text': choice.text,
+			'index': choice.index,
+			'originalChoicePath': choice.sourcePath,
+			'originalThreadIndex': choice.originalThreadIndex,
+			'targetPath': choice.pathStringOnChoice
+		};
+
+		return jObj as JObject;
 	}
 
-	public static InkListToJObject(listVal: ListValue){
+	public static InkListToJObject(listVal: ListValue) {
 		let rawList = listVal.value;
 		if (rawList === null) { return throwNullException('rawList'); }
 
-		let dict: JObject = {};
+		let dict: object = {};
 
-		let content: JObject = {};
+		let content: object = {};
 
 		for (let [key, val] of rawList) {
 			let item = InkListItem.fromSerializedKey(key);
@@ -558,16 +550,16 @@ export class JsonSerialisation{
 
 		dict['list'] = content;
 
-		if (rawList.Count == 0 && rawList.originNames != null && rawList.originNames.length > 0) {
+		if (rawList.Count === 0 && rawList.originNames != null && rawList.originNames.length > 0) {
 			// dict["origins"] = rawList.originNames.Cast<object> ().ToList ();
-			dict['origins'] = rawList.originNames;
+			dict['origins'] = rawList.originNames as object;
 		}
 
-		return dict;
+		return dict as JObject;
 	}
 
-	public static ListDefinitionsToJToken(origin: ListDefinitionsOrigin){
-		let result: JObject = {};
+	public static ListDefinitionsToJToken(origin: ListDefinitionsOrigin) {
+		let result: object = {};
 
 		for (let def of origin.lists) {
 			let listDefJson: JObject = {};
@@ -581,25 +573,25 @@ export class JsonSerialisation{
 			result[def.name] = listDefJson;
 		}
 
-		return result;
+		return result as JObject;
 	}
 
-	public static JTokenToListDefinitions(obj: JObject){
+	public static JTokenToListDefinitions(obj: JObject | object) {
 		// var defsObj = (Dictionary<string, object>)obj;
-		let defsObj = obj;
+		let defsObj = obj as Record<string, object>;
 
 		let allDefs: ListDefinition[] = [];
 
-		for (let key in defsObj){
+		for (let key in defsObj) {
 			if (defsObj.hasOwnProperty(key)) {
 				let name = key.toString();
 				// var listDefJson = (Dictionary<string, object>)kv.Value;
-				let listDefJson: JObject = defsObj[key];
+				let listDefJson = defsObj[key] as Record<string, object>;
 
 				// Cast (string, object) to (string, int) for items
 				let items: Map<string, number> = new Map();
 
-				for (let nameValueKey in listDefJson){
+				for (let nameValueKey in listDefJson) {
 					if (defsObj.hasOwnProperty(key)) {
 						let nameValue = listDefJson[nameValueKey];
 						items.set(nameValueKey, parseInt(nameValue));
@@ -643,7 +635,7 @@ export class JsonSerialisation{
 		_controlCommandNames[ControlCommand.CommandType.ListRandom] = 'lrnd';
 
 		for (let i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
-			if (_controlCommandNames[i] == null)
+			if (typeof _controlCommandNames[i] !== 'undefined')
 				throw new Error('Control command not accounted for in serialisation');
 		}
 
