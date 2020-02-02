@@ -237,7 +237,7 @@ export class JsonSerialisation {
 			// List value
 			if (propValue = obj['list']) {
 				// var listContent = (Dictionary<string, object>)propValue;
-				let listContent = propValue as Record<string, object>;
+				let listContent = propValue as Record<string, any>;
 				let rawList = new InkList();
 				if (propValue = obj['origins']) {
 					// var namesAsObjs = (List<object>)propValue;
@@ -248,7 +248,7 @@ export class JsonSerialisation {
 
 				for (let key in listContent) {
 					if (listContent.hasOwnProperty(key)) {
-						let nameToVal = listContent[key];
+						let nameToVal = listContent[key] as string;
 						let item = new InkListItem(key);
 						let val = parseInt(nameToVal);
 						rawList.Add(item, val);
@@ -482,7 +482,7 @@ export class JsonSerialisation {
 		let container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
 
-		let terminatingObj = jArray[jArray.length - 1] as object;
+		let terminatingObj = jArray[jArray.length - 1] as JObject;
 		if (terminatingObj != null) {
 
 			let namedOnlyContent = new Map();
@@ -569,9 +569,9 @@ export class JsonSerialisation {
 		return result;
 	}
 
-	public static JTokenToListDefinitions(obj: JObject | object) {
+	public static JTokenToListDefinitions(obj: JObject) {
 		// var defsObj = (Dictionary<string, object>)obj;
-		let defsObj = obj as Record<string, object>;
+		let defsObj = obj as Record<string, any>;
 
 		let allDefs: ListDefinition[] = [];
 
