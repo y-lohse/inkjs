@@ -526,10 +526,10 @@ export class JsonSerialisation{
 	public static ChoiceToJObject(choice: Choice) {
 		let jObj: object = {
 			index: choice.index,
-			text: choice.text,
 			originalChoicePath: choice.sourcePath,
 			originalThreadIndex: choice.originalThreadIndex,
 			targetPath: choice.pathStringOnChoice,
+			text: choice.text,
 		};
 
 		return jObj as JObject;
