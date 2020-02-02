@@ -58,7 +58,7 @@ export class Path {
 			null;
 	}
 	get containsNamedComponent(): boolean {
-		return !(this._components.every(component => component.isIndex));
+		return !(this._components.every((component) => component.isIndex));
 	}
 	static get self(): Path {
 		let path = new Path();
@@ -81,11 +81,11 @@ export class Path {
 			}
 		}
 
-		this._components.slice(0, -upwardMoves).forEach(component => {
+		this._components.slice(0, -upwardMoves).forEach((component) => {
 			p._components.push(component);
 		});
 
-		pathToAppend._components.slice(upwardMoves).forEach(component => {
+		pathToAppend._components.slice(upwardMoves).forEach((component) => {
 			p._components.push(component);
 		});
 
