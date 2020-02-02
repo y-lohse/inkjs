@@ -58,7 +58,7 @@ export class Path {
 			null;
 	}
 	get containsNamedComponent(): boolean {
-		return this._components.some(component => component.isIndex);
+		return !(this._components.every(component => component.isIndex));
 	}
 	static get self(): Path {
 		let path = new Path();
