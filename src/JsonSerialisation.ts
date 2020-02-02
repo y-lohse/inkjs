@@ -43,7 +43,7 @@ export class JsonSerialisation{
 	}
 
 	public static DictionaryRuntimeObjsToJObject(dictionary: Map<string, InkObject>) {
-		let jsonObj: object = {};
+		let jsonObj: JObject = {};
 
 		for (let [key, value] of dictionary) {
 			let runtimeObj = asOrNull(value, InkObject);
@@ -51,10 +51,10 @@ export class JsonSerialisation{
 				jsonObj[key] = this.RuntimeObjectToJToken(runtimeObj);
 		}
 
-		return jsonObj as JObject;
+		return jsonObj;
 	}
 
-	public static JObjectToDictionaryRuntimeObjs(jObject: JObject | object) {
+	public static JObjectToDictionaryRuntimeObjs(jObject: JObject) {
 		let dict: Map<string, InkObject> = new Map();
 
 		for (let key in jObject) {
@@ -68,7 +68,7 @@ export class JsonSerialisation{
 		return dict;
 	}
 
-	public static JObjectToIntDictionary(jObject: JObject | object) {
+	public static JObjectToIntDictionary(jObject: JObject) {
 		let dict: Map<string, number> = new Map();
 		for (let key in jObject) {
 			if (jObject.hasOwnProperty(key)) {
@@ -79,11 +79,11 @@ export class JsonSerialisation{
 	}
 
 	public static IntDictionaryToJObject(dict: Map<string, number>) {
-		let jObj: object = {};
+		let jObj: JObject = {};
 		for (let [key, value] of dict) {
 			jObj[key] = asNumberOrThrows(value);
 		}
-		return jObj as JObject;
+		return jObj;
 	}
 
 	public static JTokenToRuntimeObject(token: any): InkObject | null {
@@ -295,7 +295,7 @@ export class JsonSerialisation{
 
 			let targetStr = (divert.hasVariableTarget) ? divert.variableDivertName : divert.targetPathString;
 
-			let jObj: object = {};
+			let jObj: JObject = {};
 			jObj[divTypeKey] = targetStr;
 
 			if (divert.hasVariableTarget)
@@ -307,7 +307,7 @@ export class JsonSerialisation{
 			if (divert.externalArgs > 0)
 				jObj['exArgs'] = divert.externalArgs;
 
-			return jObj as JObject;
+			return jObj;
 		}
 
 		// var choicePoint = obj as ChoicePoint;
@@ -388,7 +388,7 @@ export class JsonSerialisation{
 		// var varRef = obj as VariableReference;
 		let varRef = asOrNull(obj, VariableReference);
 		if (varRef !== null) {
-			let jObj: object = {};
+			let jObj: JObject = {};
 			let readCountPath = varRef.pathStringForCount;
 			if (readCountPath != null) {
 				jObj['CNT?'] = readCountPath;
@@ -396,7 +396,7 @@ export class JsonSerialisation{
 				jObj['VAR?'] = varRef.name;
 			}
 
-			return jObj as JObject;
+			return jObj;
 		}
 
 		// Variable assignment
@@ -404,14 +404,14 @@ export class JsonSerialisation{
 		let varAss = asOrNull(obj, VariableAssignment);
 		if (varAss !== null) {
 			let key = varAss.isGlobal ? 'VAR=' : 'temp=';
-			let jObj: object = {};
+			let jObj: JObject = {};
 			jObj[key] = varAss.variableName;
 
 			// Reassignment?
 			if (!varAss.isNewDeclaration)
 				jObj['re'] = true;
 
-			return jObj as JObject;
+			return jObj;
 		}
 
 		// var voidObj = obj as Void;
@@ -513,7 +513,7 @@ export class JsonSerialisation{
 		return container;
 	}
 
-	public static JObjectToChoice(jObj: JObject | object) {
+	public static JObjectToChoice(jObj: JObject) {
 		let choice = new Choice();
 		choice.text = jObj['text'].toString();
 		choice.index = parseInt(jObj['index']);
@@ -539,9 +539,9 @@ export class JsonSerialisation{
 		let rawList = listVal.value;
 		if (rawList === null) { return throwNullException('rawList'); }
 
-		let dict: object = {};
+		let dict: JObject = {};
 
-		let content: object = {};
+		let content: JObject = {};
 
 		for (let [key, val] of rawList) {
 			let item = InkListItem.fromSerializedKey(key);
@@ -555,11 +555,11 @@ export class JsonSerialisation{
 			dict['origins'] = rawList.originNames as object;
 		}
 
-		return dict as JObject;
+		return dict;
 	}
 
 	public static ListDefinitionsToJToken(origin: ListDefinitionsOrigin) {
-		let result: object = {};
+		let result: JObject = {};
 
 		for (let def of origin.lists) {
 			let listDefJson: JObject = {};
@@ -573,7 +573,7 @@ export class JsonSerialisation{
 			result[def.name] = listDefJson;
 		}
 
-		return result as JObject;
+		return result;
 	}
 
 	public static JTokenToListDefinitions(obj: JObject | object) {
