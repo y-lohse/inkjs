@@ -579,7 +579,7 @@ export class JsonSerialisation {
 			if (defsObj.hasOwnProperty(key)) {
 				let name = key.toString();
 				// var listDefJson = (Dictionary<string, object>)kv.Value;
-				let listDefJson = defsObj[key] as Record<string, object>;
+				let listDefJson = defsObj[key] as Record<string, string>;
 
 				// Cast (string, object) to (string, int) for items
 				let items: Map<string, number> = new Map();
