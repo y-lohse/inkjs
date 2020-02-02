@@ -1,1 +1,3 @@
-export type JObject = Record<string, any>;
+export interface JObject {
+	[key: string]: any;
+}
