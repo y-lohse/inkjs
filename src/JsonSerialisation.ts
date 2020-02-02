@@ -22,12 +22,12 @@ import {throwNullException} from './NullException';
 
 // tslint:disable no-conditional-assignment
 
-export class JsonSerialisation{
-	public static ListToJArray(serialisables: InkObject[]) {
+export class JsonSerialisation {
+	public static ListToJArray(serialisables: InkObject[]): JObject[] {
 		return serialisables.map((s) => this.RuntimeObjectToJToken(s));
 	}
 
-	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false) {
+	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false): InkObject[] {
 		if (skipLast)
 			jArray = jArray.slice(0, -1);
 
@@ -273,7 +273,7 @@ export class JsonSerialisation{
 		throw new Error('Failed to convert token to runtime object: ' + JSON.stringify(token));
 	}
 
-	public static RuntimeObjectToJToken(obj: InkObject) {
+	public static RuntimeObjectToJToken(obj: InkObject): JObject {
 		// var container = obj as Container;
 		let container = asOrNull(obj, Container);
 		if (container !== null) {
@@ -435,7 +435,7 @@ export class JsonSerialisation{
 		throw new Error('Failed to convert runtime object to Json token: ' + obj);
 	}
 
-	public static ContainerToJArray(container: Container) {
+	public static ContainerToJArray(container: Container): JObject {
 		let jArray = this.ListToJArray(container.content);
 
 		let namedOnlyContent = container.namedOnlyContent;
