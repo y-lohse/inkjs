@@ -20,12 +20,16 @@ export abstract class AbstractValue extends InkObject{
 			val = (b) ? 1 : 0;
 		}
 
-		if (Number.isInteger(Number(val))) {
+		// https://github.com/y-lohse/inkjs/issues/425
+		// Changed condition sequence, because Number('') is
+		// parsed to 0, which made setting string to empty
+		// impossible
+		if (typeof val === 'string') {
+			return new StringValue(String(val));
+		} else if (Number.isInteger(Number(val))) {
 			return new IntValue(Number(val));
 		} else if (!isNaN(val)) {
 			return new FloatValue(Number(val));
-		} else if (typeof val === 'string') {
-			return new StringValue(String(val));
 		} else if (val instanceof Path) {
 			return new DivertTargetValue(asOrThrows(val, Path));
 		} else if (val instanceof InkList) {
