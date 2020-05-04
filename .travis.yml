@@ -1,13 +1,13 @@
 language: node_js
 install:
-- npm install -g codecov
-- npm install
+  - npm install -g codecov
+  - npm install
 node_js:
-- '7'
+  - "12"
 script:
-- npm run lint
-- npm run build
-- npm run test
+  - npm run lint
+  - npm run build
+  - npm run test
 deploy:
   provider: npm
   skip_cleanup: true
