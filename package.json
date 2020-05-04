@@ -21,7 +21,7 @@
     "@babel/core": "7.9.6",
     "@babel/plugin-transform-object-assign": "7.8.3",
     "@babel/preset-env": "7.9.6",
-    "jest": "25.5.4",
+    "jest": "26.0.0",
     "remap-istanbul": "0.13.0",
     "rollup": "2.7.6",
     "rollup-plugin-babel": "4.4.0",
