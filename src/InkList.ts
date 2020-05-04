@@ -110,7 +110,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 				return arguments[0];
 			}
 			else{
-				return undefined;
+				return [];
 			}
 		})());
 
