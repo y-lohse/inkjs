@@ -5,7 +5,7 @@ module.exports = {
   ],
   coverageDirectory: "coverage",
   coverageReporters: [
-    "lcov",
+    "json",
     "text-summary"
   ],
   testEnvironment: "node",

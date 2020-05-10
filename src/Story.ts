@@ -1498,9 +1498,15 @@ export class Story extends InkObject{
 		if (typeof specificVariableName !== 'undefined') {
 			if (this._variableObservers.has(specificVariableName)) {
 				let observers = this._variableObservers.get(specificVariableName)!;
-				observers.splice(observers.indexOf(observer), 1);
+
+				if( observer !== null ){
+					observers.splice(observers.indexOf(observer), 1);
+				}
+				else{
+					this._variableObservers.delete(specificVariableName);
+				}
 			}
-		} else {
+		} else if ( observer !== null ) {
 			let keys = this._variableObservers.keys();
 
 			for (let varName of keys){

@@ -110,7 +110,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 				return arguments[0];
 			}
 			else{
-				return undefined;
+				return [];
 			}
 		})());
 
@@ -193,7 +193,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		}
 	}
 	public ContainsItemNamed(itemName: string | null){
-		for (let [key, value] of this) {
+		for (let [key] of this) {
 			let item = InkListItem.fromSerializedKey(key);
 			if (item.itemName == itemName) return true;
 		}

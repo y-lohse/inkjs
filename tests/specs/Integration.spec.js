@@ -19,6 +19,15 @@ describe('Integration', function(){
     expect(story.Continue()).toEqual('Knot content\n');
   });
 
+  it ('should get where the story currently is', function() {
+    story.ChoosePathString('knot');
+    expect(story.state.currentPathString).toBe('knot.0');
+    expect(story.canContinue).toBe(true);
+    story.Continue();
+    expect(story.state.currentPathString).toBe(null);
+    expect(story.canContinue).toBe(false);
+  });
+
   it ('should jump to a stitch', function() {
     story.ChoosePathString('knot.stitch');
     expect(story.canContinue).toBe(true);
