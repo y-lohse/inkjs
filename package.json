@@ -12,6 +12,7 @@
     "test:remap:json": "remap-istanbul --input coverage/coverage-final.json --output coverage/coverage-final.json",
     "build": "tsc -p ./ && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
+    "lint:fix": "npm run lint -- --fix",
     "watch": "tsc -p ./ && rollup -c -w",
     "prepublishOnly": "tsc -p ./ && rollup -c"
   },
