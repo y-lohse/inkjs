@@ -61,7 +61,7 @@ export class VariablesState{
 	// the original code uses a magic getter and setter for global variables,
 	// allowing things like variableState['varname]. This is not quite possible
 	// in js without a Proxy, so it is replaced with this $ function.
-	public $(variableName: string, value: InkObject){
+	public $(variableName: string, value: any){
 		if (typeof value === 'undefined'){
 			let varContents = null;
 
