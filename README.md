@@ -1,4 +1,4 @@
-# inkjs
+# ![inkjs](media/inkjs.png)
 
 [![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://travis-ci.org/y-lohse/inkjs)
 [![npm](https://img.shields.io/npm/v/inkjs.svg)](https://www.npmjs.com/package/inkjs)
@@ -8,10 +8,12 @@ This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scri
 
 inkjs is fully compatible with the original version, has zero dependency and works in all browsers and node.js. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
-- [How to install](#installation)
+## Table of content
+
+- [Installation](#installation)
 - [Quickstart in the browser](#quickstart)
-- [Working with a JSON file in the browser](#working-with-a-json-file)
-- [With Node.js](#using-nodejs)
+- [Working with a JSON file](#working-with-a-json-file)
+- [Using Node.js](#using-nodejs)
 - [Differences with the C# API](#differences-with-the-c-api)
 
 ## Installation
