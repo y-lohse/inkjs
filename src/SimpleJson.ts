@@ -1,4 +1,3 @@
-
 export class SimpleJson {
 	public static TextToDictionary(text: string) {
 		return new SimpleJson.Reader(text).ToDictionary();
@@ -23,7 +22,7 @@ export namespace SimpleJson {
 			return this._rootObject as any[];
 		}
 
-		private _rootObject: any;
+		private _rootObject: any[] | Record<string, any>;
 	}
 
 	export class Writer {
