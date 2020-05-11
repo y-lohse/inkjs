@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",{"^->":"tunnel"},"/ev",{"->":"one_then_tother"},["done",{"#n":"g-0"}],null],"done",{"one_then_tother":[{"temp=":"x"},{"->t->":"x","var":true},{"->":"end"},null],"tunnel":["^STUFF","\n","ev","void","/ev","->->",{"#f":3}],"end":["end",null]}],"listDefs":{}}

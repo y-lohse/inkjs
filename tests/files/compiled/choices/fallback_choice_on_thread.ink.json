@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["thread",{"->":"knot"},["done",{"#n":"g-0"}],null],"done",{"knot":[["ev",1,"/ev",{"temp=":"x"},{"*":".^.c-0","flg":24},{"c-0":["\n","^Should be 1 not 0: ","ev",{"VAR?":"x"},"out","/ev","^.","\n","done",{"#f":5}]}],null]}],"listDefs":{}}

@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[{"->":"there"},["done",{"#n":"g-0"}],null],"done",{"there":[{"->":"x","var":true},null],"here":["^Here.","\n","done",{"#f":3}],"global decl":["ev",{"^->":"here"},{"VAR=":"x"},"/ev","end",null]}],"listDefs":{}}

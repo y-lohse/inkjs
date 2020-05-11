@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[["done",{"#f":5,"#n":"g-0"}],null],"done",{"TestKnot":[["^this is a test","\n","ev","str","^Next","/str","/ev",{"*":".^.c-0","flg":4},{"c-0":["^ ",{"->":"TestKnot2"},"\n",{"#f":5}]}],{"#f":1}],"TestKnot2":["^this is the end","\n","end",{"#f":1}],"#f":1}],"listDefs":{}}

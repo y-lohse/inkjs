@@ -1,0 +1,6 @@
+{FLOOR(1.2)}
+{INT(1.2)}
+{CEILING(1.2)}
+{CEILING(1.2) / 3}
+{INT(CEILING(1.2)) / 3}
+{FLOOR(1)}

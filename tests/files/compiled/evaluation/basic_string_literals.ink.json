@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",{"VAR?":"x"},"out","/ev","\n","^Hello ","ev","str","^world","/str","out","/ev","^ 2.","\n",["done",{"#n":"g-0"}],null],"done",{"global decl":["ev","str","^Hello world 1","/str",{"VAR=":"x"},"/ev","end",null]}],"listDefs":{}}

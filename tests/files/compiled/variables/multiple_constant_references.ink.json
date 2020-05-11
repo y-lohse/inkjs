@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",{"VAR?":"varStr"},"str","^ConstantString","/str","==","/ev",[{"->":".^.b","c":true},{"b":["^success",{"->":"0.8"},null]}],"nop","\n",["done",{"#n":"g-0"}],null],"done",{"global decl":["ev","str","^ConstantString","/str",{"VAR=":"varStr"},"/ev","end",null]}],"listDefs":{}}
