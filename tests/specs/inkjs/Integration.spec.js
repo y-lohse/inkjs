@@ -1,10 +1,10 @@
-var testsUtils = require('../common.js');
+var testsUtils = require('../../common.js');
 
 describe('Integration', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
@@ -68,7 +68,7 @@ describe('Integration', function(){
     expect(spy1).toHaveBeenCalledTimes(0);
     expect(spy2).toHaveBeenCalledTimes(0);
     expect(commonSpy).toHaveBeenCalledTimes(0);
-    
+
     expect(story.Continue()).toEqual('mutated 1\n');
 
     expect(story.variablesState['observedVar1']).toEqual(3);

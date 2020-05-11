@@ -1,10 +1,10 @@
-var testsUtils = require('../common.js');
+var testsUtils = require('../../common.js');
 
 describe('Choices', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
