@@ -6,7 +6,6 @@ describe('Sequences', () => {
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "sequences");
-		story.allowExternalFunctionFallbacks = true;
 	}
 
 	beforeEach(() => {
