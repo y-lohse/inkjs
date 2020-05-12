@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[{"->":"2tests"},["done",{"#n":"g-0"}],null],"done",{"2tests":["ev",512,2,"*","/ev",{"temp=":"512x2"},"ev",{"VAR?":"512x2"},2,"+","/ev",{"temp=":"512x2p2"},"^512x2 = ","ev",{"VAR?":"512x2"},"out","/ev","\n","^512x2p2 = ","ev",{"VAR?":"512x2p2"},"out","/ev","\n","done",null]}],"listDefs":{}}

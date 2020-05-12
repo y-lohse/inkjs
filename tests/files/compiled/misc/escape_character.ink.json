@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",1,"/ev",[{"->":".^.b","c":true},{"b":["^this is a '|' character",{"->":"0.5"},null]}],[{"->":".^.b"},{"b":["^this isn't",{"->":"0.5"},null]}],"nop","\n",["done",{"#n":"g-0"}],null],"done",null],"listDefs":{}}

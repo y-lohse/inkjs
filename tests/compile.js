@@ -28,13 +28,13 @@ function getAllInkFiles(dir) {
 			if (file !== 'includes') {
 				return files.concat(getAllInkFiles(path.join(dir, file)));
 			} else {
-				return [];
+				return files;
 			}
 		} else {
 			if (path.extname(file) === '.ink') {
 				return files.concat(path.join(dir, file));
 			} else {
-				return [];
+				return files;
 			}
 		}
 	}, []);
