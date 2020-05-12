@@ -50,8 +50,8 @@ describe('Bindings', () => {
 
 		let finalResult = story.EvaluateFunction("topExternal", [5], true);
 
-		expect(finalResult.returned).toBe(7);
-		expect(finalResult.output).toBe("In top external\n");
+		expect(finalResult['returned']).toBe(7);
+		expect(finalResult['output']).toBe("In top external\n");
 	});
 
 	test('variable observer', () => {
