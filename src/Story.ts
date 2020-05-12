@@ -26,6 +26,7 @@ import {JObject} from './JObject';
 import {asOrNull, asOrThrows} from './TypeAssertion';
 import {DebugMetadata} from './DebugMetadata';
 import {throwNullException} from './NullException';
+import {SimpleJson} from './SimpleJson';
 
 export {InkList} from './InkList';
 
@@ -171,17 +172,42 @@ export class Story extends InkObject{
 		// ------
 	}
 
-	public ToJsonString(){
-		let rootContainerJsonList = JsonSerialisation.RuntimeObjectToJToken(this._mainContentContainer);
+	public ToJson(writer?: SimpleJson.Writer) {
+		if (!writer) {
+			writer = new SimpleJson.Writer();
+		}
 
-		let  rootObject: JObject = {};
-		rootObject['inkVersion'] = this.inkVersionCurrent;
-		rootObject['root'] = rootContainerJsonList;
+		writer.WriteObjectStart();
 
-		if (this._listDefinitions != null)
-			rootObject['listDefs'] = JsonSerialisation.ListDefinitionsToJToken(this._listDefinitions);
+		writer.WriteIntProperty('inkVersion', this.inkVersionCurrent);
 
-		return JSON.stringify(rootObject);
+		writer.WriteProperty('root', (w) => JsonSerialisation.WriteRuntimeContainer(w, this._mainContentContainer));
+
+		if (this._listDefinitions != null) {
+			writer.WritePropertyStart('listDefs');
+			writer.WriteObjectStart();
+
+			for (let def of this._listDefinitions.lists) {
+				writer.WritePropertyStart(def.name);
+				writer.WriteObjectStart();
+
+				for (let [key, value] of def.items) {
+					let item = InkListItem.fromSerializedKey(key);
+					let val = value;
+					writer.WriteIntProperty(item.itemName, val);
+				}
+
+				writer.WriteObjectEnd();
+				writer.WritePropertyEnd();
+			}
+
+			writer.WriteObjectEnd();
+			writer.WritePropertyEnd();
+		}
+
+		writer.WriteObjectEnd();
+
+		return writer.ToString();
 	}
 
 	public ResetState(){
@@ -285,9 +311,8 @@ export class Story extends InkObject{
 		durationStopwatch.Stop();
 
 		if (outputStreamEndsInNewline || !this.canContinue) {
-			if (this._stateAtLastNewline != null) {
-				this.RestoreStateSnapshot(this._stateAtLastNewline);
-				this._stateAtLastNewline = null;
+			if (this._stateSnapshotAtLastNewline != null) {
+				this.RestoreStateSnapshot();
 			}
 
 			if (!this.canContinue) {
@@ -338,36 +363,36 @@ export class Story extends InkObject{
 
 		if (!this.state.inStringEvaluation) {
 
-			if (this._stateAtLastNewline != null) {
+			if (this._stateSnapshotAtLastNewline != null) {
 
-				if (this._stateAtLastNewline.currentTags === null) { return throwNullException('this._stateAtLastNewline.currentTags'); }
+				if (this._stateSnapshotAtLastNewline.currentTags === null) { return throwNullException('this._stateAtLastNewline.currentTags'); }
 				if (this.state.currentTags === null) { return throwNullException('this.state.currentTags'); }
 
 				let change = this.CalculateNewlineOutputStateChange (
-					this._stateAtLastNewline.currentText, this.state.currentText,
-					this._stateAtLastNewline.currentTags.length, this.state.currentTags.length,
+					this._stateSnapshotAtLastNewline.currentText, this.state.currentText,
+					this._stateSnapshotAtLastNewline.currentTags.length, this.state.currentTags.length,
 				);
 
 				if (change == Story.OutputStateChange.ExtendedBeyondNewline) {
 
-					this.RestoreStateSnapshot(this._stateAtLastNewline);
+					this.RestoreStateSnapshot();
 
 					return true;
 				}
 
 				else if (change == Story.OutputStateChange.NewlineRemoved) {
-					this._stateAtLastNewline = null;
+					this.DiscardSnapshot();
 				}
 			}
 
 			if (this.state.outputStreamEndsInNewline) {
 				if (this.canContinue) {
-					if (this._stateAtLastNewline == null)
-						this._stateAtLastNewline = this.StateSnapshot();
+					if (this._stateSnapshotAtLastNewline == null)
+						this.StateSnapshot();
 				}
 
 				else {
-					this._stateAtLastNewline = null;
+					DiscardSnapshot();
 				}
 			}
 		}
@@ -457,12 +482,47 @@ export class Story extends InkObject{
 		return p;
 	}
 
-	public StateSnapshot(){
-		return this.state.Copy();
+	public StateSnapshot() {
+		this._stateSnapshotAtLastNewline = this._state;
+		this._state = this._state.CopyAndStartPatching();
 	}
 
-	public RestoreStateSnapshot(state: StoryState){
-		this._state = state;
+	public RestoreStateSnapshot() {
+		this._stateSnapshotAtLastNewline.RestoreAfterPatch();
+
+		this._state = this._stateSnapshotAtLastNewline;
+		this._stateSnapshotAtLastNewline = null;
+
+		if (!this._asyncSaving) {
+			this._state.ApplyAnyPatch();
+		}
+	}
+
+	public DiscardSnapshot() {
+		if (!this._asyncSaving)
+			this._state.ApplyAnyPatch();
+
+		this._stateSnapshotAtLastNewline = null;
+	}
+
+	public CopyStateForBackgroundThreadSave() {
+			this.IfAsyncWeCant('start saving on a background thread');
+
+			if (this._asyncSaving)
+				throw new Error("Story is already in background saving mode, can't call CopyStateForBackgroundThreadSave again!");
+
+			let stateToSave = this._state;
+			this._state = this._state.CopyAndStartPatching();
+			this._asyncSaving = true;
+			return stateToSave;
+		}
+
+	public BackgroundSaveComplete() {
+		if (this._stateSnapshotAtLastNewline === null) {
+			this._state.ApplyAnyPatch();
+		}
+
+		this._asyncSaving = false;
 	}
 
 	public Step(){
@@ -572,10 +632,10 @@ export class Story extends InkObject{
 	public VisitContainer(container: Container, atStart: boolean){
 		if (!container.countingAtStartOnly || atStart) {
 			if (container.visitsShouldBeCounted)
-				this.IncrementVisitCountForContainer(container);
+				this.state.IncrementVisitCountForContainer(container);
 
 			if (container.turnIndexShouldBeCounted)
-				this.RecordTurnIndexVisitToContainer(container);
+				this.state.RecordTurnIndexVisitToContainer(container);
 		}
 	}
 
@@ -649,7 +709,7 @@ export class Story extends InkObject{
 
 		// Don't create choice if player has already read this content
 		if (choicePoint.onceOnly) {
-			let visitCount = this.VisitCountForContainer(choicePoint.choiceTarget);
+			let visitCount = this.state.VisitCountForContainer(choicePoint.choiceTarget);
 			if (visitCount > 0) {
 				showChoice = false;
 			}
@@ -923,9 +983,9 @@ export class Story extends InkObject{
 				let eitherCount;
 				if (container != null) {
 					if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince)
-						eitherCount = this.TurnsSinceForContainer(container);
+						eitherCount = this.state.TurnsSinceForContainer(container);
 					else
-						eitherCount = this.VisitCountForContainer(container);
+						eitherCount = this.state.VisitCountForContainer(container);
 				} else {
 					if (evalCommand.commandType == ControlCommand.CommandType.TurnsSince)
 						eitherCount = -1;
@@ -985,7 +1045,7 @@ export class Story extends InkObject{
 				break;
 
 			case ControlCommand.CommandType.VisitIndex:
-				let count = this.VisitCountForContainer(this.state.currentPointer.container) - 1; // index not count
+				let count = this.state.VisitCountForContainer(this.state.currentPointer.container) - 1; // index not count
 				this.state.PushEvaluationStack(new IntValue(count));
 				break;
 
@@ -1144,7 +1204,7 @@ export class Story extends InkObject{
 			if (varRef.pathForCount != null) {
 
 				let container = varRef.containerForCount;
-				let count = this.VisitCountForContainer(container);
+				let count = this.state.VisitCountForContainer(container);
 				foundValue = new IntValue(count);
 			}
 
@@ -1154,18 +1214,8 @@ export class Story extends InkObject{
 				foundValue = this.state.variablesState.GetVariableWithName(varRef.name);
 
 				if (foundValue == null) {
-					let defaultVal = this.state.variablesState.TryGetDefaultVariableValue (varRef.name);
-					if (defaultVal != null) {
-						this.Warning("Variable not found in save state: '" + varRef.name + "', but seems to have been newly created. Assigning value from latest ink's declaration: " + defaultVal);
-						foundValue = defaultVal;
-
-						// Save for future usage, preventing future errors
-						// Only do this for variables that are known to be globals, not those that may be missing temps.
-						this.state.variablesState.SetGlobal(varRef.name, foundValue);
-					} else {
-						this.Warning ("Variable not found: '" + varRef.name + "'. Using default value of 0 (false). This can happen with temporary variables if the declaration hasn't yet been hit.");
-						foundValue = new IntValue(0);
-					}
+					this.Warning("Variable not found: '" + varRef.name + "'. Using default value of 0 (false). This can happen with temporary variables if the declaration hasn't yet been hit. Globals are always given a default value on load if a value doesn't exist in the save state.");
+					foundValue = new IntValue(0);
 				}
 			}
 
@@ -1686,46 +1736,6 @@ export class Story extends InkObject{
 		return true;
 	}
 
-	public VisitCountForContainer(container: Container | null){
-		if (container === null) { return throwNullException('container'); }
-		if( !container.visitsShouldBeCounted ) {
-			console.warn('Read count for target ('+container.name+' - on '+container.debugMetadata+') unknown. The story may need to be compiled with countAllVisits flag (-c).');
-			return 0;
-		}
-
-		let count = 0;
-		let containerPathStr = container.path.toString();
-		count = this.state.visitCounts.get(containerPathStr) || count;
-		return count;
-	}
-
-	public IncrementVisitCountForContainer(container: Container){
-		let count = 0;
-		let containerPathStr = container.path.toString();
-		if (this.state.visitCounts.has(containerPathStr)) count = this.state.visitCounts.get(containerPathStr)!;
-		count++;
-		this.state.visitCounts.set(containerPathStr, count);
-	}
-
-	public RecordTurnIndexVisitToContainer(container: Container){
-		let containerPathStr = container.path.toString();
-		this.state.turnIndices.set(containerPathStr, this.state.currentTurnIndex);
-	}
-
-	public TurnsSinceForContainer(container: Container){
-		if( !container.turnIndexShouldBeCounted ) {
-			this.Error('TURNS_SINCE() for target ('+container.name+' - on '+container.debugMetadata+') unknown. The story may need to be compiled with countAllVisits flag (-c).');
-		}
-
-		let containerPathStr = container.path.toString();
-		let index = this.state.turnIndices.get(containerPathStr);
-		if (typeof index !== 'undefined') {
-			return this.state.currentTurnIndex - index;
-		} else {
-			return -1;
-		}
-	}
-
 	public NextSequenceShuffleIndex(){
 		// var numElementsIntVal = state.PopEvaluationStack () as IntValue;
 		let numElementsIntVal = asOrNull(this.state.PopEvaluationStack(), IntValue);
@@ -1883,9 +1893,11 @@ export class Story extends InkObject{
 	private _state!: StoryState;
 
 	private _asyncContinueActive: boolean = false;
-	private _stateAtLastNewline: StoryState | null = null;
+	private _stateSnapshotAtLastNewline: StoryState | null = null;
 
 	private _recursiveContinueCount: number = 0;
+
+	private _asyncSaving: boolean = false;
 
 	private _profiler: any | null = null; // TODO: Profiler
 }
