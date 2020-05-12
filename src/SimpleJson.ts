@@ -42,7 +42,7 @@ export namespace SimpleJson {
 				this.Assert(this.currentCollection !== null);
 				this.Assert(this.currentPropertyName !== null);
 
-				let propertyName = this._propertieNameStack.pop();
+				let propertyName = this._propertyNameStack.pop();
 				this.currentCollection![propertyName!] = newObject;
 			} else if (this.state === SimpleJson.Writer.State.Array) {
 				this.Assert(this.currentCollection !== null);
@@ -87,7 +87,7 @@ export namespace SimpleJson {
 
 		public WritePropertyStart(name: any) {
 			this.Assert(this.state === SimpleJson.Writer.State.Object);
-			this._propertieNameStack.push(name);
+			this._propertyNameStack.push(name);
 
 			this.IncrementChildCount();
 
@@ -104,7 +104,7 @@ export namespace SimpleJson {
 			this.Assert(this.state === SimpleJson.Writer.State.Object);
 			this.IncrementChildCount();
 
-			this._propertyName = '';
+			this._currentPropertyName = '';
 
 			this._stateStack.push(new SimpleJson.Writer.StateElement(SimpleJson.Writer.State.Property));
 			this._stateStack.push(new SimpleJson.Writer.StateElement(SimpleJson.Writer.State.PropertyName));
@@ -112,16 +112,16 @@ export namespace SimpleJson {
 
 		public WritePropertyNameEnd() {
 			this.Assert(this.state === SimpleJson.Writer.State.PropertyName);
-			this.Assert(this._propertyName !== null);
-			this._propertieNameStack.push(this._propertyName!);
-			this._propertyName = null;
+			this.Assert(this._currentPropertyName !== null);
+			this._propertyNameStack.push(this._currentPropertyName!);
+			this._currentPropertyName = null;
 			this._stateStack.pop();
 		}
 
 		public WritePropertyNameInner(str: string) {
 			this.Assert(this.state === SimpleJson.Writer.State.PropertyName);
-			this.Assert(this._propertyName !== null);
-			this._propertyName += str;
+			this.Assert(this._currentPropertyName !== null);
+			this._currentPropertyName += str;
 		}
 
 		public WriteArrayStart() {
@@ -134,7 +134,7 @@ export namespace SimpleJson {
 				this.Assert(this.currentCollection !== null);
 				this.Assert(this.currentPropertyName !== null);
 
-				let propertyName = this._propertieNameStack.pop();
+				let propertyName = this._propertyNameStack.pop();
 				this.currentCollection![propertyName!] = newObject;
 			} else if (this.state === SimpleJson.Writer.State.Array) {
 				this.Assert(this.currentCollection !== null);
@@ -183,11 +183,14 @@ export namespace SimpleJson {
 
 		public WriteStringStart() {
 			this.StartNewObject(false);
+			this._currentString = '';
 			this._stateStack.push(new SimpleJson.Writer.StateElement(SimpleJson.Writer.State.String));
 		}
 
 		public WriteStringEnd() {
 			this.Assert(this.state == SimpleJson.Writer.State.String);
+			this._addToCurrentObject(this._currentString);
+			this._currentString = null;
 			this._stateStack.pop();
 		}
 
@@ -197,7 +200,7 @@ export namespace SimpleJson {
 				return;
 			}
 
-			this._addToCurrentObject(str);
+			this._currentString += str;
 		}
 
 		public ToString() {
@@ -253,7 +256,7 @@ export namespace SimpleJson {
 
 		private get currentPropertyName() {
 			if (this._stateStack.length > 0) {
-				return this._propertieNameStack[0];
+				return this._propertyNameStack[0];
 			} else {
 				return null;
 			}
@@ -271,11 +274,12 @@ export namespace SimpleJson {
 				throw Error('Assert failed while writing JSON');
 		}
 
-		private _propertyName: string | null = null;
+		private _currentPropertyName: string | null = null;
+		private _currentString: string | null = null;
 
 		private _stateStack: SimpleJson.Writer.StateElement[] = [];
 		private _collectionStack: Array<any[] | Record<string, any>> = [];
-		private _propertieNameStack: string[] = [];
+		private _propertyNameStack: string[] = [];
 
 		private _jsonObject: Record<string, any> | any[] | null = null;
 
@@ -286,7 +290,7 @@ export namespace SimpleJson {
 			} else if (this.state === SimpleJson.Writer.State.Property) {
 				this.Assert(this.currentPropertyName != null);
 				(this.currentCollection as Record<string, any>)[this.currentPropertyName!] = value;
-				this._propertieNameStack.pop();
+				this._propertyNameStack.pop();
 			}
 		}
 	}
