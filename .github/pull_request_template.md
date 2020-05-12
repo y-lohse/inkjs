@@ -1,8 +1,3 @@
----
-name: Pull Request
-about: Fix an issue or add a new feature.
----
-
 ## Checklist
 
 <!--
