@@ -1,4 +1,4 @@
-# inkjs
+# ![inkjs](media/inkjs.png)
 
 [![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://travis-ci.org/y-lohse/inkjs)
 [![npm](https://img.shields.io/npm/v/inkjs.svg)](https://www.npmjs.com/package/inkjs)
@@ -8,10 +8,12 @@ This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scri
 
 inkjs is fully compatible with the original version, has zero dependency and works in all browsers and node.js. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
-- [How to install](#installation)
+## Table of content
+
+- [Installation](#installation)
 - [Quickstart in the browser](#quickstart)
-- [Working with a JSON file in the browser](#working-with-a-json-file)
-- [With Node.js](#using-nodejs)
+- [Working with a JSON file](#working-with-a-json-file)
+- [Using Node.js](#using-nodejs)
 - [Differences with the C# API](#differences-with-the-c-api)
 
 ## Installation
@@ -38,7 +40,7 @@ If you frequently need to update your story, pasting the content into `story.js`
 
 Once the server is running, use the [other boilerplate](https://github.com/y-lohse/inkjs/blob/master/templates/browser_with_server) and place your story content inside `story.json`. Behind the scenes, the only difference is that we load the JSON file via ajax before creating the story:
 
-```
+```javascript
 fetch('story.json')
 .then(function(response){
 	return response.text();
@@ -61,13 +63,13 @@ Require the module: `var Story = require('inkjs').Story;`.
 
 You can load the json file using a simple call to `require`:
 
-```
+```javascript
 var json = require('./ink_file.json');
 ```
 
 You can also load it using `fs`. In that case, please note that inklecate outputs a json file encoded **with** BOM, and node isn't very good at handling that.
 
-```
+```javascript
 var fs = require('fs');
 var json = fs.readFileSync('./ink_file.json', 'UTF-8').replace(/^\uFEFF/, '');//strips the BOM
 ```
@@ -76,7 +78,7 @@ var json = fs.readFileSync('./ink_file.json', 'UTF-8').replace(/^\uFEFF/, '');//
 
 Now that you have a `Story` object and a json file, it's time to bring it all together:
 
-```
+```javascript
 var inkStory = new Story(json);
 
 console.log(inkStory.ContinueMaximally());
@@ -95,7 +97,7 @@ There are a few very minor API differences between ink C# and inkjs:
 On platforms that do not support [ES2015 Proxies](https://kangax.github.io/compat-table/es6/) (basically node.js v5, IE 11, Safari 9 and everything below), you can't directly read and write variables to the story state. Instead you will have to use the `$` function:
 
 
-```
+```javascript
 _inkStory.variablesState.$("player_health", 100);
 //instead of _inkStory.variablesState["player_health"] = 100;
 
@@ -107,14 +109,14 @@ var health = _inkStory.variablesState.$("player_health");
 
 `EvaluateFunction()` lets you evaluate an ink function from within your javascript. The "normal" call is the same than in C#:
 
-```
+```javascript
 var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"]);
 //result is the return value of my_ink_function("arg1", "arg2")
 ```
 
 However, if you also wish to retrieve the text that `my_ink_function` output, you need to call itlike this:
 
-```
+```javascript
 var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 //now result is an object with two properties:
 // result.returned is the return value of my_ink_function("arg1", "arg2")
