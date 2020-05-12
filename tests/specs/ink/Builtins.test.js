@@ -6,7 +6,6 @@ describe('Builtins', () => {
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "builtins");
-		story.allowExternalFunctionFallbacks = true;
 	}
 
 	beforeEach(() => {

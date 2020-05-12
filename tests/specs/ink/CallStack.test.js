@@ -6,7 +6,6 @@ describe('Callstack', () => {
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "callstack");
-		story.allowExternalFunctionFallbacks = true;
 	}
 
 	beforeEach(() => {

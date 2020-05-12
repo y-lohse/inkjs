@@ -6,7 +6,6 @@ describe('Choices', () => {
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "choices");
-		story.allowExternalFunctionFallbacks = true;
 	}
 
 	beforeEach(() => {
