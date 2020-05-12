@@ -49,7 +49,7 @@ export namespace SimpleJson {
 
 				this.currentCollection!.push(newObject);
 			} else {
-				this.Assert(this.state === null);
+				this.Assert(this.state === SimpleJson.Writer.State.None);
 				this._jsonObject = newObject;
 			}
 
@@ -96,7 +96,7 @@ export namespace SimpleJson {
 
 		public WritePropertyEnd() {
 			this.Assert(this.state === SimpleJson.Writer.State.Property);
-			this.Assert(this.childCount == 1);
+			this.Assert(this.childCount === 1);
 			this._stateStack.pop();
 		}
 
@@ -232,7 +232,7 @@ export namespace SimpleJson {
 
 		private get state() {
 			if (this._stateStack.length > 0) {
-				return this._stateStack[0].type;
+				return this._stateStack[this._stateStack.length - 1].type;
 			} else {
 				return SimpleJson.Writer.State.None;
 			}
@@ -240,7 +240,7 @@ export namespace SimpleJson {
 
 		private get childCount() {
 			if (this._stateStack.length > 0) {
-				return this._stateStack[0].childCount;
+				return this._stateStack[this._stateStack.length - 1].childCount;
 			} else {
 				return 0;
 			}
@@ -248,15 +248,15 @@ export namespace SimpleJson {
 
 		private get currentCollection() {
 			if (this._collectionStack.length > 0) {
-				return this._collectionStack[0];
+				return this._collectionStack[this._collectionStack.length - 1];
 			} else {
 				return null;
 			}
 		}
 
 		private get currentPropertyName() {
-			if (this._stateStack.length > 0) {
-				return this._propertyNameStack[0];
+			if (this._propertyNameStack.length > 0) {
+				return this._propertyNameStack[this._propertyNameStack.length - 1];
 			} else {
 				return null;
 			}
@@ -266,7 +266,9 @@ export namespace SimpleJson {
 			this.Assert(this._stateStack.length > 0);
 			let currEl = this._stateStack.pop()!;
 			currEl.childCount++;
+			console.log(currEl.childCount);
 			this._stateStack.push(currEl);
+			console.log("child: " + this._stateStack[this._stateStack.length - 1].childCount);
 		}
 
 		private Assert(condition: boolean) {
@@ -288,7 +290,7 @@ export namespace SimpleJson {
 			if (this.state === SimpleJson.Writer.State.Array) {
 				(this.currentCollection as any[]).push(value);
 			} else if (this.state === SimpleJson.Writer.State.Property) {
-				this.Assert(this.currentPropertyName != null);
+				this.Assert(this.currentPropertyName !== null);
 				(this.currentCollection as Record<string, any>)[this.currentPropertyName!] = value;
 				this._propertyNameStack.pop();
 			}
