@@ -55,7 +55,7 @@ describe('Misc', () => {
 		expect(story.ContinueMaximally()).toBe("512x2 = 1024\n512x2p2 = 1026\n");
 	});
 
-	xtest('include', () => {
+	test('include', () => {
 		loadStory("include");
 
 		expect(story.ContinueMaximally()).toBe("This is include 1.\nThis is include 2.\nThis is the main file.\n");
