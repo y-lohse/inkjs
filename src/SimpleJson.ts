@@ -61,15 +61,27 @@ export namespace SimpleJson {
 			this._stateStack.pop();
 		}
 
-		public WriteProperty(name: any, innerOrContent: ((w: Writer) => void) | string | number| boolean) {
+		public WriteProperty(name: any, innerOrContent: ((w: Writer) => void) | string | boolean | null) {
 			this.WritePropertyStart(name);
 			if (arguments[1] instanceof Function) {
 				let inner = arguments[1];
 				inner(this);
 			} else {
-				let content: string | number| boolean = arguments[1];
+				let content: string | boolean | null = arguments[1];
 				this.Write(content);
 			}
+			this.WritePropertyEnd();
+		}
+
+		public WriteIntProperty(name: any, content: number) {
+			this.WritePropertyStart(name);
+			this.WriteInt(content);
+			this.WritePropertyEnd();
+		}
+
+		public WriteFloatProperty(name: any, content: number) {
+			this.WritePropertyStart(name);
+			this.WriteFloat(content);
 			this.WritePropertyEnd();
 		}
 
@@ -139,19 +151,28 @@ export namespace SimpleJson {
 			this._stateStack.pop();
 		}
 
-		public Write(value: number | string | boolean, escape: boolean = true) {
-			this.StartNewObject(false);
+		public Write(value: number | string | boolean | null, escape: boolean = true) {
+			if (value === null) {
+				console.error('Warning: trying to write a null string');
+				return;
+			}
 
-			if (typeof(value) === 'number') {
-				if (value == Number.POSITIVE_INFINITY) {
-					this._addToCurrentObject('3.4E+38');
-				} else if (value == Number.NEGATIVE_INFINITY) {
-					this._addToCurrentObject('-3.4E+38');
-				} else if (isNaN(value)) {
-					this._addToCurrentObject('0.0');
-				}
-			} else {
-				this._addToCurrentObject(value);
+			this.StartNewObject(false);
+			this._addToCurrentObject(value);
+		}
+
+		public WriteInt(value: number) {
+			this._addToCurrentObject(Math.floor(value));
+		}
+
+		public WriteFloat(value: number) {
+			this.StartNewObject(false);
+			if (value == Number.POSITIVE_INFINITY) {
+				this._addToCurrentObject('3.4E+38');
+			} else if (value == Number.NEGATIVE_INFINITY) {
+				this._addToCurrentObject('-3.4E+38');
+			} else if (isNaN(value)) {
+				this._addToCurrentObject('0.0');
 			}
 		}
 
@@ -170,7 +191,12 @@ export namespace SimpleJson {
 			this._stateStack.pop();
 		}
 
-		public WriteStringInner(str: string, escape: boolean = true) {
+		public WriteStringInner(str: string | null, escape: boolean = true) {
+			if (str === null) {
+				console.error('Warning: trying to write a null string');
+				return;
+			}
+
 			this._addToCurrentObject(str);
 		}
 
