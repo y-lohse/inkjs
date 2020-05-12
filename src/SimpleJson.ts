@@ -61,7 +61,7 @@ export namespace SimpleJson {
 			this._stateStack.pop();
 		}
 
-		public WriteProperty(name: any, innerOrContent: (w: Writer) => void | string | number| boolean) {
+		public WriteProperty(name: any, innerOrContent: ((w: Writer) => void) | string | number| boolean) {
 			this.WritePropertyStart(name);
 			if (arguments[1] instanceof Function) {
 				let inner = arguments[1];
