@@ -21,6 +21,8 @@ import {Container} from './Container';
 import {InkObject} from './Object';
 import { throwNullException } from './NullException';
 import { Story } from './Story';
+import {StatePatch} from './StatePatch';
+import {SimpleJson} from './SimpleJson';
 
 export class StoryState{
 
@@ -28,22 +30,106 @@ export class StoryState{
 	public readonly kMinCompatibleLoadVersion = 8;
 
 	public ToJson(indented: boolean = false){
-		return JSON.stringify(this.jsonToken, null, (indented) ? 2 : 0);
+		let writer = new SimpleJson.Writer();
+		this.WriteJson(writer);
+		return writer.ToString();
 	}
 	public toJson(indented: boolean = false){
 		return this.ToJson(indented);
 	}
 
 	public LoadJson(json: string){
-		this.jsonToken = JSON.parse(json);
+		let jObject = SimpleJson.TextToDictionary(json);
+		this.LoadJsonObj(jObject);
 	}
 
 	public VisitCountAtPathString(pathString: string){
-		let visitCountOut = tryGetValueFromMap(this.visitCounts, pathString, null);
+		let visitCountOut;
+
+		if (this._patch != null ) {
+			let container = this.story.ContentAtPath(new Path(pathString)).container;
+			if (container === null)
+				throw new Error('Content at path not found: ' + pathString);
+
+			visitCountOut = this._patch.TryGetVisitCount(container, 0);
+			if (visitCountOut.exists)
+				return visitCountOut.result;
+		}
+
+		visitCountOut = tryGetValueFromMap(this._visitCounts, pathString, null);
 		if (visitCountOut.exists)
 			return visitCountOut.result;
 
 		return 0;
+	}
+
+	public VisitCountForContainer(container: Container | null): number {
+		if (container === null) { return throwNullException('container'); }
+		if (!container.visitsShouldBeCounted) {
+			this.story.Error('Read count for target ('+container.name+' - on '+container.debugMetadata+') unknown. The story may need to be compiled with countAllVisits flag (-c).');
+			return 0;
+		}
+
+		if (this._patch !== null) {
+			let count = this._patch.TryGetVisitCount(container, 0);
+			if (count.exists) {
+				return count.result!;
+			}
+		}
+
+		let containerPathStr = container.path.toString();
+		let count2 = tryGetValueFromMap(this._visitCounts, containerPathStr, null);
+		if (count2.exists) {
+			return count2.result!;
+		}
+
+		return 0;
+	}
+
+	public IncrementVisitCountForContainer(container: Container){
+		if (this._patch !== null) {
+			let currCount = this.VisitCountForContainer(container);
+			currCount++;
+			this._patch.SetVisitCount(container, currCount);
+			return;
+		}
+
+		let containerPathStr = container.path.toString();
+		let count = tryGetValueFromMap(this._visitCounts, containerPathStr, null);
+		if (count.exists) {
+			this._visitCounts.set(containerPathStr, count.result! + 1);
+		}
+	}
+
+	public RecordTurnIndexVisitToContainer(container: Container){
+		if (this._patch !== null) {
+			this._patch.SetTurnIndex(container, this.currentTurnIndex);
+			return;
+		}
+
+		let containerPathStr = container.path.toString();
+		this._turnIndices.set(containerPathStr, this.currentTurnIndex);
+	}
+
+	public TurnsSinceForContainer(container: Container){
+		if (!container.turnIndexShouldBeCounted) {
+			this.story.Error('TURNS_SINCE() for target ('+container.name+' - on '+container.debugMetadata+') unknown. The story may need to be compiled with countAllVisits flag (-c).');
+		}
+
+		if (this._patch !== null) {
+			let index = this._patch.TryGetTurnIndex(container, 0);
+			if (index.exists) {
+				return this.currentTurnIndex - index.result!;
+			}
+		}
+
+		let containerPathStr = container.path.toString();
+		let index2 = tryGetValueFromMap(this._turnIndices, containerPathStr, null);
+		if (index2.exists) {
+			return this.currentTurnIndex - index2.result!;
+		} else {
+			return - 1;
+		}
 	}
 
 	get callstackDepth(){
@@ -93,12 +179,10 @@ export class StoryState{
 	get visitCounts(){
 		return this._visitCounts;
 	}
-	private _visitCounts: Map<string, number>;
 
 	get turnIndices(){
 		return this._turnIndices;
 	}
-	private _turnIndices: Map<string, number>;
 
 	get currentTurnIndex(){
 		return this._currentTurnIndex;
@@ -254,8 +338,10 @@ export class StoryState{
 		this.callStack.currentElement.currentPointer = Pointer.StartOf(this.story.mainContentContainer);
 	}
 
-	public Copy(){
+	public CopyAndStartPatching(){
 		let copy = new StoryState(this.story);
+
+		copy._patch = new StatePatch(this._patch);
 
 		copy.outputStream.push.apply(copy.outputStream, this._outputStream);
 		this.OutputStreamDirty();
@@ -274,8 +360,9 @@ export class StoryState{
 
 		copy.callStack = new CallStack(this.callStack);
 
-		copy._variablesState = new VariablesState(copy.callStack, this.story.listDefinitions);
-		copy.variablesState.CopyFrom(this.variablesState);
+		copy._variablesState = this.variablesState;
+		copy.variablesState.callStack = copy.callStack;
+		copy.variablesState.patch = copy._patch;
 
 		copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
 
@@ -284,8 +371,8 @@ export class StoryState{
 
 		copy.previousPointer = this.previousPointer.copy();
 
-		copy._visitCounts = new Map(this.visitCounts);
-		copy._turnIndices = new Map(this.turnIndices);
+		copy._visitCounts = this._visitCounts;
+		copy._turnIndices = this._turnIndices;
 
 		copy._currentTurnIndex = this.currentTurnIndex;
 		copy.storySeed = this.storySeed;
@@ -296,53 +383,93 @@ export class StoryState{
 		return copy;
 	}
 
-	get jsonToken(){
-		let obj: JObject = {};
+	public RestoreAfterPatch() {
+		this.variablesState.callStack = this.callStack;
+		this.variablesState.patch = this._patch;
+	}
 
-		let choiceThreads: JObject | undefined;
+	public ApplyAnyPatch() {
+		if (this._patch == null) return;
+
+		this.variablesState.ApplyPatch();
+
+		for(let [key, value] of this._patch.visitCounts)
+			this.ApplyCountChanges(key, value, true);
+
+		for(let [key, value] of this._patch.turnIndices)
+			this.ApplyCountChanges(key, value, false);
+
+		this._patch = null;
+	}
+
+	public ApplyCountChanges(container: Container, newCount: number, isVisit: boolean) {
+		let counts = isVisit ? this._visitCounts : this._turnIndices;
+		counts.set(container.path.toString(), newCount);
+	}
+
+	public WriteJson(writer: SimpleJson.Writer) {
+		writer.WriteObjectStart();
+
+		let hasChoiceThreads = false;
 		for (let c of this._currentChoices) {
 			if (c.threadAtGeneration === null) { return throwNullException('c.threadAtGeneration'); }
 			c.originalThreadIndex = c.threadAtGeneration.threadIndex;
 
-			if( this.callStack.ThreadWithIndex(c.originalThreadIndex) == null ) {
-				if( choiceThreads == null )
-					choiceThreads = new Map();
+			if (this.callStack.ThreadWithIndex(c.originalThreadIndex) === null) {
+				if (!hasChoiceThreads) {
+					hasChoiceThreads = true;
+					writer.WritePropertyStart('choiceThreads');
+					writer.WriteObjectStart();
+				}
 
-				choiceThreads[c.originalThreadIndex.toString()] = c.threadAtGeneration.jsonToken;
+				writer.WritePropertyStart(c.originalThreadIndex);
+				c.threadAtGeneration.WriteJson(writer);
+				writer.WritePropertyEnd();
 			}
 		}
 
-		if (choiceThreads != null)
-			obj['choiceThreads'] = choiceThreads;
-
-		obj['callstackThreads'] = this.callStack.GetJsonToken();
-		obj['variablesState'] = this.variablesState.jsonToken;
-
-		obj['evalStack'] = JsonSerialisation.ListToJArray(this.evaluationStack);
-
-		obj['outputStream'] = JsonSerialisation.ListToJArray(this._outputStream);
-
-		obj['currentChoices'] = JsonSerialisation.ListToJArray(this._currentChoices);
-
-		if(!this.divertedPointer.isNull) {
-			if (this.divertedPointer.path === null) { return throwNullException('this.divertedPointer.path'); }
-			obj['currentDivertTarget'] = this.divertedPointer.path.componentsString;
+		if (hasChoiceThreads) {
+			writer.WriteObjectEnd();
+			writer.WritePropertyEnd();
 		}
 
-		obj['visitCounts'] = JsonSerialisation.IntDictionaryToJObject(this.visitCounts);
-		obj['turnIndices'] = JsonSerialisation.IntDictionaryToJObject(this.turnIndices);
-		obj['turnIdx'] = this.currentTurnIndex;
-		obj['storySeed'] = this.storySeed;
-		obj['previousRandom'] = this.previousRandom;
+		writer.WriteProperty('callstackThreads', this.callStack.WriteJson);
 
-		obj['inkSaveVersion'] = this.kInkSaveStateVersion;
+		writer.WriteProperty('variablesState', this.variablesState.WriteJson);
 
-		// Not using this right now, but could do in future.
-		obj['inkFormatVersion'] = this.story.inkVersionCurrent;
+		writer.WriteProperty('evalStack', (w) => JsonSerialisation.WriteListRuntimeObjs(w, this.evaluationStack));
 
-		return obj;
+		writer.WriteProperty('outputStream', (w) => JsonSerialisation.WriteListRuntimeObjs(w, this._outputStream));
+
+		writer.WriteProperty('currentChoices', (w) => {
+			w.WriteArrayStart();
+			for (let c of this._currentChoices)
+				JsonSerialisation.WriteChoice(w, c);
+			w.WriteArrayEnd();
+		});
+
+		if (!this.divertedPointer.isNull) {
+			if (this.divertedPointer.path === null) { return throwNullException('divertedPointer'); }
+			writer.WriteProperty('currentDivertTarget', this.divertedPointer.path.componentsString);
+		}
+
+		writer.WriteProperty('visitCounts', (w) => JsonSerialisation.WriteIntDictionary(w, this._visitCounts));
+		writer.WriteProperty('turnIndices', (w) => JsonSerialisation.WriteIntDictionary(w, this._turnIndices));
+
+
+		writer.WriteIntProperty('turnIdx', this.currentTurnIndex);
+		writer.WriteIntProperty('storySeed', this.storySeed);
+		writer.WriteIntProperty('previousRandom', this.previousRandom);
+
+		writer.WriteIntProperty('inkSaveVersion', this.kInkSaveStateVersion);
+
+		// Not using this rig't now, but could do in future.
+		writer.WriteIntProperty('inkFormatVersion', Story.inkVersionCurrent);
+
+		writer.WriteObjectEnd();
 	}
-	set jsonToken(value: JObject){
+
+	public LoadJsonObj(value: Record<string, any>){
 		let jObject = value;
 
 		let jSaveVersion = jObject['inkSaveVersion'];
@@ -354,7 +481,7 @@ export class StoryState{
 		}
 
 		this.callStack.SetJsonToken(jObject['callstackThreads'], this.story);
-		this.variablesState.jsonToken = jObject['variablesState'];
+		this.variablesState.SetJsonToken(jObject['variablesState']);
 
 		this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(jObject['evalStack']);
 
@@ -370,8 +497,8 @@ export class StoryState{
 			this.divertedPointer = this.story.PointerAtPath(divertPath);
 		}
 
-		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject['visitCounts']) as Map<string, number>;
-		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject['turnIndices']) as Map<string, number>;
+		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject['visitCounts']);
+		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject['turnIndices']);
 		this._currentTurnIndex = parseInt(jObject['turnIdx']);
 		this.storySeed = parseInt(jObject['storySeed']);
 		this.previousRandom = parseInt(jObject['previousRandom']);
@@ -851,8 +978,13 @@ export class StoryState{
 		this._outputStreamTagsDirty = true;
 	}
 
+	private _visitCounts: Map<string, number>;
+	private _turnIndices: Map<string, number>;
+
 	private _outputStream: InkObject[];
 	private _outputStreamTextDirty = true;
 	private _outputStreamTagsDirty = true;
 	private _currentChoices: Choice[];
+
+	private _patch: StatePatch | null = null;
 }
