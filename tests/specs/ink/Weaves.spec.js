@@ -12,7 +12,7 @@ describe('Weaves', () => {
 		story = undefined;
 	});
 
-	test('conditional choice in weave', () => {
+	it('tests conditional choice in weave', () => {
 		loadStory("conditional_choice_in_weave");
 
 		expect(story.ContinueMaximally()).toBe("start\ngather should be seen\n");
@@ -24,7 +24,7 @@ describe('Weaves', () => {
 		expect(story.ContinueMaximally()).toBe("result\n");
 	});
 
-	test('conditional choice in weave 2', () => {
+	it('tests conditional choice in weave 2', () => {
 		loadStory("conditional_choice_in_weave_2");
 
 		expect(story.Continue()).toBe("first gather\n");
@@ -36,7 +36,7 @@ describe('Weaves', () => {
 		expect(story.currentChoices.length).toBe(0);
 	});
 
-	test('unbalanced weave indentation', () => {
+	it('tests unbalanced weave indentation', () => {
 		loadStory("unbalanced_weave_indentation");
 
 		story.ContinueMaximally();
@@ -54,7 +54,7 @@ describe('Weaves', () => {
 		expect(story.currentChoices.length).toBe(0);
 	});
 
-	test('weave gathers', () => {
+	it('tests weave gathers', () => {
 		loadStory("weave_gathers");
 
 		story.ContinueMaximally();
@@ -73,7 +73,7 @@ describe('Weaves', () => {
 		expect(story.ContinueMaximally()).toBe("two\nthree\nsix\n");
 	});
 
-	test('weave options', () => {
+	it('tests weave options', () => {
 		loadStory("weave_options");
 
 		story.ContinueMaximally();
@@ -83,7 +83,7 @@ describe('Weaves', () => {
 		expect(story.Continue()).toBe("Hello, world.\n");
 	});
 
-	test('weave within sequence', () => {
+	it('tests weave within sequence', () => {
 		loadStory("weave_within_sequence");
 
 		story.Continue();

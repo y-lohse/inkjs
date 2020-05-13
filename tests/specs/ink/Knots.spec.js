@@ -12,19 +12,19 @@ describe('Knots', () => {
 		story = undefined;
 	});
 
-	test('knot do not gather', () => {
+	it('tests knot do not gather', () => {
 		loadStory("knot_do_not_gather");
 
 		expect(story.Continue()).toBe("g\n");
 	});
 
-	test('knot stitch gather counts', () => {
+	it('tests knot stitch gather counts', () => {
 		loadStory("knot_stitch_gather_counts");
 
 		expect(story.ContinueMaximally()).toBe("1 1\n2 2\n3 3\n1 1\n2 1\n3 1\n1 2\n2 2\n3 2\n1 1\n2 1\n3 1\n1 2\n2 2\n3 2\n");
 	});
 
-	test('knot thread interaction', () => {
+	it('tests knot thread interaction', () => {
 		loadStory("knot_thread_interaction");
 
 		expect(story.ContinueMaximally()).toBe("blah blah\n");
@@ -40,7 +40,7 @@ describe('Knots', () => {
 		expect(story.hasError);
 	});
 
-	test('knot thread interaction2', () => {
+	it('tests knot thread interaction2', () => {
 		loadStory("knot_thread_interaction_2");
 
 		expect(story.ContinueMaximally()).toBe("I’m in a tunnel\nWhen should this get printed?\n");

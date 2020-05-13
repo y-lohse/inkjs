@@ -12,19 +12,19 @@ describe('Evaluation', () => {
 		story = undefined;
 	});
 
-	xtest('arithmetic', () => {
+	xit('tests arithmetic', () => {
 		loadStory("arithmetic");
 
 		expect(story.ContinueMaximally()).toBe("36\n2\n3\n2\n2.333333\n8\n8\n");
 	});
 
-	test('basic string literal', () => {
+	it('tests basic string literal', () => {
 		loadStory("basic_string_literals");
 
 		expect(story.ContinueMaximally()).toBe("Hello world 1\nHello world 2.\n");
 	});
 
-	test('evaluating function variable state bug', () => {
+	it('tests evaluating function variable state bug', () => {
 		loadStory("evaluating_function_variable_state_bug");
 
 		expect(story.Continue()).toBe("Start\n");
@@ -35,7 +35,7 @@ describe('Evaluation', () => {
 		expect(story.Continue()).toBe("End\n");
 	});
 
-	test('evaluating ink functions from game', () => {
+	it('tests evaluating ink functions from game', () => {
 		loadStory("evaluating_ink_functions_from_game");
 
 		story.Continue();
@@ -45,7 +45,7 @@ describe('Evaluation', () => {
 		expect(returnedDivertTarget).toBe("somewhere.here");
 	});
 
-	test('evaluating ink functions from game 2', () => {
+	it('tests evaluating ink functions from game 2', () => {
 		loadStory("evaluating_ink_functions_from_game_2");
 
 		var funcResult = story.EvaluateFunction("func1", [], true)
@@ -70,32 +70,32 @@ describe('Evaluation', () => {
 		expect(story.Continue()).toBe("Three\n");
 	});
 
-	test('evaluating stack leaks', () => {
+	it('tests evaluating stack leaks', () => {
 		loadStory("evaluation_stack_leaks");
 
 		expect(story.ContinueMaximally()).toBe("else\nelse\nhi\n");
 		expect(story.state.evaluationStack.length).toBe(0);
 	});
 
-	test('factorial by reference', () => {
+	it('tests factorial by reference', () => {
 		loadStory("factorial_by_reference");
 
 		expect(story.ContinueMaximally()).toBe("120\n");
 	});
 
-	test('factorial recursive', () => {
+	it('tests factorial recursive', () => {
 		loadStory("factorial_recursive");
 
 		expect(story.ContinueMaximally()).toBe("120\n");
 	});
 
-	test('increment', () => {
+	it('tests increment', () => {
 		loadStory("increment");
 
 		expect(story.ContinueMaximally()).toBe("6\n5\n");
 	});
 
-	test('literal unary', () => {
+	it('tests literal unary', () => {
 		loadStory("literal_unary");
 
 		expect(story.ContinueMaximally()).toBe("-1\n0\n1\n");

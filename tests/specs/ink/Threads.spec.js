@@ -12,7 +12,7 @@ describe('Threads', () => {
 		story = undefined;
 	});
 
-	test('multi threads', () => {
+	it('tests multi threads', () => {
 		loadStory("multi_thread");
 
 		expect(story.ContinueMaximally()).toBe("This is place 1.\nThis is place 2.\n");
@@ -23,19 +23,19 @@ describe('Threads', () => {
 		expect(story.hasError).toBe(false);
 	});
 
-	test('thread done', () => {
+	it('tests thread done', () => {
 		loadStory("thread_done");
 
 		expect(story.ContinueMaximally()).toBe("This is a thread example\nHello.\nThe example is now complete.\n");
 	});
 
-	test('thread in logic', () => {
+	it('tests thread in logic', () => {
 		loadStory("thread_in_logic");
 
 		expect(story.Continue()).toBe("Content\n");
 	});
 
-	test('top flow terminator should not kill thread choices', () => {
+	it('tests top flow terminator should not kill thread choices', () => {
 		loadStory("top_flow_terminator_should_not_kill_thread_choices");
 
 		expect(story.Continue()).toBe("Limes\n");

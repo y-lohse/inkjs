@@ -12,12 +12,12 @@ describe('Choices', () => {
 		story = undefined;
 	});
 
-	test('choice count', () => {
+	it('tests choice count', () => {
 		loadStory("choice_count");
 		expect(story.Continue()).toBe("2\n");
 	});
 
-	test('choice divert to done', () => {
+	it('tests choice divert to done', () => {
 		loadStory("choice_diverts_to_done");
 		story.Continue();
 
@@ -28,7 +28,7 @@ describe('Choices', () => {
 		expect(story.hasError).toBe(false);
 	});
 
-	test('choice with brackets only', () => {
+	it('tests choice with brackets only', () => {
 		loadStory("choice_with_brackets_only");
 		story.Continue();
 
@@ -39,7 +39,7 @@ describe('Choices', () => {
 		expect(story.Continue()).toBe("Text\n");
 	});
 
-	test('choice thread forking', () => {
+	it('tests choice thread forking', () => {
 		loadStory("choice_thread_forking");
 		story.Continue();
 		let savedState = story.state.ToJson();
@@ -53,7 +53,7 @@ describe('Choices', () => {
 		expect(story.hasWarning).toBe(false);
 	});
 
-	test('conditional choices', () => {
+	it('tests conditional choices', () => {
 		loadStory("conditional_choices");
 		story.ContinueMaximally();
 
@@ -64,7 +64,7 @@ describe('Choices', () => {
 		expect(story.currentChoices[3].text).toBe("four");
 	});
 
-	test('default choice', () => {
+	it('tests default choice', () => {
 		loadStory("default_choices");
 
 		expect(story.Continue()).toBe("");
@@ -79,19 +79,19 @@ describe('Choices', () => {
 		expect(story.ContinueMaximally()).toBe("After choice\nThis is default.\n");
 	});
 
-	test('default simple gather', () => {
+	it('tests default simple gather', () => {
 		loadStory("default_simple_gather");
 
 		expect(story.Continue()).toBe("x\n");
 	});
 
-	test('fallback choice on thread', () => {
+	it('tests fallback choice on thread', () => {
 		loadStory("fallback_choice_on_thread");
 
 		expect(story.Continue()).toBe("Should be 1 not 0: 1.\n");
 	});
 
-	test('gather choice same line', () => {
+	it('tests gather choice same line', () => {
 		loadStory("gather_choice_same_line");
 
 		story.Continue()
@@ -103,7 +103,7 @@ describe('Choices', () => {
 		expect(story.currentChoices[0].text).toBe("world");
 	});
 
-	test('has read on choice', () => {
+	it('tests has read on choice', () => {
 		loadStory("has_read_on_choice");
 
 		story.ContinueMaximally()
@@ -111,7 +111,7 @@ describe('Choices', () => {
 		expect(story.currentChoices[0].text).toBe("visible choice");
 	});
 
-	test('logic in choices', () => {
+	it('tests logic in choices', () => {
 		loadStory("logic_in_choices");
 
 		story.ContinueMaximally()
@@ -120,7 +120,7 @@ describe('Choices', () => {
 		expect(story.ContinueMaximally()).toBe("'Hello Joe,' I said, knowing full well that his name was Joe.\n");
 	});
 
-	test('non text in choice inner content', () => {
+	it('tests non text in choice inner content', () => {
 		loadStory("non_text_in_choice_inner_content");
 
 		story.Continue()
@@ -129,7 +129,7 @@ describe('Choices', () => {
 		expect(story.Continue()).toBe("option text. Conditional bit. Next.\n");
 	});
 
-	test('test once only choices can link back to self', () => {
+	it('tests test once only choices can link back to self', () => {
 		loadStory("once_only_choices_can_link_back_to_self");
 
 		story.ContinueMaximally();
@@ -149,7 +149,7 @@ describe('Choices', () => {
 		expect(story.hasError).toBe(false);
 	});
 
-	test('test once only choices with own content', () => {
+	it('tests test once only choices with own content', () => {
 		loadStory("once_only_choices_with_own_content");
 
 		story.ContinueMaximally();
@@ -172,7 +172,7 @@ describe('Choices', () => {
 		expect(story.currentChoices.length).toBe(0);
 	});
 
-	test('should not gather due to choice', () => {
+	it('tests should not gather due to choice', () => {
 		loadStory("should_not_gather_due_to_choice");
 
 		story.ContinueMaximally();
@@ -181,7 +181,7 @@ describe('Choices', () => {
 		expect(story.ContinueMaximally()).toBe("opt\ntext\n");
 	});
 
-	test('sticky choices stay sticky', () => {
+	it('tests sticky choices stay sticky', () => {
 		loadStory("sticky_choices_stay_sticky");
 
 		story.ContinueMaximally();
@@ -192,7 +192,7 @@ describe('Choices', () => {
 		expect(story.currentChoices.length).toBe(2);
 	});
 
-	test('various default choices', () => {
+	it('tests various default choices', () => {
 		loadStory("various_default_choices");
 
 		expect(story.ContinueMaximally()).toBe("1\n2\n3\n");

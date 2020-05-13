@@ -12,25 +12,25 @@ describe('Strings', () => {
 		story = undefined;
 	});
 
-	test('string constants', () => {
+	it('tests string constants', () => {
 		loadStory("string_constants");
 
 		expect(story.Continue()).toBe("hi\n");
 	});
 
-	test('string contains', () => {
+	it('tests string contains', () => {
 		loadStory("string_contains");
 
 		expect(story.ContinueMaximally()).toBe("1\n0\n1\n1\n");
 	});
 
-	test('string type coercion', () => {
+	it('tests string type coercion', () => {
 		loadStory("string_type_coercion");
 
 		expect(story.ContinueMaximally()).toBe("same\ndifferent\n");
 	});
 
-	test('string in choices', () => {
+	it('tests string in choices', () => {
 		loadStory("strings_in_choices");
 
 		story.ContinueMaximally();

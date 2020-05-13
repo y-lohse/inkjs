@@ -12,26 +12,26 @@ describe('Conditions', () => {
 		story = undefined;
 	});
 
-	test('all switch branches fail is clean', () => {
+	it('tests all switch branches fail is clean', () => {
 		loadStory("all_switch_branches_fail_is_clean");
 
 		story.Continue();
 		expect(story.state.evaluationStack.length).toBe(0);
 	});
 
-	test('else branches', () => {
+	it('tests else branches', () => {
 		loadStory("else_branches");
 
 		expect(story.ContinueMaximally()).toBe("other\nother\nother\nother\n");
 	});
 
-	test('empty multiline conditional branch', () => {
+	it('tests empty multiline conditional branch', () => {
 		loadStory("empty_multiline_conditional_branch");
 
 		expect(story.Continue()).toBe("");
 	});
 
-	test('trivial condition', () => {
+	it('tests trivial condition', () => {
 		loadStory("trivial_condition");
 
 		story.Continue()

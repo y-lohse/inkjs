@@ -12,7 +12,7 @@ describe('Tags', () => {
 		story = undefined;
 	});
 
-	test('string constants', () => {
+	it('tests string constants', () => {
 		loadStory("tags");
 
 		let globalTags = ["author: Joe", "title: My Great Story"];
@@ -34,7 +34,7 @@ describe('Tags', () => {
 		expect(story.currentTags).toEqual(knotTagsWhenContinuedTwiceTags);
 	});
 
-	test('tag on choice', () => {
+	it('tests tag on choice', () => {
 		loadStory("tags_on_choice");
 
 		story.Continue()

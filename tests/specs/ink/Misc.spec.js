@@ -12,68 +12,68 @@ describe('Misc', () => {
 		story = undefined;
 	});
 
-	test('empty', () => {
+	it('tests empty', () => {
 		loadStory("empty");
 
 		expect(story.ContinueMaximally()).toBe("");
 	});
 
-	test('end of content', () => {
+	it('tests end of content', () => {
 		loadStory("end_of_content");
 
 		story.ContinueMaximally();
 		expect(story.hasError).toBe(false);
 	});
 
-	test('end', () => {
+	it('tests end', () => {
 		loadStory("end");
 
 		expect(story.ContinueMaximally()).toBe("hello\n");
 	});
 
-	test('end 2', () => {
+	it('tests end 2', () => {
 		loadStory("end2");
 
 		expect(story.ContinueMaximally()).toBe("hello\n");
 	});
 
-	test('escape characters', () => {
+	it('tests escape characters', () => {
 		loadStory("escape_character");
 
 		expect(story.ContinueMaximally()).toBe("this is a '|' character\n");
 	});
 
-	test('hello world', () => {
+	it('tests hello world', () => {
 		loadStory("hello_world");
 
 		expect(story.Continue()).toBe("Hello world\n");
 	});
 
-	test('identifiers can start with numbers', () => {
+	it('tests identifiers can start with numbers', () => {
 		loadStory("identifiers_can_start_with_number");
 
 		expect(story.ContinueMaximally()).toBe("512x2 = 1024\n512x2p2 = 1026\n");
 	});
 
-	test('include', () => {
+	it('tests include', () => {
 		loadStory("include");
 
 		expect(story.ContinueMaximally()).toBe("This is include 1.\nThis is include 2.\nThis is the main file.\n");
 	});
 
-	test('nested include', () => {
+	it('tests nested include', () => {
 		loadStory("nested_include");
 
 		expect(story.ContinueMaximally()).toBe("The value of a variable in test file 2 is 5.\nThis is the main file\nThe value when accessed from knot_in_2 is 5.\n");
 	});
 
-	test('quote character significance', () => {
+	it('tests quote character significance', () => {
 		loadStory("quote_character_significance");
 
 		expect(story.ContinueMaximally()).toBe("My name is \"Joe\"\n");
 	});
 
-	test('whitespace', () => {
+	it('tests whitespace', () => {
 		loadStory("whitespace");
 
 		expect(story.ContinueMaximally()).toBe("Hello!\nWorld.\n");

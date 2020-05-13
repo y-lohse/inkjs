@@ -12,7 +12,7 @@ describe('Bindings', () => {
 		story = undefined;
 	});
 
-	xtest('external bindings', () => {
+	xit('tests external bindings', () => {
 		loadStory("external_binding");
 
 		let testExternalBindingMessage = '';
@@ -40,7 +40,7 @@ describe('Bindings', () => {
 		expect(testExternalBindingMessage).toBe("MESSAGE: hello world");
 	});
 
-	xtest('game ink back and forth', () => {
+	xit('tests game ink back and forth', () => {
 		loadStory("game_ink_back_and_forth");
 
 		story.BindExternalFunction ("gameInc", (x) => {
@@ -54,7 +54,7 @@ describe('Bindings', () => {
 		expect(finalResult['output']).toBe("In top external\n");
 	});
 
-	test('variable observer', () => {
+	it('tests variable observer', () => {
 		loadStory("variable_observer");
 
 		let currentVarValue = 0;

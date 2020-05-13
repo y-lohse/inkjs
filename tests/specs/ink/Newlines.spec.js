@@ -12,13 +12,13 @@ describe('Newlines', () => {
 		story = undefined;
 	});
 
-	test('newline at start of multiline conditional', () => {
+	it('tests newline at start of multiline conditional', () => {
 		loadStory("newline_at_start_of_multiline_conditional");
 
 		expect(story.ContinueMaximally()).toBe("X\nx\n");
 	});
 
-	test('newline consistency', () => {
+	it('tests newline consistency', () => {
 		loadStory("newline_consistency_1");
 		expect(story.ContinueMaximally()).toBe("hello world\n");
 
@@ -33,14 +33,14 @@ describe('Newlines', () => {
 		expect(story.ContinueMaximally()).toBe("hello\nworld\n");
 	});
 
-	test('newlines trimming with func external fallback', () => {
+	it('tests newlines trimming with func external fallback', () => {
 		loadStory("newlines_trimming_with_func_external_fallback");
 		story.allowExternalFunctionFallbacks = true;
 
 		expect(story.ContinueMaximally()).toBe("Phrase 1\nPhrase 2\n");
 	});
 
-	test('newlines trimming with string eval', () => {
+	it('tests newlines trimming with string eval', () => {
 		loadStory("newlines_with_string_eval");
 
 		expect(story.ContinueMaximally()).toBe("A\nB\nA\n3\nB\n");
