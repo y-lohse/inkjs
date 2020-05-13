@@ -1,13 +1,14 @@
 #!/usr/bin/env node
 
-// Recompile baseline ink files with the current version of inklecate avilable
-// $PATH.
+// Recompile baseline ink files with the current version
+// of inklecate available in $PATH.
 
 let childProcess = require('child_process');
+let glob = require("glob");
 let fs = require('fs-extra');
 let path = require('path');
 
-let fileDirectory = path.join(__dirname, 'files');
+let fileDirectory = path.join(__dirname, 'inkfiles');
 let inkFileDirectory = path.join(fileDirectory, 'original');
 let compiledFileDirectory = path.join(fileDirectory, 'compiled');
 
@@ -20,33 +21,14 @@ let filesRequiringCFlag = [
 	'tests.ink'
 ]
 
-function getAllInkFiles(dir) {
-	return fs.readdirSync(dir).reduce((files, file) => {
-		if (fs.statSync(path.join(dir, file)).isDirectory()) {
-			// 'includes' directories are not processed since they are expected
-			// to be included by inklecate directly.
-			if (file !== 'includes') {
-				return files.concat(getAllInkFiles(path.join(dir, file)));
-			} else {
-				return files;
-			}
-		} else {
-			if (path.extname(file) === '.ink') {
-				return files.concat(path.join(dir, file));
-			} else {
-				return files;
-			}
-		}
-	}, []);
-}
-
 function runInklecate(input, output, extraArgs) {
 	let command = `inklecate ${extraArgs} -o "${output}" "${input}"`
 
 	return new Promise((resolve, reject) => {
 		childProcess.exec(command, (error, stdout, stderr) => {
 			if (error) {
-				reject(error);
+				// Adding stdout as well, in case this is a compilation error.
+				reject(new Error(`${error.message.replace(/\n+$/, "")}\n${stdout}`));
 			} else {
 				resolve(stdout);
 			}
@@ -54,12 +36,12 @@ function runInklecate(input, output, extraArgs) {
 	});
 }
 
-function compileInkFile() {
+async function compileInkFile() {
 	console.log("Compiling test cases…");
 
-	let files = getAllInkFiles(inkFileDirectory)
+	let files = glob.sync(`${inkFileDirectory}/**/!(includes)/*.ink`);
 
-	let promises = files.map((file) => {
+	let promises = files.map(async (file) => {
 		let out = path.join(compiledFileDirectory, path.relative(inkFileDirectory, file) + '.json');
 		let fileName = path.basename(file)
 
@@ -71,21 +53,15 @@ function compileInkFile() {
 
 		let outDirectory = path.dirname(out);
 
-		return fs.pathExists(outDirectory).then(exists => {
-			if (exists) {
-				return runInklecate(file, out, extraArgs);
-			} else {
-				return fs.ensureDir(outDirectory).then(() => runInklecate(file, out, extraArgs));
-			}
-		})
+		await fs.ensureDir(outDirectory);
+		return runInklecate(file, out, extraArgs);
 	})
 
-	Promise
-		.allSettled(promises)
-		.then(
-			() => console.log("Done."),
-			(errors) => errors.forEach((error) => console.log(error.message))
-		);
+	let results = await Promise.allSettled(promises);
+	let errors = results.filter(result => result.status === "rejected");
+
+	if (errors.length === 0) console.log("Done.");
+	else errors.forEach(error => console.error(`\n${error.reason.message}`));
 }
 
 compileInkFile();

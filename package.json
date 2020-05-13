@@ -24,6 +24,7 @@
     "@babel/plugin-transform-object-assign": "7.8.3",
     "@babel/preset-env": "7.9.6",
     "fs-extra": "9.0.0",
+    "glob": "^7.1.6",
     "jest": "26.0.1",
     "remap-istanbul": "0.13.0",
     "rollup": "2.9.1",
@@ -35,6 +36,5 @@
     "rollup-plugin-uglify": "6.0.4",
     "tslint": "5.20.1",
     "typescript": "3.8.3"
-  },
-  "dependencies": {}
+  }
 }
