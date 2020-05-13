@@ -365,7 +365,6 @@ export namespace CallStack {
 		public WriteJson(writer: SimpleJson.Writer) {
 			writer.WriteObjectStart();
 
-			// callstack
 			writer.WritePropertyStart('callstack');
 			writer.WriteArrayStart();
 			for (let el of this.callstack) {
@@ -390,7 +389,6 @@ export namespace CallStack {
 			writer.WriteArrayEnd();
 			writer.WritePropertyEnd();
 
-			// threadIndex
 			writer.WriteIntProperty('threadIndex', this.threadIndex);
 
 			if (!this.previousPointer.isNull) {
