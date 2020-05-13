@@ -13,27 +13,27 @@ describe('Builtins', () => {
 		story = undefined;
 	});
 
-	xtest('floor, ceiling and casts', () => {
+	xit('tests floor, ceiling and casts', () => {
 		loadStory("floor_ceiling_and_casts");
 		expect(story.ContinueMaximally()).toBe("1\n1\n2\n0.666667\n0\n1\n");
 	});
 
-	test('read count accross callstack', () => {
+	it('tests read count accross callstack', () => {
 		loadStory("read_count_across_callstack");
 		expect(story.ContinueMaximally()).toBe("1) Seen first 1 times.\nIn second.\n2) Seen first 1 times.\n");
 	});
 
-	test('read count accross threads', () => {
+	it('tests read count accross threads', () => {
 		loadStory("read_count_across_threads");
 		expect(story.ContinueMaximally()).toBe("1\n1\n");
 	});
 
-	test('read count dot deperated path', () => {
+	it('tests read count dot deperated path', () => {
 		loadStory("read_count_dot_separated_path");
 		expect(story.ContinueMaximally()).toBe("hi\nhi\nhi\n3\n");
 	});
 
-	test('nested turns since', () => {
+	it('tests nested turns since', () => {
 		loadStory("turns_since_nested");
 
 		expect(story.ContinueMaximally()).toBe("-1 = -1\n");
@@ -47,7 +47,7 @@ describe('Builtins', () => {
 		expect(story.ContinueMaximally()).toBe("more stuff\n1 = 1\n");
 	});
 
-	test('nested turns since', () => {
+	it('tests nested turns since', () => {
 		loadStory("turns_since_with_variable_target");
 
 		expect(story.ContinueMaximally()).toBe("0\n0\n");
@@ -57,7 +57,7 @@ describe('Builtins', () => {
 		expect(story.ContinueMaximally()).toBe("1\n");
 	});
 
-	test('turns since', () => {
+	it('tests turns since', () => {
 		loadStory("turns_since");
 
 		expect(story.ContinueMaximally()).toBe("-1\n0\n");
@@ -69,7 +69,7 @@ describe('Builtins', () => {
 		expect(story.ContinueMaximally()).toBe("2\n");
 	});
 
-	test('turns', () => {
+	it('tests turns', () => {
 		loadStory("turns");
 
 		for (let i; i < 10; i++) {
@@ -78,7 +78,7 @@ describe('Builtins', () => {
 		}
 	});
 
-	test('visit counts when choosing', () => {
+	it('tests visit counts when choosing', () => {
 		loadStory("visit_counts_when_choosing");
 
 		expect(story.state.VisitCountAtPathString("TestKnot")).toBe(0);
