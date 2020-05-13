@@ -1,14 +1,15 @@
-import {AbstractValue, Value, VariablePointerValue, ListValue} from './Value';
+import {AbstractValue, Value, VariablePointerValue, ListValue, IntValue, FloatValue} from './Value';
 import {VariableAssignment} from './VariableAssignment';
 import {InkObject} from './Object';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {StoryException} from './StoryException';
 import {JsonSerialisation} from './JsonSerialisation';
-import {asOrThrows, asOrNull} from './TypeAssertion';
+import {asOrThrows, asOrNull, isEquatable} from './TypeAssertion';
 import {tryGetValueFromMap} from './TryGetResult';
 import {throwNullException} from './NullException';
 import {CallStack} from './CallStack';
 import {StatePatch} from './StatePatch';
+import {SimpleJson} from './SimpleJson';
 
 export class VariablesState{
 	// The way variableChangedEvent is a bit different than the reference implementation.
@@ -128,25 +129,89 @@ export class VariablesState{
 		}
 	}
 
-	// public CopyFrom(toCopy: VariablesState){
-	// 	this._globalVariables = new Map(toCopy._globalVariables);
-	// 	this._defaultGlobalVariables = new Map(toCopy._defaultGlobalVariables);
-	//
-	// 	this.variableChangedEvent = toCopy.variableChangedEvent;
-	// 	this.variableChangedEventCallbacks = toCopy.variableChangedEventCallbacks; // inkjs specificity that has to be copied along the rest of the structure
-	//
-	// 	if (toCopy.batchObservingVariableChanges != this.batchObservingVariableChanges) {
-	//
-	// 		if (toCopy.batchObservingVariableChanges) {
-	// 			this._batchObservingVariableChanges = true;
-	// 			if (toCopy._changedVariables === null) { return throwNullException('toCopy._changedVariables'); }
-	// 			this._changedVariables = new Set(toCopy._changedVariables);
-	// 		} else {
-	// 			this._batchObservingVariableChanges = false;
-	// 			this._changedVariables = null;
-	// 		}
-	// 	}
-	// }
+	public ApplyPatch() {
+		if (this.patch === null) { return throwNullException('this.patch'); }
+
+		for (let [namedVarKey, namedVarValue] of this.patch.globals) {
+			this._globalVariables.set(namedVarKey, namedVarValue);
+		}
+
+		if (this._changedVariablesForBatchObs != null) {
+			for (let name of this.patch.changedVariables) {
+				this._changedVariablesForBatchObs.add(name);
+			}
+		}
+
+		this.patch = null;
+	}
+
+	public SetJsonToken(jToken: Map<string, object>){
+		this._globalVariables.clear();
+
+		for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
+			if (jToken.has(varValKey)) {
+				let loadedToken = jToken.get(varValKey);
+				let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(loadedToken);
+				if (tokenInkObject === null) { return throwNullException('tokenInkObject'); }
+				this._globalVariables.set(varValKey, tokenInkObject);
+			}
+			else {
+				this._globalVariables.set(varValKey, varValValue);
+			}
+		}
+	}
+
+	public static dontSaveDefaultValues: boolean = true;
+
+	public WriteJson(writer: SimpleJson.Writer) {
+		writer.WriteObjectStart();
+		for (let [keyValKey, keyValValue] of this._globalVariables) {
+			let name = keyValKey;
+			let val = keyValValue;
+
+			if (VariablesState.dontSaveDefaultValues) {
+				if (this._defaultGlobalVariables.has(name)) {
+					let defaultVal = this._defaultGlobalVariables.get(name)!;
+					if (this.RuntimeObjectsEqual(val, defaultVal))
+						continue;
+				}
+			}
+
+			writer.WritePropertyStart(name);
+			JsonSerialisation.WriteRuntimeObject(writer, val);
+			writer.WritePropertyEnd();
+		}
+		writer.WriteObjectEnd();
+	}
+
+	public RuntimeObjectsEqual(obj1: InkObject | null, obj2: InkObject | null) {
+		if (obj1 === null) { return throwNullException('obj1'); }
+		if (obj2 === null) { return throwNullException('obj2'); }
+
+		if (obj1.constructor !== obj2.constructor) return false;
+
+		let intVal = asOrNull(obj1, IntValue);
+		if (intVal !== null) {
+			return intVal.value === asOrThrows(obj2, IntValue).value;
+		}
+
+		let floatVal = asOrNull(obj1, FloatValue);
+		if (floatVal !== null) {
+			return floatVal.value == asOrThrows(obj2, FloatValue).value;
+		}
+
+		let val1 = asOrNull(obj1, Value);
+		let val2 = asOrNull(obj2, Value);
+		if (val1 !== null && val2 !== null) {
+			if (isEquatable(val1.valueObject) && isEquatable(val2.valueObject)) {
+				return val1.valueObject.Equals(val2.valueObject);
+			} else {
+				return val1.valueObject === val2.valueObject;
+			}
+		}
+
+		throw new Error('FastRoughDefinitelyEquals: Unsupported runtime object type: ' + obj1.constructor.name);
+	}
 
 	get jsonToken(){
 		return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
@@ -162,7 +227,7 @@ export class VariablesState{
 	}
 
 	public GlobalVariableExistsWithName(name: string){
-		return this._globalVariables.has(name)  || this._defaultGlobalVariables != null && this._defaultGlobalVariables.has(name);
+		return this._globalVariables.has(name) || this._defaultGlobalVariables !== null && this._defaultGlobalVariables.has(name);
 	}
 
 	public GetVariableWithName(name: string | null, contextIndex: number = -1): InkObject | null {
@@ -182,7 +247,7 @@ export class VariablesState{
 
 		if (contextIndex == 0 || contextIndex == -1) {
 			let variableValue = null;
-			if (this.patch != null) {
+			if (this.patch !== null) {
 				variableValue = this.patch.TryGetGlobal(name, null);
 				if (variableValue.exists) return variableValue.result as InkObject;
 			}
@@ -192,7 +257,7 @@ export class VariablesState{
 			if (variableValue.exists)
 				return variableValue.result;
 
-			if (this._defaultGlobalVariables != null) {
+			if (this._defaultGlobalVariables !== null) {
 				variableValue = tryGetValueFromMap(this._defaultGlobalVariables, name, null);
 				if (variableValue.exists) return variableValue.result;
 			}
@@ -271,7 +336,7 @@ export class VariablesState{
 	public SetGlobal(variableName: string | null, value: InkObject){
 		let oldValue = null;
 
-		if (this.patch == null || !this.patch.TryGetGlobal(variableName, null).exists) {
+		if (this.patch === null || !this.patch.TryGetGlobal(variableName, null).exists) {
 			oldValue = tryGetValueFromMap(this._globalVariables, variableName, null);
 		}
 
@@ -281,7 +346,7 @@ export class VariablesState{
 
 		if (variableName === null) { return throwNullException('variableName'); }
 
-		if (this.patch != null) {
+		if (this.patch !== null) {
 			this.patch.SetGlobal(variableName, value);
 		}
 		else{
@@ -294,10 +359,10 @@ export class VariablesState{
 			if (this.batchObservingVariableChanges) {
 				if (this._changedVariablesForBatchObs === null) { return throwNullException('this._changedVariablesForBatchObs'); }
 
-				if (this.patch != null) {
+				if (this.patch !== null) {
 					this.patch.AddChangedVariable(variableName);
 				}
-				else if (this._changedVariablesForBatchObs != null) {
+				else if (this._changedVariablesForBatchObs !== null) {
 					this._changedVariablesForBatchObs.add(variableName);
 				}
 			} else {
@@ -305,41 +370,6 @@ export class VariablesState{
 			}
 		}
 	}
-
-	public ApplyPatch() {
-		if (this.patch === null) { return throwNullException('this.patch'); }
-
-		for (let [namedVarKey, namedVarValue] of this.patch.globals) {
-			this._globalVariables.set(namedVarKey, namedVarValue);
-		}
-
-		if (this._changedVariablesForBatchObs != null) {
-			for (let name of this.patch.changedVariables) {
-				this._changedVariablesForBatchObs.add(name);
-			}
-		}
-
-		this.patch = null;
-	}
-
-	public SetJsonToken(jToken: Map<string, object>){
-		this._globalVariables.clear();
-
-		for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
-			if (jToken.has(varValKey)) {
-				let loadedToken = jToken.get(varValKey);
-				let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(loadedToken);
-				if (tokenInkObject === null) { return throwNullException('tokenInkObject'); }
-				this._globalVariables.set(varValKey, tokenInkObject);
-			}
-			else {
-				this._globalVariables.set(varValKey, varValValue);
-			}
-		}
-	}
-
-	//WriteJson
-	//RuntimeObjectsEqual
 
 	public ResolveVariablePointer(varPointer: VariablePointerValue){
 		let contextIndex = varPointer.contextIndex;
