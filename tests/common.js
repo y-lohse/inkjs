@@ -1,24 +1,33 @@
-var inkPath = '../engine/runtime.js'
+let path = require('path');
+
+let rootDir = path.join(__dirname, '..');
+let inkPath = path.join(rootDir, 'engine', 'runtime.js');
 
 if (process.env.INK_TEST === "dist") {
-	inkPath = '../dist/ink-es2015.js'
+	inkPath = path.join(rootDir, 'dist', 'ink-es2015.js');
 } else if (process.env.INK_TEST === "legacy") {
-	inkPath = '../dist/ink.js'
+	inkPath = path.join(rootDir, 'dist', 'ink.js');
 }
 
-var inkFileBasePath = 'tests/inkfiles/';
+let baselinePath = path.join(rootDir, 'tests', 'inkfiles', 'compiled');
 
-var fs = require('fs'),
+let fs = require('fs'),
 	inkjs = require(inkPath);
 
-function loadInkFile(path){
-	path = inkFileBasePath + path;
+function loadInkFile(filename, category) {
+	filename = filename + '.ink.json';
 
-	var content = fs.readFileSync(path, 'UTF-8')
-		.replace(/^\uFEFF/, '');//strip the BOM
+	if (category) {
+		filePath = path.join(baselinePath, category, filename);
+	} else {
+		filePath = path.join(baselinePath, filename);
+	}
+
+	let content = fs.readFileSync(filePath, 'UTF-8')
+					.replace(/^\uFEFF/, ''); // Strip the BOM.
 
 	return new inkjs.Story(content);
-};
+}
 
 module.exports = {
 	loadInkFile: loadInkFile,

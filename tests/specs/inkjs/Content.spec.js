@@ -1,10 +1,10 @@
-var testsUtils = require('../common.js');
+var testsUtils = require('../../common.js');
 
 describe('Content', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
@@ -52,7 +52,7 @@ describe('Glue', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
@@ -74,7 +74,7 @@ describe('Divert', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
@@ -109,7 +109,7 @@ describe('Game Queries', function(){
 
   var story;
   beforeEach(function(){
-    story = testsUtils.loadInkFile('tests.json');
+    story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
