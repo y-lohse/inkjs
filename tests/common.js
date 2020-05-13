@@ -1,7 +1,7 @@
 let path = require('path');
 
-var rootDir = path.join(__dirname, '..');
-var inkPath = path.join(rootDir, 'engine', 'runtime.js');
+let rootDir = path.join(__dirname, '..');
+let inkPath = path.join(rootDir, 'engine', 'runtime.js');
 
 if (process.env.INK_TEST === "dist") {
 	inkPath = path.join(rootDir, 'dist', 'ink-es2015.js');
@@ -9,9 +9,9 @@ if (process.env.INK_TEST === "dist") {
 	inkPath = path.join(rootDir, 'dist', 'ink.js');
 }
 
-var baselinePath = path.join(rootDir, 'tests', 'files', 'compiled');
+let baselinePath = path.join(rootDir, 'tests', 'inkfiles', 'compiled');
 
-var fs = require('fs'),
+let fs = require('fs'),
 	inkjs = require(inkPath);
 
 function loadInkFile(filename, category) {
@@ -23,7 +23,7 @@ function loadInkFile(filename, category) {
 		filePath = path.join(baselinePath, filename);
 	}
 
-	var content = fs.readFileSync(filePath, 'UTF-8')
+	let content = fs.readFileSync(filePath, 'UTF-8')
 					.replace(/^\uFEFF/, ''); // Strip the BOM.
 
 	return new inkjs.Story(content);
