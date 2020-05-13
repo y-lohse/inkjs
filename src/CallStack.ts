@@ -11,6 +11,7 @@ import {Container} from './Container';
 import {Debug} from './Debug';
 import {tryGetValueFromMap} from './TryGetResult';
 import {throwNullException} from './NullException';
+import {SimpleJson} from './SimpleJson';
 
 export class CallStack{
 	get elements(){
@@ -60,6 +61,7 @@ export class CallStack{
 			for (let otherThread of toCopy._threads) {
 				this._threads.push(otherThread.Copy());
 			}
+			this._threadCounter = toCopy._threadCounter;
 			this._startOfRoot = toCopy._startOfRoot;
 		}
 	}
@@ -88,19 +90,22 @@ export class CallStack{
 		this._threadCounter = parseInt(jObject['threadCounter']);
 		this._startOfRoot = Pointer.StartOf(storyContext.rootContentContainer);
 	}
-	public GetJsonToken(){
-		let jObject: any = {};
+	public WriteJson(w: SimpleJson.Writer) {
+		w.WriteObject((writer) => {
+			writer.WritePropertyStart('threads');
+			writer.WriteArrayStart();
 
-		let jThreads: any[] = [];
+			for (let thread of this._threads) {
+				thread.WriteJson(writer);
+			}
 
-		for (let thread of this._threads) {
-			jThreads.push(thread.jsonToken);
-		}
+			writer.WriteArrayEnd();
+			writer.WritePropertyEnd();
 
-		jObject['threads'] = jThreads;
-		jObject['threadCounter'] = this._threadCounter;
-
-		return jObject;
+			writer.WritePropertyStart('threadCounter');
+			writer.Write(this._threadCounter);
+			writer.WritePropertyEnd();
+		});
 	}
 
 	public PushThread(){
@@ -329,8 +334,12 @@ export namespace CallStack {
 
 					let el = new Element(pushPopType, pointer, inExpressionEvaluation);
 
-					let jObjTemps = jElementObj['temp'];
-					el.temporaryVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(jObjTemps);
+					let temps = jElementObj['temp'];
+					if (typeof temps !== 'undefined') {
+						el.temporaryVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(temps);
+					} else {
+						el.temporaryVariables.clear();
+					}
 
 					this.callstack.push(el);
 				}
@@ -353,33 +362,42 @@ export namespace CallStack {
 			return copy;
 		}
 
-		get jsonToken(){
-			let threadJObj: any = {};
+		public WriteJson(writer: SimpleJson.Writer) {
+			writer.WriteObjectStart();
 
-			let jThreadCallstack: any[] = [];
+			writer.WritePropertyStart('callstack');
+			writer.WriteArrayStart();
 			for (let el of this.callstack) {
-				let jObj: any = {};
-				if (!el.currentPointer.isNull) {
+				writer.WriteObjectStart();
+				if(!el.currentPointer.isNull) {
 					if (el.currentPointer.container === null) { return throwNullException('el.currentPointer.container'); }
-					jObj['cPath'] = el.currentPointer.container.path.componentsString;
-					jObj['idx'] = el.currentPointer.index;
+					writer.WriteProperty('cPath', el.currentPointer.container.path.componentsString);
+					writer.WriteIntProperty('idx', el.currentPointer.index);
 				}
-				jObj['exp'] = el.inExpressionEvaluation;
-				jObj['type'] = el.type;
-				jObj['temp'] = JsonSerialisation.DictionaryRuntimeObjsToJObject(el.temporaryVariables);
-				jThreadCallstack.push(jObj);
-			}
 
-			threadJObj['callstack'] = jThreadCallstack;
-			threadJObj['threadIndex'] = this.threadIndex;
+				writer.WriteProperty('exp', el.inExpressionEvaluation);
+				writer.WriteIntProperty('type', el.type);
+
+				if (el.temporaryVariables.size > 0) {
+					writer.WritePropertyStart('temp');
+					JsonSerialisation.WriteDictionaryRuntimeObjs(writer, el.temporaryVariables);
+					writer.WritePropertyEnd();
+				}
+
+				writer.WriteObjectEnd();
+			}
+			writer.WriteArrayEnd();
+			writer.WritePropertyEnd();
+
+			writer.WriteIntProperty('threadIndex', this.threadIndex);
 
 			if (!this.previousPointer.isNull) {
 				let resolvedPointer = this.previousPointer.Resolve();
 				if (resolvedPointer === null) { return throwNullException('this.previousPointer.Resolve()'); }
-				threadJObj['previousContentObject'] = resolvedPointer.path.toString();
+				writer.WriteProperty('previousContentObject', resolvedPointer.path.toString());
 			}
 
-			return threadJObj;
+			writer.WriteObjectEnd();
 		}
 	}
 }
