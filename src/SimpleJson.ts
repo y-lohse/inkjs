@@ -36,21 +36,23 @@ export namespace SimpleJson {
 			this.StartNewObject(true);
 
 			let newObject: Record<string, any> = {};
-			this._collectionStack.push(newObject);
 
-			if (this.state === SimpleJson.Writer.State.Object) {
+			if (this.state === SimpleJson.Writer.State.Property) {
 				this.Assert(this.currentCollection !== null);
 				this.Assert(this.currentPropertyName !== null);
 
 				let propertyName = this._propertyNameStack.pop();
 				this.currentCollection![propertyName!] = newObject;
+				this._collectionStack.push(newObject);
 			} else if (this.state === SimpleJson.Writer.State.Array) {
 				this.Assert(this.currentCollection !== null);
 
 				this.currentCollection!.push(newObject);
+				this._collectionStack.push(newObject);
 			} else {
 				this.Assert(this.state === SimpleJson.Writer.State.None);
 				this._jsonObject = newObject;
+				this._collectionStack.push(newObject);
 			}
 
 			this._stateStack.push(new SimpleJson.Writer.StateElement(SimpleJson.Writer.State.Object));
@@ -128,18 +130,19 @@ export namespace SimpleJson {
 			this.StartNewObject(true);
 
 			let newObject: any[] = [];
-			this._collectionStack.push(newObject);
 
-			if (this.state === SimpleJson.Writer.State.Object) {
+			if (this.state === SimpleJson.Writer.State.Property) {
 				this.Assert(this.currentCollection !== null);
 				this.Assert(this.currentPropertyName !== null);
 
 				let propertyName = this._propertyNameStack.pop();
 				this.currentCollection![propertyName!] = newObject;
+				this._collectionStack.push(newObject);
 			} else if (this.state === SimpleJson.Writer.State.Array) {
 				this.Assert(this.currentCollection !== null);
 
 				this.currentCollection!.push(newObject);
+				this._collectionStack.push(newObject);
 			}
 
 			this._stateStack.push(new SimpleJson.Writer.StateElement(SimpleJson.Writer.State.Array));
@@ -162,17 +165,20 @@ export namespace SimpleJson {
 		}
 
 		public WriteInt(value: number) {
+			this.StartNewObject(false);
 			this._addToCurrentObject(Math.floor(value));
 		}
 
 		public WriteFloat(value: number) {
 			this.StartNewObject(false);
 			if (value == Number.POSITIVE_INFINITY) {
-				this._addToCurrentObject('3.4E+38');
+				this._addToCurrentObject(3.4E+38);
 			} else if (value == Number.NEGATIVE_INFINITY) {
-				this._addToCurrentObject('-3.4E+38');
+				this._addToCurrentObject(-3.4E+38);
 			} else if (isNaN(value)) {
-				this._addToCurrentObject('0.0');
+				this._addToCurrentObject(0.0);
+			} else {
+				this._addToCurrentObject(value);
 			}
 		}
 
@@ -189,12 +195,14 @@ export namespace SimpleJson {
 
 		public WriteStringEnd() {
 			this.Assert(this.state == SimpleJson.Writer.State.String);
+			this._stateStack.pop();
 			this._addToCurrentObject(this._currentString);
 			this._currentString = null;
-			this._stateStack.pop();
 		}
 
 		public WriteStringInner(str: string | null, escape: boolean = true) {
+			this.Assert(this.state === SimpleJson.Writer.State.String);
+
 			if (str === null) {
 				console.error('Warning: trying to write a null string');
 				return;
@@ -266,9 +274,7 @@ export namespace SimpleJson {
 			this.Assert(this._stateStack.length > 0);
 			let currEl = this._stateStack.pop()!;
 			currEl.childCount++;
-			console.log(currEl.childCount);
 			this._stateStack.push(currEl);
-			console.log("child: " + this._stateStack[this._stateStack.length - 1].childCount);
 		}
 
 		private Assert(condition: boolean) {
