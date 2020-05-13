@@ -172,8 +172,13 @@ export class Story extends InkObject{
 		// ------
 	}
 
-	public ToJson(writer?: SimpleJson.Writer) {
+	// Merge together `public string ToJson()` and `void ToJson(SimpleJson.Writer writer)`.
+	// Will only return a value if writer was not provided.
+	public ToJson(writer?: SimpleJson.Writer): string | void {
+		let shouldReturn = false;
+
 		if (!writer) {
+			shouldReturn = true;
 			writer = new SimpleJson.Writer();
 		}
 
@@ -207,7 +212,7 @@ export class Story extends InkObject{
 
 		writer.WriteObjectEnd();
 
-		return writer.ToString();
+		if (shouldReturn) return writer.ToString();
 	}
 
 	public ResetState(){
