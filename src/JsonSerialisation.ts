@@ -120,12 +120,12 @@ export class JsonSerialisation{
 		// var intVal = obj as IntValue;
 		let intVal = asOrNull(obj, IntValue);
 		if (intVal)
-			writer.Write(intVal.value);
+			writer.WriteInt(intVal.value);
 
 		// var floatVal = obj as FloatValue;
 		let floatVal = asOrNull(obj, FloatValue);
 		if (floatVal)
-			writer.Write(floatVal.value);
+			writer.WriteFloat(floatVal.value);
 
 		// var strVal = obj as StringValue;
 		let strVal = asOrNull(obj, StringValue);
