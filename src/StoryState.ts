@@ -165,6 +165,9 @@ export class StoryState{
 	get variablesState(){
 		return this._variablesState;
 	}
+	set variablesState(value){
+		this._variablesState = value;
+	}
 	private _variablesState: VariablesState;
 
 	public callStack: CallStack;
@@ -344,7 +347,7 @@ export class StoryState{
 		copy._patch = new StatePatch(this._patch);
 
 		copy.outputStream.push.apply(copy.outputStream, this._outputStream);
-		this.OutputStreamDirty();
+		copy.OutputStreamDirty();
 
 		copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
 
@@ -360,7 +363,7 @@ export class StoryState{
 
 		copy.callStack = new CallStack(this.callStack);
 
-		copy._variablesState = this.variablesState;
+		copy.variablesState = this.variablesState;
 		copy.variablesState.callStack = copy.callStack;
 		copy.variablesState.patch = copy._patch;
 
@@ -463,7 +466,6 @@ export class StoryState{
 
 		writer.WriteIntProperty('inkSaveVersion', this.kInkSaveStateVersion);
 
-		// Not using this rig't now, but could do in future.
 		writer.WriteIntProperty('inkFormatVersion', Story.inkVersionCurrent);
 
 		writer.WriteObjectEnd();
