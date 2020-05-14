@@ -1,8 +1,8 @@
-var testsUtils = require('../../common.js');
+let testsUtils = require('../../common.js');
 
 describe('Content', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
@@ -50,7 +50,7 @@ describe('Content', function(){
 
 describe('Glue', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
@@ -72,7 +72,7 @@ describe('Glue', function(){
 
 describe('Divert', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
@@ -107,7 +107,7 @@ describe('Divert', function(){
 
 describe('Game Queries', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;

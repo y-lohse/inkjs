@@ -1,8 +1,8 @@
-var testsUtils = require('../../common.js');
+let testsUtils = require('../../common.js');
 
 describe('Simple lists', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
@@ -26,9 +26,9 @@ describe('Simple lists', function(){
   });
 
   it('should go through a cycle', function(){
-    var results = ['one\n', 'two\n', 'three\n'];
+    let results = ['one\n', 'two\n', 'three\n'];
 
-    for (var i = 0; i < 10; ++i){
+    for (let i = 0; i < 10; ++i){
       story.ChoosePathString('simple_lists.cycle');
       expect(story.Continue()).toEqual(results[i%3]);
     }
@@ -49,16 +49,16 @@ describe('Simple lists', function(){
   });
 
   it('should go through a shuffle', function(){
-    var results = ['heads\n', 'tails\n'];
+    let results = ['heads\n', 'tails\n'];
 
-    for (var i = 0; i < 40; ++i){
+    for (let i = 0; i < 40; ++i){
       story.ChoosePathString('simple_lists.shuffle');
       expect(results).toContain(story.Continue());
     }
   });
 
   it('should handle blank elements', function(){
-    for (var i = 0; i < 3; ++i){
+    for (let i = 0; i < 3; ++i){
       story.ChoosePathString('simple_lists.blanks');
       expect(story.Continue()).toEqual('');
     }
