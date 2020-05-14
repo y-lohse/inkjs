@@ -68,13 +68,12 @@ export class JsonSerialisation{
 	}
 
 	public static WriteRuntimeObject(writer: SimpleJson.Writer, obj: InkObject): void{
-		// var container = obj as Container;
 		let container = asOrNull(obj, Container);
 		if (container) {
-			return this.WriteRuntimeContainer(writer, container);
+			this.WriteRuntimeContainer(writer, container);
+			return;
 		}
 
-		// var divert = obj as Divert;
 		let divert = asOrNull(obj, Divert);
 		if (divert) {
 			let divTypeKey = '->';
@@ -106,46 +105,49 @@ export class JsonSerialisation{
 				writer.WriteIntProperty('exArgs', divert.externalArgs);
 
 			writer.WriteObjectEnd();
+			return;
 		}
 
-		// var choicePoint = obj as ChoicePoint;
 		let choicePoint = asOrNull(obj, ChoicePoint);
 		if (choicePoint) {
 			writer.WriteObjectStart();
 			writer.WriteProperty('*', choicePoint.pathStringOnChoice);
 			writer.WriteIntProperty('flg', choicePoint.flags);
 			writer.WriteObjectEnd();
+			return;
 		}
 
-		// var intVal = obj as IntValue;
 		let intVal = asOrNull(obj, IntValue);
-		if (intVal)
+		if (intVal) {
 			writer.WriteInt(intVal.value);
+			return;
+		}
 
-		// var floatVal = obj as FloatValue;
 		let floatVal = asOrNull(obj, FloatValue);
-		if (floatVal)
+		if (floatVal) {
 			writer.WriteFloat(floatVal.value);
+			return;
+		}
 
-		// var strVal = obj as StringValue;
 		let strVal = asOrNull(obj, StringValue);
 		if (strVal) {
-			if (strVal.isNewline)
+			if (strVal.isNewline) {
 				writer.Write('\n', false);
-			else
-			writer.WriteStringStart();
-			writer.WriteStringInner('^');
-			writer.WriteStringInner(strVal.value);
-			writer.WriteStringEnd();
+			} else {
+				writer.WriteStringStart();
+				writer.WriteStringInner('^');
+				writer.WriteStringInner(strVal.value);
+				writer.WriteStringEnd();
+			}
+			return;
 		}
 
-		// var listVal = obj as ListValue;
 		let listVal = asOrNull(obj, ListValue);
 		if (listVal) {
 			this.WriteInkList(writer, listVal);
+			return;
 		}
 
-		// var divTargetVal = obj as DivertTargetValue;
 		let divTargetVal = asOrNull(obj, DivertTargetValue);
 		if (divTargetVal) {
 			writer.WriteObjectStart();
@@ -156,7 +158,6 @@ export class JsonSerialisation{
 			return;
 		}
 
-		// var varPtrVal = obj as VariablePointerValue;
 		let varPtrVal = asOrNull(obj, VariablePointerValue);
 		if (varPtrVal) {
 			writer.WriteObjectStart();
@@ -166,21 +167,18 @@ export class JsonSerialisation{
 			return;
 		}
 
-		// var glue = obj as Runtime.Glue;
 		let glue = asOrNull(obj, Glue);
 		if (glue) {
 			writer.Write('<>');
 			return;
 		}
 
-		// var controlCmd = obj as ControlCommand;
 		let controlCmd = asOrNull(obj, ControlCommand);
 		if (controlCmd) {
-			// TODO WriteInt
 			writer.Write(JsonSerialisation._controlCommandNames[controlCmd.commandType]);
+			return;
 		}
 
-		// var nativeFunc = obj as Runtime.NativeFunctionCall;
 		let nativeFunc = asOrNull(obj, NativeFunctionCall);
 		if (nativeFunc) {
 			let name = nativeFunc.name;
@@ -191,8 +189,6 @@ export class JsonSerialisation{
 			return;
 		}
 
-		// Variable reference
-		// var varRef = obj as VariableReference;
 		let varRef = asOrNull(obj, VariableReference);
 		if (varRef) {
 			writer.WriteObjectStart();
@@ -204,10 +200,9 @@ export class JsonSerialisation{
 			}
 
 			writer.WriteObjectEnd();
+			return;
 		}
 
-		// Variable assignment
-		// var varAss = obj as VariableAssignment;
 		let varAss = asOrNull(obj, VariableAssignment);
 		if (varAss) {
 			writer.WriteObjectStart();
@@ -224,14 +219,12 @@ export class JsonSerialisation{
 			return;
 		}
 
-		// var voidObj = obj as Void;
 		let voidObj = asOrNull(obj, Void);
 		if (voidObj) {
-			writer.Write('voidv');
+			writer.Write('void');
 			return;
 		}
 
-		// var tag = obj as Tag;
 		let tag = asOrNull(obj, Tag);
 		if (tag) {
 			writer.WriteObjectStart();
@@ -240,8 +233,6 @@ export class JsonSerialisation{
 			return;
 		}
 
-		// Used when serialising save state only
-		// var choice = obj as Choice;
 		let choice = asOrNull(obj, Choice);
 		if (choice) {
 			this.WriteChoice(writer, choice);
@@ -493,7 +484,7 @@ export class JsonSerialisation{
 		}
 
 		if (hasNameProperty)
-		writer.WriteProperty('#n', container.name);
+			writer.WriteProperty('#n', container.name);
 
 		if (hasTerminator)
 			writer.WriteObjectEnd();
