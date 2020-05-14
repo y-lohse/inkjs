@@ -1,5 +1,6 @@
 import { InkObject } from './Object';
 import { Container } from './Container';
+import { throwNullException } from './NullException';
 
 export class StatePatch {
 	get globals() { return this._globals; }
@@ -8,9 +9,10 @@ export class StatePatch {
 	get turnIndices() { return this._turnIndices; }
 
 	constructor()
-	constructor(toCopy: StatePatch)
+	constructor(toCopy: StatePatch | null)
 	constructor() {
 		if (arguments.length === 1) {
+			if (arguments[0] === null) { throwNullException('toCopy'); }
 			let toCopy = arguments[0];
 			this._globals = new Map(toCopy._globals);
 			this._changedVariables = new Set(toCopy._changedVariables);
