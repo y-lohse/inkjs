@@ -1,8 +1,8 @@
-var testsUtils = require('../../common.js');
+let testsUtils = require('../../common.js');
 
 describe('Callstack', () => {
 
-	var story;
+	let story;
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "callstack");

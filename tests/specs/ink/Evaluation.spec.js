@@ -1,8 +1,8 @@
-var testsUtils = require('../../common.js');
+let testsUtils = require('../../common.js');
 
 describe('Evaluation', () => {
 
-	var story;
+	let story;
 
 	function loadStory(name) {
 		story = testsUtils.loadInkFile(name, "evaluation");
@@ -30,7 +30,7 @@ describe('Evaluation', () => {
 		expect(story.Continue()).toBe("Start\n");
 		expect(story.Continue()).toBe("In tunnel.\n");
 
-		var funcResult = story.EvaluateFunction("function_to_evaluate")
+		let funcResult = story.EvaluateFunction("function_to_evaluate")
 		expect(funcResult).toBe("RIGHT");
 		expect(story.Continue()).toBe("End\n");
 	});
@@ -40,7 +40,7 @@ describe('Evaluation', () => {
 
 		story.Continue();
 
-		var returnedDivertTarget = story.EvaluateFunction("test")
+		let returnedDivertTarget = story.EvaluateFunction("test")
 
 		expect(returnedDivertTarget).toBe("somewhere.here");
 	});
@@ -48,21 +48,21 @@ describe('Evaluation', () => {
 	it('tests evaluating ink functions from game 2', () => {
 		loadStory("evaluating_ink_functions_from_game_2");
 
-		var funcResult = story.EvaluateFunction("func1", [], true)
+		let funcResult = story.EvaluateFunction("func1", [], true)
 
 		expect(funcResult['output']).toBe("This is a function\n");
 		expect(funcResult['returned']).toBe(5);
 
 		expect(story.Continue()).toBe("One\n");
 
-		var funcResult = story.EvaluateFunction("func2", [], true)
+		funcResult = story.EvaluateFunction("func2", [], true)
 
 		expect(funcResult['output']).toBe("This is a function without a return value\n");
 		expect(funcResult['returned']).toBe(null);
 
 		expect(story.Continue()).toBe("Two\n");
 
-		var funcResult = story.EvaluateFunction("add", [1, 2], true)
+		funcResult = story.EvaluateFunction("add", [1, 2], true)
 
 		expect(funcResult['output']).toBe("x = 1, y = 2\n");
 		expect(funcResult['returned']).toBe(3);

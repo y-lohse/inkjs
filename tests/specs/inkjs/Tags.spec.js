@@ -1,22 +1,22 @@
-var testsUtils = require('../../common.js');
+let testsUtils = require('../../common.js');
 
 describe('Tags', function(){
 
-  var story;
+  let story;
   beforeEach(function(){
     story = testsUtils.loadInkFile('tests', 'inkjs');
     story.allowExternalFunctionFallbacks = true;
   });
 
   it('should find global tags', function(){
-    var tags = story.globalTags;
+    let tags = story.globalTags;
 
     expect(tags.length).toBe(1);
     expect(tags[0]).toEqual('global tag');
   });
 
   it('should find knot level tags', function(){
-    var tags = story.TagsForContentAtPath('tags');
+    let tags = story.TagsForContentAtPath('tags');
 
     expect(tags.length).toBe(1);
     expect(tags[0]).toEqual('knot tag');
@@ -26,7 +26,7 @@ describe('Tags', function(){
     story.ChoosePathString('tags.line_by_Line');
     story.Continue();
 
-    var tags = story.currentTags;
+    let tags = story.currentTags;
 
     expect(tags.length).toBe(1);
     expect(tags[0]).toEqual('a tag');
@@ -65,7 +65,7 @@ describe('Tags', function(){
     story.ChoosePathString('tags.weird');
     story.Continue();
 
-    var tags = story.currentTags;
+    let tags = story.currentTags;
 
     expect(tags.length).toBe(5);
     expect(tags[0]).toEqual('space around');
