@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",{"f()":"func"},"pop","/ev","\n","^text 2","\n","ev",{"f()":"func"},"/ev",{"temp=":"tempVar"},"\n","^text 2","\n",["done",{"#n":"g-0"}],null],"done",{"func":["^text1","\n","ev",1,"/ev","~ret",null],"global decl":["ev","/ev","end",null]}],"listDefs":{}}

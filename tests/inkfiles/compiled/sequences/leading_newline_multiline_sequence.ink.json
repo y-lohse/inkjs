@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[["ev","visit",1,"MIN","/ev","ev","du",0,"==","/ev",{"->":".^.s0","c":true},"ev","du",1,"==","/ev",{"->":".^.s1","c":true},"nop",{"s0":["pop","\n","^a line after an empty line","\n",{"->":"0.0.17"},null],"s1":["pop","\n","^blah","\n",{"->":"0.0.17"},null],"#f":5}],"\n",["done",{"#n":"g-0"}],null],"done",null],"listDefs":{}}

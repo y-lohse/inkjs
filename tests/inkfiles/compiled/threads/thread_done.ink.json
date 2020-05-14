@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["^This is a thread example","\n","thread",{"->":"example_thread"},"^The example is now complete.","\n",["done",{"#n":"g-0"}],null],"done",{"example_thread":["^Hello.","\n","done","^World.","\n","done",null]}],"listDefs":{}}

@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[{"->t->":"tunnel1"},"^The End.","\n","end",["done",{"#n":"g-0"}],null],"done",{"tunnel1":["^Hello...","\n",{"->t->":"tunnel2"},"ev","void","/ev","->->",null],"tunnel2":["^...world.","\n","ev","void","/ev","->->",null]}],"listDefs":{}}
