@@ -10,6 +10,7 @@
     "test:remap:lcov": "remap-istanbul --input coverage/coverage-final.json --output coverage/lcov.info --type lcovonly",
     "test:remap:html": "remap-istanbul --input coverage/coverage-final.json --output coverage/lcov-report --type html",
     "test:remap:json": "remap-istanbul --input coverage/coverage-final.json --output coverage/coverage-final.json",
+    "test:compileFiles": "node tests/compile.js",
     "build": "tsc -p ./ && rollup -c",
     "lint": "tslint -c tslint.json 'src/**/*.ts'",
     "lint:fix": "npm run lint -- --fix",
@@ -22,9 +23,11 @@
     "@babel/core": "7.9.6",
     "@babel/plugin-transform-object-assign": "7.8.3",
     "@babel/preset-env": "7.9.6",
+    "fs-extra": "9.0.0",
+    "glob": "^7.1.6",
     "jest": "26.0.1",
     "remap-istanbul": "0.13.0",
-    "rollup": "2.9.1",
+    "rollup": "2.10.2",
     "rollup-plugin-babel": "4.4.0",
     "rollup-plugin-node-resolve": "5.2.0",
     "rollup-plugin-sourcemaps": "0.6.2",
@@ -32,7 +35,7 @@
     "rollup-plugin-typescript2": "0.27.1",
     "rollup-plugin-uglify": "6.0.4",
     "tslint": "5.20.1",
-    "typescript": "3.8.3"
+    "typescript": "3.9.2"
   },
   "dependencies": {}
 }

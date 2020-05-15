@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[{"->t->":"hi"},{"->t->":"hi"},{"->t->":"hi"},"ev",{"CNT?":"hi.stitch_to_count"},"out","/ev","\n",["done",{"#n":"g-0"}],null],"done",{"hi":[{"->":"hi.stitch_to_count"},{"stitch_to_count":["^hi","\n","ev","void","/ev","->->",{"#f":1}]}]}],"listDefs":{}}

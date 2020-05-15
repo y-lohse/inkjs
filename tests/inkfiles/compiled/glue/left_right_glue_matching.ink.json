@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["^A line.","\n","ev",{"f()":"f"},"/ev",[{"->":".^.b","c":true},{"b":["\n","^Another line.","\n",{"->":"0.6"},null]}],"nop","\n",["done",{"#n":"g-0"}],null],"done",{"f":["ev",0,"/ev",[{"->":".^.b","c":true},{"b":["^nothing",{"->":"f.4"},null]}],"nop","\n","ev",1,"/ev","~ret",null]}],"listDefs":{}}

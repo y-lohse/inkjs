@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["^Phrase 1","\n","ev",{"x()":"TRUE"},"/ev",[{"->":".^.b","c":true},{"b":["\n","^Phrase 2","\n",{"->":"0.6"},null]}],"nop","\n","end",["done",{"#n":"g-0"}],null],"done",{"TRUE":["ev",1,"/ev","~ret",null]}],"listDefs":{}}
