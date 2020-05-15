@@ -129,8 +129,8 @@ export class NativeFunctionCall extends InkObject{
 			if (this._operationFuncs === null) return throwNullException('NativeFunctionCall._operationFuncs');
 			let opForTypeObj = this._operationFuncs.get(valType);
 			if (!opForTypeObj) {
-        const key = ValueType[valType];
-				throw new StoryException('Cannot perform operation '+this.name+' on '+key);
+		const key = ValueType[valType];
+		throw new StoryException('Cannot perform operation '+this.name+' on '+key);
 			}
 
 			if (paramCount == 2) {
@@ -255,9 +255,9 @@ export class NativeFunctionCall extends InkObject{
 					} else
 						throw new StoryException('Could not find List item with the value ' + intVal + ' in ' + list.name);
 				} else {
-          const key = ValueType[val.valueType];
-          throw new StoryException('Cannot mix Lists and ' + key + ' values in this operation');
-        }
+			const key = ValueType[val.valueType];
+			throw new StoryException('Cannot mix Lists and ' + key + ' values in this operation');
+		}
 			}
 		}
 
