@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",{"f()":"RunAThing"},"out","/ev","\n",["done",{"#n":"g-0"}],null],"done",{"RunAThing":["^The first line.","\n","^The second line.","\n",null],"SomewhereElse":["ev","str","^somewhere else","/str","out","/ev","\n","end",null]}],"listDefs":{}}

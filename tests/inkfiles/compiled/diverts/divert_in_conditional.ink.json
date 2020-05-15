@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[["done",{"#n":"g-0"}],null],"done",{"intro":[{"->":".^.top"},{"top":["ev",{"CNT?":".^.^.main"},"/ev",[{"->":".^.b","c":true},{"b":["^ ",{"->":"intro.done"},{"->":".^.^.^.4"},null]}],"nop","\n","end",null],"main":[{"->":".^.^.top"},{"#f":1}],"done":["end",null]}]}],"listDefs":{}}

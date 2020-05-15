@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["^A","\n","ev",{"f()":"string"},"/ev",{"temp=":"someTemp"},"\n","^B","\n","^A","\n","ev",{"f()":"string"},"out","/ev","\n","^B","\n",["done",{"#n":"g-0"}],null],"done",{"string":["ev","str","ev",3,"out","/ev","/str","/ev","~ret",null],"global decl":["ev","/ev","end",null]}],"listDefs":{}}

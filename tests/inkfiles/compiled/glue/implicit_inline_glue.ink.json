@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["^I have ","ev",{"f()":"five"},"out","/ev","^ eggs.","\n",["done",{"#n":"g-0"}],null],"done",{"five":["ev",0,"/ev",[{"->":".^.b","c":true},{"b":["\n","^Don't print this","\n",{"->":"five.4"},null]}],"nop","\n","^five","\n",null]}],"listDefs":{}}

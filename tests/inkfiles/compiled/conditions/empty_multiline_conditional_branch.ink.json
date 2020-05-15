@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[["ev",3,"/ev",["du","ev",3,"==","/ev",{"->":".^.b","c":true},{"b":["pop","\n",{"->":"0.6"},null]}],["du","ev",4,"==","/ev",{"->":".^.b","c":true},{"b":["pop","\n","^txt","\n",{"->":"0.6"},null]}],"pop","nop","\n",["done",{"#n":"g-0"}],null],"done",null],"listDefs":{}}

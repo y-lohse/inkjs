@@ -1,0 +1,1 @@
+﻿{"inkVersion":19,"root":[[{"->t->":"knot"},"end",["done",{"#n":"g-0"}],null],"done",{"knot":["ev",{"^var":"val","ci":-1},{"f()":"inc"},"pop","/ev","\n","ev",{"VAR?":"val"},"out","/ev","\n","ev","void","/ev","->->",null],"inc":[{"temp=":"x"},"ev",{"VAR?":"x"},1,"+","/ev",{"temp=":"x","re":true},null],"global decl":["ev",5,{"VAR=":"val"},"/ev","end",null]}],"listDefs":{}}
