@@ -40,7 +40,7 @@ if (!Number.isInteger) {
 
 export class Story extends InkObject{
 
-	public inkVersionCurrent = 19;
+	public static inkVersionCurrent = 19;
 
 	public inkVersionMinimumCompatible = 18;
 
@@ -146,13 +146,13 @@ export class Story extends InkObject{
 				throw new Error("ink version number not found. Are you sure it's a valid .ink.json file?");
 
 			let formatFromFile = parseInt(versionObj);
-			if (formatFromFile > this.inkVersionCurrent){
+			if (formatFromFile > Story.inkVersionCurrent){
 				throw new Error('Version of ink used to build story was newer than the current version of the engine');
 			}
 			else if (formatFromFile < this.inkVersionMinimumCompatible){
 				throw new Error('Version of ink used to build story is too old to be loaded by this version of the engine');
 			}
-			else if (formatFromFile != this.inkVersionCurrent){
+			else if (formatFromFile != Story.inkVersionCurrent){
 				console.warn("WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising.");
 			}
 

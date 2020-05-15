@@ -45,6 +45,10 @@ export function nullIfUndefined<T>(obj: T | undefined): T | null {
 	return obj;
 }
 
+export function isEquatable(type: any) {
+	return (typeof type === 'object' && type.Equals === 'function');
+}
+
 function unsafeTypeAssertion<T>(obj: any, type: (new () => T) | Function & { prototype: T }){
 	return obj as T;
 }
