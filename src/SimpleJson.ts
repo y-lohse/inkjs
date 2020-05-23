@@ -182,7 +182,7 @@ export namespace SimpleJson {
 			this._stateStack.pop();
 		}
 
-		// Add the value to the appropriate collection, given the current
+		// Add the value to the appropriate collection (array / object), given the current
 		// context.
 		public Write(value: number | string | boolean | null, escape: boolean = true) {
 			if (value === null) {
@@ -196,6 +196,17 @@ export namespace SimpleJson {
 
 		public WriteInt(value: number) {
 			this.StartNewObject(false);
+
+			// Math.floor is used as a precaution:
+			//     1. to ensure that the value is written as an integer
+			//        (without a fractional part -> 1 instead of 1.0), even
+			//        though it should be the default behaviour of
+			//        JSON.serialize;
+			//     2. to ensure that if a floating number is passed
+			//        accidentally, it's converted to an integer.
+			//
+			// This guarantees savegame compatibility with the reference
+			// implementation.
 			this._addToCurrentObject(Math.floor(value));
 		}
 
@@ -350,8 +361,9 @@ export namespace SimpleJson {
 
 		private _stateStack: SimpleJson.Writer.StateElement[] = [];
 
-		// Keep track of the current collection being built. For instance, at
-		// the '?' step during the hiarchy creation, this hierarchy:
+		// Keep track of the current collection being built (either an array
+		// or an object). For instance, at the '?' step during the hiarchy
+		// creation, this hierarchy:
 		// [3, {a: [b, ?]}] will have this corresponding stack:
 		// (bottom) [Array, Object, Array] (top)
 		private _collectionStack: Array<any[] | Record<string, any>> = [];
