@@ -69,6 +69,7 @@ export namespace SimpleJson {
 
 		public WriteObjectEnd() {
 			this.Assert(this.state === SimpleJson.Writer.State.Object);
+			this._collectionStack.pop();
 			this._stateStack.pop();
 		}
 
@@ -341,8 +342,10 @@ export namespace SimpleJson {
 		private _addToCurrentObject(value: number | string | boolean | null) {
 			this.Assert(this.currentCollection !== null);
 			if (this.state === SimpleJson.Writer.State.Array) {
+				this.Assert(Array.isArray(this.currentCollection));
 				(this.currentCollection as any[]).push(value);
 			} else if (this.state === SimpleJson.Writer.State.Property) {
+				this.Assert(!Array.isArray(this.currentCollection));
 				this.Assert(this.currentPropertyName !== null);
 				(this.currentCollection as Record<string, any>)[this.currentPropertyName!] = value;
 				this._propertyNameStack.pop();

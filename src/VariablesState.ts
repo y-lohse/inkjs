@@ -145,12 +145,12 @@ export class VariablesState{
 		this.patch = null;
 	}
 
-	public SetJsonToken(jToken: Map<string, object>){
+	public SetJsonToken(jToken: Record<string, any>){
 		this._globalVariables.clear();
 
 		for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
-			if (jToken.has(varValKey)) {
-				let loadedToken = jToken.get(varValKey);
+			let loadedToken = jToken[varValKey];
+			if (typeof loadedToken !== 'undefined') {
 				let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(loadedToken);
 				if (tokenInkObject === null) { return throwNullException('tokenInkObject'); }
 				this._globalVariables.set(varValKey, tokenInkObject);
