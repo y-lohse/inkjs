@@ -103,7 +103,7 @@ export class CallStack{
 			writer.WritePropertyEnd();
 
 			writer.WritePropertyStart('threadCounter');
-			writer.Write(this._threadCounter);
+			writer.WriteInt(this._threadCounter);
 			writer.WritePropertyEnd();
 		});
 	}
