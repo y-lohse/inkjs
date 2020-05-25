@@ -23,7 +23,7 @@ export class VariablesState{
 		}
 	}
 
-	private patch: StatePatch | null = null;
+	public patch: StatePatch | null = null;
 
 	get batchObservingVariableChanges(){
 		return this._batchObservingVariableChanges;
@@ -145,12 +145,12 @@ export class VariablesState{
 		this.patch = null;
 	}
 
-	public SetJsonToken(jToken: Map<string, object>){
+	public SetJsonToken(jToken: Record<string, any>){
 		this._globalVariables.clear();
 
 		for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
-			if (jToken.has(varValKey)) {
-				let loadedToken = jToken.get(varValKey);
+			let loadedToken = jToken[varValKey];
+			if (typeof loadedToken !== 'undefined') {
 				let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(loadedToken);
 				if (tokenInkObject === null) { return throwNullException('tokenInkObject'); }
 				this._globalVariables.set(varValKey, tokenInkObject);
@@ -213,23 +213,6 @@ export class VariablesState{
 		throw new Error('FastRoughDefinitelyEquals: Unsupported runtime object type: ' + obj1.constructor.name);
 	}
 
-	get jsonToken(){
-		return JsonSerialisation.DictionaryRuntimeObjsToJObject(this._globalVariables);
-	}
-	set jsonToken(value){
-		this._globalVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(value);
-	}
-
-	public TryGetDefaultVariableValue(name: string | null): InkObject | null
-	{
-		let val = tryGetValueFromMap(this._defaultGlobalVariables, name, null);
-		return val.exists ? val.result : null;
-	}
-
-	public GlobalVariableExistsWithName(name: string){
-		return this._globalVariables.has(name) || this._defaultGlobalVariables !== null && this._defaultGlobalVariables.has(name);
-	}
-
 	public GetVariableWithName(name: string | null, contextIndex: number = -1): InkObject | null {
 		let varValue = this.GetRawVariableWithName(name, contextIndex);
 
@@ -240,6 +223,16 @@ export class VariablesState{
 		}
 
 		return varValue;
+	}
+
+	public TryGetDefaultVariableValue(name: string | null): InkObject | null
+	{
+		let val = tryGetValueFromMap(this._defaultGlobalVariables, name, null);
+		return val.exists ? val.result : null;
+	}
+
+	public GlobalVariableExistsWithName(name: string){
+		return this._globalVariables.has(name) || this._defaultGlobalVariables !== null && this._defaultGlobalVariables.has(name);
 	}
 
 	public GetRawVariableWithName(name: string | null, contextIndex: number) {
