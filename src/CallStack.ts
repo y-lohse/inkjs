@@ -73,7 +73,7 @@ export class CallStack{
 		this._threads[0].callstack.push(new CallStack.Element(PushPopType.Tunnel, this._startOfRoot));
 	}
 
-	public SetJsonToken(jObject: any, storyContext: Story){
+	public SetJsonToken(jObject: Record<string, any>, storyContext: Story){
 		this._threads.length = 0;
 
 		// TODO: (List<object>) jObject ["threads"];
@@ -103,7 +103,7 @@ export class CallStack{
 			writer.WritePropertyEnd();
 
 			writer.WritePropertyStart('threadCounter');
-			writer.Write(this._threadCounter);
+			writer.WriteInt(this._threadCounter);
 			writer.WritePropertyEnd();
 		});
 	}
@@ -219,7 +219,7 @@ export class CallStack{
 			if (t.threadIndex == index) return t;
 		});
 
-		return filtered[0];
+		return filtered.length > 0 ? filtered[0] : null;
 	}
 
 	get callStack(){

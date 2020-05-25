@@ -184,7 +184,7 @@ export class Story extends InkObject{
 
 		writer.WriteObjectStart();
 
-		writer.WriteIntProperty('inkVersion', this.inkVersionCurrent);
+		writer.WriteIntProperty('inkVersion', Story.inkVersionCurrent);
 
 		writer.WriteProperty('root', (w) => JsonSerialisation.WriteRuntimeContainer(w, this._mainContentContainer));
 
@@ -397,7 +397,7 @@ export class Story extends InkObject{
 				}
 
 				else {
-					DiscardSnapshot();
+					this.DiscardSnapshot();
 				}
 			}
 		}
@@ -493,6 +493,7 @@ export class Story extends InkObject{
 	}
 
 	public RestoreStateSnapshot() {
+		if (this._stateSnapshotAtLastNewline === null) { throwNullException('_stateSnapshotAtLastNewline'); }
 		this._stateSnapshotAtLastNewline.RestoreAfterPatch();
 
 		this._state = this._stateSnapshotAtLastNewline;
