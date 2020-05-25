@@ -46,7 +46,7 @@ export class StoryState{
 	public VisitCountAtPathString(pathString: string){
 		let visitCountOut;
 
-		if (this._patch != null ) {
+		if (this._patch !== null) {
 			let container = this.story.ContentAtPath(new Path(pathString)).container;
 			if (container === null)
 				throw new Error('Content at path not found: ' + pathString);
@@ -98,6 +98,8 @@ export class StoryState{
 		let count = tryGetValueFromMap(this._visitCounts, containerPathStr, null);
 		if (count.exists) {
 			this._visitCounts.set(containerPathStr, count.result! + 1);
+		} else {
+			this._visitCounts.set(containerPathStr, 1);
 		}
 	}
 
@@ -124,11 +126,11 @@ export class StoryState{
 		}
 
 		let containerPathStr = container.path.toString();
-		let index2 = tryGetValueFromMap(this._turnIndices, containerPathStr, null);
+		let index2 = tryGetValueFromMap(this._turnIndices, containerPathStr, 0);
 		if (index2.exists) {
 			return this.currentTurnIndex - index2.result!;
 		} else {
-			return - 1;
+			return -1;
 		}
 	}
 
@@ -189,6 +191,9 @@ export class StoryState{
 
 	get currentTurnIndex(){
 		return this._currentTurnIndex;
+	}
+	set currentTurnIndex(value){
+		this._currentTurnIndex = value;
 	}
 	private _currentTurnIndex: number = 0;
 
@@ -326,7 +331,7 @@ export class StoryState{
 
 		this._visitCounts = new Map();
 		this._turnIndices = new Map();
-		this._currentTurnIndex = -1;
+		this.currentTurnIndex = -1;
 
 		let timeSeed = (new Date()).getTime();
 		this.storySeed = (new PRNG(timeSeed)).next() % 100;
@@ -377,7 +382,7 @@ export class StoryState{
 		copy._visitCounts = this._visitCounts;
 		copy._turnIndices = this._turnIndices;
 
-		copy._currentTurnIndex = this.currentTurnIndex;
+		copy.currentTurnIndex = this.currentTurnIndex;
 		copy.storySeed = this.storySeed;
 		copy.previousRandom = this.previousRandom;
 
@@ -392,7 +397,7 @@ export class StoryState{
 	}
 
 	public ApplyAnyPatch() {
-		if (this._patch == null) return;
+		if (this._patch === null) return;
 
 		this.variablesState.ApplyPatch();
 
@@ -504,7 +509,7 @@ export class StoryState{
 
 		this._visitCounts = JsonSerialisation.JObjectToIntDictionary(jObject['visitCounts']);
 		this._turnIndices = JsonSerialisation.JObjectToIntDictionary(jObject['turnIndices']);
-		this._currentTurnIndex = parseInt(jObject['turnIdx']);
+		this.currentTurnIndex = parseInt(jObject['turnIdx']);
 		this.storySeed = parseInt(jObject['storySeed']);
 		this.previousRandom = parseInt(jObject['previousRandom']);
 
@@ -896,8 +901,9 @@ export class StoryState{
 
 		this.currentPointer = newPointer;
 
-		if (incrementingTurnIndex)
-			this._currentTurnIndex++;
+		if (incrementingTurnIndex) {
+			this.currentTurnIndex++;
+		}
 	}
 
 	public StartFunctionEvaluationFromGame(funcContainer: Container, args: any[]){
