@@ -129,7 +129,8 @@ export class NativeFunctionCall extends InkObject{
 			if (this._operationFuncs === null) return throwNullException('NativeFunctionCall._operationFuncs');
 			let opForTypeObj = this._operationFuncs.get(valType);
 			if (!opForTypeObj) {
-				throw new StoryException('Cannot perform operation '+this.name+' on '+valType);
+		const key = ValueType[valType];
+		throw new StoryException('Cannot perform operation '+this.name+' on '+key);
 			}
 
 			if (paramCount == 2) {
@@ -179,7 +180,7 @@ export class NativeFunctionCall extends InkObject{
 		if (v1.valueType == ValueType.List && v2.valueType == ValueType.List)
 			return this.CallType<InkList>([v1, v2]);
 
-		throw new StoryException('Can not call use ' + this.name + ' operation on ' + v1.valueType + ' and ' + v2.valueType);
+		throw new StoryException('Can not call use ' + this.name + ' operation on ' + ValueType[v1.valueType] + ' and ' + ValueType[v2.valueType]);
 	}
 
 	public CallListIncrementOperation(listIntParams: InkObject[]){
@@ -253,8 +254,10 @@ export class NativeFunctionCall extends InkObject{
 						parametersOut.push(castedValue);
 					} else
 						throw new StoryException('Could not find List item with the value ' + intVal + ' in ' + list.name);
-				} else
-					throw new StoryException('Cannot mix Lists and ' + val.valueType + ' values in this operation');
+				} else {
+			const key = ValueType[val.valueType];
+			throw new StoryException('Cannot mix Lists and ' + key + ' values in this operation');
+		}
 			}
 		}
 
