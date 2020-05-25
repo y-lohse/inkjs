@@ -436,9 +436,13 @@ export class StoryState{
 			writer.WritePropertyEnd();
 		}
 
-		writer.WriteProperty('callstackThreads', this.callStack.WriteJson);
+		// In the following two calls, `WriteJson` is called inside an arrow
+		// function to make sure `this` is correctly bound and passed down
+		// the call hierarchy.
 
-		writer.WriteProperty('variablesState', this.variablesState.WriteJson);
+		writer.WriteProperty('callstackThreads', (w) => this.callStack.WriteJson(w));
+
+		writer.WriteProperty('variablesState', (w) => this.variablesState.WriteJson(w));
 
 		writer.WriteProperty('evalStack', (w) => JsonSerialisation.WriteListRuntimeObjs(w, this.evaluationStack));
 
@@ -458,7 +462,6 @@ export class StoryState{
 
 		writer.WriteProperty('visitCounts', (w) => JsonSerialisation.WriteIntDictionary(w, this._visitCounts));
 		writer.WriteProperty('turnIndices', (w) => JsonSerialisation.WriteIntDictionary(w, this._turnIndices));
-
 
 		writer.WriteIntProperty('turnIdx', this.currentTurnIndex);
 		writer.WriteIntProperty('storySeed', this.storySeed);

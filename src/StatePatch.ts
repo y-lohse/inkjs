@@ -11,8 +11,7 @@ export class StatePatch {
 	constructor()
 	constructor(toCopy: StatePatch | null)
 	constructor() {
-		if (arguments.length === 1) {
-			if (arguments[0] === null) { throwNullException('toCopy'); }
+		if (arguments.length === 1 && arguments[0] !== null) {
 			let toCopy = arguments[0];
 			this._globals = new Map(toCopy._globals);
 			this._changedVariables = new Set(toCopy._changedVariables);

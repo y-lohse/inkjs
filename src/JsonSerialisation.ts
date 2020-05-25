@@ -77,32 +77,37 @@ export class JsonSerialisation{
 		let divert = asOrNull(obj, Divert);
 		if (divert) {
 			let divTypeKey = '->';
-			if (divert.isExternal)
+			if (divert.isExternal) {
 				divTypeKey = 'x()';
-			else if (divert.pushesToStack) {
-				if (divert.stackPushType == PushPopType.Function)
+			} else if (divert.pushesToStack) {
+				if (divert.stackPushType == PushPopType.Function) {
 					divTypeKey = 'f()';
-				else if (divert.stackPushType == PushPopType.Tunnel)
+				} else if (divert.stackPushType == PushPopType.Tunnel) {
 					divTypeKey = '->t->';
+				}
 			}
 
 			let targetStr;
-			if (divert.hasVariableTarget)
+			if (divert.hasVariableTarget) {
 				targetStr = divert.variableDivertName;
-			else
+			} else {
 				targetStr = divert.targetPathString;
+			}
 
 			writer.WriteObjectStart();
 			writer.WriteProperty(divTypeKey, targetStr);
 
-			if (divert.hasVariableTarget)
+			if (divert.hasVariableTarget) {
 				writer.WriteProperty('var', true);
+			}
 
-			if (divert.isConditional)
+			if (divert.isConditional) {
 				writer.WriteProperty('c', true);
+			}
 
-			if (divert.externalArgs > 0)
+			if (divert.externalArgs > 0) {
 				writer.WriteIntProperty('exArgs', divert.externalArgs);
+			}
 
 			writer.WriteObjectEnd();
 			return;
@@ -582,6 +587,8 @@ export class JsonSerialisation{
 			writer.WriteArrayEnd();
 			writer.WritePropertyEnd();
 		}
+
+		writer.WriteObjectEnd();
 	}
 
 	public static ListDefinitionsToJToken(origin: ListDefinitionsOrigin){

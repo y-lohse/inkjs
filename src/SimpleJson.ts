@@ -69,6 +69,7 @@ export namespace SimpleJson {
 
 		public WriteObjectEnd() {
 			this.Assert(this.state === SimpleJson.Writer.State.Object);
+			this._collectionStack.pop();
 			this._stateStack.pop();
 		}
 
@@ -194,7 +195,9 @@ export namespace SimpleJson {
 			this._addToCurrentObject(value);
 		}
 
-		public WriteInt(value: number) {
+		public WriteInt(value: number | null) {
+			if (value === null) { return; }
+
 			this.StartNewObject(false);
 
 			// Math.floor is used as a precaution:
@@ -212,7 +215,9 @@ export namespace SimpleJson {
 
 		// Since JSON doesn't support NaN and Infinity, these values
 		// are converted here.
-		public WriteFloat(value: number) {
+		public WriteFloat(value: number | null) {
+			if (value === null) { return; }
+
 			this.StartNewObject(false);
 			if (value == Number.POSITIVE_INFINITY) {
 				this._addToCurrentObject(3.4E+38);
@@ -337,8 +342,10 @@ export namespace SimpleJson {
 		private _addToCurrentObject(value: number | string | boolean | null) {
 			this.Assert(this.currentCollection !== null);
 			if (this.state === SimpleJson.Writer.State.Array) {
+				this.Assert(Array.isArray(this.currentCollection));
 				(this.currentCollection as any[]).push(value);
 			} else if (this.state === SimpleJson.Writer.State.Property) {
+				this.Assert(!Array.isArray(this.currentCollection));
 				this.Assert(this.currentPropertyName !== null);
 				(this.currentCollection as Record<string, any>)[this.currentPropertyName!] = value;
 				this._propertyNameStack.pop();
