@@ -29,7 +29,7 @@ export class ListDefinitionsOrigin{
 	get lists(): ListDefinition[]{
 		let listOfLists: ListDefinition[] = [];
 
-		for (let [key, value] of this._lists){
+		for (let [, value] of this._lists){
 			listOfLists.push(value);
 		}
 

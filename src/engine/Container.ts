@@ -53,7 +53,7 @@ export class Container extends InkObject implements INamedContent{
 	set namedOnlyContent(value: Map<string, InkObject> | null){
 		let existingNamedOnly = this.namedOnlyContent;
 		if (existingNamedOnly != null) {
-			for (let [key, val] of existingNamedOnly){
+			for (let [key,] of existingNamedOnly){
 				this.namedContent.delete(key);
 			}
 		}
@@ -61,7 +61,7 @@ export class Container extends InkObject implements INamedContent{
 		if (value == null)
 			return;
 
-		for (let [key, val] of value){
+		for (let [, val] of value){
 			let named = asINamedContentOrNull(val);
 			if (named != null)
 				this.AddToNamedContentOnly(named);
@@ -298,7 +298,7 @@ export class Container extends InkObject implements INamedContent{
 			appendIndentation();
 			sb.AppendLine('-- named: --');
 
-			for (let [key, value] of onlyNamed){
+			for (let [, value] of onlyNamed){
 				Debug.AssertType(value, Container, 'Can only print out named Containers');
 				let container = value as Container;
 				container.BuildStringOfHierarchy(sb, indentation, pointedObj);

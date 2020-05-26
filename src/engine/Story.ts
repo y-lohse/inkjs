@@ -1501,7 +1501,7 @@ export class Story extends InkObject{
 				if (container == null || !container.hasValidName)
 					this.ValidateExternalBindings (innerContent, missingExternals);
 			}
-			for (let [key, value] of c.namedContent) {
+			for (let [, value] of c.namedContent) {
 				this.ValidateExternalBindings (asOrNull(value, InkObject), missingExternals);
 			}
 		} else if (o != null) {
