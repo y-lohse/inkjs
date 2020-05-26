@@ -316,7 +316,7 @@ export class Story extends InkObject{
 		durationStopwatch.Stop();
 
 		if (outputStreamEndsInNewline || !this.canContinue) {
-			if (this._stateSnapshotAtLastNewline != null) {
+			if (this._stateSnapshotAtLastNewline !== null) {
 				this.RestoreStateSnapshot();
 			}
 
@@ -368,7 +368,7 @@ export class Story extends InkObject{
 
 		if (!this.state.inStringEvaluation) {
 
-			if (this._stateSnapshotAtLastNewline != null) {
+			if (this._stateSnapshotAtLastNewline !== null) {
 
 				if (this._stateSnapshotAtLastNewline.currentTags === null) { return throwNullException('this._stateAtLastNewline.currentTags'); }
 				if (this.state.currentTags === null) { return throwNullException('this.state.currentTags'); }
