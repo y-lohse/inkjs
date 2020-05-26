@@ -124,7 +124,7 @@ export class Story extends InkObject{
 		} else {
 			if (typeof arguments[0] === 'string') {
 				let jsonString = arguments[0] as string;
-				json = JSON.parse(jsonString);
+				json = SimpleJson.TextToDictionary(jsonString);
 			} else {
 				json = arguments[0] as JObject;
 			}

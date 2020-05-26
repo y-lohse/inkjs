@@ -178,3 +178,41 @@ describe('SimpleJson.Writer', () => {
 		});
 	});
 });
+
+describe('SimpleJson.Reader', () => {
+	it('parses a JSON object string', () => {
+		let jsonString = '{"key":"value", "array": [1, 2, null, 3.0, false]}';
+		let object = {
+			array: [1, 2, null, 3.0, false],
+			key: 'value',
+		};
+
+		let reader = new SimpleJson.Reader(jsonString);
+
+		expect(reader.ToDictionary()).toEqual(object);
+		expect(SimpleJson.TextToDictionary(jsonString)).toEqual(object);
+	});
+
+	it('parses a JSON array string', () => {
+		let jsonString = '[1, 2, null, 3.0, false]';
+		let object = [1, 2, null, 3.0, false];
+
+		let reader = new SimpleJson.Reader(jsonString);
+
+		expect(reader.ToArray()).toEqual(object);
+		expect(SimpleJson.TextToArray(jsonString)).toEqual(object);
+	});
+
+	it('throws if the json is malformed', () => {
+		let jsonString = '{key: "value"]';
+
+		expect(() => {
+			let reader = new SimpleJson.Reader(jsonString);
+			reader.ToDictionary();
+		}).toThrow();
+
+		expect(() => {
+			SimpleJson.TextToDictionary(jsonString);
+		}).toThrow();
+	});
+});
