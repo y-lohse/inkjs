@@ -30,7 +30,7 @@ describe('Logic', () => {
 		expect(story.ContinueMaximally()).toBe('5\n625\n');
 	});
 
-	xit('tests print num', () => {
+	it('tests print num', () => {
 		loadStory('print_num');
 
 		expect(story.ContinueMaximally()).toBe('. four .\n. fifteen .\n. thirty-seven .\n. one hundred and one .\n. two hundred and twenty-two .\n. one thousand two hundred and thirty-four .\n');

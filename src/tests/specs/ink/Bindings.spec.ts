@@ -12,7 +12,7 @@ describe('Bindings', () => {
 		story = undefined;
 	});
 
-	xit('tests external bindings', () => {
+	it('tests external bindings', () => {
 		loadStory('external_binding');
 
 		let testExternalBindingMessage = '';
@@ -40,12 +40,13 @@ describe('Bindings', () => {
 		expect(testExternalBindingMessage).toBe('MESSAGE: hello world');
 	});
 
-	xit('tests game ink back and forth', () => {
+	it('tests game ink back and forth', () => {
 		loadStory('game_ink_back_and_forth');
 
 		story.BindExternalFunction ('gameInc', (x: any) => {
 			x += 1;
 			x = story.EvaluateFunction('inkInc', [x]);
+			return x;
 		});
 
 		let finalResult = story.EvaluateFunction('topExternal', [5], true);

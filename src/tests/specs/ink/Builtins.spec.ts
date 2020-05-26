@@ -12,9 +12,9 @@ describe('Builtins', () => {
 		story = undefined;
 	});
 
-	xit('tests floor, ceiling and casts', () => {
+	it('tests floor, ceiling and casts', () => {
 		loadStory('floor_ceiling_and_casts');
-		expect(story.ContinueMaximally()).toBe('1\n1\n2\n0.666667\n0\n1\n');
+		expect(story.ContinueMaximally()).toBe('1\n1\n2\n0.6666666666666666\n0\n1\n');
 	});
 
 	it('tests read count accross callstack', () => {

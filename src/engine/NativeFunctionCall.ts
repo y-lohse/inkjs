@@ -153,7 +153,24 @@ export class NativeFunctionCall extends InkObject{
 				if (val1.value === null) return throwNullException('NativeFunctionCall.Call UnaryOp value');
 				let resultVal = opForType(val1.value);
 
-				return Value.Create(resultVal);
+				// This code is different from upstream. Since JavaScript treats
+				// integers and floats as the same numbers, it's impossible
+				// to force an number to be either an integer or a float.
+				//
+				// It can be useful to force a specific number type
+				// (especially for divisions), so the result of INT() & FLOAT()
+				// is coerced to the the proper value type.
+				//
+				// Note that we also force all other unary operation to
+				// return the same value type, although this is only
+				// meaningful for numbers. See `Value.Create`.
+				if (this.name === NativeFunctionCall.Int) {
+					return Value.Create(resultVal, ValueType.Int);
+				} else if (this.name === NativeFunctionCall.Float) {
+					return Value.Create(resultVal, ValueType.Float);
+				} else {
+					return Value.Create(resultVal, param1.valueType);
+				}
 			}
 		}
 

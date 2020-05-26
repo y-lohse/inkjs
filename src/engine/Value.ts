@@ -13,7 +13,19 @@ export abstract class AbstractValue extends InkObject{
 
 	public abstract Cast(newType: ValueType): Value<any>;
 
-	public static Create(val: any): Value<any> | null{
+	public static Create(val: any, preferredNumberType?: ValueType): Value<any> | null{
+		// This code doesn't exist in upstream and is simply here to enforce
+		// the creation of the proper number value.
+		// If `preferredNumberType` is not provided or if value doesn't match
+		// `preferredNumberType`, this conditional does nothing.
+		if (preferredNumberType) {
+			if ((preferredNumberType === (ValueType.Int as ValueType)) && Number.isInteger(Number(val))) {
+				return new IntValue(Number(val));
+			} else if ((preferredNumberType === (ValueType.Float as ValueType)) && !isNaN(val)) {
+				return new FloatValue(Number(val));
+			}
+		}
+
 		// Implicitly convert bools into ints
 		if (typeof val === 'boolean'){
 			let b = !!val;

@@ -41,11 +41,14 @@ describe('Lists', () => {
 		expect(story.Continue()).toEqual('evaporated\n');
 	});
 
-	xit('should handle user defined values', () => {
+	it('should handle user defined values', () => {
 		story.ChoosePathString('lists.defined_value');
 		expect(story.Continue()).toEqual('2\n');
 		expect(story.Continue()).toEqual('3\n');
-		expect(story.Continue()).toEqual('5\n');
+
+		// That's 0 and not 5, because it adds up to a non existing
+		// list entry see https://github.com/inkle/ink/issues/441.
+		expect(story.Continue()).toEqual('0\n');
 	});
 
 	it('should add and remove values from lists', () => {
