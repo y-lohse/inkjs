@@ -35,10 +35,10 @@ export function tryGetValueFromMap<K, V>(map: Map<K, V> | null, key: K, /* out *
 
 	let val = map.get(key);
 
-	if (val) {
-		return { result: val, exists: true };
-	} else {
+	if (typeof val === 'undefined') {
 		return { result: value, exists: false };
+	} else {
+		return { result: val, exists: true };
 	}
 }
 

@@ -1,6 +1,5 @@
 import { InkObject } from './Object';
 import { Container } from './Container';
-import { throwNullException } from './NullException';
 
 export class StatePatch {
 	get globals() { return this._globals; }
@@ -12,7 +11,7 @@ export class StatePatch {
 	constructor(toCopy: StatePatch | null)
 	constructor() {
 		if (arguments.length === 1 && arguments[0] !== null) {
-			let toCopy = arguments[0];
+			let toCopy = arguments[0] as StatePatch;
 			this._globals = new Map(toCopy._globals);
 			this._changedVariables = new Set(toCopy._changedVariables);
 			this._visitCounts = new Map(toCopy._visitCounts);
@@ -26,7 +25,7 @@ export class StatePatch {
 	}
 
 	public TryGetGlobal(name: string | null, /* out */ value: InkObject | null) {
-		if (name != null && this._globals.has(name)) {
+		if (name !== null && this._globals.has(name)) {
 			return { result: this._globals.get(name), exists: true };
 		}
 
