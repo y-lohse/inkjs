@@ -241,7 +241,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 				this._originNames.length = 0;
 			}
 
-			for (let [key,] of this) {
+			for (let [key] of this) {
 				let item = InkListItem.fromSerializedKey(key);
 				if (item.originName === null) return throwNullException('item.originName');
 				this._originNames.push(item.originName);
@@ -328,14 +328,14 @@ export class InkList extends Map<SerializedInkListItem, number> {
 	}
 	public Without(listToRemove: InkList){
 		let result = new InkList(this);
-		for(let [key,] of listToRemove) {
+		for(let [key] of listToRemove) {
 			result.delete(key);
 		}
 
 		return result;
 	}
 	public Contains(otherList: InkList){
-		for(let [key,] of otherList) {
+		for(let [key] of otherList) {
 			if (!this.has(key)) return false;
 		}
 
@@ -416,7 +416,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
 		if (otherInkList instanceof InkList === false) return false;
 		if (otherInkList.Count != this.Count) return false;
 
-		for(let [key,] of this) {
+		for(let [key] of this) {
 			if (!otherInkList.has(key))
 				return false;
 		}

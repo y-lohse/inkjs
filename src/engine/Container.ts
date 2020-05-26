@@ -53,7 +53,7 @@ export class Container extends InkObject implements INamedContent{
 	set namedOnlyContent(value: Map<string, InkObject> | null){
 		let existingNamedOnly = this.namedOnlyContent;
 		if (existingNamedOnly != null) {
-			for (let [key,] of existingNamedOnly){
+			for (let [key] of existingNamedOnly){
 				this.namedContent.delete(key);
 			}
 		}
