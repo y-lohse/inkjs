@@ -6,7 +6,7 @@ import resolve from 'rollup-plugin-node-resolve';
 import babel from 'rollup-plugin-babel';
 
 const moduleName = 'inkjs';
-const inputFile = 'src/Story.ts';
+const inputFile = 'src/engine/Story.ts';
 const format = 'umd';
 const tsconfig = {
   tsconfig: "tsconfig.json",

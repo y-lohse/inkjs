@@ -1,6 +1,7 @@
-engine/
+/engine/
 dist/
 test/stories/
+/tests/specs/
 
 # Logs
 logs

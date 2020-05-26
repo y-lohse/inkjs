@@ -2,8 +2,8 @@
 	"compilerOptions": {
 		"target": "es6",
 		"module": "commonjs",
-		"outDir": "./engine",
-		"rootDir": "./src",
+		"outDir": ".",
+		"rootDir": "src/",
 		"strict": true,
 		"sourceMap": true,
 		"declaration": true
