@@ -66,7 +66,7 @@ export class VariablesState{
 		if (typeof value === 'undefined'){
 			let varContents = null;
 
-			if (this.patch != null) {
+			if (this.patch !== null) {
 				varContents = this.patch.TryGetGlobal(variableName, null);
 				if (varContents.exists) return (varContents.result as AbstractValue).valueObject;
 			}
@@ -136,7 +136,7 @@ export class VariablesState{
 			this._globalVariables.set(namedVarKey, namedVarValue);
 		}
 
-		if (this._changedVariablesForBatchObs != null) {
+		if (this._changedVariablesForBatchObs !== null) {
 			for (let name of this.patch.changedVariables) {
 				this._changedVariablesForBatchObs.add(name);
 			}
@@ -184,7 +184,7 @@ export class VariablesState{
 		writer.WriteObjectEnd();
 	}
 
-	public RuntimeObjectsEqual(obj1: InkObject | null, obj2: InkObject | null) {
+	public RuntimeObjectsEqual(obj1: InkObject | null, obj2: InkObject | null): boolean {
 		if (obj1 === null) { return throwNullException('obj1'); }
 		if (obj2 === null) { return throwNullException('obj2'); }
 
@@ -197,7 +197,7 @@ export class VariablesState{
 
 		let floatVal = asOrNull(obj1, FloatValue);
 		if (floatVal !== null) {
-			return floatVal.value == asOrThrows(obj2, FloatValue).value;
+			return floatVal.value === asOrThrows(obj2, FloatValue).value;
 		}
 
 		let val1 = asOrNull(obj1, Value);
@@ -242,7 +242,7 @@ export class VariablesState{
 			let variableValue = null;
 			if (this.patch !== null) {
 				variableValue = this.patch.TryGetGlobal(name, null);
-				if (variableValue.exists) return variableValue.result as InkObject;
+				if (variableValue.exists) return variableValue.result!;
 			}
 
 			// this is a conditional assignment
@@ -329,13 +329,18 @@ export class VariablesState{
 	public SetGlobal(variableName: string | null, value: InkObject){
 		let oldValue = null;
 
-		if (this.patch === null || !this.patch.TryGetGlobal(variableName, null).exists) {
+		if (this.patch === null) {
 			oldValue = tryGetValueFromMap(this._globalVariables, variableName, null);
 		}
 
-		if (oldValue != null && oldValue.exists) {
-			ListValue.RetainListOriginsForAssignment(oldValue.result!, value);
+		if (this.patch !== null) {
+			oldValue = this.patch.TryGetGlobal(variableName, null);
+			if (!oldValue.exists) {
+				oldValue = tryGetValueFromMap(this._globalVariables, variableName, null);
+			}
 		}
+
+		ListValue.RetainListOriginsForAssignment(oldValue!.result!, value);
 
 		if (variableName === null) { return throwNullException('variableName'); }
 
@@ -347,7 +352,7 @@ export class VariablesState{
 		}
 
 		// TODO: Not sure !== is equivalent to !value.Equals(oldValue)
-		if (this.variableChangedEvent != null && oldValue != null && value !== oldValue.result) {
+		if (this.variableChangedEvent !== null && oldValue !== null && value !== oldValue.result) {
 
 			if (this.batchObservingVariableChanges) {
 				if (this._changedVariablesForBatchObs === null) { return throwNullException('this._changedVariablesForBatchObs'); }
