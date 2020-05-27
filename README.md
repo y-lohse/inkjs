@@ -4,7 +4,7 @@
 [![npm](https://img.shields.io/npm/v/inkjs.svg)](https://www.npmjs.com/package/inkjs)
 [![codecov](https://codecov.io/gh/y-lohse/inkjs/branch/master/graph/badge.svg)](https://codecov.io/gh/y-lohse/inkjs)
 
-This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative. 
+This is a javascript port of inkle's [ink](https://github.com/inkle/ink), a scripting language for writing interactive narrative.
 
 inkjs is fully compatible with the original version, has zero dependency and works in all browsers and node.js. Please have a look at [the demo](http://yannick-lohse.fr/inkjs/)!
 
@@ -20,8 +20,8 @@ inkjs is fully compatible with the original version, has zero dependency and wor
 
 Grab the `ink.js` file from the [latest release](https://github.com/y-lohse/inkjs/releases).
 
-For npm users, install with `npm install inkjs --save`. Or for bower, `bower install inkjs`.  
-There's a (lighter) ES2015 version available if you only target platforms with basic ES 2015 support.  
+For npm users, install with `npm install inkjs --save`. Or for bower, `bower install inkjs`.
+There's a (lighter) ES2015 version available if you only target platforms with basic ES 2015 support.
 Both `ink.js` and `ink-es2015.js` use Universal Module Definition (UMD), so you can use it with [RequireJS](http://requirejs.org/) or basically any other module loader.
 If you don't know what any of this means, don't worry, just include `ink.js` with a regular script tag and everything will work fine.
 
@@ -122,3 +122,22 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 // result.returned is the return value of my_ink_function("arg1", "arg2")
 // result.output is the text that was written to the output while the function was evaluated
 ```
+
+## Compatibility table
+
+| _inklecate_ version | _inkjs_ version |
+|:-------------------:|:---------------:|
+|    0.3.5 – 0.4.0    |  1.0.0 – 1.1.0  |
+|    0.4.1 – 0.5.0    |  1.1.1 – 1.1.3  |
+|        0.5.1        |      1.2.0      |
+|        0.6.0        |      1.3.0      |
+|        0.6.1        |  1.4.0 – 1.4.1  |
+|        0.6.2        |      1.4.2      |
+|        0.6.3        |      1.4.3      |
+|        0.6.4        |  1.4.4 – 1.4.6  |
+|        0.7.0        |  1.5.0 – 1.5.1  |
+|        0.7.1        |      1.5.2      |
+|    0.7.2 – 0.7.4    |      1.6.0      |
+|    0.8.0 – 0.8.1    |  1.7.1 - 1.7.2  |
+|        0.8.2        |  1.8.0 – 1.9.0  |
+|        0.8.3        | 1.10.0 – 1.10.5 |
