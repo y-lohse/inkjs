@@ -20,9 +20,9 @@
   "author": "Yannick Lohse",
   "license": "MIT",
   "devDependencies": {
-    "@babel/core": "7.10.1",
+    "@babel/core": "7.10.2",
     "@babel/plugin-transform-object-assign": "7.10.1",
-    "@babel/preset-env": "7.10.1",
+    "@babel/preset-env": "7.10.2",
     "@types/jest": "25.2.3",
     "fs-extra": "9.0.0",
     "glob": "7.1.6",
