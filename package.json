@@ -7,7 +7,7 @@
   "scripts": {
     "test": "npm run-script test:typescript && npm run-script test:javascript",
     "test:typescript": "jest",
-    "test:javascript": "npm run-script build && npm run-script test:javascript:dist && npm run-script test:javascript:legacy",
+    "test:javascript": "npm run-script test:javascript:dist && npm run-script test:javascript:legacy",
     "test:javascript:dist": "INK_TEST=dist jest --config='jest.config.javascript.js'",
     "test:javascript:legacy": "INK_TEST=legacy jest --config='jest.config.javascript.js'",
     "test:compileFiles": "node tests/compile.js",
