@@ -2,7 +2,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import {Story} from '../../engine/Story';
 
-let baselinePath = path.join(getRootDir(), 'tests', 'inkfiles', 'compiled');
+let baselinePath = path.join(getRootDir(), 'src', 'tests', 'inkfiles', 'compiled');
 
 export function loadInkFile(filename: string, category: string) {
 	filename = filename + '.ink.json';
