@@ -1,4 +1,3 @@
-// tslint:disable:jsdoc-format
 /**
  * This interface normalize the `TryGet` behavior found in the original
  * C# project. Any `TryGet` method will return a object conforming to this
