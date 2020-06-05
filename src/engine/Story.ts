@@ -22,7 +22,6 @@ import {ListDefinition} from './ListDefinition';
 import {Stopwatch} from './StopWatch';
 import {Pointer} from './Pointer';
 import {InkList, InkListItem, KeyValuePair} from './InkList';
-import {JObject} from './JObject';
 import {asOrNull, asOrThrows} from './TypeAssertion';
 import {DebugMetadata} from './DebugMetadata';
 import {throwNullException} from './NullException';
@@ -102,14 +101,14 @@ export class Story extends InkObject{
 
 	constructor(contentContainer: Container, lists: ListDefinition[] | null);
 	constructor(jsonString: string);
-	constructor(json: JObject);
+	constructor(json: Record<string, any>);
 	constructor(){
 		super();
 
 		// Discrimination between constructors
 		let contentContainer: Container;
 		let lists: ListDefinition[] | null = null;
-		let json: JObject | null = null;
+		let json: Record<string, any> | null = null;
 
 		if (arguments[0] instanceof Container) {
 			contentContainer = arguments[0] as Container;
@@ -126,7 +125,7 @@ export class Story extends InkObject{
 				let jsonString = arguments[0] as string;
 				json = SimpleJson.TextToDictionary(jsonString);
 			} else {
-				json = arguments[0] as JObject;
+				json = arguments[0] as Record<string, any>;
 			}
 		}
 
@@ -139,7 +138,7 @@ export class Story extends InkObject{
 
 		// ------ Story(string jsonString) : this((Container)null)
 		if (json !== null) {
-			let rootObject: JObject = json;
+			let rootObject: Record<string, any> = json;
 
 			let versionObj = rootObject['inkVersion'];
 			if (versionObj == null)
