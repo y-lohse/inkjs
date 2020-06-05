@@ -29,8 +29,6 @@ import {SimpleJson} from './SimpleJson';
 
 export {InkList} from './InkList';
 
-// tslint:disable no-conditional-assignment
-
 if (!Number.isInteger) {
 	Number.isInteger = function isInteger(nVal: any) {
 		return typeof nVal === 'number' && isFinite(nVal) && nVal > -9007199254740992 && nVal < 9007199254740992 && Math.floor(nVal) === nVal;
