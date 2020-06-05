@@ -1,7 +1,5 @@
 import {INamedContent} from './INamedContent';
 
-// tslint:disable ban-types
-
 export function asOrNull<T>(obj: any, type: (new (...arg: any[]) => T) | Function & { prototype: T }): T | null{
 	if (obj instanceof type) {
 		return unsafeTypeAssertion(obj, type);

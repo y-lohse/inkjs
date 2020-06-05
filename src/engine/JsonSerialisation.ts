@@ -20,8 +20,6 @@ import {asOrNull, asNumberOrThrows} from './TypeAssertion';
 import {throwNullException} from './NullException';
 import { SimpleJson } from './SimpleJson';
 
-// tslint:disable no-conditional-assignment
-
 export class JsonSerialisation{
 	public static JArrayToRuntimeObjList(jArray: any[], skipLast: boolean = false){
 		let count = jArray.length;

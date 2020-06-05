@@ -11,7 +11,6 @@ type BinaryOp<T> = (left: T, right: T) => any;
 type UnaryOp<T> = (val: T) => any;
 
 export class NativeFunctionCall extends InkObject{
-	// tslint:disable:variable-name
 	public static readonly Add: string 		= '+';
 	public static readonly Subtract: string = '-';
 	public static readonly Divide: string   = '/';
@@ -43,7 +42,6 @@ export class NativeFunctionCall extends InkObject{
 	public static readonly Count: string     = 'LIST_COUNT';
 	public static readonly ValueOfList: string = 'LIST_VALUE';
 	public static readonly Invert: string    = 'LIST_INVERT';
-	// tslint:enable:variable-name
 
 	public static CallWithName(functionName: string){
 		return new NativeFunctionCall(functionName);
