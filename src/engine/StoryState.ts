@@ -15,7 +15,6 @@ import {Pointer} from './Pointer';
 import {tryGetValueFromMap} from './TryGetResult';
 import {Choice} from './Choice';
 import {asOrNull, asOrThrows, nullIfUndefined} from './TypeAssertion';
-import {JObject} from './JObject';
 import {Debug} from './Debug';
 import {Container} from './Container';
 import {InkObject} from './Object';
@@ -514,7 +513,7 @@ export class StoryState{
 		this.previousRandom = parseInt(jObject['previousRandom']);
 
 		// var jChoiceThreads = jObject["choiceThreads"] as JObject;
-		let jChoiceThreads = jObject['choiceThreads'];
+		let jChoiceThreads = jObject['choiceThreads'] as Record<string, any>;
 
 		for(let c of this._currentChoices) {
 			let foundActiveThread = this.callStack.ThreadWithIndex(c.originalThreadIndex);

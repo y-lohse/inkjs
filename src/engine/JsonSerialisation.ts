@@ -16,7 +16,6 @@ import {ListDefinition} from './ListDefinition';
 import {ListDefinitionsOrigin} from './ListDefinitionsOrigin';
 import {InkListItem, InkList} from './InkList';
 import {InkObject} from './Object';
-import {JObject} from './JObject';
 import {asOrNull, asNumberOrThrows} from './TypeAssertion';
 import {throwNullException} from './NullException';
 import { SimpleJson } from './SimpleJson';
@@ -247,7 +246,7 @@ export class JsonSerialisation{
 		throw new Error('Failed to convert runtime object to Json token: ' + obj);
 	}
 
-	public static JObjectToDictionaryRuntimeObjs(jObject: JObject){
+	public static JObjectToDictionaryRuntimeObjs(jObject: Record<string, any>){
 		let dict: Map<string, InkObject> = new Map();
 
 		for (let key in jObject){
@@ -261,7 +260,7 @@ export class JsonSerialisation{
 		return dict;
 	}
 
-	public static JObjectToIntDictionary(jObject: JObject){
+	public static JObjectToIntDictionary(jObject: Record<string, any>){
 		let dict: Map<string, number> = new Map();
 		for (let key in jObject){
 			if (jObject.hasOwnProperty(key)) {
@@ -314,7 +313,7 @@ export class JsonSerialisation{
 		}
 
 		if (typeof token === 'object' && !Array.isArray(token)){
-			let obj: JObject = token;
+			let obj = token as Record<string, any>;
 			let propValue;
 
 			// Divert target value to path
@@ -427,7 +426,7 @@ export class JsonSerialisation{
 			// List value
 			if (propValue = obj['list']) {
 				// var listContent = (Dictionary<string, object>)propValue;
-				let listContent: JObject = propValue;
+				let listContent = propValue as Record<string, any>;
 				let rawList = new InkList();
 				if (propValue = obj['origins']) {
 					// var namesAsObjs = (List<object>)propValue;
@@ -503,7 +502,7 @@ export class JsonSerialisation{
 		let container = new Container();
 		container.content = this.JArrayToRuntimeObjList(jArray, true);
 
-		let terminatingObj = jArray[jArray.length - 1] as JObject;
+		let terminatingObj = jArray[jArray.length - 1] as Record<string, any>;
 		if (terminatingObj != null) {
 
 			let namedOnlyContent = new Map();
@@ -529,7 +528,7 @@ export class JsonSerialisation{
 		return container;
 	}
 
-	public static JObjectToChoice(jObj: JObject){
+	public static JObjectToChoice(jObj: Record<string, any>){
 		let choice = new Choice();
 		choice.text = jObj['text'].toString();
 		choice.index = parseInt(jObj['index']);
@@ -592,10 +591,10 @@ export class JsonSerialisation{
 	}
 
 	public static ListDefinitionsToJToken(origin: ListDefinitionsOrigin){
-		let result: JObject = {};
+		let result: Record<string, any> = {};
 
 		for (let def of origin.lists) {
-			let listDefJson: JObject = {};
+			let listDefJson: Record<string, any> = {};
 
 			for (let [key, val] of def.items) {
 				let item = InkListItem.fromSerializedKey(key);
@@ -609,7 +608,7 @@ export class JsonSerialisation{
 		return result;
 	}
 
-	public static JTokenToListDefinitions(obj: JObject){
+	public static JTokenToListDefinitions(obj: Record<string, any>){
 		// var defsObj = (Dictionary<string, object>)obj;
 		let defsObj = obj;
 
@@ -619,7 +618,7 @@ export class JsonSerialisation{
 			if (defsObj.hasOwnProperty(key)) {
 				let name = key.toString();
 				// var listDefJson = (Dictionary<string, object>)kv.Value;
-				let listDefJson: JObject = defsObj[key];
+				let listDefJson = defsObj[key] as Record<string, any>;
 
 				// Cast (string, object) to (string, int) for items
 				let items: Map<string, number> = new Map();
