@@ -395,12 +395,13 @@ export class VariablesState{
 		return this._callStack.currentElementIndex;
 	}
 
-		/**
-		 * This function is specific to the js version of ink. It allows to register a
-		 * callback that will be called when a variable changes. The original code uses
-		 * `state.variableChangedEvent += callback` instead.
-		 * @param {function} callback
-		 */
+	/**
+	 * This function is specific to the js version of ink. It allows to register a
+	 * callback that will be called when a variable changes. The original code uses
+	 * `state.variableChangedEvent += callback` instead.
+	 *
+	 * @param {function} callback
+	 */
 	public ObserveVariableChange(callback: (variableName: string, newValue: InkObject) => void){
 		this.variableChangedEventCallbacks.push(callback);
 	}

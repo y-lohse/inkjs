@@ -58,7 +58,7 @@ export abstract class AbstractValue extends InkObject{
 	}
 }
 
-export abstract class Value<T extends { toString: () => string; }> extends AbstractValue{
+export abstract class Value<T extends { toString: () => string }> extends AbstractValue{
 	public value: T | null;
 
 	constructor(val: T | null){
@@ -289,21 +289,21 @@ export class ListValue extends Value<InkList>{
 		if (newType == ValueType.Int) {
 			let max = this.value.maxItem;
 			if( max.Key.isNull )
-			return new IntValue(0);
+				return new IntValue(0);
 			else
-			return new IntValue(max.Value);
+				return new IntValue(max.Value);
 		}
 		else if (newType == ValueType.Float) {
 			let max = this.value.maxItem;
 			if (max.Key.isNull)
-			return new FloatValue(0.0);
+				return new FloatValue(0.0);
 			else
-			return new FloatValue(max.Value);
+				return new FloatValue(max.Value);
 		}
 		else if (newType == ValueType.String) {
 			let max = this.value.maxItem;
 			if (max.Key.isNull)
-			return new StringValue('');
+				return new StringValue('');
 			else {
 				return new StringValue(max.Key.toString());
 			}

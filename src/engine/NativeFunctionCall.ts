@@ -129,8 +129,8 @@ export class NativeFunctionCall extends InkObject{
 			if (this._operationFuncs === null) return throwNullException('NativeFunctionCall._operationFuncs');
 			let opForTypeObj = this._operationFuncs.get(valType);
 			if (!opForTypeObj) {
-		const key = ValueType[valType];
-		throw new StoryException('Cannot perform operation '+this.name+' on '+key);
+				const key = ValueType[valType];
+				throw new StoryException('Cannot perform operation '+this.name+' on '+key);
 			}
 
 			if (paramCount == 2) {
@@ -272,9 +272,9 @@ export class NativeFunctionCall extends InkObject{
 					} else
 						throw new StoryException('Could not find List item with the value ' + intVal + ' in ' + list.name);
 				} else {
-			const key = ValueType[val.valueType];
-			throw new StoryException('Cannot mix Lists and ' + key + ' values in this operation');
-		}
+					const key = ValueType[val.valueType];
+					throw new StoryException('Cannot mix Lists and ' + key + ' values in this operation');
+				}
 			}
 		}
 
@@ -409,12 +409,8 @@ export class NativeFunctionCall extends InkObject{
 			this.AddListUnaryOp(this.Count,  (x) => x.Count);
 			this.AddListUnaryOp(this.ValueOfList,  (x) => x.maxItem.Value);
 
-			let divertTargetsEqual = (d1: Path, d2: Path) => {
-				return d1.Equals(d2) ? 1 : 0;
-			};
-			let divertTargetsNotEqual = (d1: Path, d2: Path) => {
-				return d1.Equals (d2) ? 0 : 1;
-			};
+			let divertTargetsEqual = (d1: Path, d2: Path) => d1.Equals(d2) ? 1 : 0;
+			let divertTargetsNotEqual = (d1: Path, d2: Path) => d1.Equals (d2) ? 0 : 1;
 			this.AddOpToNativeFunc(this.Equal, 2, ValueType.DivertTarget, divertTargetsEqual);
 			this.AddOpToNativeFunc(this.NotEquals, 2, ValueType.DivertTarget, divertTargetsNotEqual);
 		}

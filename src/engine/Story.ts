@@ -1721,9 +1721,7 @@ export class Story extends InkObject{
 	public TryFollowDefaultInvisibleChoice(){
 		let allChoices = this._state.currentChoices;
 
-		let invisibleChoices = allChoices.filter((c) => {
-			return c.isInvisibleDefault;
-		});
+		let invisibleChoices = allChoices.filter((c) => c.isInvisibleDefault);
 
 		if (invisibleChoices.length == 0 || allChoices.length > invisibleChoices.length)
 			return false;
