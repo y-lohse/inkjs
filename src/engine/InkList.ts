@@ -176,11 +176,11 @@ export class InkList extends Map<SerializedInkListItem, number> {
 				if (itemName === null) return throwNullException('itemName');
 
 				if (origin.ContainsItemWithName(itemName)) {
-						if (foundListDef != null) {
-							throw new Error('Could not add the item ' + itemName + ' to this list because it could come from either ' + origin.name + ' or ' + foundListDef.name);
-						} else {
-							foundListDef = origin;
-						}
+					if (foundListDef != null) {
+						throw new Error('Could not add the item ' + itemName + ' to this list because it could come from either ' + origin.name + ' or ' + foundListDef.name);
+					} else {
+						foundListDef = origin;
+					}
 				}
 			}
 
