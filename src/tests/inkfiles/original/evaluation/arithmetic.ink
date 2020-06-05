@@ -5,6 +5,3 @@
 { 7 / 3.0 }
 { 10 - 2 }
 { 2 * (5-1) }
-
-// RESULT: "36\n2\n3\n2\n2.333333\n8\n8\n"
-// ContinueMaximally

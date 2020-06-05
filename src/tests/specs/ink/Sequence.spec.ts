@@ -40,7 +40,9 @@ describe('Sequences', () => {
 		expect(story.currentChoices.length).toBe(2);
 	});
 
-	xit('tests all sequence type', () => { // Only available in 0.9.0
+	it('tests all sequence type', () => {
 		loadStory('all_sequence_types');
+
+		expect(story.ContinueMaximally()).toBe('Once: one two\nStopping: one two two two\nDefault: one two two two\nCycle: one two one two\nShuffle: two one one two\nShuffle stopping: one two final final\nShuffle once: two one\n');
 	});
 });
