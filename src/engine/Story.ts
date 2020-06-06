@@ -509,16 +509,16 @@ export class Story extends InkObject{
 	}
 
 	public CopyStateForBackgroundThreadSave() {
-			this.IfAsyncWeCant('start saving on a background thread');
+		this.IfAsyncWeCant('start saving on a background thread');
 
-			if (this._asyncSaving)
-				throw new Error("Story is already in background saving mode, can't call CopyStateForBackgroundThreadSave again!");
+		if (this._asyncSaving)
+			throw new Error("Story is already in background saving mode, can't call CopyStateForBackgroundThreadSave again!");
 
-			let stateToSave = this._state;
-			this._state = this._state.CopyAndStartPatching();
-			this._asyncSaving = true;
-			return stateToSave;
-		}
+		let stateToSave = this._state;
+		this._state = this._state.CopyAndStartPatching();
+		this._asyncSaving = true;
+		return stateToSave;
+	}
 
 	public BackgroundSaveComplete() {
 		if (this._stateSnapshotAtLastNewline === null) {
