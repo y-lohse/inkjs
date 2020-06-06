@@ -9,7 +9,7 @@ import {
 
 describe('TypeAsssertion', () => {
 	class MainClass {
-		public Equals(other: MainClass) {
+		public Equals() {
 			return false;
 		}
 	}
