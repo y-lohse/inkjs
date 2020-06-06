@@ -10,7 +10,7 @@ describe('SimpleJson.Writer', () => {
 
 	it('writes a proper inner hierarchy', () => {
 		writer.WriteObjectStart();
-		writer.WriteProperty('callstackThreads', (w) => {
+		writer.WriteProperty('callstackThreads', () => {
 			writer.WriteObjectStart();
 			{
 				writer.WritePropertyStart('callstack');

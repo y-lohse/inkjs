@@ -161,7 +161,7 @@ describe('Integration', () => {
 	it('should call external functions', () => {
 		story.allowExternalFunctionFallbacks = false;
 		story.ChoosePathString('integration.external');
-		const externalSpy = jasmine.createSpy('external function spy', (a, b, c) => {
+		const externalSpy = jasmine.createSpy('external function spy', (a) => {
 			return a;
 		}).and.callThrough();
 		story.BindExternalFunction('fn_ext', externalSpy);
@@ -241,7 +241,7 @@ describe('Integration', () => {
 
 	describe('Exported classes', () => {
 		if (inkPath) { // JavaScript-only spec
-			let inkjs = require(inkPath);
+			let inkjs = require(inkPath); // eslint-disable-line @typescript-eslint/no-var-requires
 
 			it('should expose the Story class', () => {
 				expect(inkjs.Story).toBeDefined();
