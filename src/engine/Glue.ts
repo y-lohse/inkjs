@@ -1,7 +1,7 @@
-import {InkObject} from './Object';
+import { InkObject } from "./Object";
 
-export class Glue extends InkObject{
-	public toString(){
-		return 'Glue';
-	}
+export class Glue extends InkObject {
+  public toString() {
+    return "Glue";
+  }
 }

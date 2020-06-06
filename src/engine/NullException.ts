@@ -8,7 +8,7 @@
  * check the offending value and it it's null, throw this exception using
  * `throwNullException(name: string)`.
  */
-export class NullException extends Error{}
+export class NullException extends Error {}
 
 /**
  * Throw a NullException.
@@ -16,5 +16,5 @@ export class NullException extends Error{}
  * @param name a short description of the offending value (often its name within the code).
  */
 export function throwNullException(name: string): never {
-	throw new NullException(`${name} is null or undefined`);
+  throw new NullException(`${name} is null or undefined`);
 }

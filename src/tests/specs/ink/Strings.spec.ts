@@ -1,44 +1,43 @@
-import * as testsUtils from '../common';
+import * as testsUtils from "../common";
 
-describe('Strings', () => {
+describe("Strings", () => {
+  let story: any;
 
-	let story: any;
+  function loadStory(name: any) {
+    story = testsUtils.loadInkFile(name, "strings");
+  }
 
-	function loadStory(name: any) {
-		story = testsUtils.loadInkFile(name, 'strings');
-	}
+  beforeEach(() => {
+    story = undefined;
+  });
 
-	beforeEach(() => {
-		story = undefined;
-	});
+  it("tests string constants", () => {
+    loadStory("string_constants");
 
-	it('tests string constants', () => {
-		loadStory('string_constants');
+    expect(story.Continue()).toBe("hi\n");
+  });
 
-		expect(story.Continue()).toBe('hi\n');
-	});
+  it("tests string contains", () => {
+    loadStory("string_contains");
 
-	it('tests string contains', () => {
-		loadStory('string_contains');
+    expect(story.ContinueMaximally()).toBe("1\n0\n1\n1\n");
+  });
 
-		expect(story.ContinueMaximally()).toBe('1\n0\n1\n1\n');
-	});
+  it("tests string type coercion", () => {
+    loadStory("string_type_coercion");
 
-	it('tests string type coercion', () => {
-		loadStory('string_type_coercion');
+    expect(story.ContinueMaximally()).toBe("same\ndifferent\n");
+  });
 
-		expect(story.ContinueMaximally()).toBe('same\ndifferent\n');
-	});
+  it("tests string in choices", () => {
+    loadStory("strings_in_choices");
 
-	it('tests string in choices', () => {
-		loadStory('strings_in_choices');
+    story.ContinueMaximally();
 
-		story.ContinueMaximally();
+    expect(story.currentChoices.length).toBe(1);
+    expect(story.currentChoices[0].text).toBe('test1 "test2 test3"');
 
-		expect(story.currentChoices.length).toBe(1);
-		expect(story.currentChoices[0].text).toBe('test1 "test2 test3"');
-
-		story.ChooseChoiceIndex(0);
-		expect(story.Continue()).toBe('test1 test4\n');
-	});
+    story.ChooseChoiceIndex(0);
+    expect(story.Continue()).toBe("test1 test4\n");
+  });
 });

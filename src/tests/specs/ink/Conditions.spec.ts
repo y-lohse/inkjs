@@ -1,40 +1,39 @@
-import * as testsUtils from '../common';
+import * as testsUtils from "../common";
 
-describe('Conditions', () => {
+describe("Conditions", () => {
+  let story: any;
 
-	let story: any;
+  function loadStory(name: any) {
+    story = testsUtils.loadInkFile(name, "conditions");
+  }
 
-	function loadStory(name: any) {
-		story = testsUtils.loadInkFile(name, 'conditions');
-	}
+  beforeEach(() => {
+    story = undefined;
+  });
 
-	beforeEach(() => {
-		story = undefined;
-	});
+  it("tests all switch branches fail is clean", () => {
+    loadStory("all_switch_branches_fail_is_clean");
 
-	it('tests all switch branches fail is clean', () => {
-		loadStory('all_switch_branches_fail_is_clean');
+    story.Continue();
+    expect(story.state.evaluationStack.length).toBe(0);
+  });
 
-		story.Continue();
-		expect(story.state.evaluationStack.length).toBe(0);
-	});
+  it("tests else branches", () => {
+    loadStory("else_branches");
 
-	it('tests else branches', () => {
-		loadStory('else_branches');
+    expect(story.ContinueMaximally()).toBe("other\nother\nother\nother\n");
+  });
 
-		expect(story.ContinueMaximally()).toBe('other\nother\nother\nother\n');
-	});
+  it("tests empty multiline conditional branch", () => {
+    loadStory("empty_multiline_conditional_branch");
 
-	it('tests empty multiline conditional branch', () => {
-		loadStory('empty_multiline_conditional_branch');
+    expect(story.Continue()).toBe("");
+  });
 
-		expect(story.Continue()).toBe('');
-	});
+  it("tests trivial condition", () => {
+    loadStory("trivial_condition");
 
-	it('tests trivial condition', () => {
-		loadStory('trivial_condition');
-
-		story.Continue();
-		expect(story.hasError).toBe(false);
-	});
+    story.Continue();
+    expect(story.hasError).toBe(false);
+  });
 });

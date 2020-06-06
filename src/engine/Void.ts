@@ -1,3 +1,3 @@
-import {InkObject} from './Object';
+import { InkObject } from "./Object";
 
-export class Void extends InkObject{}
+export class Void extends InkObject {}
