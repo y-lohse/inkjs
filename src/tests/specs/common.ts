@@ -18,8 +18,7 @@ export function loadInkFile(filename: string, category: string) {
 
 	let inkPath = getInkPath();
 	if (inkPath) { // inkPath -> loading distributable file.
-		// tslint:disable:next-line no-var-requires
-		let inkjs = require(inkPath);
+		let inkjs = require(inkPath); // eslint-disable-line @typescript-eslint/no-var-requires
 		return new inkjs.Story(content) as Story;
 	} else { // No inkPath -> it's intended to be run through ts-node.
 		return new Story(content);
