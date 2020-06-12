@@ -1,20 +1,21 @@
-import * as testsUtils from '../common';
+import * as testsUtils from "../common";
 
-describe('Extra', () => {
+describe("Extra", () => {
+  let story: any;
 
-	let story: any;
+  function loadStory(name: any) {
+    story = testsUtils.loadInkFile(name, "extra");
+  }
 
-	function loadStory(name: any) {
-		story = testsUtils.loadInkFile(name, 'extra');
-	}
+  beforeEach(() => {
+    story = undefined;
+  });
 
-	beforeEach(() => {
-		story = undefined;
-	});
+  it("tests arithmetic", () => {
+    loadStory("arithmetic_2");
 
-	it('tests arithmetic', () => {
-		loadStory('arithmetic_2');
-
-		expect(story.ContinueMaximally()).toBe('2\n2\n2.3333333333333335\n2\n2\n2.3333333333333335\n');
-	});
+    expect(story.ContinueMaximally()).toBe(
+      "2\n2\n2.3333333333333335\n2\n2\n2.3333333333333335\n"
+    );
+  });
 });

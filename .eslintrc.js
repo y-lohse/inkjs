@@ -1,26 +1,28 @@
 module.exports = {
   env: {
     browser: true,
-    es6: true
+    es6: true,
   },
   extends: [
     "plugin:@typescript-eslint/recommended",
-    "plugin:@typescript-eslint/recommended-requiring-type-checking"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking",
+    "prettier",
   ],
   parser: "@typescript-eslint/parser",
   parserOptions: {
     project: "tsconfig.json",
-    sourceType: "module"
+    sourceType: "module",
   },
   plugins: [
     "@typescript-eslint",
     "@typescript-eslint/tslint",
     "import",
     "jsdoc",
-    "prefer-arrow"
+    "prefer-arrow",
+    "prettier",
   ],
   rules: {
-    indent: ["error", "tab"],
+    "prettier/prettier": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-namespace": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -38,6 +40,6 @@ module.exports = {
     "@typescript-eslint/no-unnecessary-type-assertion": "off",
     "prefer-const": "off",
     "prefer-spread": "off",
-    "prefer-rest-params": "off"
-  }
+    "prefer-rest-params": "off",
+  },
 };

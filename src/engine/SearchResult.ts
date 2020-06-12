@@ -1,23 +1,23 @@
-import {InkObject} from './Object';
-import {Container} from './Container';
+import { InkObject } from "./Object";
+import { Container } from "./Container";
 
-export class SearchResult{
-	public obj: InkObject | null = null;
-	public approximate: boolean = false;
+export class SearchResult {
+  public obj: InkObject | null = null;
+  public approximate: boolean = false;
 
-	get correctObj(){
-		return this.approximate ? null : this.obj;
-	}
+  get correctObj() {
+    return this.approximate ? null : this.obj;
+  }
 
-	get container(){
-		return (this.obj instanceof Container) ? this.obj : null;
-	}
+  get container() {
+    return this.obj instanceof Container ? this.obj : null;
+  }
 
-	public copy(){
-		let searchResult = new SearchResult();
-		searchResult.obj = this.obj;
-		searchResult.approximate = this.approximate;
+  public copy() {
+    let searchResult = new SearchResult();
+    searchResult.obj = this.obj;
+    searchResult.approximate = this.approximate;
 
-		return searchResult;
-	}
+    return searchResult;
+  }
 }

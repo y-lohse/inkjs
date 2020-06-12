@@ -1,15 +1,14 @@
-import {InkObject} from './Object';
+import { InkObject } from "./Object";
 
-export class Tag extends InkObject{
+export class Tag extends InkObject {
+  public readonly text: string;
 
-	public readonly text: string;
+  constructor(tagText: string) {
+    super();
+    this.text = tagText.toString() || "";
+  }
 
-	constructor(tagText: string){
-		super();
-		this.text = tagText.toString() || '';
-	}
-
-	public toString(): string{
-		return '# ' + this.text;
-	}
+  public toString(): string {
+    return "# " + this.text;
+  }
 }
