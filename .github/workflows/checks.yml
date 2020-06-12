@@ -1,0 +1,25 @@
+name: Build
+
+on: pull_request
+
+jobs:
+  test:
+    name: CI tasks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12
+      - name: Install dependencies
+        run: npm install
+      - name: Install codecov
+        run: npm install codecov
+      - name: Lint
+        run: npm run lint
+      - name: Build
+        run: npm run build
+      - name: tests
+        run: npm run test

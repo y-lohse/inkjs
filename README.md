@@ -1,6 +1,6 @@
 # ![inkjs](media/inkjs.png)
 
-[![Travis](https://img.shields.io/travis/y-lohse/inkjs.svg)](https://travis-ci.org/y-lohse/inkjs)
+![build](https://github.com/y-lohse/inkjs/workflows/Build/badge.svg)
 [![npm](https://img.shields.io/npm/v/inkjs.svg)](https://www.npmjs.com/package/inkjs)
 [![codecov](https://codecov.io/gh/y-lohse/inkjs/branch/master/graph/badge.svg)](https://codecov.io/gh/y-lohse/inkjs)
 
@@ -25,7 +25,6 @@ There's a (lighter) ES2015 version available if you only target platforms with b
 Both `ink.js` and `ink-es2015.js` use Universal Module Definition (UMD), so you can use it with [RequireJS](http://requirejs.org/) or basically any other module loader.
 If you don't know what any of this means, don't worry, just include `ink.js` with a regular script tag and everything will work fine.
 
-
 ## Quickstart
 
 The simplest way to get started with inkjs is to use the [serverless boilerplate](https://github.com/y-lohse/inkjs/blob/master/templates/browser_serverless/) in the [templates folder](https://github.com/y-lohse/inkjs/blob/master/templates/). Replace the placeholder story in `story.js` with your own and open `index.html`!
@@ -41,14 +40,14 @@ If you frequently need to update your story, pasting the content into `story.js`
 Once the server is running, use the [other boilerplate](https://github.com/y-lohse/inkjs/blob/master/templates/browser_with_server) and place your story content inside `story.json`. Behind the scenes, the only difference is that we load the JSON file via ajax before creating the story:
 
 ```javascript
-fetch('story.json')
-.then(function(response){
-	return response.text();
-})
-.then(function(storyContent){
-	story = new inkjs.Story(storyContent);
-	continueStory();
-});
+fetch("story.json")
+  .then(function (response) {
+    return response.text();
+  })
+  .then(function (storyContent) {
+    story = new inkjs.Story(storyContent);
+    continueStory();
+  });
 ```
 
 ## Using node.js
@@ -64,14 +63,14 @@ Require the module: `var Story = require('inkjs').Story;`.
 You can load the json file using a simple call to `require`:
 
 ```javascript
-var json = require('./ink_file.json');
+var json = require("./ink_file.json");
 ```
 
 You can also load it using `fs`. In that case, please note that inklecate outputs a json file encoded **with** BOM, and node isn't very good at handling that.
 
 ```javascript
-var fs = require('fs');
-var json = fs.readFileSync('./ink_file.json', 'UTF-8').replace(/^\uFEFF/, '');//strips the BOM
+var fs = require("fs");
+var json = fs.readFileSync("./ink_file.json", "UTF-8").replace(/^\uFEFF/, ""); //strips the BOM
 ```
 
 ### Starting a story
@@ -87,7 +86,6 @@ console.log(inkStory.ContinueMaximally());
 
 From there on, you can follow [the official documentation](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#getting-started-with-the-runtime-api).
 
-
 ## Differences with the C# API
 
 There are a few very minor API differences between ink C# and inkjs:
@@ -95,7 +93,6 @@ There are a few very minor API differences between ink C# and inkjs:
 ### [Getting and setting ink variables](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#settinggetting-ink-variables).
 
 On platforms that do not support [ES2015 Proxies](https://kangax.github.io/compat-table/es6/) (basically node.js v5, IE 11, Safari 9 and everything below), you can't directly read and write variables to the story state. Instead you will have to use the `$` function:
-
 
 ```javascript
 _inkStory.variablesState.$("player_health", 100);
@@ -126,7 +123,7 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 ## Compatibility table
 
 | _inklecate_ version | _inkjs_ version |
-|:-------------------:|:---------------:|
+| :-----------------: | :-------------: |
 |    0.3.5 – 0.4.0    |  1.0.0 – 1.1.0  |
 |    0.4.1 – 0.5.0    |  1.1.1 – 1.1.3  |
 |        0.5.1        |      1.2.0      |
