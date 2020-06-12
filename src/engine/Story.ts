@@ -1549,7 +1549,7 @@ export class Story extends InkObject {
     }
 
     let outputStreamBefore: InkObject[] = [];
-    outputStreamBefore.push.apply(outputStreamBefore, this.state.outputStream);
+    outputStreamBefore.push(...this.state.outputStream);
     this._state.ResetOutput();
 
     this.state.StartFunctionEvaluationFromGame(funcContainer, args);

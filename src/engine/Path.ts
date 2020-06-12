@@ -159,7 +159,7 @@ export class Path {
   }
   public PathByAppendingComponent(c: Path.Component): Path {
     let p = new Path();
-    p._components.push.apply(p._components, this._components);
+    p._components.push(...this._components);
     p._components.push(c);
     return p;
   }
