@@ -370,25 +370,19 @@ export class StoryState {
 
     copy._patch = new StatePatch(this._patch);
 
-    copy.outputStream.push.apply(copy.outputStream, this._outputStream);
+    copy.outputStream.push(...this._outputStream);
     copy.OutputStreamDirty();
 
-    copy._currentChoices.push.apply(copy._currentChoices, this._currentChoices);
+    copy._currentChoices.push(...this._currentChoices);
 
     if (this.hasError) {
       copy._currentErrors = [];
-      copy._currentErrors.push.apply(
-        copy._currentErrors,
-        this.currentErrors || []
-      );
+      copy._currentErrors.push(...(this.currentErrors || []));
     }
 
     if (this.hasWarning) {
       copy._currentWarnings = [];
-      copy._currentWarnings.push.apply(
-        copy._currentWarnings,
-        this.currentWarnings || []
-      );
+      copy._currentWarnings.push(...(this.currentWarnings || []));
     }
 
     copy.callStack = new CallStack(this.callStack);
@@ -397,7 +391,7 @@ export class StoryState {
     copy.variablesState.callStack = copy.callStack;
     copy.variablesState.patch = copy._patch;
 
-    copy.evaluationStack.push.apply(copy.evaluationStack, this.evaluationStack);
+    copy.evaluationStack.push(...this.evaluationStack);
 
     if (!this.divertedPointer.isNull)
       copy.divertedPointer = this.divertedPointer.copy();
@@ -601,7 +595,7 @@ export class StoryState {
   }
   public ResetOutput(objs: InkObject[] | null = null) {
     this._outputStream.length = 0;
-    if (objs !== null) this._outputStream.push.apply(this._outputStream, objs);
+    if (objs !== null) this._outputStream.push(...objs);
     this.OutputStreamDirty();
   }
 
