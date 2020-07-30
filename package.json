@@ -21,8 +21,8 @@
   "license": "MIT",
   "browserslist": "> 0.25%, not dead",
   "devDependencies": {
-    "@babel/core": "7.10.5",
-    "@babel/preset-env": "7.10.4",
+    "@babel/core": "7.11.0",
+    "@babel/preset-env": "7.11.0",
     "@types/jest": "26.0.7",
     "@typescript-eslint/eslint-plugin": "3.7.1",
     "@typescript-eslint/eslint-plugin-tslint": "3.7.1",
