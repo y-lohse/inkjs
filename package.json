@@ -46,7 +46,7 @@
     "rollup-plugin-typescript2": "0.27.1",
     "rollup-plugin-uglify": "6.0.4",
     "ts-jest": "26.1.4",
-    "tslint": "5.20.1",
+    "tslint": "6.1.3",
     "typescript": "3.9.7"
   }
 }
