@@ -23,7 +23,7 @@
   "devDependencies": {
     "@babel/core": "7.12.9",
     "@babel/preset-env": "7.12.7",
-    "@types/jest": "26.0.15",
+    "@types/jest": "26.0.16",
     "@typescript-eslint/eslint-plugin": "4.9.0",
     "@typescript-eslint/eslint-plugin-tslint": "4.9.0",
     "@typescript-eslint/parser": "4.9.0",
