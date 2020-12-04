@@ -111,7 +111,7 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"]);
 //result is the return value of my_ink_function("arg1", "arg2")
 ```
 
-However, if you also wish to retrieve the text that `my_ink_function` output, you need to call itlike this:
+However, if you also wish to retrieve the text that `my_ink_function` output, you need to call it like this:
 
 ```javascript
 var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
