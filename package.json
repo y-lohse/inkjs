@@ -28,7 +28,7 @@
     "@typescript-eslint/eslint-plugin-tslint": "4.9.0",
     "@typescript-eslint/parser": "4.9.0",
     "eslint": "7.15.0",
-    "eslint-config-prettier": "6.15.0",
+    "eslint-config-prettier": "7.0.0",
     "eslint-plugin-import": "2.22.1",
     "eslint-plugin-jsdoc": "30.7.8",
     "eslint-plugin-prefer-arrow": "1.2.2",
