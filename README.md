@@ -18,12 +18,14 @@ inkjs is fully compatible with the original version, has zero dependency and wor
 
 ## Installation
 
-Grab the `ink.js` file from the [latest release](https://github.com/y-lohse/inkjs/releases).
+Install using `npm install inkjs`.
 
-For npm users, install with `npm install inkjs --save`. Or for bower, `bower install inkjs`.
-There's a (lighter) ES2015 version available if you only target platforms with basic ES 2015 support.
-Both `ink.js` and `ink-es2015.js` use Universal Module Definition (UMD), so you can use it with [RequireJS](http://requirejs.org/) or basically any other module loader.
-If you don't know what any of this means, don't worry, just include `ink.js` with a regular script tag and everything will work fine.
+If you are not using npm you can grab the latest release directly from [here](https://unpkg.com/inkjs). Simply include that file with a script tag and you'll be on your way!
+
+For projects targeting older browsers that have no support for ES2015 features, a (heavier but) more backward compatible version is also exposed. Grab it by either:
+
+- `import ink from 'inkjs/dist/ink.js`
+- Directly downloading the file from [here](https://unpkg.com/inkjs@1.11.0/dist/ink.js)
 
 ## Quickstart
 
