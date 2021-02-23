@@ -22,7 +22,7 @@
   "browserslist": "> 0.25%, not dead",
   "devDependencies": {
     "@babel/core": "7.13.1",
-    "@babel/preset-env": "7.13.0",
+    "@babel/preset-env": "7.13.5",
     "@types/jest": "26.0.20",
     "@typescript-eslint/eslint-plugin": "4.15.2",
     "@typescript-eslint/eslint-plugin-tslint": "4.15.2",
