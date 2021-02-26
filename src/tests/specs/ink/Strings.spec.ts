@@ -20,7 +20,7 @@ describe("Strings", () => {
   it("tests string contains", () => {
     loadStory("string_contains");
 
-    expect(story.ContinueMaximally()).toBe("1\n0\n1\n1\n");
+    expect(story.ContinueMaximally()).toBe("true\nfalse\ntrue\ntrue\n");
   });
 
   it("tests string type coercion", () => {

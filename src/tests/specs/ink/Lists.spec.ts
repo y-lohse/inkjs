@@ -26,7 +26,7 @@ describe("Lists", () => {
   it("tests list basic operations", () => {
     loadStory("list_basic_operations");
 
-    expect(story.ContinueMaximally()).toBe("b, d\na, b, c, e\nb, c\n0\n1\n1\n");
+    expect(story.ContinueMaximally()).toBe("b, d\na, b, c, e\nb, c\nfalse\ntrue\ntrue\n");
   });
 
   it("tests list mixed items", () => {

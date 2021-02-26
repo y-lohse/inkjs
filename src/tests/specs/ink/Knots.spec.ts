@@ -38,7 +38,6 @@ describe("Knots", () => {
 
     expect(story.Continue()).toBe("wigwag\n");
     expect(story.Continue()).toBe("THE END\n");
-    expect(story.hasError);
   });
 
   it("tests knot thread interaction2", () => {
@@ -56,6 +55,5 @@ describe("Knots", () => {
     expect(story.ContinueMaximally()).toBe(
       "I’m an option\nFinishing thread.\n"
     );
-    expect(story.hasError);
   });
 });
