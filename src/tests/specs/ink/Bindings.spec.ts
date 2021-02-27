@@ -79,4 +79,30 @@ describe("Bindings", () => {
     expect(currentVarValue).toBe(25);
     expect(observerCallCount).toBe(2);
   });
+
+  it("tests lookup safe or not", () => {
+    // SAFE Lookahead
+    loadStory("lookup_safe_or_not");
+
+    let callCount = 0;
+    story.BindExternalFunction("myAction", () => { callCount++; }, true);
+
+    story.ContinueMaximally();
+    expect(callCount).toBe(2);
+
+    // UNSAFE Lookahead
+    callCount = 0
+    story.ResetState();
+    story.UnbindExternalFunction("myAction");
+    story.BindExternalFunction("myAction", () => { callCount++; }, false);
+
+    story.ContinueMaximally();
+    expect(callCount).toBe(1);
+
+    // SAFE Lookahead with glue broken intentionally
+    loadStory("lookup_safe_or_not_with_post_glue");
+    story.BindExternalFunction("myAction", () => {});
+    let result = story.ContinueMaximally();
+    expect(result).toBe("One\nTwo\n");
+  });
 });
