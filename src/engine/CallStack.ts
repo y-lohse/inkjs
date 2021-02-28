@@ -208,9 +208,7 @@ export class CallStack {
     let contextElement = this.callStack[contextIndex - 1];
 
     if (!declareNew && !contextElement.temporaryVariables.get(name)) {
-      throw new StoryException(
-        "Could not find temporary variable to set: " + name
-      );
+      throw new Error("Could not find temporary variable to set: " + name);
     }
 
     let oldValue = tryGetValueFromMap(

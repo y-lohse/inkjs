@@ -35,10 +35,8 @@ export abstract class AbstractValue extends InkObject {
       }
     }
 
-    // Implicitly convert bools into ints
     if (typeof val === "boolean") {
-      let b = !!val;
-      val = b ? 1 : 0;
+      return new BoolValue(Boolean(val));
     }
 
     // https://github.com/y-lohse/inkjs/issues/425
@@ -92,6 +90,44 @@ export abstract class Value<
   }
 }
 
+export class BoolValue extends Value<boolean> {
+  constructor(val: boolean) {
+    super(val || false);
+  }
+  public get isTruthy() {
+    return Boolean(this.value);
+  }
+  public get valueType() {
+    return ValueType.Bool;
+  }
+
+  public Cast(newType: ValueType): Value<any> {
+    if (this.value === null) return throwNullException("Value.value");
+
+    if (newType == this.valueType) {
+      return this;
+    }
+
+    if (newType == ValueType.Int) {
+      return new IntValue(this.value ? 1 : 0);
+    }
+
+    if (newType == ValueType.Float) {
+      return new FloatValue(this.value ? 1.0 : 0.0);
+    }
+
+    if (newType == ValueType.String) {
+      return new StringValue(this.value ? "true" : "false");
+    }
+
+    throw this.BadCastException(newType);
+  }
+
+  public toString() {
+    return this.value ? "true" : "false";
+  }
+}
+
 export class IntValue extends Value<number> {
   constructor(val: number) {
     super(val || 0);
@@ -108,6 +144,10 @@ export class IntValue extends Value<number> {
 
     if (newType == this.valueType) {
       return this;
+    }
+
+    if (newType == ValueType.Bool) {
+      return new BoolValue(this.value === 0 ? false : true);
     }
 
     if (newType == ValueType.Float) {
@@ -138,6 +178,10 @@ export class FloatValue extends Value<number> {
 
     if (newType == this.valueType) {
       return this;
+    }
+
+    if (newType == ValueType.Bool) {
+      return new BoolValue(this.value === 0.0 ? false : true);
     }
 
     if (newType == ValueType.Int) {
@@ -364,6 +408,7 @@ export class ListValue extends Value<InkList> {
 }
 
 export enum ValueType {
+  Bool = -1,
   Int = 0,
   Float = 1,
   List = 2,
