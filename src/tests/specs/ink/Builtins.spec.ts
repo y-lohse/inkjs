@@ -114,5 +114,5 @@ describe("Builtins", () => {
 
     story.ChooseChoiceIndex(0);
     expect(story.ContinueMaximally()).toBe("choice\n1\n");
-  })
+  });
 });

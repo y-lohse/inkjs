@@ -54,23 +54,31 @@ describe("Multiflow", () => {
     let saved = story.state.ToJson();
 
     story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("Thread 1 red choice\nAfter thread 1 choice (red)\n");
+    expect(story.ContinueMaximally()).toBe(
+      "Thread 1 red choice\nAfter thread 1 choice (red)\n"
+    );
     story.ResetState();
 
     story.state.LoadJson(saved);
 
     story.ChooseChoiceIndex(1);
-    expect(story.ContinueMaximally()).toBe("Thread 2 red choice\nAfter thread 2 choice (red)\n");
+    expect(story.ContinueMaximally()).toBe(
+      "Thread 2 red choice\nAfter thread 2 choice (red)\n"
+    );
 
     story.state.LoadJson(saved);
     story.SwitchFlow("Blue Flow");
     story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("Thread 1 blue choice\nAfter thread 1 choice (blue)\n");
+    expect(story.ContinueMaximally()).toBe(
+      "Thread 1 blue choice\nAfter thread 1 choice (blue)\n"
+    );
 
     story.state.LoadJson(saved);
     story.SwitchFlow("Blue Flow");
     story.ChooseChoiceIndex(1);
-    expect(story.ContinueMaximally()).toBe("Thread 2 blue choice\nAfter thread 2 choice (blue)\n");
+    expect(story.ContinueMaximally()).toBe(
+      "Thread 2 blue choice\nAfter thread 2 choice (blue)\n"
+    );
 
     story.RemoveFlow("Blue Flow");
     expect(story.Continue()).toBe("Default line 2\n");
