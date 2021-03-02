@@ -20,8 +20,6 @@ describe("Threads", () => {
 
     story.ChooseChoiceIndex(0);
     expect(story.ContinueMaximally()).toBe("choice in place 1\nThe end\n");
-
-    expect(story.hasError).toBe(false);
   });
 
   it("tests thread done", () => {

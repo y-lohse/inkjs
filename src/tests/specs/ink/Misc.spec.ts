@@ -21,7 +21,6 @@ describe("Misc", () => {
     loadStory("end_of_content");
 
     story.ContinueMaximally();
-    expect(story.hasError).toBe(false);
   });
 
   it("tests end", () => {
