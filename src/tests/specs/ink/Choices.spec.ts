@@ -24,7 +24,6 @@ describe("Choices", () => {
     story.ChooseChoiceIndex(0);
 
     expect(story.Continue()).toBe("choice");
-    expect(story.hasError).toBe(false);
   });
 
   it("tests choice with brackets only", () => {
