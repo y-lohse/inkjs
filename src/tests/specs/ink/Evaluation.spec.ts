@@ -101,6 +101,6 @@ describe("Evaluation", () => {
   it("tests literal unary", () => {
     loadStory("literal_unary");
 
-    expect(story.ContinueMaximally()).toBe("-1\n0\n1\n");
+    expect(story.ContinueMaximally()).toBe("-1\nfalse\ntrue\n");
   });
 });

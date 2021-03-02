@@ -34,6 +34,5 @@ describe("Conditions", () => {
     loadStory("trivial_condition");
 
     story.Continue();
-    expect(story.hasError).toBe(false);
   });
 });
