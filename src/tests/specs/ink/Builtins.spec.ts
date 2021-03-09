@@ -106,4 +106,13 @@ describe("Builtins", () => {
     expect(story.state.VisitCountAtPathString("TestKnot")).toBe(1);
     expect(story.state.VisitCountAtPathString("TestKnot2")).toBe(1);
   });
+
+  it("tests visit count bug due to nested containers", () => {
+    loadStory("visit_count_bug_due_to_nested_containers");
+
+    expect(story.Continue()).toBe("1\n");
+
+    story.ChooseChoiceIndex(0);
+    expect(story.ContinueMaximally()).toBe("choice\n1\n");
+  });
 });

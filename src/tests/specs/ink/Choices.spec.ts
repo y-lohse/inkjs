@@ -197,4 +197,11 @@ describe("Choices", () => {
 
     expect(story.ContinueMaximally()).toBe("1\n2\n3\n");
   });
+
+  it("tests state rollback over default choice", () => {
+    loadStory("state_rollback_over_default_choice");
+
+    expect(story.Continue()).toBe("Text.\n");
+    expect(story.Continue()).toBe("5\n");
+  });
 });
