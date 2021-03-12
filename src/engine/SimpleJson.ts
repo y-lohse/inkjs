@@ -78,6 +78,7 @@ export namespace SimpleJson {
     // Write a property name / value pair to the current object.
     public WriteProperty(
       name: any,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       innerOrContent: ((w: Writer) => void) | string | boolean | null
     ) {
       this.WritePropertyStart(name);
@@ -200,10 +201,20 @@ export namespace SimpleJson {
     // context.
     public Write(
       value: number | string | boolean | null,
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       escape: boolean = true
     ) {
       if (value === null) {
         console.error("Warning: trying to write a null string");
+        return;
+      }
+
+      this.StartNewObject(false);
+      this._addToCurrentObject(value);
+    }
+
+    public WriteBool(value: boolean | null) {
+      if (value === null) {
         return;
       }
 
@@ -273,6 +284,7 @@ export namespace SimpleJson {
       this._currentString = null;
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     public WriteStringInner(str: string | null, escape: boolean = true) {
       this.Assert(this.state === SimpleJson.Writer.State.String);
 
