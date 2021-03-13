@@ -128,19 +128,28 @@ export class InkList extends Map<SerializedInkListItem, number> {
     if (arguments[0] instanceof InkList) {
       let otherList = arguments[0] as InkList;
 
-      if (otherList._originNames) {
-        this._originNames = otherList._originNames.slice();
+      this._originNames = otherList.originNames;
+      if (otherList.origins !== null) {
+        this.origins = otherList.origins.slice();
       }
     } else if (typeof arguments[0] === "string") {
       let singleOriginListName = arguments[0] as string;
-      let originStory = arguments[1]; /* as Story */
+      let originStory = arguments[1] as Story;
       this.SetInitialOriginName(singleOriginListName);
 
+      if (originStory.listDefinitions === null) {
+        return throwNullException("originStory.listDefinitions");
+      }
       let def = originStory.listDefinitions.TryListGetDefinition(
         singleOriginListName,
         null
       );
       if (def.exists) {
+        // Throwing now, because if the value is `null` it will
+        // eventually throw down the line.
+        if (def.result === null) {
+          return throwNullException("def.result");
+        }
         this.origins = [def.result];
       } else {
         throw new Error(
@@ -155,6 +164,24 @@ export class InkList extends Map<SerializedInkListItem, number> {
     ) {
       let singleElement = arguments[0] as KeyValuePair<InkListItem, number>;
       this.Add(singleElement.Key, singleElement.Value);
+    }
+  }
+
+  public static FromString(myListItem: string, originStory: Story) {
+    let listValue = originStory.listDefinitions?.FindSingleItemListWithName(
+      myListItem
+    );
+    if (listValue) {
+      if (listValue.value === null) {
+        return throwNullException("listValue.value");
+      }
+      return new InkList(listValue.value);
+    } else {
+      throw new Error(
+        "Could not find the InkListItem from the string '" +
+          myListItem +
+          "' to create an InkList because it doesn't exist in the original list definition in ink."
+      );
     }
   }
 
