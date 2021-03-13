@@ -5,6 +5,7 @@ import {
   ListValue,
   IntValue,
   FloatValue,
+  BoolValue,
 } from "./Value";
 import { VariableAssignment } from "./VariableAssignment";
 import { InkObject } from "./Object";
@@ -99,9 +100,9 @@ export class VariablesState {
       let val = Value.Create(value);
       if (val == null) {
         if (value == null) {
-          throw new StoryException("Cannot pass null to VariableState");
+          throw new Error("Cannot pass null to VariableState");
         } else {
-          throw new StoryException(
+          throw new Error(
             "Invalid value passed to VariableState: " + value.toString()
           );
         }
@@ -214,6 +215,11 @@ export class VariablesState {
     }
 
     if (obj1.constructor !== obj2.constructor) return false;
+
+    let boolVal = asOrNull(obj1, BoolValue);
+    if (boolVal !== null) {
+      return boolVal.value === asOrThrows(obj2, BoolValue).value;
+    }
 
     let intVal = asOrNull(obj1, IntValue);
     if (intVal !== null) {
