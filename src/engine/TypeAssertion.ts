@@ -30,6 +30,14 @@ export function asNumberOrThrows(obj: any) {
   }
 }
 
+export function asBooleanOrThrows(obj: any) {
+  if (typeof obj === "boolean") {
+    return obj as boolean;
+  } else {
+    throw new Error(`${obj} is not a boolean`);
+  }
+}
+
 // So here, in the reference implementation, contentObj is casted to an INamedContent
 // but here we use js-style duck typing: if it implements the same props as the interface,
 // we treat it as valid.

@@ -1,10 +1,10 @@
-import { Value, ValueType, IntValue, ListValue } from "./Value";
+import { Value, ValueType, IntValue, ListValue, BoolValue } from "./Value";
 import { StoryException } from "./StoryException";
 import { Void } from "./Void";
 import { Path } from "./Path";
 import { InkList, InkListItem } from "./InkList";
 import { InkObject } from "./Object";
-import { asOrNull, asOrThrows } from "./TypeAssertion";
+import { asOrNull, asOrThrows, asBooleanOrThrows } from "./TypeAssertion";
 import { throwNullException } from "./NullException";
 
 type BinaryOp<T> = (left: T, right: T) => any;
@@ -208,8 +208,10 @@ export class NativeFunctionCall extends InkObject {
         return throwNullException(
           "NativeFunctionCall.CallBinaryListOperation op"
         );
-      let result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
-      return new IntValue(result);
+      let result = asBooleanOrThrows(
+        op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0)
+      );
+      return new BoolValue(result);
     }
 
     if (v1.valueType == ValueType.List && v2.valueType == ValueType.List)
@@ -376,16 +378,16 @@ export class NativeFunctionCall extends InkObject {
       this.AddIntBinaryOp(this.Mod, (x, y) => x % y);
       this.AddIntUnaryOp(this.Negate, (x) => -x);
 
-      this.AddIntBinaryOp(this.Equal, (x, y) => (x == y ? 1 : 0));
-      this.AddIntBinaryOp(this.Greater, (x, y) => (x > y ? 1 : 0));
-      this.AddIntBinaryOp(this.Less, (x, y) => (x < y ? 1 : 0));
-      this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => (x >= y ? 1 : 0));
-      this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => (x <= y ? 1 : 0));
-      this.AddIntBinaryOp(this.NotEquals, (x, y) => (x != y ? 1 : 0));
-      this.AddIntUnaryOp(this.Not, (x) => (x == 0 ? 1 : 0));
+      this.AddIntBinaryOp(this.Equal, (x, y) => x == y);
+      this.AddIntBinaryOp(this.Greater, (x, y) => x > y);
+      this.AddIntBinaryOp(this.Less, (x, y) => x < y);
+      this.AddIntBinaryOp(this.GreaterThanOrEquals, (x, y) => x >= y);
+      this.AddIntBinaryOp(this.LessThanOrEquals, (x, y) => x <= y);
+      this.AddIntBinaryOp(this.NotEquals, (x, y) => x != y);
+      this.AddIntUnaryOp(this.Not, (x) => x == 0);
 
-      this.AddIntBinaryOp(this.And, (x, y) => (x != 0 && y != 0 ? 1 : 0));
-      this.AddIntBinaryOp(this.Or, (x, y) => (x != 0 || y != 0 ? 1 : 0));
+      this.AddIntBinaryOp(this.And, (x, y) => x != 0 && y != 0);
+      this.AddIntBinaryOp(this.Or, (x, y) => x != 0 || y != 0);
 
       this.AddIntBinaryOp(this.Max, (x, y) => Math.max(x, y));
       this.AddIntBinaryOp(this.Min, (x, y) => Math.min(x, y));
@@ -404,18 +406,16 @@ export class NativeFunctionCall extends InkObject {
       this.AddFloatBinaryOp(this.Mod, (x, y) => x % y);
       this.AddFloatUnaryOp(this.Negate, (x) => -x);
 
-      this.AddFloatBinaryOp(this.Equal, (x, y) => (x == y ? 1 : 0));
-      this.AddFloatBinaryOp(this.Greater, (x, y) => (x > y ? 1 : 0));
-      this.AddFloatBinaryOp(this.Less, (x, y) => (x < y ? 1 : 0));
-      this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) =>
-        x >= y ? 1 : 0
-      );
-      this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => (x <= y ? 1 : 0));
-      this.AddFloatBinaryOp(this.NotEquals, (x, y) => (x != y ? 1 : 0));
-      this.AddFloatUnaryOp(this.Not, (x) => (x == 0.0 ? 1 : 0));
+      this.AddFloatBinaryOp(this.Equal, (x, y) => x == y);
+      this.AddFloatBinaryOp(this.Greater, (x, y) => x > y);
+      this.AddFloatBinaryOp(this.Less, (x, y) => x < y);
+      this.AddFloatBinaryOp(this.GreaterThanOrEquals, (x, y) => x >= y);
+      this.AddFloatBinaryOp(this.LessThanOrEquals, (x, y) => x <= y);
+      this.AddFloatBinaryOp(this.NotEquals, (x, y) => x != y);
+      this.AddFloatUnaryOp(this.Not, (x) => x == 0.0);
 
-      this.AddFloatBinaryOp(this.And, (x, y) => (x != 0.0 && y != 0.0 ? 1 : 0));
-      this.AddFloatBinaryOp(this.Or, (x, y) => (x != 0.0 || y != 0.0 ? 1 : 0));
+      this.AddFloatBinaryOp(this.And, (x, y) => x != 0.0 && y != 0.0);
+      this.AddFloatBinaryOp(this.Or, (x, y) => x != 0.0 || y != 0.0);
 
       this.AddFloatBinaryOp(this.Max, (x, y) => Math.max(x, y));
       this.AddFloatBinaryOp(this.Min, (x, y) => Math.min(x, y));
@@ -428,34 +428,30 @@ export class NativeFunctionCall extends InkObject {
 
       // String operations
       this.AddStringBinaryOp(this.Add, (x, y) => x + y); // concat
-      this.AddStringBinaryOp(this.Equal, (x, y) => (x === y ? 1 : 0));
-      this.AddStringBinaryOp(this.NotEquals, (x, y) => (!(x === y) ? 1 : 0));
-      this.AddStringBinaryOp(this.Has, (x, y) => (x.includes(y) ? 1 : 0));
-      this.AddStringBinaryOp(this.Hasnt, (x, y) => (x.includes(y) ? 0 : 1));
+      this.AddStringBinaryOp(this.Equal, (x, y) => x === y);
+      this.AddStringBinaryOp(this.NotEquals, (x, y) => !(x === y));
+      this.AddStringBinaryOp(this.Has, (x, y) => x.includes(y));
+      this.AddStringBinaryOp(this.Hasnt, (x, y) => !x.includes(y));
 
       this.AddListBinaryOp(this.Add, (x, y) => x.Union(y));
       this.AddListBinaryOp(this.Subtract, (x, y) => x.Without(y));
-      this.AddListBinaryOp(this.Has, (x, y) => (x.Contains(y) ? 1 : 0));
-      this.AddListBinaryOp(this.Hasnt, (x, y) => (x.Contains(y) ? 0 : 1));
+      this.AddListBinaryOp(this.Has, (x, y) => x.Contains(y));
+      this.AddListBinaryOp(this.Hasnt, (x, y) => !x.Contains(y));
       this.AddListBinaryOp(this.Intersect, (x, y) => x.Intersect(y));
 
-      this.AddListBinaryOp(this.Equal, (x, y) => (x.Equals(y) ? 1 : 0));
-      this.AddListBinaryOp(this.Greater, (x, y) => (x.GreaterThan(y) ? 1 : 0));
-      this.AddListBinaryOp(this.Less, (x, y) => (x.LessThan(y) ? 1 : 0));
+      this.AddListBinaryOp(this.Equal, (x, y) => x.Equals(y));
+      this.AddListBinaryOp(this.Greater, (x, y) => x.GreaterThan(y));
+      this.AddListBinaryOp(this.Less, (x, y) => x.LessThan(y));
       this.AddListBinaryOp(this.GreaterThanOrEquals, (x, y) =>
-        x.GreaterThanOrEquals(y) ? 1 : 0
+        x.GreaterThanOrEquals(y)
       );
       this.AddListBinaryOp(this.LessThanOrEquals, (x, y) =>
-        x.LessThanOrEquals(y) ? 1 : 0
+        x.LessThanOrEquals(y)
       );
-      this.AddListBinaryOp(this.NotEquals, (x, y) => (!x.Equals(y) ? 1 : 0));
+      this.AddListBinaryOp(this.NotEquals, (x, y) => !x.Equals(y));
 
-      this.AddListBinaryOp(this.And, (x, y) =>
-        x.Count > 0 && y.Count > 0 ? 1 : 0
-      );
-      this.AddListBinaryOp(this.Or, (x, y) =>
-        x.Count > 0 || y.Count > 0 ? 1 : 0
-      );
+      this.AddListBinaryOp(this.And, (x, y) => x.Count > 0 && y.Count > 0);
+      this.AddListBinaryOp(this.Or, (x, y) => x.Count > 0 || y.Count > 0);
 
       this.AddListUnaryOp(this.Not, (x) => (x.Count == 0 ? 1 : 0));
 
@@ -466,9 +462,8 @@ export class NativeFunctionCall extends InkObject {
       this.AddListUnaryOp(this.Count, (x) => x.Count);
       this.AddListUnaryOp(this.ValueOfList, (x) => x.maxItem.Value);
 
-      let divertTargetsEqual = (d1: Path, d2: Path) => (d1.Equals(d2) ? 1 : 0);
-      let divertTargetsNotEqual = (d1: Path, d2: Path) =>
-        d1.Equals(d2) ? 0 : 1;
+      let divertTargetsEqual = (d1: Path, d2: Path) => d1.Equals(d2);
+      let divertTargetsNotEqual = (d1: Path, d2: Path) => !d1.Equals(d2);
       this.AddOpToNativeFunc(
         this.Equal,
         2,
