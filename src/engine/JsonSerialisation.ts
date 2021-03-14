@@ -7,6 +7,7 @@ import {
   DivertTargetValue,
   VariablePointerValue,
   ListValue,
+  BoolValue,
 } from "./Value";
 import { Glue } from "./Glue";
 import { ControlCommand } from "./ControlCommand";
@@ -24,7 +25,7 @@ import { ListDefinition } from "./ListDefinition";
 import { ListDefinitionsOrigin } from "./ListDefinitionsOrigin";
 import { InkListItem, InkList } from "./InkList";
 import { InkObject } from "./Object";
-import { asOrNull, asNumberOrThrows } from "./TypeAssertion";
+import { asOrNull } from "./TypeAssertion";
 import { throwNullException } from "./NullException";
 import { SimpleJson } from "./SimpleJson";
 
@@ -140,6 +141,12 @@ export class JsonSerialisation {
       writer.WriteProperty("*", choicePoint.pathStringOnChoice);
       writer.WriteIntProperty("flg", choicePoint.flags);
       writer.WriteObjectEnd();
+      return;
+    }
+
+    let boolVal = asOrNull(obj, BoolValue);
+    if (boolVal) {
+      writer.WriteBool(boolVal.value);
       return;
     }
 
@@ -298,7 +305,10 @@ export class JsonSerialisation {
   }
 
   public static JTokenToRuntimeObject(token: any): InkObject | null {
-    if (typeof token === "number" && !isNaN(token)) {
+    if (
+      (typeof token === "number" && !isNaN(token)) ||
+      typeof token === "boolean"
+    ) {
       return Value.Create(token);
     }
 
