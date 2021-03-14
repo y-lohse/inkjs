@@ -8,7 +8,8 @@ We're very happy to hear that you want to contribute! 🎊
 
 ### I have a question
 
-1. Check whether it has been asked before or not. You can either search through [issues].
+1. Check whether it has been asked before or not. You can either search through
+   [issues].
 2. If it hasn't been asked before, open an issue.
 
 [issues]: https://github.com/y-lohse/inkjs/issues
@@ -19,20 +20,30 @@ Open an issue or fix the bug yourself and submit a pull request!
 
 ### I think _inkjs_ would be better with feature X…
 
-We usually don't accept new features in _inkjs_. The purpose of the project is to provide an implementation of ink in JavaScript, compliant with the reference implementation.
+We usually don't accept new features in _inkjs_. The purpose of the project is
+to provide an implementation of ink in JavaScript, compliant with the reference
+implementation.
 
-If you feel that ink is missing a feature, we recommend that you bring it up in the [main repository] first, or alternatively, in the official [Discord server].
+If you feel that ink is missing a feature, we recommend that you bring it up in
+the [main repository] first, or alternatively, in the official [Discord server].
 
 [main repository]: https://github.com/inkle/ink
 [Discord server]: https://discord.gg/inkle
 
 ## Rules & Conventions when porting code from C# #
 
+1. Do not port comments from the C# codebase, but do add `inkjs`-centric comment
+   when it make sense. For example, it's important to document when `inkjs`
+   display a slightly different behavior than the reference implementation.
+
 _To be added._
 
 ### Style guide
 
-_inkjs_ uses [Prettier] and [ESLint] to ensure code consistency. We recommend that you run prettier either on save or before submitting your PR. Our CI lints every PR submitted, so make sure your code passes validation. Two NPM tasks can help you:
+_inkjs_ uses [Prettier] and [ESLint] to ensure code consistency. We recommend
+that you run prettier either on save or before submitting your PR. Our CI lints
+every PR submitted, so make sure your code passes validation. Two NPM tasks
+can help you:
 
 - `lint` runs the linter
 - `lint:fix` fixes lint errors and warnings automatically
