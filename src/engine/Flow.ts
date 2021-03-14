@@ -24,6 +24,7 @@ export class Flow {
     if (arguments[3]) {
       let jObject = arguments[3] as Record<string, any>;
 
+      this.callStack.SetJsonToken(jObject["callstack"], story);
       this.outputStream = JsonSerialisation.JArrayToRuntimeObjList(
         jObject["outputStream"]
       );
