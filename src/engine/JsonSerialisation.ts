@@ -25,7 +25,7 @@ import { ListDefinition } from "./ListDefinition";
 import { ListDefinitionsOrigin } from "./ListDefinitionsOrigin";
 import { InkListItem, InkList } from "./InkList";
 import { InkObject } from "./Object";
-import { asOrNull, asNumberOrThrows } from "./TypeAssertion";
+import { asOrNull } from "./TypeAssertion";
 import { throwNullException } from "./NullException";
 import { SimpleJson } from "./SimpleJson";
 
