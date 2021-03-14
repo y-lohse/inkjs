@@ -33,6 +33,7 @@ import { asOrNull, asOrThrows } from "./TypeAssertion";
 import { DebugMetadata } from "./DebugMetadata";
 import { throwNullException } from "./NullException";
 import { SimpleJson } from "./SimpleJson";
+import { ErrorHandler, ErrorType } from "./Error";
 
 export { InkList } from "./InkList";
 
@@ -87,6 +88,10 @@ export class Story extends InkObject {
     return this.state.currentWarnings;
   }
 
+  get currentFlowName() {
+    return this.state.currentFlowName;
+  }
+
   get hasError() {
     return this.state.hasError;
   }
@@ -106,6 +111,24 @@ export class Story extends InkObject {
   get state() {
     return this._state;
   }
+
+  public onError: ErrorHandler | null = null;
+
+  public onDidContinue: (() => void) | null = null;
+
+  public onMakeChoice: ((arg1: Choice) => void) | null = null;
+
+  public onEvaluateFunction:
+    | ((arg1: string, arg2: any[]) => void)
+    | null = null;
+
+  public onCompleteEvaluateFunction:
+    | ((arg1: string, arg2: any[], arg3: string, arg4: any) => void)
+    | null = null;
+
+  public onChoosePathString:
+    | ((arg1: string, arg2: any[]) => void)
+    | null = null;
 
   // TODO: Implement Profiler
   public StartProfiling() {
@@ -284,6 +307,26 @@ export class Story extends InkObject {
     this.state.variablesState.SnapshotDefaultGlobals();
   }
 
+  public SwitchFlow(flowName: string) {
+    this.IfAsyncWeCant("switch flow");
+    if (this._asyncSaving) {
+      throw new Error(
+        "Story is already in background saving mode, can't switch flow to " +
+          flowName
+      );
+    }
+
+    this.state.SwitchFlow_Internal(flowName);
+  }
+
+  public RemoveFlow(flowName: string) {
+    this.state.RemoveFlow_Internal(flowName);
+  }
+
+  public SwitchToDefaultFlow() {
+    this.state.SwitchToDefaultFlow_Internal();
+  }
+
   public Continue() {
     this.ContinueAsync(0);
     return this.currentText;
@@ -313,7 +356,7 @@ export class Story extends InkObject {
       this._asyncContinueActive = isAsyncTimeLimited;
 
       if (!this.canContinue) {
-        throw new StoryException(
+        throw new Error(
           "Can't continue - should check canContinue before calling Continue"
         );
       }
@@ -329,6 +372,7 @@ export class Story extends InkObject {
     durationStopwatch.Start();
 
     let outputStreamEndsInNewline = false;
+    this._sawLookaheadUnsafeFunctionAfterNewline = false;
     do {
       try {
         outputStreamEndsInNewline = this.ContinueSingleStep();
@@ -387,16 +431,59 @@ export class Story extends InkObject {
       }
 
       this.state.didSafeExit = false;
+      this._sawLookaheadUnsafeFunctionAfterNewline = false;
 
       if (this._recursiveContinueCount == 1)
         this._state.variablesState.batchObservingVariableChanges = false;
 
       this._asyncContinueActive = false;
+      if (this.onDidContinue != null) this.onDidContinue;
     }
 
     this._recursiveContinueCount--;
 
     if (this._profiler != null) this._profiler.PostContinue();
+
+    if (this.state.hasError || this.state.hasWarning) {
+      if (this.onError != null) {
+        if (this.state.hasError) {
+          for (let err of this.state.currentErrors) {
+            this.onError(err, ErrorType.Error);
+          }
+        }
+        if (this.state.hasWarning) {
+          for (let err of this.state.currentWarnings) {
+            this.onError(err, ErrorType.Warning);
+          }
+        }
+        this.ResetErrors();
+      } else {
+        let sb = new StringBuilder();
+        sb.Append("Ink had ");
+        if (this.state.hasError) {
+          sb.Append(this.state.currentErrors.length);
+          sb.Append(this.state.currentErrors.length == 1 ? " error" : "errors");
+          if (this.state.hasWarning) sb.Append(" and ");
+        }
+        if (this.state.hasWarning) {
+          sb.Append(this.state.currentWarnings.length);
+          sb.Append(
+            this.state.currentWarnings.length == 1 ? " warning" : "warnings"
+          );
+          if (this.state.hasWarning) sb.Append(" and ");
+        }
+        sb.Append(
+          ". It is strongly suggested that you assign an error handler to story.onError. The first issue was: "
+        );
+        sb.Append(
+          this.state.hasError
+            ? this.state.currentErrors[0]
+            : this.state.currentWarnings[0]
+        );
+
+        throw new StoryException(sb.toString());
+      }
+    }
   }
 
   public ContinueSingleStep() {
@@ -428,7 +515,10 @@ export class Story extends InkObject {
           this.state.currentTags.length
         );
 
-        if (change == Story.OutputStateChange.ExtendedBeyondNewline) {
+        if (
+          change == Story.OutputStateChange.ExtendedBeyondNewline ||
+          this._sawLookaheadUnsafeFunctionAfterNewline
+        ) {
           this.RestoreStateSnapshot();
 
           return true;
@@ -757,6 +847,7 @@ export class Story extends InkObject {
       currentChildOfContainer.parent,
       Container
     );
+    let allChildrenEnteredAtStart = true;
     while (
       currentContainerAncestor &&
       (this._prevContainers.indexOf(currentContainerAncestor) < 0 ||
@@ -766,7 +857,10 @@ export class Story extends InkObject {
       // by checking whether the child object is the first.
       let enteringAtStart =
         currentContainerAncestor.content.length > 0 &&
-        currentChildOfContainer == currentContainerAncestor.content[0];
+        currentChildOfContainer == currentContainerAncestor.content[0] &&
+        allChildrenEnteredAtStart;
+
+      if (!enteringAtStart) allChildrenEnteredAtStart = false;
 
       // Mark a visit to this container
       this.VisitContainer(currentContainerAncestor, enteringAtStart);
@@ -1179,7 +1273,20 @@ export class Story extends InkObject {
             return throwNullException("minInt.value");
           }
 
+          // This code is differs a bit from the reference implementation, since
+          // JavaScript has no true integers. Hence integer arithmetics and
+          // interger overflows don't apply here. A loss of precision can
+          // happen with big numbers however.
+          //
+          // The case where 'randomRange' is lower than zero is handled below,
+          // so there's no need to test against Number.MIN_SAFE_INTEGER.
           let randomRange = maxInt.value - minInt.value + 1;
+          if (!isFinite(randomRange) || randomRange > Number.MAX_SAFE_INTEGER) {
+            randomRange = Number.MAX_SAFE_INTEGER;
+            this.Error(
+              "RANDOM was called with a range that exceeds the size that ink numbers can use."
+            );
+          }
           if (randomRange <= 0)
             this.Error(
               "RANDOM was called with minimum as " +
@@ -1452,6 +1559,7 @@ export class Story extends InkObject {
     args: any[] = []
   ) {
     this.IfAsyncWeCant("call ChoosePathString right now");
+    if (this.onChoosePathString !== null) this.onChoosePathString(path, args);
 
     if (resetCallstack) {
       this.ResetCallstack();
@@ -1503,6 +1611,8 @@ export class Story extends InkObject {
     );
 
     let choiceToChoose = choices[choiceIdx];
+    if (this.onMakeChoice !== null) this.onMakeChoice(choiceToChoose);
+
     if (choiceToChoose.threadAtGeneration === null) {
       return throwNullException("choiceToChoose.threadAtGeneration");
     }
@@ -1535,6 +1645,9 @@ export class Story extends InkObject {
     // optional third parameter returnTextOutput. If set to true, we will
     // return both the textOutput and the returned value, as an object.
 
+    if (this.onEvaluateFunction !== null)
+      this.onEvaluateFunction(functionName, args);
+
     this.IfAsyncWeCant("evaluate a function");
 
     if (functionName == null) {
@@ -1564,6 +1677,8 @@ export class Story extends InkObject {
     this._state.ResetOutput(outputStreamBefore);
 
     let result = this.state.CompleteFunctionEvaluationFromGame();
+    if (this.onCompleteEvaluateFunction != null)
+      this.onCompleteEvaluateFunction(functionName, args, textOutput, result);
 
     return returnTextOutput ? { returned: result, output: textOutput } : result;
   }
@@ -1607,12 +1722,20 @@ export class Story extends InkObject {
     if (funcName === null) {
       return throwNullException("funcName");
     }
-    let func = this._externals.get(funcName);
+    let funcDef = this._externals.get(funcName);
     let fallbackFunctionContainer = null;
 
-    let foundExternal = typeof func !== "undefined";
+    let foundExternal = typeof funcDef !== "undefined";
 
-    // Try to use fallback function?
+    if (
+      foundExternal &&
+      !funcDef!.lookAheadSafe &&
+      this._stateSnapshotAtLastNewline !== null
+    ) {
+      this._sawLookaheadUnsafeFunctionAfterNewline = true;
+      return;
+    }
+
     if (!foundExternal) {
       if (this.allowExternalFunctionFallbacks) {
         fallbackFunctionContainer = this.KnotContainerWithName(funcName);
@@ -1655,7 +1778,7 @@ export class Story extends InkObject {
     args.reverse();
 
     // Run the function!
-    let funcResult = func!(args);
+    let funcResult = funcDef!.function(args);
 
     // Convert return value (if any) to the a type that the ink engine can use
     let returnObj = null;
@@ -1675,14 +1798,18 @@ export class Story extends InkObject {
 
   public BindExternalFunctionGeneral(
     funcName: string,
-    func: Story.ExternalFunction
+    func: Story.ExternalFunction,
+    lookaheadSafe: boolean
   ) {
     this.IfAsyncWeCant("bind an external function");
     this.Assert(
       !this._externals.has(funcName),
       "Function '" + funcName + "' has already been bound."
     );
-    this._externals.set(funcName, func);
+    this._externals.set(funcName, {
+      function: func,
+      lookAheadSafe: lookaheadSafe,
+    });
   }
 
   public TryCoerce(value: any) {
@@ -1693,21 +1820,29 @@ export class Story extends InkObject {
     return value;
   }
 
-  public BindExternalFunction(funcName: string, func: Story.ExternalFunction) {
+  public BindExternalFunction(
+    funcName: string,
+    func: Story.ExternalFunction,
+    lookaheadSafe: boolean
+  ) {
     this.Assert(func != null, "Can't bind a null function");
 
-    this.BindExternalFunctionGeneral(funcName, (args: any) => {
-      this.Assert(
-        args.length >= func.length,
-        "External function expected " + func.length + " arguments"
-      );
+    this.BindExternalFunctionGeneral(
+      funcName,
+      (args: any) => {
+        this.Assert(
+          args.length >= func.length,
+          "External function expected " + func.length + " arguments"
+        );
 
-      let coercedArgs = [];
-      for (let i = 0, l = args.length; i < l; i++) {
-        coercedArgs[i] = this.TryCoerce(args[i]);
-      }
-      return func.apply(null, coercedArgs);
-    });
+        let coercedArgs = [];
+        for (let i = 0, l = args.length; i < l; i++) {
+          coercedArgs[i] = this.TryCoerce(args[i]);
+        }
+        return func.apply(null, coercedArgs);
+      },
+      lookaheadSafe
+    );
   }
 
   public UnbindExternalFunction(funcName: string) {
@@ -1807,7 +1942,7 @@ export class Story extends InkObject {
     if (this._variableObservers === null) this._variableObservers = new Map();
 
     if (!this.state.variablesState.GlobalVariableExistsWithName(variableName))
-      throw new StoryException(
+      throw new Error(
         "Cannot observe variable '" +
           variableName +
           "' because it wasn't declared in the ink story."
@@ -1830,7 +1965,7 @@ export class Story extends InkObject {
   }
 
   public RemoveVariableObserver(
-    observer: Story.VariableObserver,
+    observer: Story.VariableObserver | null = null,
     specificVariableName: string
   ) {
     this.IfAsyncWeCant("remove a variable observer");
@@ -1839,10 +1974,14 @@ export class Story extends InkObject {
 
     if (typeof specificVariableName !== "undefined") {
       if (this._variableObservers.has(specificVariableName)) {
-        let observers = this._variableObservers.get(specificVariableName)!;
-
         if (observer !== null) {
-          observers.splice(observers.indexOf(observer), 1);
+          let observers = this._variableObservers.get(specificVariableName)!;
+
+          if (observers !== null) {
+            observers.splice(observers.indexOf(observer), 1);
+          } else {
+            this._variableObservers.delete(specificVariableName);
+          }
         } else {
           this._variableObservers.delete(specificVariableName);
         }
@@ -1852,7 +1991,12 @@ export class Story extends InkObject {
 
       for (let varName of keys) {
         let observers = this._variableObservers.get(varName)!;
-        observers.splice(observers.indexOf(observer), 1);
+
+        if (observers !== null) {
+          observers.splice(observers.indexOf(observer), 1);
+        } else {
+          this._variableObservers.delete(specificVariableName);
+        }
       }
     }
   }
@@ -2040,6 +2184,10 @@ export class Story extends InkObject {
 
     this.state.callStack.currentThread = choice.threadAtGeneration;
 
+    if (this._stateSnapshotAtLastNewline !== null) {
+      this.state.callStack.currentThread = this.state.callStack.ForkThread();
+    }
+
     this.ChoosePath(choice.targetPath, false);
 
     return true;
@@ -2209,7 +2357,7 @@ export class Story extends InkObject {
   private _mainContentContainer!: Container;
   private _listDefinitions: ListDefinitionsOrigin | null = null;
 
-  private _externals: Map<string, Story.ExternalFunction>;
+  private _externals: Map<string, Story.ExternalFunctionDef>;
   private _variableObservers: Map<
     string,
     Story.VariableObserver[]
@@ -2227,6 +2375,7 @@ export class Story extends InkObject {
 
   private _asyncContinueActive: boolean = false;
   private _stateSnapshotAtLastNewline: StoryState | null = null;
+  private _sawLookaheadUnsafeFunctionAfterNewline: boolean = false;
 
   private _recursiveContinueCount: number = 0;
 
@@ -2245,6 +2394,11 @@ export namespace Story {
   export interface EvaluateFunctionTextOutput {
     returned: any;
     output: string;
+  }
+
+  export interface ExternalFunctionDef {
+    function: ExternalFunction;
+    lookAheadSafe: boolean;
   }
 
   export type VariableObserver = (variableName: string, newValue: any) => void;
