@@ -4,7 +4,7 @@ import { Void } from "./Void";
 import { Path } from "./Path";
 import { InkList, InkListItem } from "./InkList";
 import { InkObject } from "./Object";
-import { asOrNull, asOrThrows } from "./TypeAssertion";
+import { asOrNull, asOrThrows, asBooleanOrThrows } from "./TypeAssertion";
 import { throwNullException } from "./NullException";
 
 type BinaryOp<T> = (left: T, right: T) => any;
@@ -208,7 +208,9 @@ export class NativeFunctionCall extends InkObject {
         return throwNullException(
           "NativeFunctionCall.CallBinaryListOperation op"
         );
-      let result = op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0);
+      let result = asBooleanOrThrows(
+        op(v1.isTruthy ? 1 : 0, v2.isTruthy ? 1 : 0)
+      );
       return new BoolValue(result);
     }
 
@@ -429,12 +431,12 @@ export class NativeFunctionCall extends InkObject {
       this.AddStringBinaryOp(this.Equal, (x, y) => x === y);
       this.AddStringBinaryOp(this.NotEquals, (x, y) => !(x === y));
       this.AddStringBinaryOp(this.Has, (x, y) => x.includes(y));
-      this.AddStringBinaryOp(this.Hasnt, (x, y) => x.includes(y));
+      this.AddStringBinaryOp(this.Hasnt, (x, y) => !x.includes(y));
 
       this.AddListBinaryOp(this.Add, (x, y) => x.Union(y));
       this.AddListBinaryOp(this.Subtract, (x, y) => x.Without(y));
       this.AddListBinaryOp(this.Has, (x, y) => x.Contains(y));
-      this.AddListBinaryOp(this.Hasnt, (x, y) => x.Contains(y));
+      this.AddListBinaryOp(this.Hasnt, (x, y) => !x.Contains(y));
       this.AddListBinaryOp(this.Intersect, (x, y) => x.Intersect(y));
 
       this.AddListBinaryOp(this.Equal, (x, y) => x.Equals(y));
@@ -461,7 +463,7 @@ export class NativeFunctionCall extends InkObject {
       this.AddListUnaryOp(this.ValueOfList, (x) => x.maxItem.Value);
 
       let divertTargetsEqual = (d1: Path, d2: Path) => d1.Equals(d2);
-      let divertTargetsNotEqual = (d1: Path, d2: Path) => d1.Equals(d2);
+      let divertTargetsNotEqual = (d1: Path, d2: Path) => !d1.Equals(d2);
       this.AddOpToNativeFunc(
         this.Equal,
         2,
