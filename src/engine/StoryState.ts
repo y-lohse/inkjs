@@ -199,14 +199,6 @@ export class StoryState {
 
   public divertedPointer: Pointer = Pointer.Null;
 
-  get visitCounts() {
-    return this._visitCounts;
-  }
-
-  get turnIndices() {
-    return this._turnIndices;
-  }
-
   get currentTurnIndex() {
     return this._currentTurnIndex;
   }
@@ -431,7 +423,6 @@ export class StoryState {
     copy._currentFlow.callStack = new CallStack(this._currentFlow.callStack);
     copy._currentFlow.currentChoices.push(...this._currentFlow.currentChoices);
     copy._currentFlow.outputStream.push(...this._currentFlow.outputStream);
-    copy.outputStream.push(...this.outputStream);
     copy.OutputStreamDirty();
 
     if (this._namedFlows !== null) {
@@ -515,7 +506,7 @@ export class StoryState {
 
     if (this._namedFlows !== null) {
       for (let [namedFlowKey, namedFlowValue] of this._namedFlows) {
-        writer.WriteProperty(namedFlowKey, namedFlowValue.WriteJson);
+        writer.WriteProperty(namedFlowKey, (w) => namedFlowValue.WriteJson(w));
       }
     } else {
       writer.WriteProperty(this._currentFlow.name, (w) =>
@@ -585,19 +576,22 @@ export class StoryState {
       let flowsObjDict = flowsObj as Record<string, any>;
 
       // Single default flow
-      if (Object.keys(flowsObjDict).length == 1) this._namedFlows = null;
-      else if (this._namedFlows === null) this._namedFlows = new Map();
-      else this._namedFlows.clear();
+      if (Object.keys(flowsObjDict).length == 1) {
+        this._namedFlows = null;
+      } else if (this._namedFlows === null) {
+        this._namedFlows = new Map();
+      } else {
+        this._namedFlows.clear();
+      }
 
-      for (let [namedFlowObjKey, namedFlowObjValue] of Object.entries(
-        flowsObjDict
-      )) {
+      let flowsObjDictEntries = Object.entries(flowsObjDict);
+      for (let [namedFlowObjKey, namedFlowObjValue] of flowsObjDictEntries) {
         let name = namedFlowObjKey;
         let flowObj = namedFlowObjValue as Record<string, any>;
 
         let flow = new Flow(name, this.story, flowObj);
 
-        if (flowsObjDict.Count == 1) {
+        if (Object.keys(flowsObjDict).length == 1) {
           this._currentFlow = new Flow(name, this.story, flowObj);
         } else {
           if (this._namedFlows === null)

@@ -65,7 +65,7 @@ export class CallStack {
         this._threads.push(otherThread.Copy());
       }
       this._threadCounter = toCopy._threadCounter;
-      this._startOfRoot = toCopy._startOfRoot;
+      this._startOfRoot = toCopy._startOfRoot.copy();
     }
   }
 

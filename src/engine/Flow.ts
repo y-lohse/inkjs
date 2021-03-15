@@ -21,8 +21,8 @@ export class Flow {
     this.name = name;
     this.callStack = new CallStack(story);
 
-    if (arguments[3]) {
-      let jObject = arguments[3] as Record<string, any>;
+    if (arguments[2]) {
+      let jObject = arguments[2] as Record<string, any>;
 
       this.callStack.SetJsonToken(jObject["callstack"], story);
       this.outputStream = JsonSerialisation.JArrayToRuntimeObjList(
@@ -55,7 +55,7 @@ export class Flow {
       if (c.threadAtGeneration === null)
         return throwNullException("c.threadAtGeneration");
 
-      c.originalThreadIndex = c.threadAtGeneration?.threadIndex;
+      c.originalThreadIndex = c.threadAtGeneration.threadIndex;
 
       if (this.callStack.ThreadWithIndex(c.originalThreadIndex) === null) {
         if (!hasChoiceThreads) {
@@ -68,22 +68,22 @@ export class Flow {
         c.threadAtGeneration.WriteJson(writer);
         writer.WritePropertyEnd();
       }
-
-      if (hasChoiceThreads) {
-        writer.WriteObjectEnd();
-        writer.WritePropertyEnd();
-      }
-
-      writer.WriteProperty("currentChoices", (w) => {
-        w.WriteArrayStart();
-        for (let c of this.currentChoices) {
-          JsonSerialisation.WriteChoice(w, c);
-          w.WriteArrayEnd();
-        }
-      });
-
-      writer.WriteObjectEnd();
     }
+
+    if (hasChoiceThreads) {
+      writer.WriteObjectEnd();
+      writer.WritePropertyEnd();
+    }
+
+    writer.WriteProperty("currentChoices", (w) => {
+      w.WriteArrayStart();
+      for (let c of this.currentChoices) {
+        JsonSerialisation.WriteChoice(w, c);
+      }
+      w.WriteArrayEnd();
+    });
+
+    writer.WriteObjectEnd();
   }
 
   public LoadFlowChoiceThreads(
@@ -94,11 +94,11 @@ export class Flow {
       let foundActiveThread = this.callStack.ThreadWithIndex(
         choice.originalThreadIndex
       );
-      if (foundActiveThread != null) {
+      if (foundActiveThread !== null) {
         choice.threadAtGeneration = foundActiveThread.Copy();
       } else {
         let jSavedChoiceThread =
-          jChoiceThreads[`$(choice.originalThreadIndex)`];
+          jChoiceThreads[`${choice.originalThreadIndex}`];
         choice.threadAtGeneration = new CallStack.Thread(
           jSavedChoiceThread,
           story
