@@ -437,7 +437,7 @@ export class Story extends InkObject {
         this._state.variablesState.batchObservingVariableChanges = false;
 
       this._asyncContinueActive = false;
-      if (this.onDidContinue !== null) this.onDidContinue;
+      if (this.onDidContinue !== null) this.onDidContinue();
     }
 
     this._recursiveContinueCount--;
