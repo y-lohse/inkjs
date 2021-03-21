@@ -470,7 +470,6 @@ export class Story extends InkObject {
           sb.Append(
             this.state.currentWarnings.length == 1 ? " warning" : "warnings"
           );
-          if (this.state.hasWarning) sb.Append(" and ");
         }
         sb.Append(
           ". It is strongly suggested that you assign an error handler to story.onError. The first issue was: "
