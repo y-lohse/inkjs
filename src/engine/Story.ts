@@ -1964,37 +1964,49 @@ export class Story extends InkObject {
   }
 
   public RemoveVariableObserver(
-    observer: Story.VariableObserver | null = null,
-    specificVariableName: string
+    observer?: Story.VariableObserver,
+    specificVariableName?: string
   ) {
+    // A couple of things to know about this method:
+    //
+    // 1. Since `RemoveVariableObserver` is exposed to the JavaScript world,
+    //    optionality is marked as `undefined` rather than `null`.
+    //    To keep things simple, null-checks are performed using regular
+    //    equality operators, where undefined == null.
+    //
+    // 2. Since C# delegates are translated to arrays of functions,
+    //    -= becomes a call to splice and null-checks are replaced by
+    //    emptiness-checks.
+    //
     this.IfAsyncWeCant("remove a variable observer");
 
     if (this._variableObservers === null) return;
 
-    if (typeof specificVariableName !== "undefined") {
+    if (specificVariableName != null) {
       if (this._variableObservers.has(specificVariableName)) {
-        if (observer !== null) {
-          let observers = this._variableObservers.get(specificVariableName)!;
-
-          if (observers !== null) {
-            observers.splice(observers.indexOf(observer), 1);
-          } else {
-            this._variableObservers.delete(specificVariableName);
+        if (observer != null) {
+          let variableObservers = this._variableObservers.get(
+            specificVariableName
+          );
+          if (variableObservers != null) {
+            variableObservers.splice(variableObservers.indexOf(observer), 1);
+            if (variableObservers.length === 0) {
+              this._variableObservers.delete(specificVariableName);
+            }
           }
         } else {
           this._variableObservers.delete(specificVariableName);
         }
       }
-    } else if (observer !== null) {
+    } else if (observer != null) {
       let keys = this._variableObservers.keys();
-
       for (let varName of keys) {
-        let observers = this._variableObservers.get(varName)!;
-
-        if (observers !== null) {
-          observers.splice(observers.indexOf(observer), 1);
-        } else {
-          this._variableObservers.delete(specificVariableName);
+        let variableObservers = this._variableObservers.get(varName);
+        if (variableObservers != null) {
+          variableObservers.splice(variableObservers.indexOf(observer), 1);
+          if (variableObservers.length === 0) {
+            this._variableObservers.delete(varName);
+          }
         }
       }
     }
