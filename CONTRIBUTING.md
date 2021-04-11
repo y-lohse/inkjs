@@ -36,6 +36,12 @@ the [main repository] first, or alternatively, in the official [Discord server].
    when it make sense. For example, it's important to document when `inkjs`
    display a slightly different behavior than the reference implementation.
 
+2. Try to match the C# type, that means that `String` translates to `string | null`
+   in TypeScript. In order to reduce confusion however, exposed methods
+   that interact with JavaScript should use optional parameter / return types
+   (i. e. `variable?: <type>`) when they are optional / nullable in
+   the original codebase.
+
 _To be added._
 
 ### Style guide
