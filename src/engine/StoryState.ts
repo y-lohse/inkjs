@@ -628,6 +628,7 @@ export class StoryState {
     this.OutputStreamDirty();
 
     this.variablesState.SetJsonToken(jObject["variablesState"]);
+    this.variablesState.callStack = this._currentFlow.callStack;
 
     this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(
       jObject["evalStack"]
