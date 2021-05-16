@@ -22,11 +22,16 @@ import { throwNullException } from "./NullException";
 import { Story } from "./Story";
 import { StatePatch } from "./StatePatch";
 import { SimpleJson } from "./SimpleJson";
+import { Flow } from "./Flow";
+import { InkList } from "./InkList";
 
 export class StoryState {
-  public readonly kInkSaveStateVersion = 8;
+  public readonly kInkSaveStateVersion = 9;
   public readonly kMinCompatibleLoadVersion = 8;
 
+  public onDidLoadState: (() => void) | null = null;
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public ToJson(indented: boolean = false) {
     let writer = new SimpleJson.Writer();
     this.WriteJson(writer);
@@ -39,6 +44,7 @@ export class StoryState {
   public LoadJson(json: string) {
     let jObject = SimpleJson.TextToDictionary(json);
     this.LoadJsonObj(jObject);
+    if (this.onDidLoadState !== null) this.onDidLoadState();
   }
 
   public VisitCountAtPathString(pathString: string) {
@@ -149,7 +155,7 @@ export class StoryState {
   }
 
   get outputStream() {
-    return this._outputStream;
+    return this._currentFlow.outputStream;
   }
 
   get currentChoices() {
@@ -157,11 +163,11 @@ export class StoryState {
     // then we reflect the choice list as being empty, since choices
     // should always come at the end.
     if (this.canContinue) return [];
-    return this._currentChoices;
+    return this._currentFlow.currentChoices;
   }
 
   get generatedChoices() {
-    return this._currentChoices;
+    return this._currentFlow.currentChoices;
   }
 
   get currentErrors() {
@@ -182,7 +188,9 @@ export class StoryState {
   }
   private _variablesState: VariablesState;
 
-  public callStack: CallStack;
+  get callStack() {
+    return this._currentFlow.callStack;
+  }
 
   get evaluationStack() {
     return this._evaluationStack;
@@ -190,14 +198,6 @@ export class StoryState {
   private _evaluationStack: InkObject[];
 
   public divertedPointer: Pointer = Pointer.Null;
-
-  get visitCounts() {
-    return this._visitCounts;
-  }
-
-  get turnIndices() {
-    return this._turnIndices;
-  }
 
   get currentTurnIndex() {
     return this._currentTurnIndex;
@@ -257,7 +257,7 @@ export class StoryState {
     if (this._outputStreamTextDirty) {
       let sb = new StringBuilder();
 
-      for (let outputObj of this._outputStream) {
+      for (let outputObj of this.outputStream) {
         // var textContent = outputObj as StringValue;
         let textContent = asOrNull(outputObj, StringValue);
         if (textContent !== null) {
@@ -310,7 +310,7 @@ export class StoryState {
     if (this._outputStreamTagsDirty) {
       this._currentTags = [];
 
-      for (let outputObj of this._outputStream) {
+      for (let outputObj of this.outputStream) {
         // var tag = outputObj as Tag;
         let tag = asOrNull(outputObj, Tag);
         if (tag !== null) {
@@ -325,6 +325,10 @@ export class StoryState {
   }
   private _currentTags: string[] | null = null;
 
+  get currentFlowName() {
+    return this._currentFlow.name;
+  }
+
   get inExpressionEvaluation() {
     return this.callStack.currentElement.inExpressionEvaluation;
   }
@@ -335,12 +339,11 @@ export class StoryState {
   constructor(story: Story) {
     this.story = story;
 
-    this._outputStream = [];
+    this._currentFlow = new Flow(this.kDefaultFlowName, story);
     this.OutputStreamDirty();
 
     this._evaluationStack = [];
 
-    this.callStack = new CallStack(story);
     this._variablesState = new VariablesState(
       this.callStack,
       story.listDefinitions
@@ -354,8 +357,6 @@ export class StoryState {
     this.storySeed = new PRNG(timeSeed).next() % 100;
     this.previousRandom = 0;
 
-    this._currentChoices = [];
-
     this.GoToStart();
   }
 
@@ -365,15 +366,72 @@ export class StoryState {
     );
   }
 
+  public SwitchFlow_Internal(flowName: string | null) {
+    if (flowName === null)
+      throw new Error("Must pass a non-null string to Story.SwitchFlow");
+
+    if (this._namedFlows === null) {
+      this._namedFlows = new Map();
+      this._namedFlows.set(this.kDefaultFlowName, this._currentFlow);
+    }
+
+    if (flowName === this._currentFlow.name) {
+      return;
+    }
+
+    let flow: Flow;
+    let content = tryGetValueFromMap(this._namedFlows, flowName, null);
+    if (content.exists) {
+      flow = content.result!;
+    } else {
+      flow = new Flow(flowName, this.story);
+      this._namedFlows.set(flowName, flow);
+    }
+
+    this._currentFlow = flow;
+    this.variablesState.callStack = this._currentFlow.callStack;
+
+    this.OutputStreamDirty();
+  }
+
+  public SwitchToDefaultFlow_Internal() {
+    if (this._namedFlows === null) return;
+    this.SwitchFlow_Internal(this.kDefaultFlowName);
+  }
+
+  public RemoveFlow_Internal(flowName: string | null) {
+    if (flowName === null)
+      throw new Error("Must pass a non-null string to Story.DestroyFlow");
+    if (flowName === this.kDefaultFlowName)
+      throw new Error("Cannot destroy default flow");
+
+    if (this._currentFlow.name === flowName) {
+      this.SwitchToDefaultFlow_Internal();
+    }
+
+    if (this._namedFlows === null)
+      return throwNullException("this._namedFlows");
+    this._namedFlows.delete(flowName);
+  }
+
   public CopyAndStartPatching() {
     let copy = new StoryState(this.story);
 
     copy._patch = new StatePatch(this._patch);
 
-    copy.outputStream.push(...this._outputStream);
+    copy._currentFlow.name = this._currentFlow.name;
+    copy._currentFlow.callStack = new CallStack(this._currentFlow.callStack);
+    copy._currentFlow.currentChoices.push(...this._currentFlow.currentChoices);
+    copy._currentFlow.outputStream.push(...this._currentFlow.outputStream);
     copy.OutputStreamDirty();
 
-    copy._currentChoices.push(...this._currentChoices);
+    if (this._namedFlows !== null) {
+      copy._namedFlows = new Map();
+      for (let [namedFlowKey, namedFlowValue] of this._namedFlows) {
+        copy._namedFlows.set(namedFlowKey, namedFlowValue);
+      }
+      copy._namedFlows.set(this._currentFlow.name, copy._currentFlow);
+    }
 
     if (this.hasError) {
       copy._currentErrors = [];
@@ -384,8 +442,6 @@ export class StoryState {
       copy._currentWarnings = [];
       copy._currentWarnings.push(...(this.currentWarnings || []));
     }
-
-    copy.callStack = new CallStack(this.callStack);
 
     copy.variablesState = this.variablesState;
     copy.variablesState.callStack = copy.callStack;
@@ -441,38 +497,27 @@ export class StoryState {
   public WriteJson(writer: SimpleJson.Writer) {
     writer.WriteObjectStart();
 
-    let hasChoiceThreads = false;
-    for (let c of this._currentChoices) {
-      if (c.threadAtGeneration === null) {
-        return throwNullException("c.threadAtGeneration");
-      }
-      c.originalThreadIndex = c.threadAtGeneration.threadIndex;
+    writer.WritePropertyStart("flows");
+    writer.WriteObjectStart();
 
-      if (this.callStack.ThreadWithIndex(c.originalThreadIndex) === null) {
-        if (!hasChoiceThreads) {
-          hasChoiceThreads = true;
-          writer.WritePropertyStart("choiceThreads");
-          writer.WriteObjectStart();
-        }
+    // NOTE: Never pass `WriteJson` directly as an argument to `WriteProperty`.
+    // Call it inside a function to make sure `this` is correctly bound
+    // and passed down the call hierarchy.
 
-        writer.WritePropertyStart(c.originalThreadIndex);
-        c.threadAtGeneration.WriteJson(writer);
-        writer.WritePropertyEnd();
+    if (this._namedFlows !== null) {
+      for (let [namedFlowKey, namedFlowValue] of this._namedFlows) {
+        writer.WriteProperty(namedFlowKey, (w) => namedFlowValue.WriteJson(w));
       }
+    } else {
+      writer.WriteProperty(this._currentFlow.name, (w) =>
+        this._currentFlow.WriteJson(w)
+      );
     }
 
-    if (hasChoiceThreads) {
-      writer.WriteObjectEnd();
-      writer.WritePropertyEnd();
-    }
+    writer.WriteObjectEnd();
+    writer.WritePropertyEnd();
 
-    // In the following two calls, `WriteJson` is called inside an arrow
-    // function to make sure `this` is correctly bound and passed down
-    // the call hierarchy.
-
-    writer.WriteProperty("callstackThreads", (w) =>
-      this.callStack.WriteJson(w)
-    );
+    writer.WriteProperty("currentFlowName", this._currentFlow.name);
 
     writer.WriteProperty("variablesState", (w) =>
       this.variablesState.WriteJson(w)
@@ -481,16 +526,6 @@ export class StoryState {
     writer.WriteProperty("evalStack", (w) =>
       JsonSerialisation.WriteListRuntimeObjs(w, this.evaluationStack)
     );
-
-    writer.WriteProperty("outputStream", (w) =>
-      JsonSerialisation.WriteListRuntimeObjs(w, this._outputStream)
-    );
-
-    writer.WriteProperty("currentChoices", (w) => {
-      w.WriteArrayStart();
-      for (let c of this._currentChoices) JsonSerialisation.WriteChoice(w, c);
-      w.WriteArrayEnd();
-    });
 
     if (!this.divertedPointer.isNull) {
       if (this.divertedPointer.path === null) {
@@ -525,9 +560,9 @@ export class StoryState {
 
     let jSaveVersion = jObject["inkSaveVersion"];
     if (jSaveVersion == null) {
-      throw new StoryException("ink save format incorrect, can't load.");
+      throw new Error("ink save format incorrect, can't load.");
     } else if (parseInt(jSaveVersion) < this.kMinCompatibleLoadVersion) {
-      throw new StoryException(
+      throw new Error(
         "Ink save format isn't compatible with the current version (saw '" +
           jSaveVersion +
           "', but minimum is " +
@@ -536,22 +571,67 @@ export class StoryState {
       );
     }
 
-    this.callStack.SetJsonToken(jObject["callstackThreads"], this.story);
+    let flowsObj = jObject["flows"];
+    if (flowsObj != null) {
+      let flowsObjDict = flowsObj as Record<string, any>;
+
+      // Single default flow
+      if (Object.keys(flowsObjDict).length === 1) {
+        this._namedFlows = null;
+      } else if (this._namedFlows === null) {
+        this._namedFlows = new Map();
+      } else {
+        this._namedFlows.clear();
+      }
+
+      let flowsObjDictEntries = Object.entries(flowsObjDict);
+      for (let [namedFlowObjKey, namedFlowObjValue] of flowsObjDictEntries) {
+        let name = namedFlowObjKey;
+        let flowObj = namedFlowObjValue as Record<string, any>;
+
+        let flow = new Flow(name, this.story, flowObj);
+
+        if (Object.keys(flowsObjDict).length === 1) {
+          this._currentFlow = new Flow(name, this.story, flowObj);
+        } else {
+          if (this._namedFlows === null)
+            return throwNullException("this._namedFlows");
+          this._namedFlows.set(name, flow);
+        }
+      }
+
+      if (this._namedFlows != null && this._namedFlows.size > 1) {
+        let currFlowName = jObject["currentFlowName"] as string;
+        // Adding a bang at the end, because we're trusting the save, as
+        // done in upstream.  If the save is corrupted, the execution
+        // is undefined.
+        this._currentFlow = this._namedFlows.get(currFlowName)!;
+      }
+    } else {
+      this._namedFlows = null;
+      this._currentFlow.name = this.kDefaultFlowName;
+      this._currentFlow.callStack.SetJsonToken(
+        jObject["callstackThreads"] as Record<string, any>,
+        this.story
+      );
+      this._currentFlow.outputStream = JsonSerialisation.JArrayToRuntimeObjList(
+        jObject["outputStream"] as any[]
+      );
+      this._currentFlow.currentChoices = JsonSerialisation.JArrayToRuntimeObjList(
+        jObject["currentChoices"] as any[]
+      ) as Choice[];
+
+      let jChoiceThreadsObj = jObject["choiceThreads"];
+      this._currentFlow.LoadFlowChoiceThreads(jChoiceThreadsObj, this.story);
+    }
+
+    this.OutputStreamDirty();
+
     this.variablesState.SetJsonToken(jObject["variablesState"]);
 
     this._evaluationStack = JsonSerialisation.JArrayToRuntimeObjList(
       jObject["evalStack"]
     );
-
-    this._outputStream = JsonSerialisation.JArrayToRuntimeObjList(
-      jObject["outputStream"]
-    );
-    this.OutputStreamDirty();
-
-    // currentChoices = Json.JArrayToRuntimeObjList<Choice>((JArray)jObject ["currentChoices"]);
-    this._currentChoices = JsonSerialisation.JArrayToRuntimeObjList(
-      jObject["currentChoices"]
-    ) as Choice[];
 
     let currentDivertTargetPath = jObject["currentDivertTarget"];
     if (currentDivertTargetPath != null) {
@@ -568,25 +648,6 @@ export class StoryState {
     this.currentTurnIndex = parseInt(jObject["turnIdx"]);
     this.storySeed = parseInt(jObject["storySeed"]);
     this.previousRandom = parseInt(jObject["previousRandom"]);
-
-    // var jChoiceThreads = jObject["choiceThreads"] as JObject;
-    let jChoiceThreads = jObject["choiceThreads"] as Record<string, any>;
-
-    for (let c of this._currentChoices) {
-      let foundActiveThread = this.callStack.ThreadWithIndex(
-        c.originalThreadIndex
-      );
-      if (foundActiveThread != null) {
-        c.threadAtGeneration = foundActiveThread.Copy();
-      } else {
-        let jSavedChoiceThread =
-          jChoiceThreads[c.originalThreadIndex.toString()];
-        c.threadAtGeneration = new CallStack.Thread(
-          jSavedChoiceThread,
-          this.story
-        );
-      }
-    }
   }
 
   public ResetErrors() {
@@ -594,8 +655,8 @@ export class StoryState {
     this._currentWarnings = null;
   }
   public ResetOutput(objs: InkObject[] | null = null) {
-    this._outputStream.length = 0;
-    if (objs !== null) this._outputStream.push(...objs);
+    this.outputStream.length = 0;
+    if (objs !== null) this.outputStream.push(...objs);
     this.OutputStreamDirty();
   }
 
@@ -630,7 +691,7 @@ export class StoryState {
 
     let headFirstNewlineIdx = -1;
     let headLastNewlineIdx = -1;
-    for (let i = 0; i < str.length; ++i) {
+    for (let i = 0; i < str.length; i++) {
       let c = str[i];
       if (c == "\n") {
         if (headFirstNewlineIdx == -1) headFirstNewlineIdx = i;
@@ -641,7 +702,7 @@ export class StoryState {
 
     let tailLastNewlineIdx = -1;
     let tailFirstNewlineIdx = -1;
-    for (let i = 0; i < str.length; ++i) {
+    for (let i = str.length - 1; i >= 0; i--) {
       let c = str[i];
       if (c == "\n") {
         if (tailLastNewlineIdx == -1) tailLastNewlineIdx = i;
@@ -711,8 +772,8 @@ export class StoryState {
       }
 
       let glueTrimIndex = -1;
-      for (let i = this._outputStream.length - 1; i >= 0; i--) {
-        let o = this._outputStream[i];
+      for (let i = this.outputStream.length - 1; i >= 0; i--) {
+        let o = this.outputStream[i];
         let c = o instanceof ControlCommand ? o : null;
         let g = o instanceof Glue ? o : null;
 
@@ -764,7 +825,7 @@ export class StoryState {
       if (obj === null) {
         return throwNullException("obj");
       }
-      this._outputStream.push(obj);
+      this.outputStream.push(obj);
       this.OutputStreamDirty();
     }
   }
@@ -772,9 +833,9 @@ export class StoryState {
   public TrimNewlinesFromOutputStream() {
     let removeWhitespaceFrom = -1;
 
-    let i = this._outputStream.length - 1;
+    let i = this.outputStream.length - 1;
     while (i >= 0) {
-      let obj = this._outputStream[i];
+      let obj = this.outputStream[i];
       let cmd = asOrNull(obj, ControlCommand);
       let txt = asOrNull(obj, StringValue);
 
@@ -789,10 +850,10 @@ export class StoryState {
     // Remove the whitespace
     if (removeWhitespaceFrom >= 0) {
       i = removeWhitespaceFrom;
-      while (i < this._outputStream.length) {
-        let text = asOrNull(this._outputStream[i], StringValue);
+      while (i < this.outputStream.length) {
+        let text = asOrNull(this.outputStream[i], StringValue);
         if (text) {
-          this._outputStream.splice(i, 1);
+          this.outputStream.splice(i, 1);
         } else {
           i++;
         }
@@ -803,10 +864,10 @@ export class StoryState {
   }
 
   public RemoveExistingGlue() {
-    for (let i = this._outputStream.length - 1; i >= 0; i--) {
-      let c = this._outputStream[i];
+    for (let i = this.outputStream.length - 1; i >= 0; i--) {
+      let c = this.outputStream[i];
       if (c instanceof Glue) {
-        this._outputStream.splice(i, 1);
+        this.outputStream.splice(i, 1);
       } else if (c instanceof ControlCommand) {
         break;
       }
@@ -816,11 +877,11 @@ export class StoryState {
   }
 
   get outputStreamEndsInNewline() {
-    if (this._outputStream.length > 0) {
-      for (let i = this._outputStream.length - 1; i >= 0; i--) {
-        let obj = this._outputStream[i];
+    if (this.outputStream.length > 0) {
+      for (let i = this.outputStream.length - 1; i >= 0; i--) {
+        let obj = this.outputStream[i];
         if (obj instanceof ControlCommand) break;
-        let text = this._outputStream[i];
+        let text = this.outputStream[i];
         if (text instanceof StringValue) {
           if (text.isNewline) return true;
           else if (text.isNonWhitespace) break;
@@ -832,16 +893,15 @@ export class StoryState {
   }
 
   get outputStreamContainsContent() {
-    for (let i = 0; i < this._outputStream.length; i++) {
-      if (this._outputStream[i] instanceof StringValue) return true;
+    for (let content of this.outputStream) {
+      if (content instanceof StringValue) return true;
     }
     return false;
   }
 
   get inStringEvaluation() {
-    for (let i = this._outputStream.length - 1; i >= 0; i--) {
-      // var cmd = this._outputStream[i] as ControlCommand;
-      let cmd = asOrNull(this._outputStream[i], ControlCommand);
+    for (let i = this.outputStream.length - 1; i >= 0; i--) {
+      let cmd = asOrNull(this.outputStream[i], ControlCommand);
       if (
         cmd instanceof ControlCommand &&
         cmd.commandType == ControlCommand.CommandType.BeginString
@@ -911,7 +971,7 @@ export class StoryState {
   public ForceEnd() {
     this.callStack.Reset();
 
-    this._currentChoices.length = 0;
+    this._currentFlow.currentChoices.length = 0;
 
     this.currentPointer = Pointer.Null;
     this.previousPointer = Pointer.Null;
@@ -928,8 +988,8 @@ export class StoryState {
       functionStartPoint = 0;
     }
 
-    for (let i = this._outputStream.length - 1; i >= functionStartPoint; i--) {
-      let obj = this._outputStream[i];
+    for (let i = this.outputStream.length - 1; i >= functionStartPoint; i--) {
+      let obj = this.outputStream[i];
       let txt = asOrNull(obj, StringValue);
       let cmd = asOrNull(obj, ControlCommand);
 
@@ -937,7 +997,7 @@ export class StoryState {
       if (cmd) break;
 
       if (txt.isNewline || txt.isInlineWhitespace) {
-        this._outputStream.splice(i, 1);
+        this.outputStream.splice(i, 1);
         this.OutputStreamDirty();
       } else {
         break;
@@ -954,7 +1014,7 @@ export class StoryState {
 
   public SetChosenPath(path: Path, incrementingTurnIndex: boolean) {
     // Changing direction, assume we need to clear current set of choices
-    this._currentChoices.length = 0;
+    this._currentFlow.currentChoices.length = 0;
 
     let newPointer = this.story.PointerAtPath(path);
     if (!newPointer.isNull && newPointer.index == -1) newPointer.index = 0;
@@ -981,13 +1041,19 @@ export class StoryState {
     this.PassArgumentsToEvaluationStack(args);
   }
 
-  public PassArgumentsToEvaluationStack(args: any[]) {
-    // Pass arguments onto the evaluation stack
-    if (args != null) {
+  public PassArgumentsToEvaluationStack(args: any[] | null) {
+    if (args !== null) {
       for (let i = 0; i < args.length; i++) {
-        if (!(typeof args[i] === "number" || typeof args[i] === "string")) {
+        if (
+          !(typeof args[i] === "number" || typeof args[i] === "string") ||
+          args[i] instanceof InkList
+        ) {
           throw new Error(
-            "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters  must be int, float or string"
+            "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be" +
+            "number, string or InkList. Argument was " +
+            (nullIfUndefined(arguments[i]) === null)
+              ? "null"
+              : arguments[i].constructor.name
           );
         }
 
@@ -1014,7 +1080,7 @@ export class StoryState {
       this.callStack.currentElement.type !=
       PushPopType.FunctionEvaluationFromGame
     ) {
-      throw new StoryException(
+      throw new Error(
         "Expected external function evaluation to be complete. Stack trace: " +
           this.callStack.callStackTrace
       );
@@ -1070,10 +1136,12 @@ export class StoryState {
   private _visitCounts: Map<string, number>;
   private _turnIndices: Map<string, number>;
 
-  private _outputStream: InkObject[];
   private _outputStreamTextDirty = true;
   private _outputStreamTagsDirty = true;
-  private _currentChoices: Choice[];
 
   private _patch: StatePatch | null = null;
+
+  private _currentFlow: Flow;
+  private _namedFlows: Map<string, Flow> | null = null;
+  private readonly kDefaultFlowName = "DEFAULT_FLOW";
 }
