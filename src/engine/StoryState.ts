@@ -576,7 +576,7 @@ export class StoryState {
       let flowsObjDict = flowsObj as Record<string, any>;
 
       // Single default flow
-      if (Object.keys(flowsObjDict).length == 1) {
+      if (Object.keys(flowsObjDict).length === 1) {
         this._namedFlows = null;
       } else if (this._namedFlows === null) {
         this._namedFlows = new Map();
@@ -591,7 +591,7 @@ export class StoryState {
 
         let flow = new Flow(name, this.story, flowObj);
 
-        if (Object.keys(flowsObjDict).length == 1) {
+        if (Object.keys(flowsObjDict).length === 1) {
           this._currentFlow = new Flow(name, this.story, flowObj);
         } else {
           if (this._namedFlows === null)
@@ -1050,7 +1050,11 @@ export class StoryState {
           args[i] instanceof InkList
         ) {
           throw new Error(
-            "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters  must be int, float or string"
+            "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be" +
+            "number, string or InkList. Argument was " +
+            (nullIfUndefined(arguments[i]) === null)
+              ? "null"
+              : arguments[i].constructor.name
           );
         }
 
