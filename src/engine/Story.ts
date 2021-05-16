@@ -444,15 +444,18 @@ export class Story extends InkObject {
 
     if (this._profiler != null) this._profiler.PostContinue();
 
+    // In the following code, we're masking a lot of non-null assertion,
+    // because testing for against `hasError` or `hasWarning` makes sure
+    // the arrays are present and contain at least one element.
     if (this.state.hasError || this.state.hasWarning) {
       if (this.onError !== null) {
         if (this.state.hasError) {
-          for (let err of this.state.currentErrors) {
+          for (let err of this.state.currentErrors!) {
             this.onError(err, ErrorType.Error);
           }
         }
         if (this.state.hasWarning) {
-          for (let err of this.state.currentWarnings) {
+          for (let err of this.state.currentWarnings!) {
             this.onError(err, ErrorType.Warning);
           }
         }
@@ -461,23 +464,26 @@ export class Story extends InkObject {
         let sb = new StringBuilder();
         sb.Append("Ink had ");
         if (this.state.hasError) {
-          sb.Append(this.state.currentErrors.length);
-          sb.Append(this.state.currentErrors.length == 1 ? " error" : "errors");
+          sb.Append(`${this.state.currentErrors!.length}`);
+          sb.Append(
+            this.state.currentErrors!.length == 1 ? " error" : "errors"
+          );
           if (this.state.hasWarning) sb.Append(" and ");
         }
         if (this.state.hasWarning) {
-          sb.Append(this.state.currentWarnings.length);
+          sb.Append(`${this.state.currentWarnings!.length}`);
           sb.Append(
-            this.state.currentWarnings.length == 1 ? " warning" : "warnings"
+            this.state.currentWarnings!.length == 1 ? " warning" : "warnings"
           );
+          if (this.state.hasWarning) sb.Append(" and ");
         }
         sb.Append(
           ". It is strongly suggested that you assign an error handler to story.onError. The first issue was: "
         );
         sb.Append(
           this.state.hasError
-            ? this.state.currentErrors[0]
-            : this.state.currentWarnings[0]
+            ? this.state.currentErrors![0]
+            : this.state.currentWarnings![0]
         );
 
         throw new StoryException(sb.toString());
