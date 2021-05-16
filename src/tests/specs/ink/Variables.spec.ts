@@ -42,7 +42,10 @@ describe("Variables", () => {
   it("tests temp not found", () => {
     loadStory("temp_not_found");
 
-    expect(story.ContinueMaximally()).toBe("0\nhello\n");
+    expect(() => {
+      expect(story.ContinueMaximally()).toBe("0\nhello\n");
+    }).toThrow();
+
     expect(story.hasWarning).toBe(true);
   });
 

@@ -13,7 +13,6 @@ describe("Multiflow", () => {
 
   it("tests multi flow basics", () => {
     loadStory("multi_flow_basics");
-    expect(story.Continue()).toBe("true\n");
 
     story.SwitchFlow("First");
     story.ChoosePathString("knot1");
