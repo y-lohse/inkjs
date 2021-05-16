@@ -141,3 +141,4 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 |        0.8.2        |  1.8.0 – 1.9.0  |
 |        0.8.3        | 1.10.0 – 1.10.5 |
 |        0.9.0        |     1.11.0      |
+|        1.0.0        |      2.0.0      |

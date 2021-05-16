@@ -25,12 +25,12 @@ to provide an implementation of ink in JavaScript, compliant with the reference
 implementation.
 
 If you feel that ink is missing a feature, we recommend that you bring it up in
-the [main repository] first, or alternatively, in the official [Discord server].
+the [main repository] first, or alternatively, in the official [discord server].
 
 [main repository]: https://github.com/inkle/ink
-[Discord server]: https://discord.gg/inkle
+[discord server]: https://discord.gg/inkle
 
-## Rules & Conventions when porting code from C# #
+## Rules & Conventions when porting code from C#
 
 1. Do not port comments from the C# codebase, but do add `inkjs`-centric comment
    when it make sense. For example, it's important to document when `inkjs`
@@ -46,7 +46,7 @@ _To be added._
 
 ### Style guide
 
-_inkjs_ uses [Prettier] and [ESLint] to ensure code consistency. We recommend
+_inkjs_ uses [prettier] and [esLint] to ensure code consistency. We recommend
 that you run prettier either on save or before submitting your PR. Our CI lints
 every PR submitted, so make sure your code passes validation. Two NPM tasks
 can help you:
@@ -54,8 +54,8 @@ can help you:
 - `lint` runs the linter
 - `lint:fix` fixes lint errors and warnings automatically
 
-[Prettier]: https://prettier.io/
-[ESLint]: https://eslint.org/
+[prettier]: https://prettier.io/
+[eslint]: https://eslint.org/
 
 ### Porting tests & writing new specs
 
@@ -70,11 +70,11 @@ minified resulting JavaScript file.
 - `test:typescript` runs the TypeScript test suite;
 - `test:javascript` runs the JavaScript test suite;
 - `test:javascript:dist` runs the test suite against the modern distributable
-                         JavaScript file.
+  JavaScript file.
 - `test:javascript:legacy` runs the test suite against the legacy distributable
-                           JavaScript file.
+  JavaScript file.
 - `test:compileFiles` compiles the fixtures required by the test case (requires
-                      inklecate to be available in `$PATH`)
+  inklecate to be available in `$PATH`)
 
 `test:compileFiles` needs to be run again every time new tests are added or when
 porting a new version of the runtime. The fixtures should always be compiled
@@ -90,3 +90,13 @@ _To be added._
 #### Writing new specs
 
 _To be added._
+
+## Releasing a new version
+
+The repository is set up to automatically publish a new version to [npm](https://www.npmjs.com/package/inkjs) whenever [a new release is created through Github](https://github.com/y-lohse/inkjs/releases). The corresponding Github workflow can be found [here](https://github.com/y-lohse/inkjs/blob/master/.github/workflows/npm-publish.yml). The secret npm token is stored via the Github UI — if it needs to be updated, get in touch with @y-lohse 😀!
+
+To actually release a new version:
+
+1. Update the `version` field in the package.json to the version you wish to publish
+2. Update the compatibility table in the README file
+3. Create a new release through Github. Use the same version number as in the package.json file, prefixed with `v` (eg. `v1.2.3` if the package.json `version` field is `1.2.3`).
