@@ -36,7 +36,7 @@ describe("Booleans", () => {
     loadStory("not_true");
     expect(story.Continue()).toBe("false\n");
 
-    loadStory("three_reater_than_one");
+    loadStory("three_greater_than_one");
     expect(story.Continue()).toBe("true\n");
 
     loadStory("list_hasnt");

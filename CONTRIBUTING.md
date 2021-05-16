@@ -80,6 +80,9 @@ minified resulting JavaScript file.
 porting a new version of the runtime. The fixtures should always be compiled
 with the latest version of inklecate.
 
+⚠️ Running `test:javascript` and its variants won't transpile the files, so be
+sure to run `build` first.
+
 #### Porting tests from the reference implementation
 
 _To be added._
