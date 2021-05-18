@@ -1,22 +1,12 @@
 module.exports = {
   collectCoverage: true,
-  collectCoverageFrom: [
-    "src/engine/**/*.ts",
-  ],
+  collectCoverageFrom: ["src/engine/**/*.ts"],
   coverageDirectory: "coverage",
-  coverageReporters: [
-    "json",
-    "text-summary",
-    "html"
-  ],
+  coverageReporters: ["json", "text-summary", "html"],
   testEnvironment: "node",
-  testMatch: [
-    "**/tests/**/*.(spec|test).ts"
-  ],
-  testPathIgnorePatterns: [
-    "<rootDir>/tests/"
-  ],
+  testMatch: ["**/tests/**/*.(spec|test).ts"],
+  testPathIgnorePatterns: ["<rootDir>/tests/"],
   transform: {
-    "^.+\\.ts$": "ts-jest"
+    "^.+\\.ts$": "ts-jest",
   },
 };

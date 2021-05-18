@@ -1,4 +1,11 @@
 {
   "extends": "./tsconfig.json",
-  "include": [".eslintrc.js", "src"]
+  "include": [
+    ".eslintrc.js",
+    "ink.d.ts",
+    "jest.config.javascript.js",
+    "jest.config.js",
+    "rollup.config.js",
+    "src"
+  ]
 }
