@@ -56,7 +56,10 @@ export class ListDefinition {
     item = InkListItem.Null;
     return { result: item, exists: false };
   }
-  public TryGetValueForItem(item: InkListItem): TryGetResult<number> {
+  public TryGetValueForItem(
+    item: InkListItem,
+    /* out */ _intVal: number
+  ): TryGetResult<number> {
     if (!item.itemName) return { result: 0, exists: false };
     let value = this._itemNameToValues.get(item.itemName);
 
