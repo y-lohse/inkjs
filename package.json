@@ -12,7 +12,7 @@
     "test:javascript:legacy": "INK_TEST=legacy jest --config='jest.config.javascript.js'",
     "test:compileFiles": "node src/tests/compile.js",
     "build": "tsc -p ./ && rollup -c",
-    "lint": "eslint 'src/**/*.ts'",
+    "lint": "eslint .",
     "lint:fix": "npm run lint -- --fix",
     "watch": "tsc -p ./ && rollup -c -w",
     "prepare": "npm run build"
