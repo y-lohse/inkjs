@@ -538,9 +538,7 @@ export class NativeFunctionCall extends InkObject {
 
   public _prototype: NativeFunctionCall | null = null;
   public _isPrototype: boolean = false;
-  public _operationFuncs: Map<
-    ValueType,
-    BinaryOp<any> | UnaryOp<any>
-  > | null = null;
+  public _operationFuncs: Map<ValueType, BinaryOp<any> | UnaryOp<any>> | null =
+    null;
   public static _nativeFunctions: Map<string, NativeFunctionCall> | null = null;
 }

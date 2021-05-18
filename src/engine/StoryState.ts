@@ -617,9 +617,10 @@ export class StoryState {
       this._currentFlow.outputStream = JsonSerialisation.JArrayToRuntimeObjList(
         jObject["outputStream"] as any[]
       );
-      this._currentFlow.currentChoices = JsonSerialisation.JArrayToRuntimeObjList(
-        jObject["currentChoices"] as any[]
-      ) as Choice[];
+      this._currentFlow.currentChoices =
+        JsonSerialisation.JArrayToRuntimeObjList(
+          jObject["currentChoices"] as any[]
+        ) as Choice[];
 
       let jChoiceThreadsObj = jObject["choiceThreads"];
       this._currentFlow.LoadFlowChoiceThreads(jChoiceThreadsObj, this.story);
@@ -982,8 +983,8 @@ export class StoryState {
 
   public TrimWhitespaceFromFunctionEnd() {
     Debug.Assert(this.callStack.currentElement.type == PushPopType.Function);
-    let functionStartPoint = this.callStack.currentElement
-      .functionStartInOutputStream;
+    let functionStartPoint =
+      this.callStack.currentElement.functionStartInOutputStream;
 
     if (functionStartPoint == -1) {
       functionStartPoint = 0;
@@ -1035,9 +1036,8 @@ export class StoryState {
       PushPopType.FunctionEvaluationFromGame,
       this.evaluationStack.length
     );
-    this.callStack.currentElement.currentPointer = Pointer.StartOf(
-      funcContainer
-    );
+    this.callStack.currentElement.currentPointer =
+      Pointer.StartOf(funcContainer);
 
     this.PassArgumentsToEvaluationStack(args);
   }
@@ -1087,8 +1087,8 @@ export class StoryState {
       );
     }
 
-    let originalEvaluationStackHeight = this.callStack.currentElement
-      .evaluationStackHeightWhenPushed;
+    let originalEvaluationStackHeight =
+      this.callStack.currentElement.evaluationStackHeightWhenPushed;
 
     let returnedObj: InkObject | null = null;
     while (this.evaluationStack.length > originalEvaluationStackHeight) {
