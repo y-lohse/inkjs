@@ -63,7 +63,7 @@ export function isEquatable(type: any) {
 
 function unsafeTypeAssertion<T>(
   obj: any,
-  type: (new () => T) | (Function & { prototype: T })
+  _type: (new () => T) | (Function & { prototype: T })
 ) {
   return obj as T;
 }
