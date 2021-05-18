@@ -30,6 +30,10 @@ module.exports = {
     "@typescript-eslint/no-unsafe-call": "off",
     "@typescript-eslint/no-unsafe-member-access": "off",
     "@typescript-eslint/no-unsafe-return": "off",
+    "@typescript-eslint/no-unused-vars": [
+      "warn",
+      { varsIgnorePattern: "^_", argsIgnorePattern: "^_" },
+    ],
     "@typescript-eslint/restrict-plus-operands": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
     "@typescript-eslint/restrict-template-expressions": "off",

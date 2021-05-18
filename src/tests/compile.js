@@ -3,6 +3,7 @@
 // Recompile baseline ink files with the current version
 // of inklecate available in $PATH.
 
+/* eslint-disable @typescript-eslint/no-var-requires */
 let childProcess = require("child_process");
 let glob = require("glob");
 let fs = require("fs-extra");
@@ -25,7 +26,7 @@ function runInklecate(input, output, extraArgs) {
   let command = `inklecate ${extraArgs} -o "${output}" "${input}"`;
 
   return new Promise((resolve, reject) => {
-    childProcess.exec(command, (error, stdout, stderr) => {
+    childProcess.exec(command, (error, stdout, _stderr) => {
       if (error) {
         // Adding stdout as well, in case this is a compilation error.
         reject(new Error(`${error.message.replace(/\n+$/, "")}\n${stdout}`));
@@ -67,4 +68,4 @@ async function compileInkFile() {
   else errors.forEach((error) => console.error(`\n${error.reason.message}`));
 }
 
-compileInkFile();
+compileInkFile().catch((error) => console.error("Unable to compile", error));
