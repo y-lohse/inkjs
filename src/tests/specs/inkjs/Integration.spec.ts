@@ -56,9 +56,9 @@ describe("Integration", () => {
     expect(story.variablesState["observedVar1"]).toEqual(1);
     expect(story.variablesState["observedVar2"]).toEqual(2);
 
-    const spy1 = jasmine.createSpy("variable observer spy 1");
-    const spy2 = jasmine.createSpy("variable observer spy 2");
-    const commonSpy = jasmine.createSpy("variable observer spy common");
+    const spy1 = jest.fn();
+    const spy2 = jest.fn();
+    const commonSpy = jest.fn();
     story.ObserveVariable("observedVar1", spy1);
     story.ObserveVariable("observedVar2", spy2);
     story.ObserveVariable("observedVar1", commonSpy);
@@ -176,11 +176,9 @@ describe("Integration", () => {
   it("should call external functions", () => {
     story.allowExternalFunctionFallbacks = false;
     story.ChoosePathString("integration.external");
-    const externalSpy = jasmine
-      .createSpy("external function spy", (a) => {
-        return a;
-      })
-      .and.callThrough();
+    const externalSpy = jest.fn((a) => {
+      return a;
+    });
     story.BindExternalFunction("fn_ext", externalSpy);
     story.BindExternalFunction("gameInc", () => undefined);
 
@@ -193,13 +191,11 @@ describe("Integration", () => {
 
   it("should handle callstack changes", () => {
     story.allowExternalFunctionFallbacks = false;
-    const externalSpy = jasmine
-      .createSpy("external function spy", (x) => {
-        x++;
-        x = parseInt(story.EvaluateFunction("inkInc", [x]));
-        return x;
-      })
-      .and.callThrough();
+    const externalSpy = jest.fn((x) => {
+      x++;
+      x = parseInt(story.EvaluateFunction("inkInc", [x]));
+      return x;
+    });
     story.BindExternalFunction("fn_ext", () => undefined);
     story.BindExternalFunction("gameInc", externalSpy);
 
