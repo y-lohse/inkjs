@@ -2,13 +2,8 @@ import * as path from "path";
 import * as fs from "fs";
 import { Story } from "../../engine/Story";
 
-let baselinePath = path.join(
-  getRootDir(),
-  "src",
-  "tests",
-  "inkfiles",
-  "compiled"
-);
+const rootDir = path.resolve(__dirname, "..", "..", "..");
+const baselinePath = path.join(rootDir, "src", "tests", "inkfiles", "compiled");
 
 export function loadInkFile(filename: string, category: string) {
   filename = filename + ".ink.json";
@@ -34,19 +29,12 @@ export function loadInkFile(filename: string, category: string) {
 }
 
 export function getInkPath() {
-  if (process.env.INK_TEST === "dist") {
-    return path.join(getRootDir(), "dist", "ink-es2015.js");
-  } else if (process.env.INK_TEST === "legacy") {
-    return path.join(getRootDir(), "dist", "ink.js");
-  } else {
-    return; // No ENV, so no inkPath.
-  }
-}
-
-function getRootDir() {
-  if (process.env.INK_TEST === "dist" || process.env.INK_TEST === "legacy") {
-    return path.join(__dirname, "..", "..");
-  } else {
-    return path.join(__dirname, "..", "..", "..");
+  switch (process.env.INK_TEST) {
+    case "dist":
+      return path.join(rootDir, "dist", "ink-es2015.js");
+    case "legacy":
+      return path.join(rootDir, "dist", "ink.js");
+    default:
+      return; // No ENV, so no inkPath.
   }
 }
