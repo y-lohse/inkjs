@@ -306,7 +306,8 @@ export namespace CallStack {
         this.inExpressionEvaluation
       );
       copy.temporaryVariables = new Map(this.temporaryVariables);
-      copy.evaluationStackHeightWhenPushed = this.evaluationStackHeightWhenPushed;
+      copy.evaluationStackHeightWhenPushed =
+        this.evaluationStackHeightWhenPushed;
       copy.functionStartInOutputStream = this.functionStartInOutputStream;
       return copy;
     }
@@ -377,9 +378,8 @@ export namespace CallStack {
 
           let temps = jElementObj["temp"];
           if (typeof temps !== "undefined") {
-            el.temporaryVariables = JsonSerialisation.JObjectToDictionaryRuntimeObjs(
-              temps
-            );
+            el.temporaryVariables =
+              JsonSerialisation.JObjectToDictionaryRuntimeObjs(temps);
           } else {
             el.temporaryVariables.clear();
           }
