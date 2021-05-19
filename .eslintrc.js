@@ -13,7 +13,16 @@ module.exports = {
     project: "./tsconfig.eslint.json",
     sourceType: "module",
   },
-  ignorePatterns: ["templates/**/*"],
+  ignorePatterns: [
+    "coverage/**/*",
+    "dist/**/*",
+    "engine/**/*",
+    "src/**/*.d.ts",
+    "src/**/*.js",
+    "templates/**/*",
+    "tests/**/*.d.ts",
+    "tests/**/*.js",
+  ],
   plugins: [
     "@typescript-eslint",
     "import",
