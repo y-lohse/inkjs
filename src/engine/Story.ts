@@ -1828,7 +1828,7 @@ export class Story extends InkObject {
   public BindExternalFunction(
     funcName: string,
     func: Story.ExternalFunction,
-    lookaheadSafe: boolean
+    lookaheadSafe: boolean = false
   ) {
     this.Assert(func != null, "Can't bind a null function");
 
