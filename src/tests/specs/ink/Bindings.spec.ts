@@ -1,7 +1,8 @@
 import * as testsUtils from "../common";
+import { Story } from "../../../engine/Story";
 
 describe("Bindings", () => {
-  let story: any;
+  let story: Story | undefined;
 
   function loadStory(name: string) {
     story = testsUtils.loadInkFile(name, "bindings");
@@ -16,15 +17,15 @@ describe("Bindings", () => {
 
     let testExternalBindingMessage = "";
 
-    story.BindExternalFunction("message", (arg: any) => {
+    story?.BindExternalFunction("message", (arg: any) => {
       testExternalBindingMessage = "MESSAGE: " + arg;
     });
 
-    story.BindExternalFunction("multiply", (arg1: any, arg2: any) => {
+    story?.BindExternalFunction("multiply", (arg1: any, arg2: any) => {
       return arg1 * arg2;
     });
 
-    story.BindExternalFunction(
+    story?.BindExternalFunction(
       "times",
       (numberOfTimes: any, stringValue: any) => {
         let result = "";
@@ -37,21 +38,21 @@ describe("Bindings", () => {
       }
     );
 
-    expect(story.Continue()).toBe("15\n");
-    expect(story.Continue()).toBe("knock knock knock\n");
+    expect(story?.Continue()).toBe("15\n");
+    expect(story?.Continue()).toBe("knock knock knock\n");
     expect(testExternalBindingMessage).toBe("MESSAGE: hello world");
   });
 
   it("tests game ink back and forth", () => {
     loadStory("game_ink_back_and_forth");
 
-    story.BindExternalFunction("gameInc", (x: any) => {
+    story?.BindExternalFunction("gameInc", (x: any) => {
       x += 1;
-      x = story.EvaluateFunction("inkInc", [x]);
+      x = story?.EvaluateFunction("inkInc", [x]);
       return x;
     });
 
-    let finalResult = story.EvaluateFunction("topExternal", [5], true);
+    let finalResult = story?.EvaluateFunction("topExternal", [5], true);
 
     expect(finalResult["returned"]).toBe(7);
     expect(finalResult["output"]).toBe("In top external\n");
@@ -63,18 +64,18 @@ describe("Bindings", () => {
     let currentVarValue = 0;
     let observerCallCount = 0;
 
-    story.ObserveVariable("testVar", (varName: any, newValue: any) => {
+    story?.ObserveVariable("testVar", (varName: any, newValue: any) => {
       currentVarValue = newValue;
       observerCallCount += 1;
     });
 
-    story.ContinueMaximally();
+    story?.ContinueMaximally();
 
     expect(currentVarValue).toBe(15);
     expect(observerCallCount).toBe(1);
 
-    story.ChooseChoiceIndex(0);
-    story.Continue();
+    story?.ChooseChoiceIndex(0);
+    story?.Continue();
 
     expect(currentVarValue).toBe(25);
     expect(observerCallCount).toBe(2);
@@ -85,7 +86,7 @@ describe("Bindings", () => {
     loadStory("lookup_safe_or_not");
 
     let callCount = 0;
-    story.BindExternalFunction(
+    story?.BindExternalFunction(
       "myAction",
       () => {
         callCount++;
@@ -93,14 +94,14 @@ describe("Bindings", () => {
       true
     );
 
-    story.ContinueMaximally();
+    story?.ContinueMaximally();
     expect(callCount).toBe(2);
 
     // UNSAFE Lookahead
     callCount = 0;
-    story.ResetState();
-    story.UnbindExternalFunction("myAction");
-    story.BindExternalFunction(
+    story?.ResetState();
+    story?.UnbindExternalFunction("myAction");
+    story?.BindExternalFunction(
       "myAction",
       () => {
         callCount++;
@@ -108,7 +109,7 @@ describe("Bindings", () => {
       false
     );
 
-    story.ContinueMaximally();
+    story?.ContinueMaximally();
     expect(callCount).toBe(1);
 
     // SAFE Lookahead with glue broken intentionally
@@ -116,8 +117,8 @@ describe("Bindings", () => {
 
     // Disabling this rule to match the tests from upstream.
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    story.BindExternalFunction("myAction", () => {});
-    let result = story.ContinueMaximally();
+    story?.BindExternalFunction("myAction", () => {});
+    let result = story?.ContinueMaximally();
     expect(result).toBe("One\nTwo\n");
   });
 });

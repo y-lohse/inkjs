@@ -1,7 +1,8 @@
 import * as testsUtils from "../common";
+import { Story } from "../../../engine/Story";
 
 describe("Integration", () => {
-  let story: any;
+  let story: Story;
   let inkPath = testsUtils.getInkPath();
 
   beforeEach(() => {
