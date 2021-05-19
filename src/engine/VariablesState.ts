@@ -20,6 +20,9 @@ import { StatePatch } from "./StatePatch";
 import { SimpleJson } from "./SimpleJson";
 
 export class VariablesState {
+  // Required for TypeScript access of the proxy
+  [key: string]: any;
+
   // The way variableChangedEvent is a bit different than the reference implementation.
   // Originally it uses the C# += operator to add delegates, but in js we need to maintain
   // an actual collection of delegates (ie. callbacks) to register a new one, there is a
@@ -70,14 +73,14 @@ export class VariablesState {
   // the original code uses a magic getter and setter for global variables,
   // allowing things like variableState['varname]. This is not quite possible
   // in js without a Proxy, so it is replaced with this $ function.
-  public $(variableName: string, value: any) {
+  public $<T = any>(variableName: string, value?: T): T | null | undefined {
     if (typeof value === "undefined") {
       let varContents = null;
 
       if (this.patch !== null) {
         varContents = this.patch.TryGetGlobal(variableName, null);
         if (varContents.exists)
-          return (varContents.result as AbstractValue).valueObject;
+          return (varContents.result as AbstractValue).valueObject as T;
       }
 
       varContents = this._globalVariables.get(variableName);
@@ -87,7 +90,7 @@ export class VariablesState {
       }
 
       if (typeof varContents !== "undefined")
-        return (varContents as AbstractValue).valueObject;
+        return (varContents as AbstractValue).valueObject as T;
       else return null;
     } else {
       if (typeof this._defaultGlobalVariables.get(variableName) === "undefined")
@@ -102,9 +105,7 @@ export class VariablesState {
         if (value == null) {
           throw new Error("Cannot pass null to VariableState");
         } else {
-          throw new Error(
-            "Invalid value passed to VariableState: " + value.toString()
-          );
+          throw new Error(`Invalid value passed to VariableState: ${value}`);
         }
       }
 
