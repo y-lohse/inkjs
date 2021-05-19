@@ -15,7 +15,7 @@
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "npm run lint -- --fix",
     "watch": "tsc -p ./ && rollup -c -w",
-    "prepublishOnly": "tsc -p ./ && rollup -c"
+    "prepare": "npm run-script build"
   },
   "author": "Yannick Lohse",
   "license": "MIT",
