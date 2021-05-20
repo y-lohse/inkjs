@@ -72,7 +72,7 @@ You can also load it using `fs`. In that case, please note that inklecate output
 
 ```javascript
 var fs = require("fs");
-var json = fs.readFileSync("./ink_file.json", "UTF-8").replace(/^\uFEFF/, ""); //strips the BOM
+var json = fs.readFileSync("./ink_file.json", { encoding: "utf8" }).replace(/^\uFEFF/, ""); //strips the BOM
 ```
 
 ### Starting a story
