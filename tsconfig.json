@@ -1,14 +1,13 @@
 {
-	"compilerOptions": {
-		"target": "es6",
-		"module": "commonjs",
-		"outDir": ".",
-		"rootDir": "src/",
-		"strict": true,
-		"sourceMap": true,
-		"declaration": true
-	},
-
-	"include": ["src/"],
-	"exclude": ["node_modules", "**/__tests__/*"]
+  "compilerOptions": {
+    "target": "es6",
+    "module": "commonjs",
+    "outDir": ".",
+    "rootDir": "src/",
+    "strict": true,
+    "sourceMap": true,
+    "declaration": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "**/__tests__/*"]
 }

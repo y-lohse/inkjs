@@ -6,6 +6,6 @@
     "jest.config.javascript.js",
     "jest.config.js",
     "rollup.config.js",
-    "src"
+    "src/**/*"
   ]
 }
