@@ -1,9 +1,8 @@
 import sourcemaps from 'rollup-plugin-sourcemaps';
-import { uglify } from "rollup-plugin-uglify";
 import { terser } from "rollup-plugin-terser";
 import typescript from 'rollup-plugin-typescript2';
-import resolve from 'rollup-plugin-node-resolve';
-import babel from 'rollup-plugin-babel';
+import { nodeResolve } from '@rollup/plugin-node-resolve';
+import { babel } from '@rollup/plugin-babel';
 
 const moduleName = 'inkjs';
 const inputFile = 'src/engine/Story.ts';
@@ -28,13 +27,14 @@ export default [
       sourcemap: true
     },
     plugins: [
-      resolve(),
+      nodeResolve(),
       typescript(tsconfig),
       babel({
         exclude: 'node_modules/**',
         extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
       }),
-      uglify(),
+      terser(),
       sourcemaps()
     ]
   },
@@ -47,7 +47,7 @@ export default [
       sourcemap: true
     },
     plugins: [
-      resolve(),
+      nodeResolve(),
       typescript(tsconfig),
       terser(),
       sourcemaps()
