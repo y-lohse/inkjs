@@ -20,7 +20,7 @@ export function loadInkFile(filename: string, category: string) {
     filePath = path.join(baselinePath, filename);
   }
 
-  let content = fs.readFileSync(filePath, "UTF-8").replace(/^\uFEFF/, ""); // Strip the BOM.
+  let content = fs.readFileSync(filePath, "utf-8").replace(/^\uFEFF/, ""); // Strip the BOM.
 
   let inkPath = getInkPath();
   if (inkPath) {
