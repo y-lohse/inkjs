@@ -52,5 +52,25 @@ export default [
       terser(),
       sourcemaps()
     ]
-  }
+  },
+  {
+    input: 'src/compiler/Compiler.ts',
+    output: {
+      name: 'inklecate',
+      file: 'dist/inklecate.js',
+      format: format,
+      sourcemap: true
+    },
+    plugins: [
+      nodeResolve(),
+      typescript(tsconfig),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
+      }),
+      terser(),
+      sourcemaps()
+    ]
+  },
 ];

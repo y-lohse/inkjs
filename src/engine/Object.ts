@@ -186,4 +186,9 @@ export class InkObject {
 
     if (obj[prop]) obj[prop].parent = this;
   }
+
+  public Equals(obj: any) {
+  
+    return obj === this;
+  }
 }
