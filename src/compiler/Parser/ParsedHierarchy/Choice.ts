@@ -4,7 +4,6 @@ import { ContentList } from './ContentList';
 import { ControlCommand as RuntimeControlCommand } from '../../../engine/ControlCommand';
 import { Divert as RuntimeDivert } from '../../../engine/Divert';
 import { DivertTargetValue } from '../../../engine/Value';
-import { Expression } from './Expression/Expression';
 import { INamedContent } from '../../../engine/INamedContent';
 import { IWeavePoint } from './IWeavePoint';
 import { ParsedObject } from './Object';
@@ -13,6 +12,7 @@ import { Path as RuntimePath } from '../../../engine/Path';
 import { Story } from './Story';
 import { SymbolType } from './SymbolType';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
+import { Expression } from './Expression/Expression';
 
 export class Choice
   extends ParsedObject

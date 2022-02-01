@@ -40,6 +40,16 @@ export class StringParserState {
     return this._numElements;
   }
 
+  constructor(){
+    const kExpectedMaxStackDepth = 200;
+    for (let i = 0; i < kExpectedMaxStackDepth; i++) {
+      this._stack[i] = new StringParserElement();
+      
+    }
+    this._numElements = 1;
+            
+  }
+
   public readonly StringParserState = (): void => {
     const kExpectedMaxStackDepth: number = 200;
     this._stack = new Array(kExpectedMaxStackDepth);
@@ -52,7 +62,7 @@ export class StringParserState {
   }
 
   public readonly Push = (): number => {
-    if (this._numElements >= this._stack.length) {
+    if (this._numElements >= this._stack.length && this._numElements > 0) {
       throw new Error('Stack overflow in parser state.');
     }
 
@@ -71,7 +81,7 @@ export class StringParserState {
     }
 
     if (this.currentElement.uniqueId != expectedRuleId) {
-      throw new Error('Mismatched rule IDs - do you have mismatched Begin/Succeed/Fail?');
+      throw new Error('Mismatched rule IDs while Poping - do you have mismatched Begin/Succeed/Fail?');
     }
 
     // Restore state
@@ -80,7 +90,7 @@ export class StringParserState {
 
   public Peek = (expectedRuleId: number) => {
     if (this.currentElement.uniqueId != expectedRuleId) {
-      throw new Error('Mismatched rule IDs - do you have mismatched Begin/Succeed/Fail?');
+      throw new Error('Mismatched rule IDs while Peeking - do you have mismatched Begin/Succeed/Fail?');
     }
 
     return this._stack[this._numElements - 1];

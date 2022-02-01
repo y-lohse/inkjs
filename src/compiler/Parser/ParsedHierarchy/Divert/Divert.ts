@@ -13,6 +13,7 @@ import { PushPopType } from '../../../../engine/PushPop';
 import { Story } from '../Story';
 import { VariablePointerValue } from '../../../../engine/Value';
 import { VariableReference } from '../Variable/VariableReference';
+import { ClosestFlowBase } from '../Flow/ClosestFlowBase';
 
 export class Divert extends ParsedObject {
   public readonly args: Expression[] = [];
@@ -196,7 +197,7 @@ export class Divert extends ParsedObject {
       // we can do at this point.
       var variableTargetName = this.PathAsVariableName();
       if (variableTargetName) {
-        const flowBaseScope = this.ClosestFlowBase();
+        const flowBaseScope = ClosestFlowBase(this) as FlowBase;
         if (flowBaseScope) {
           const resolveResult = flowBaseScope.ResolveVariableWithName(
             variableTargetName,

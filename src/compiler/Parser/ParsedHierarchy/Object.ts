@@ -1,11 +1,7 @@
 import { Container as RuntimeContainer } from '../../../engine/Container';
 import { DebugMetadata } from '../../../engine/DebugMetadata';
 import { FindQueryFunc } from './FindQueryFunc';
-import { FlowBase } from './Flow/FlowBase';
-import { FlowLevel } from './Flow/FlowLevel';
-import { IWeavePoint } from './IWeavePoint';
 import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Path } from './Path';
 import { Path as RuntimePath } from '../../../engine/Path';
 import { Story } from './Story';
 
@@ -84,7 +80,7 @@ export abstract class ParsedObject {
   get containerForCounting(): RuntimeContainer | null {
     return this.runtimeObject as RuntimeContainer;
   }
-
+/*
   public readonly PathRelativeTo = (otherObj: ParsedObject): Path | null => {
     const ownAncestry = this.ancestry;
     const otherAncestry = otherObj.ancestry;
@@ -150,7 +146,7 @@ export abstract class ParsedObject {
 
     return null;
   };
-
+*/
   get ancestry(): ParsedObject[] {
     let result = [];
 
@@ -165,6 +161,7 @@ export abstract class ParsedObject {
     return result;
   }
 
+  /*
   get descriptionOfScope(): string {
     const locationNames: string[] = [];
 
@@ -187,6 +184,7 @@ export abstract class ParsedObject {
 
     return scopeSB;
   }
+*/
 
   // Return the object so that method can be chained easily
   public readonly AddContent = <T extends ParsedObject, V extends (T | T[])>(
@@ -281,19 +279,6 @@ export abstract class ParsedObject {
         obj.ResolveReferences(context);
       }
     }
-  };
-
-  public readonly ClosestFlowBase = (): FlowBase | null => {
-    let ancestor = this.parent;
-    while (ancestor) {
-      if (ancestor instanceof FlowBase) {
-        return ancestor as FlowBase;
-      }
-
-      ancestor = ancestor.parent;
-    }
-
-    return null;
   };
 
   public readonly Error = (

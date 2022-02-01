@@ -5,7 +5,7 @@ import { DivertTarget } from '../Divert/DivertTarget';
 import { FlowLevel } from './FlowLevel';
 import { Gather } from '../Gather/Gather';
 import { INamedContent } from '../../../../engine/INamedContent';
-import { Knot } from '../Knot';
+// import { Knot } from '../Knot';
 import { ParsedObject } from '../Object';
 import { Path } from '../Path';
 import { ReturnType } from '../ReturnType';
@@ -13,10 +13,11 @@ import { Container as RuntimeContainer } from '../../../../engine/Container';
 import { Divert as RuntimeDivert } from '../../../../engine/Divert';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
-import { Story } from '../Story';
+//import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
 import { VariableAssignment } from '../Variable/VariableAssignment';
 import { Weave } from '../Weave';
+import { ClosestFlowBase } from './ClosestFlowBase';
 
 type VariableResolveResult = {
   found: boolean;
@@ -73,11 +74,14 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
     topLevelObjects = this.SplitWeaveAndSubFlowContent(
       topLevelObjects,
-      this instanceof Story && !isIncludedStory,
+      //this instanceof Story && 
+      !isIncludedStory,
     );
 
     this.AddContent(topLevelObjects);
   };
+
+  public iamFlowbase = () => true;
 
   public readonly SplitWeaveAndSubFlowContent = (
     contentObjs: ParsedObject[],
@@ -141,7 +145,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // Search in the stitch / knot that owns the node first
     const ownerFlow = fromNode === null ?
       this :
-      fromNode.ClosestFlowBase();
+      ClosestFlowBase(fromNode);
 
     if (ownerFlow) {
       // Argument
@@ -210,7 +214,9 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     }
 
     for (const [ , value ] of this._subFlowsByName) {
-      value.ResolveWeavePointNaming();
+      if(value.hasOwnProperty('ResolveWeavePointNaming')){
+        value.ResolveWeavePointNaming();
+      }
     }
   }
         
@@ -394,7 +400,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return null;
   };
 
-  public ResolveReferences = (context: Story): void => {
+  public ResolveReferences = (context: any): void => {
     if (this._startingSubFlowDivert) {
       if (!this._startingSubFlowRuntime) {
         throw new Error();
@@ -441,11 +447,11 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   };
 
   public readonly CheckForDisallowedFunctionFlowControl = (): void => {
-    if (!(this instanceof Knot)) {
-      this.Error(
-        'Functions cannot be stitches - i.e. they should be defined as \'== function myFunc ==\' rather than internal to another knot.',
-      );
-    }
+    // if (!(this instanceof Knot)) {
+    //   this.Error(
+    //     'Functions cannot be stitches - i.e. they should be defined as \'== function myFunc ==\' rather than internal to another knot.',
+    //   );
+    // }
 
 
     // Not allowed sub-flows
@@ -497,3 +503,6 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     `${this.typeName} '${this.name}'`
   );
 }
+
+
+

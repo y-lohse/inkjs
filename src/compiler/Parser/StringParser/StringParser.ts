@@ -323,9 +323,10 @@ export abstract class StringParser {
       return;
     }
 
-    if (flatten) {
-      const resultCollection = result as ParseRuleReturn[];
+    debugger;
 
+    if (flatten && Array.isArray(result)) {
+      const resultCollection = result as ParseRuleReturn[];
       if (resultCollection !== null) {
         for (const obj of resultCollection) {
           list.push(obj as any);
@@ -524,7 +525,7 @@ export abstract class StringParser {
 
     const lastCharIndex: number = this.index;
     if (lastCharIndex > startIndex) {
-      return this._chars.slice(startIndex, this.index - startIndex).join('');
+      return this._chars.slice(startIndex, this.index).join('');
     }
 
     return null;
@@ -663,9 +664,9 @@ export abstract class StringParser {
 
     // Optional \r, definite \n to support Windows (\r\n) and Mac/Unix (\n)
     // 2nd May 2016: Always collapse \r\n to just \n
-    this.ParseString('\r');
+    this.ParseString("\r");
 
-    if (this.ParseString ('\n') === null) {
+    if (this.ParseString("\n") === null) {
         return this.FailRule(ruleId) as string;
     }
 

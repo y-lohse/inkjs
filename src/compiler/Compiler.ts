@@ -3,9 +3,7 @@ import { DebugSourceRange } from './DebugSourceRange';
 import { ErrorType } from './Parser/ErrorType';
 import { InkParser } from './Parser/InkParser';
 import { Story as RuntimeStory } from '../Engine/Story';
-import {
-  Story,
-} from './Parser/ParsedHierarchy/Story';
+import { Story } from './Parser/ParsedHierarchy/Story';
 import { DebugMetadata } from '../engine/DebugMetadata';
 import { StringValue } from '../engine/Value';
 
@@ -81,7 +79,8 @@ export class Compiler {
       this.options.fileHandler,
     );
 
-    this._parsedStory = this.parser.Parse();
+    this._parsedStory = this.parser.ParseStory();
+    debugger;
 
     if (this.errors.length === 0) {
       this.parsedStory.countAllVisits = this.options.countAllVisits;

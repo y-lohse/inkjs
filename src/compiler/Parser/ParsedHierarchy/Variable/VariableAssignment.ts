@@ -1,6 +1,7 @@
 import { Container as RuntimeContainer } from '../../../../engine/Container';
 import { Expression } from '../Expression/Expression';
 import { FlowBase } from '../Flow/FlowBase';
+import { ClosestFlowBase } from "../Flow/ClosestFlowBase";
 import { ListDefinition } from '../List/ListDefinition';
 import { ParsedObject } from '../Object';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
@@ -68,7 +69,7 @@ export class VariableAssignment extends ParsedObject {
     if (this.isGlobalDeclaration) {
       newDeclScope = this.story;
     } else if (this.isNewTemporaryDeclaration) {
-      newDeclScope = this.ClosestFlowBase();
+      newDeclScope = ClosestFlowBase(this);
     }
 
     if (newDeclScope) {

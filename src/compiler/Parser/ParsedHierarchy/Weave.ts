@@ -483,7 +483,9 @@ export class Weave extends ParsedObject {
         }
       } else {
         // No nesting, all loose ends can be safely passed up
-        closestInnerWeaveAncestor!.ReceiveLooseEnd(looseEnd);
+        if(closestInnerWeaveAncestor?.hasOwnProperty('ReceiveLooseEnd')){
+          closestInnerWeaveAncestor!.ReceiveLooseEnd(looseEnd);
+        }
         received = true;
       }
 
