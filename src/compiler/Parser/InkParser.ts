@@ -486,7 +486,6 @@ export class InkParser extends StringParser {
       choice.condition = conditionExpr;
       choice.onceOnly = onceOnlyChoice;
       choice.isInvisibleDefault = emptyContent;
-
       return choice;
     }
 

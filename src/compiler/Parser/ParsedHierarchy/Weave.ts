@@ -112,7 +112,7 @@ export class Weave extends ParsedObject {
   }
 
   public readonly ResolveWeavePointNaming = (): void => {
-    const namedWeavePoints = this.FindAll<IWeavePoint>();
+    const namedWeavePoints = this.FindAll<IWeavePoint>(w => !(w.name === null || w.name === undefined));
     this._namedWeavePoints = new Map();
 
     for (const weavePoint of namedWeavePoints) {
