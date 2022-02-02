@@ -165,7 +165,7 @@ export class Weave extends ParsedObject {
           }
 
           const weaveContentCount = contentIdx - innerWeaveStartIdx;
-          const weaveContent = this.content.slice(innerWeaveStartIdx, weaveContentCount);
+          const weaveContent = this.content.slice(innerWeaveStartIdx, innerWeaveStartIdx + weaveContentCount);
 
           this.content.splice(innerWeaveStartIdx, weaveContentCount);
 

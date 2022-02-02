@@ -172,7 +172,7 @@ export class InkParser extends StringParser {
       md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
       md.endLineNumber = stateAtEnd.lineIndex + 1;
       md.fileName = this._filename;
-      parsedObj.debugMetadata = md;
+      // parsedObj.debugMetadata = md;
 
       return;
     }
@@ -186,7 +186,7 @@ export class InkParser extends StringParser {
           md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
           md.endLineNumber = stateAtEnd.lineIndex + 1;
           md.fileName = this._filename;
-          parsedListObj.debugMetadata = md;
+          //parsedListObj.debugMetadata = md;
         }
       }
     }
@@ -1048,7 +1048,7 @@ export class InkParser extends StringParser {
   };
 
   public readonly ContentTextAllowingEscapeChar = (): Text | null => {
-    let sb: string = '';
+    let sb: string|null = null;
 
     do {
       let str = this.Parse(this.ContentTextNoEscape);

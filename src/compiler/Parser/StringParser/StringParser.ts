@@ -177,7 +177,7 @@ export abstract class StringParser {
   }
 
   get remainingString(): string {
-    return this._chars.slice(this.index, this.remainingLength).join('');
+    return this._chars.slice(this.index, this.index + this.remainingLength).join('');
   }
 
   public readonly LineRemainder = (): string => (
@@ -196,6 +196,14 @@ export abstract class StringParser {
   
   set lineIndex(value: number) {
     this.state.lineIndex = value;
+  }
+
+  set characterInLineIndex(value: number) {
+      this.state.characterInLineIndex = value;
+  }
+
+  get characterInLineIndex(){
+      return this.state.characterInLineIndex;
   }
 
   get index(): number {
@@ -323,8 +331,6 @@ export abstract class StringParser {
       return;
     }
 
-    debugger;
-
     if (flatten && Array.isArray(result)) {
       const resultCollection = result as ParseRuleReturn[];
       if (resultCollection !== null) {
@@ -423,7 +429,8 @@ export abstract class StringParser {
       if (this._chars[i] !== c) {
         success = false;
         break;
-      } else if (c == '\n') {
+      }
+      if (c === '\n') {
         li++;
       }
 

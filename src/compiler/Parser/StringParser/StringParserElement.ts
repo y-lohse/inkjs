@@ -2,6 +2,7 @@ export class StringParserElement {
   public static _uniqueIdCounter: number = 1000;
 
   public characterIndex: number = 0;
+  public characterInLineIndex: number = 0;
   public lineIndex: number = 0;
   public reportedErrorInScope: boolean = false;
   public uniqueId: number = 0;

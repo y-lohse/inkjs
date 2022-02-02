@@ -368,7 +368,7 @@ export class Story extends FlowBase {
       for (const innerContent of container.content) {
         innerContent.parent = null;
         if (dm !== null && innerContent.ownDebugMetadata === null) {
-          innerContent.debugMetadata = dm;
+          // innerContent.debugMetadata = dm;
         }
 
         parentContainer.InsertContent(innerContent, contentIdx);

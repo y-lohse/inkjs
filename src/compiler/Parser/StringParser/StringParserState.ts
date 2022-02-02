@@ -24,6 +24,14 @@ export class StringParserState {
     this.currentElement.characterIndex = value; 
   }
 
+  get characterInLineIndex(): number { 
+    return this.currentElement.characterInLineIndex; 
+  }
+  
+  set characterInLineIndex(value: number) {
+    this.currentElement.characterInLineIndex = value; 
+  }
+
   get customFlags(): number {
     return this.currentElement.customFlags;
   }

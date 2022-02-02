@@ -1,6 +1,7 @@
+import { CharacterSet } from "../../../compiler/Parser/CharacterSet";
 import { InkParser } from "../../../compiler/Parser/InkParser";
 
-describe("Choices", () => {
+describe("Core parsers", () => {
 
     it("parses moo", ()  => {
         const parser = new InkParser(`moo text and then an arrow 
@@ -38,19 +39,60 @@ and what ?`);
         expect(ret2).toBe("then an ");
         expect(parser.index).toBe(22);
 
+        
+        const ret2b = parser.ParseUntil(parser.Newline, new CharacterSet ('\n\r'))
+        expect(ret2b).toBe("-> happens")
+        expect(parser.index).toBe(32);
+        parser.index = 22;
+        
+        const ret2t = parser.ParseUntil(parser.EndOfFile, new CharacterSet ('\n\r'));
+        expect(ret2t).toBe("-> happens\nand what ?");
+        expect(parser.index).toBe(43);
+        parser.index = 22;
+        
+
         const ret3 = parser.ParseUntil(() => parser.OneOf([
             parser.Newline,
             parser.EndOfFile
-        ]))
-
-        const ret4 = parser.ParseUntil(() => parser.OneOf([
-            parser.Newline,
-            parser.EndOfFile
-        ]))
-
-        debugger;
-
+        ]), new CharacterSet ('\n\r'))
+        expect(ret3).toBe("-> happens");
+        expect(parser.index).toBe(32);
     });
 
+    it("parses interleave simple", ()  => {
+        const parser = new InkParser(`ABABA`)
+        const ret = parser.Interleave(
+            () => parser.ParseString("A"),
+            () => parser.ParseString("B"),
+        )
+        expect(ret).toStrictEqual(['A', 'B', 'A', 'B', 'A']);
+    })
+
+    it("parses interleave complex 1", ()  => {
+        const parser = new InkParser(`A
+
+    
+B
+A
+C   
+
+A
+B
+D
+A
+B
+`)
+        const ret = parser.Interleave(
+            parser.Optional(parser.MultilineWhitespace),
+            () => parser.OneOf([
+                () => parser.ParseString("A"),
+                () => parser.ParseString("B"),
+                () => parser.ParseString("C"),
+            ]),
+            () => parser.ParseString("D")
+        )
+        expect(ret).toStrictEqual(['A', 'B', 'A', 'C', 'A', 'B']);
+        expect(parser.index).toBe(22);
+    })
 
 })

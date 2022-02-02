@@ -54,7 +54,7 @@ export abstract class ParsedObject {
     if (!this._runtimeObject) {
       this._runtimeObject = this.GenerateRuntimeObject();
       if (this._runtimeObject) {
-        this._runtimeObject.debugMetadata = this.debugMetadata;
+        // this._runtimeObject.debugMetadata = this.debugMetadata;
       }
     }
 
