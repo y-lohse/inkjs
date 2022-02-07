@@ -4,9 +4,11 @@ import { InkList as RuntimeInkList } from '../../../../engine/InkList';
 import { InkListItem as RuntimeInkListItem } from '../../../../engine/InkList';
 import { ListElementDefinition } from './ListElementDefinition';
 import { ListValue } from '../../../../engine/Value';
+import { Identifier } from '../Identifier';
 
 export class List extends Expression {
-  constructor(public readonly itemNameList: string[]) {
+
+  constructor(public readonly itemIdentifierList: Identifier[]) {
     super();
   }
 
@@ -15,8 +17,8 @@ export class List extends Expression {
   ): void => {
     const runtimeRawList = new RuntimeInkList();
 
-    for (const itemName of this.itemNameList) {
-      const nameParts = itemName.split('.');
+    for (const itemIdentifier of this.itemIdentifierList) {
+      const nameParts = itemIdentifier?.name?.split('.') || [];
 
       let listName: string = '';
       let listItemName: string = '';
@@ -35,23 +37,23 @@ export class List extends Expression {
 
       if (listItem === null) {
         if (listName === null) {
-          this.Error(`Could not find list definition that contains item '${itemName}'`);
+          this.Error(`Could not find list definition that contains item '${itemIdentifier}'`);
         } else {
-          this.Error(`Could not find list item ${itemName}`);
+          this.Error(`Could not find list item ${itemIdentifier}`);
         }
       } else {
         if( listItem.parent == null){
-          this.Error(`Could not find list definition for item ${itemName}`);
+          this.Error(`Could not find list definition for item ${itemIdentifier}`);
           return;
         }
         if (listName === null) {
-          listName = listItem.parent.name;
+          listName = listItem.parent.identifier?.name!;
         }
 
-        const item = new RuntimeInkListItem(listName, listItem.name);
+        const item = new RuntimeInkListItem(listName, listItem.name || null);
 
         if (runtimeRawList.has(item.serialized())) {
-          this.Warning(`Duplicate of item '${itemName}' in list.`);
+          this.Warning(`Duplicate of item '${itemIdentifier}' in list.`);
         } else {
           runtimeRawList.Add(item, listItem.seriesValue);
         }

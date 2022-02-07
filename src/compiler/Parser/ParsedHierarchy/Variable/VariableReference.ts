@@ -7,6 +7,7 @@ import { Path } from '../Path';
 import { Story } from '../Story';
 import { VariableReference as RuntimeVariableReference } from '../../../../engine/VariableReference';
 import { Weave } from '../Weave';
+import { Identifier } from '../Identifier';
 
 export class VariableReference extends Expression {
   private _runtimeVarRef: RuntimeVariableReference | null = null;
@@ -19,6 +20,20 @@ export class VariableReference extends Expression {
     return this.path.join('.');
   }
 
+  get path(): string[] {
+    return this.pathIdentifiers.map(id => id.name!)
+  }
+
+  get identifier(): Identifier|null {
+    if (!this.pathIdentifiers || this.pathIdentifiers.length == 0) {
+        return null;
+    }
+    const name = this.path.join('.');
+    const id = new Identifier(name);
+    
+    return id;
+  }
+
   // Only known after GenerateIntoContainer has run
   public isConstantReference: boolean = false;
   public isListItemReference: boolean = false;
@@ -27,7 +42,7 @@ export class VariableReference extends Expression {
     return this._runtimeVarRef;
   }
 
-  constructor(public readonly path: string[]) {
+  constructor(public readonly pathIdentifiers: Identifier[]) {
     super();
   }
 
@@ -85,7 +100,7 @@ export class VariableReference extends Expression {
     }
 
     // Is it a read count?
-    const parsedPath = new Path(this.path);
+    const parsedPath = new Path(this.pathIdentifiers);
     const targetForCount: ParsedObject | null = parsedPath.ResolveFromContext(this);
     if (targetForCount) {
       if (!targetForCount.containerForCounting) {
@@ -118,7 +133,7 @@ export class VariableReference extends Expression {
           parent instanceof FlowBase)
         {
           this.Warning(
-            `'${targetFlow.name}' being used as read count rather than being called as function. Perhaps you intended to write ${targetFlow.name}()`,
+            `'${targetFlow.identifier}' being used as read count rather than being called as function. Perhaps you intended to write ${targetFlow.identifier}()`,
           );
         }
       }

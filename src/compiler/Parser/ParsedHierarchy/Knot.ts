@@ -1,6 +1,7 @@
 import { Argument } from './Argument';
 import { FlowBase } from './Flow/FlowBase';
 import { FlowLevel } from './Flow/FlowLevel';
+import { Identifier } from './Identifier';
 import { ParsedObject } from './Object';
 import { Story } from './Story';
 
@@ -10,7 +11,7 @@ export class Knot extends FlowBase {
   }
 
   constructor(
-    name: string,
+    name: Identifier,
     topLevelObjects: ParsedObject[],
     args: Argument[],
     isFunction: boolean)

@@ -12,6 +12,7 @@ import { Path } from './Path';
 import { Story } from './Story';
 import { StringValue } from '../../../engine/Value';
 import { VariableReference } from './Variable/VariableReference';
+import { Identifier } from './Identifier';
 
 export class FunctionCall extends Expression {
   public static readonly IsBuiltIn = (name: string): boolean => {
@@ -30,6 +31,9 @@ export class FunctionCall extends Expression {
   };
 
   private _proxyDivert: Divert;
+  get proxyDivert(): Divert{
+    return this._proxyDivert;
+  }
   private _divertTargetToCount: DivertTarget | null = null;
   private _variableReferenceToCount: VariableReference | null = null;
 
@@ -79,7 +83,7 @@ export class FunctionCall extends Expression {
 
   public shouldPopReturnedValue: boolean = false;
 
-  constructor(functionName: string, args: Expression[]) {
+  constructor(functionName: Identifier, args: Expression[]) {
     super()
 
     this._proxyDivert = new Divert(new Path(functionName), args);

@@ -18,6 +18,7 @@ import { SymbolType } from '../SymbolType';
 import { VariableAssignment } from '../Variable/VariableAssignment';
 import { Weave } from '../Weave';
 import { ClosestFlowBase } from './ClosestFlowBase';
+import { Identifier } from '../Identifier';
 
 type VariableResolveResult = {
   found: boolean;
@@ -54,16 +55,24 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return String(this.flowLevel);
   }
 
+  get name(): string|undefined {
+    return this.identifier?.name;
+  }
+
+  public identifier: Identifier|null = null;
+  public args: Argument[]|null = null;
+
   constructor(
-    public readonly name: string = '',
+    identifier: Identifier,
     topLevelObjects: ParsedObject[] | null = null,
-    public readonly args: Argument[] | null = null,
+    args: Argument[] | null = null,
     public readonly isFunction: boolean = false,
     isIncludedStory: boolean = false)
   {
     super();
 
-    this.name = name;
+    this.identifier = identifier;
+    this.args = args;
 
     if (topLevelObjects === null) {
       topLevelObjects = [];
@@ -100,7 +109,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         }
 
         subFlowObjs.push(obj);
-        this._subFlowsByName.set(subFlow.name, subFlow);
+        this._subFlowsByName.set(subFlow.identifier?.name!, subFlow);
       } else {
         weaveObjs.push(obj);
       }
@@ -110,7 +119,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     if (isRootStory) {
       weaveObjs.push(
         new Gather(null, 1),
-        new Divert(new Path('DONE')),
+        new Divert(new Path(Identifier.Done())),
       );
     }
 
@@ -151,7 +160,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       // Argument
       if (ownerFlow.args !== null ) {
         for (const arg of ownerFlow.args) {
-          if (arg.name === varName) {
+          if (arg.identifier?.name === varName) {
             result.found = true;
             result.isArgument = true;
             result.ownerFlow = ownerFlow;
@@ -232,14 +241,14 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
       if (foundReturn !== null) {
         this.Error(
-          `Return statements can only be used in knots that are declared as functions: == function ${this.name} ==`,
+          `Return statements can only be used in knots that are declared as functions: == function ${this.identifier} ==`,
           foundReturn,
         );
       }
     }
 
     const container = new RuntimeContainer();
-    container.name = this.name;
+    container.name = this.identifier?.name as string;
 
     if (this.story.countAllVisits) {
       container.visitsShouldBeCounted = true;
@@ -279,7 +288,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         // Check for duplicate knots/stitches with same name
         const namedChild = childFlowRuntime as RuntimeObject & INamedContent;
         const existingChild: INamedContent | null = container.namedContent.get(
-          namedChild.name,
+          namedChild.name!,
         ) || null;
 
         if (existingChild) {
@@ -327,7 +336,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // No need to generate EvalStart and EvalEnd since there's nothing being pushed
     // back onto the evaluation stack.
     for (let ii = this.args.length - 1; ii >= 0; --ii) {
-      const paramName = this.args[ii].name;
+      const paramName = this.args[ii].identifier?.name!;
       const assign = new RuntimeVariableAssignment(paramName, true);
       container.AddContent(assign);
     }
@@ -339,8 +348,10 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     deepSearch: boolean = false,
   ): ParsedObject | null => {
     // Referencing self?
-    if (level === this.flowLevel || level === null && name === this.name) {
-      return this;
+    if (level === this.flowLevel || level === null){
+      if( name === this.identifier?.name) {
+        return this;
+      }
     }
 
     if (level === FlowLevel.WeavePoint || level === null) {
@@ -414,21 +425,16 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // Check validity of parameter names
     if (this.args !== null) {
       for (const arg of this.args) {
-        context.CheckForNamingCollisions(
-          this,
-          arg.name,
-          SymbolType.Arg,
-          'argument',
-        );
+        context.CheckForNamingCollisions( this, arg.identifier, SymbolType.Arg, 'argument' );
       }
 
       // Separately, check for duplicate arugment names, since they aren't Parsed.Objects,
       // so have to be checked independently.
       for (let ii = 0; ii < this.args.length; ii += 1) {
         for (let jj = ii + 1; jj < this.args.length; jj += 1) {
-          if (this.args[ii].name == this.args[jj].name) {
+          if (this.args[ii].identifier?.name == this.args[jj].identifier?.name) {
             this.Error(
-              `Multiple arguments with the same name: '${this.args[ii].name}'`,
+              `Multiple arguments with the same name: '${this.args[ii].identifier}'`,
             );
           }
         }
@@ -442,7 +448,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         SymbolType.Knot :
         SymbolType.SubFlowAndWeave;
 
-      context.CheckForNamingCollisions(this, this.name, symbolType);
+      context.CheckForNamingCollisions(this, this.identifier, symbolType);
     }
   };
 
@@ -457,7 +463,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // Not allowed sub-flows
     for (const [ key, value ] of this._subFlowsByName) {
       this.Error(
-        `Functions may not contain stitches, but saw '${key}' within the function '${this.name}'`,
+        `Functions may not contain stitches, but saw '${key}' within the function '${this.identifier}'`,
         value,
       );
     }
@@ -488,7 +494,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   public readonly WarningInTermination = (terminatingObject: ParsedObject) => {
     let message: string = 'Apparent loose end exists where the flow runs out. Do you need a \'-> DONE\' statement, choice or divert?';
     if (terminatingObject.parent === this._rootWeave && this._firstChildFlow) {
-      message = `${message} Note that if you intend to enter '${this._firstChildFlow.name}' next, you need to divert to it explicitly.`;
+      message = `${message} Note that if you intend to enter '${this._firstChildFlow.identifier}' next, you need to divert to it explicitly.`;
     }
 
     const terminatingDivert = terminatingObject as Divert;
@@ -500,7 +506,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   }
 
   public readonly ToString = (): string => (
-    `${this.typeName} '${this.name}'`
+    `${this.typeName} '${this.identifier}'`
   );
 }
 

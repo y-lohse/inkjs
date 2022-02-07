@@ -7,9 +7,10 @@ import { ParsedObject } from '../Object';
 import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
 import { VariableAssignment } from '../Variable/VariableAssignment';
+import { Identifier } from '../Identifier';
 
 export class ListDefinition extends ParsedObject {
-  public name: string = '';
+  public identifier: Identifier|null = null;
   public variableAssignment: VariableAssignment | null = null;
 
   get typeName() {
@@ -21,14 +22,14 @@ export class ListDefinition extends ParsedObject {
   get runtimeListDefinition(): RuntimeListDefinition {
     const allItems: Map<string, number> = new Map();
     for (const e of this.itemDefinitions) {
-      if (allItems.has(e.name)) {
-        allItems.set(e.name, e.seriesValue);
+      if (allItems.has(e.name!)) {
+        allItems.set(e.name!, e.seriesValue);
       } else {
-        this.Error(`List '${this.name}' contains dupicate items called '${e.name}'`);
+        this.Error(`List '${this.identifier}' contains dupicate items called '${e.name}'`);
       }
     }
 
-    return new RuntimeListDefinition(this.name, allItems);
+    return new RuntimeListDefinition(this.identifier?.name!, allItems);
   }
 
   public readonly ItemNamed = (
@@ -37,7 +38,7 @@ export class ListDefinition extends ParsedObject {
     if (this._elementsByName === null) {
       this._elementsByName = new Map();
       for (const el of this.itemDefinitions) {
-        this._elementsByName.set(el.name, el);
+        this._elementsByName.set(el.name!, el);
       }
     }
 
@@ -70,19 +71,19 @@ export class ListDefinition extends ParsedObject {
     const initialValues = new RuntimeInkList();
     for (const itemDef of this.itemDefinitions) {
       if (itemDef.inInitialList) {
-        const item = new RuntimeInkListItem(this.name, itemDef.name);
+        const item = new RuntimeInkListItem(this.identifier?.name!, itemDef.name!);
         initialValues.Add(item, itemDef.seriesValue);
       }
     }
 
     // Set origin name, so 
-    initialValues.SetInitialOriginName(this.name);
+    initialValues.SetInitialOriginName(this.identifier?.name!);
 
     return new ListValue( initialValues );
   };
 
   public readonly ResolveReferences = (context: Story): void => {
     super.ResolveReferences(context);
-    context.CheckForNamingCollisions(this, this.name, SymbolType.List);
+    context.CheckForNamingCollisions(this, this.identifier!, SymbolType.List);
   };
 }

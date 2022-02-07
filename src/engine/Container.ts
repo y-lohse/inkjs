@@ -41,7 +41,7 @@ export class Container extends InkObject implements INamedContent {
     for (let c of this.content) {
       let named = asINamedContentOrNull(c);
       if (named != null && named.hasValidName) {
-        namedOnlyContentDict.delete(named.name);
+        namedOnlyContentDict.delete(named.name!);
       }
     }
 
@@ -140,7 +140,7 @@ export class Container extends InkObject implements INamedContent {
     let runtimeObj = asOrThrows(namedContentObj, InkObject);
     runtimeObj.parent = this;
 
-    this.namedContent.set(namedContentObj.name, namedContentObj);
+    this.namedContent.set(namedContentObj.name!, namedContentObj);
   }
   public ContentAtPath(
     path: Path,

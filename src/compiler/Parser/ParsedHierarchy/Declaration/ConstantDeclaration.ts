@@ -3,9 +3,16 @@ import { ParsedObject } from '../Object';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
 import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
+import { Identifier } from '../Identifier';
 
 export class ConstantDeclaration extends ParsedObject {
+  get constantName(): string|undefined{
+    return this.constantIdentifier?.name;
+  };
+  public constantIdentifier: Identifier;
+  
   private _expression: Expression | null = null;
+
   get expression(): Expression {
     if (!this._expression) {
       throw new Error();
@@ -15,10 +22,12 @@ export class ConstantDeclaration extends ParsedObject {
   }
 
   constructor(
-    public readonly constantName: string,
+    name: Identifier,
     assignedExpression: Expression,
   ) {
     super();
+    
+    this.constantIdentifier = name;
 
     // Defensive programming in case parsing of assignedExpression failed
     if (assignedExpression) {
@@ -37,7 +46,7 @@ export class ConstantDeclaration extends ParsedObject {
     this.ResolveReferences(context);
     context.CheckForNamingCollisions(
       this,
-      this.constantName,
+      this.constantIdentifier,
       SymbolType.Var
     );
   };

@@ -186,7 +186,7 @@ export class DivertTarget extends Expression {
         for (const arg of targetFlow.args) {
           if (arg.isByReference) {
             this.Error(
-              `Can't store a divert target to a knot or function that has by-reference arguments ('${targetFlow.name}' has 'ref ${arg.name}').`,
+              `Can't store a divert target to a knot or function that has by-reference arguments ('${targetFlow.identifier}' has 'ref ${arg.identifier}').`,
             );
           }
         }

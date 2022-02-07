@@ -55,6 +55,8 @@ import { VariableAssignment } from './ParsedHierarchy/Variable/VariableAssignmen
 import { VariableReference } from './ParsedHierarchy/Variable/VariableReference';
 import { UnaryExpression } from './ParsedHierarchy/Expression/UnaryExpression';
 import { FileHandler } from '../FileHandler';
+import { asOrNull, filterUndef } from '../../engine/TypeAssertion';
+import { Identifier } from './ParsedHierarchy/Identifier';
 
 export enum ErrorType {
   Author,
@@ -159,6 +161,20 @@ export class InkParser extends StringParser {
     new CommentEliminator(str).Process()
   );
 
+  public readonly CreateDebugMetadata = (
+    stateAtStart: StringParserElement | null, 
+    stateAtEnd: StringParserElement
+  ): DebugMetadata => {
+    const md = new DebugMetadata();
+      md.startLineNumber = stateAtStart?.lineIndex||0 + 1;
+      md.endLineNumber = stateAtEnd.lineIndex + 1;
+      md.startCharacterNumber = stateAtStart?.characterInLineIndex||0 + 1;
+      md.endCharacterNumber = stateAtEnd.characterInLineIndex + 1;
+      md.fileName = this._filename;
+
+      return md;
+  }
+
   public readonly RuleDidSucceed = (
     result: ParseRuleReturn,
     stateAtStart: StringParserElement | null,
@@ -166,15 +182,9 @@ export class InkParser extends StringParser {
   ): void => {
     // Apply DebugMetadata based on the state at the start of the rule
     // (i.e. use line number as it was at the start of the rule)
-    const parsedObj = result instanceof Object ? result as ParsedObject : null;//{result} as unknown as ParsedObject;
+    const parsedObj = asOrNull(result, ParsedObject);
     if (parsedObj) {
-      const md = new DebugMetadata();
-      md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
-      md.endLineNumber = stateAtEnd.lineIndex + 1;
-      md.fileName = this._filename;
-      parsedObj.debugMetadata = md;
-
-      return;
+      parsedObj.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
     }
 
     // A list of objects that doesn't already have metadata?
@@ -182,13 +192,14 @@ export class InkParser extends StringParser {
     if (parsedListObjs !== null) {
       for (const parsedListObj of parsedListObjs) {
         if (!parsedListObj.hasOwnDebugMetadata) {
-          const md = new DebugMetadata();
-          md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
-          md.endLineNumber = stateAtEnd.lineIndex + 1;
-          md.fileName = this._filename;
-          parsedListObj.debugMetadata = md;
+          parsedListObj.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
         }
       }
+    }
+
+    const id = asOrNull(result, Identifier);
+    if (id != null) {
+        id.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
     }
   };
       
@@ -228,7 +239,8 @@ export class InkParser extends StringParser {
   public readonly AuthorWarning = (): AuthorWarning | null => {
     this.Whitespace();
   
-    if (this.Parse(this.Identifier) !== 'TODO') {
+    const identifier = this.Parse(this.IdentifierWithMetadata) as unknown as Identifier | null;
+    if (identifier === null || identifier.name !== 'TODO') {
       return null;
     }
 
@@ -372,7 +384,7 @@ export class InkParser extends StringParser {
     }
         
     // Optional name for the choice
-    const optionalName: string = this.Parse(this.BracketedName) as string;
+    const optionalName: Identifier = this.Parse(this.BracketedName) as Identifier;
 
     this.Whitespace();
 
@@ -461,7 +473,7 @@ export class InkParser extends StringParser {
       if (diverts !== null) {
         for (const divObj of diverts) {
           // may be TunnelOnwards
-          const div = divObj as Divert; 
+          const div = asOrNull(divObj, Divert); 
 
           // Empty divert serves no purpose other than to say
           // "this choice is intentionally left blank"
@@ -480,7 +492,7 @@ export class InkParser extends StringParser {
       innerContent.AddContent(new Text('\n'));
 
       const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
-      choice.name = optionalName;
+      choice.identifier = optionalName;
       choice.indentationDepth = bullets.length;
       choice.hasWeaveStyleInlineBrackets = hasWeaveStyleInlineBrackets;
       choice.condition = conditionExpr;
@@ -538,7 +550,7 @@ export class InkParser extends StringParser {
     const gatherDashCount: number = Number(gatherDashCountObj);
 
     // Optional name for the gather
-    const optionalName: string = this.Parse(this.BracketedName) as string;
+    const optionalName: Identifier = this.Parse(this.BracketedName) as Identifier;
 
     const gather = new Gather(optionalName, gatherDashCount);
 
@@ -576,14 +588,14 @@ export class InkParser extends StringParser {
     return this.FailRule(ruleId);
   };
 
-  public readonly BracketedName = (): string | null => {
+  public readonly BracketedName = (): Identifier | null => {
     if (this.ParseString('(') === null) {
       return null;
     }
 
     this.Whitespace();
 
-    const name: string = this.Parse(this.Identifier) as string;
+    const name: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
     if (name === null) {
       return null;
     }
@@ -1259,9 +1271,9 @@ export class InkParser extends StringParser {
   public readonly DivertIdentifierWithArguments = (): Divert | null => {
     this.Whitespace();
 
-    const targetComponents: string[] = this.Parse(
+    const targetComponents: Identifier[] = this.Parse(
       this.DotSeparatedDivertPathComponents,
-    ) as string[];
+    ) as Identifier[];
 
     if (!targetComponents) {
       return null;
@@ -1313,9 +1325,9 @@ export class InkParser extends StringParser {
     return divert;
   };
 
-  public readonly DotSeparatedDivertPathComponents = (): string[] => (
-    this.Interleave<string>(
-      this.Spaced(this.Identifier),
+  public readonly DotSeparatedDivertPathComponents = (): Identifier[] => (
+    this.Interleave<Identifier>(
+      this.Spaced(this.IdentifierWithMetadata),
       this.Exclude(this.String('.')),
     )
   );
@@ -1367,14 +1379,14 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    let varName: string = '';
+    let varIdentifier: Identifier|null = null;
     if (isNewDeclaration) {
-      varName = this.Expect(this.Identifier, 'variable name') as string;
+      varIdentifier = this.Expect(this.IdentifierWithMetadata, 'variable name') as Identifier;
     } else {
-      varName = this.Parse(this.Identifier) as string;
+      varIdentifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
     }
 
-    if (!varName) {
+    if (varIdentifier === null) {
       return null;
     }
 
@@ -1403,12 +1415,12 @@ export class InkParser extends StringParser {
     ) as Expression;
 
     if (isIncrement || isDecrement) {
-      const result = new IncDecExpression(varName, assignedExpression, isIncrement);
+      const result = new IncDecExpression(varIdentifier, assignedExpression, isIncrement);
       return result;
     }
     
     const result = new VariableAssignment({
-      variableName: varName,
+      variableIdentifier: varIdentifier,
       assignedExpression,
       isTemporaryNewDeclaration: isNewDeclaration,
     });
@@ -1528,7 +1540,7 @@ export class InkParser extends StringParser {
 
     // Don't parse like the string rules above, in case its actually 
     // a variable that simply starts with "not", e.g. "notable".
-    // This rule uses the Identifer rule, which will scan as much text
+    // This rule uses the Identifier rule, which will scan as much text
     // as possible before returning.
     if (prefixOp === null) {
       prefixOp = this.Parse(this.ExpressionNot) as Expression;
@@ -1573,7 +1585,7 @@ export class InkParser extends StringParser {
         // Drop down and succeed without the increment after reporting error
       } else {
         const varRef = expr as VariableReference;
-        expr = new IncDecExpression(varRef.name, isInc);
+        expr = new IncDecExpression(varRef.identifier, isInc);
       }
     }
 
@@ -1669,7 +1681,7 @@ export class InkParser extends StringParser {
   };
 
   public readonly ExpressionFunctionCall = (): Expression | null => {
-    const iden = this.Parse(this.Identifier);
+    const iden = this.Parse(this.IdentifierWithMetadata);
     if (iden === null) {
       return null;
     }
@@ -1681,7 +1693,7 @@ export class InkParser extends StringParser {
       return null;
     }
 
-    return new FunctionCall(iden as string, args as any);
+    return new FunctionCall(iden as Identifier, args as any);
   };
 
   public readonly ExpressionFunctionCallArguments = (): Expression[] | null => {
@@ -1704,12 +1716,12 @@ export class InkParser extends StringParser {
   };
 
   public readonly ExpressionVariableName = (): Expression | null => {
-    const path = this.Interleave<string>(
-      this.Identifier,
+    const path = this.Interleave<Identifier>(
+      this.IdentifierWithMetadata,
       this.Exclude(this.Spaced(this.String('.'))),
     );
 
-    if (path === null || Story.IsReservedKeyword(path[0])) {
+    if (path === null || Story.IsReservedKeyword(path[0].name)) {
       return null;
     }
 
@@ -1779,7 +1791,7 @@ export class InkParser extends StringParser {
     return null;
   };
 
-  public readonly ExpressionList = (): string[] | null => {
+  public readonly ExpressionList = (): Identifier[] | null => {
     this.Whitespace();
 
     if (this.ParseString('(') === null) {
@@ -1794,10 +1806,10 @@ export class InkParser extends StringParser {
     //    identifier expression in brackets, but this is a useless thing
     //    to do, so we reserve that syntax for a list with one item.
     //  - 2 or more elements - normal!
-    const memberNames: string[] = this.SeparatedList(
+    const memberNames: Identifier[] = this.SeparatedList(
       this.ListMember,
       this.Spaced(this.String(',')),
-    ) as string[];
+    ) as Identifier[];
 
     this.Whitespace();
 
@@ -1810,27 +1822,27 @@ export class InkParser extends StringParser {
     return memberNames;
   };
 
-  public readonly ListMember = (): string | null => {
+  public readonly ListMember = (): Identifier | null => {
     this.Whitespace();
 
-    let name: string = this.Parse(this.Identifier) as string;
-    if (name === null) {
+    let identifier: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    if (identifier === null) {
       return null;
     }
 
     const dot = this.ParseString('.');
     if (dot !== null) {
-      const name2: string = this.Expect(
-        this.Identifier,
-        `element name within the set ${name}`,
-      ) as string;
+      const identifier2: Identifier = this.Expect(
+        this.IdentifierWithMetadata,
+        `element name within the set ${identifier}`,
+      ) as Identifier;
 
-      name += `.${name2}`;
+      identifier.name += `.${identifier2?.name}`;
     }
 
     this.Whitespace();
 
-    return name;
+    return identifier;
   };
 
   public readonly RegisterExpressionOperators = () => {
@@ -2005,24 +2017,24 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const identifier: string = this.Parse(this.Identifier) as string;
-    let knotName: string;
+    const identifier: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    let knotName: Identifier;
 
-    const isFunc: boolean = identifier === 'function';
+    const isFunc: boolean = identifier?.name === 'function';
     if (isFunc) {
       this.Expect(
         this.Whitespace,
         'whitespace after the \'function\' keyword',
       );
 
-      knotName = this.Parse(this.Identifier) as string;
+      knotName = this.Parse(this.IdentifierWithMetadata) as Identifier;
     } else {
       knotName = identifier;
     }
 
     if (knotName === null) {
       this.Error(`Expected the name of the ${isFunc ? 'function' : 'knot'}`);
-      knotName = ''; // prevent later null ref
+      knotName = new Identifier(''); // prevent later null ref
     }
 
     this.Whitespace();
@@ -2099,7 +2111,7 @@ export class InkParser extends StringParser {
       this.Whitespace();
     }
 
-    const stitchName: string = this.Parse(this.Identifier) as string;
+    const stitchName: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
     if (stitchName === null) {
       return null;
     }
@@ -2162,14 +2174,14 @@ export class InkParser extends StringParser {
     //  -> name      (variable divert target argument
     //  ref name
     //  ref -> name  (variable divert target by reference)
-    const firstIden = this.Parse(this.Identifier) as string;
+    const firstIden = this.Parse(this.IdentifierWithMetadata) as Identifier;
     this.Whitespace();
 
     const divertArrow = this.ParseDivertArrow();
 
     this.Whitespace();
 
-    const secondIden = this.Parse(this.Identifier) as string;
+    const secondIden = this.Parse(this.IdentifierWithMetadata) as Identifier;
 
     if (firstIden == null && secondIden === null) {
       return null;
@@ -2181,22 +2193,22 @@ export class InkParser extends StringParser {
     }
 
     // Passing by reference
-    if (firstIden === 'ref') {
+    if (firstIden !== null && firstIden.name === 'ref') {
       if (secondIden === null) {
         this.Error('Expected an parameter name after \'ref\'');
       }
 
-      flowArg.name = secondIden;
+      flowArg.identifier = secondIden;
       flowArg.isByReference = true;
     } else {
       // Simple argument name
       if (flowArg.isDivertTarget) {
-        flowArg.name = secondIden;
+        flowArg.identifier = secondIden;
       } else {
-        flowArg.name = firstIden;
+        flowArg.identifier = firstIden;
       }
 
-      if (flowArg.name === null) {
+      if (flowArg.identifier === null) {
         this.Error('Expected an parameter name');
       }
 
@@ -2209,32 +2221,32 @@ export class InkParser extends StringParser {
   public readonly ExternalDeclaration = (): ExternalDeclaration | null => {
     this.Whitespace();
 
-    const external: string = this.Parse(this.Identifier) as string;
-    if (external != "EXTERNAL") {
+    const external = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
+    if (external === null || external.name != "EXTERNAL") {
       return null;
     }
 
     this.Whitespace();
 
-    const funcName: string = this.Expect(
-      this.Identifier,
+    const funcIdentifier: Identifier = this.Expect(
+      this.IdentifierWithMetadata,
       'name of external function',
-    ) as string || '';
+    ) as Identifier|null || new Identifier('');
 
     this.Whitespace();
 
     let parameterNames = this.Expect(
       this.BracketedKnotDeclArguments,
-      `declaration of arguments for EXTERNAL, even if empty, i.e. 'EXTERNAL ${funcName}()'`,
+      `declaration of arguments for EXTERNAL, even if empty, i.e. 'EXTERNAL ${funcIdentifier}()'`,
     ) as Argument[];
 
     if (parameterNames === null) {
       parameterNames = [];
     }
 
-    const argNames = parameterNames.map(({ name }) => name);
+    const argNames = parameterNames.map((arg) => arg.identifier?.name).filter(filterUndef);
 
-    return new ExternalDeclaration(funcName, argNames);
+    return new ExternalDeclaration(funcIdentifier, argNames);
   };
 
   /**
@@ -2351,9 +2363,9 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const varName = this.Expect(
-      this.Identifier,
+      this.IdentifierWithMetadata,
       'variable name',
-    ) as string;
+    ) as Identifier;
 
     this.Whitespace();
 
@@ -2392,7 +2404,7 @@ export class InkParser extends StringParser {
       const result = new VariableAssignment({
         assignedExpression: expr,
         isGlobalDeclaration: true,
-        variableName: varName,
+        variableIdentifier: varName,
       });
 
       return result;
@@ -2411,7 +2423,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const varName = this.Expect(this.Identifier, 'list name') as string;
+    const varName = this.Expect(this.IdentifierWithMetadata, 'list name') as Identifier;
 
     this.Whitespace();
 
@@ -2428,9 +2440,9 @@ export class InkParser extends StringParser {
     ) as ListDefinition;
 
     if (definition) {
-      definition.name = varName;
+      definition.identifier = new Identifier(varName.name!);
       return new VariableAssignment({
-        variableName: varName,
+        variableIdentifier: varName,
         listDef: definition,
       });
     }
@@ -2471,7 +2483,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const name = this.Parse(this.Identifier) as string;
+    const name = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
     if (name === null) {
       return null;
     }
@@ -2524,10 +2536,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const varName = this.Expect(
-      this.Identifier,
-      'constant name',
-    ) as string;
+    const varName = this.Expect(this.IdentifierWithMetadata, 'constant name') as Identifier;
 
     this.Whitespace();
 
@@ -2693,6 +2702,14 @@ export class InkParser extends StringParser {
     return expr;
   };
 
+  public readonly IdentifierWithMetadata = (): Identifier | null => {
+    const id = this.Identifier()
+    if(id === null){
+      return null;
+    }
+    return new Identifier(id);
+  }
+
   // Note: we allow identifiers that start with a number,
   // but not if they *only* comprise numbers
   public readonly Identifier = (): string | null => {
@@ -2844,21 +2861,23 @@ export class InkParser extends StringParser {
   public readonly SequenceTypeSingleWord = () => {
     let seqType: SequenceType | null = null;
 
-    const word = this.Parse(this.Identifier);
+    const word = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
 
-    switch (word) {
-      case 'once':
-        seqType = SequenceType.Once;
-        break;
-      case 'cycle':
-        seqType = SequenceType.Cycle;
-        break;
-      case 'shuffle':
-        seqType = SequenceType.Shuffle;
-        break;
-      case 'stopping':
-        seqType = SequenceType.Stopping;
-        break;
+    if(word !== null){
+      switch (word.name) {
+        case 'once':
+          seqType = SequenceType.Once;
+          break;
+        case 'cycle':
+          seqType = SequenceType.Cycle;
+          break;
+        case 'shuffle':
+          seqType = SequenceType.Shuffle;
+          break;
+        case 'stopping':
+          seqType = SequenceType.Stopping;
+          break;
+      }
     }
 
     if (seqType === null) {

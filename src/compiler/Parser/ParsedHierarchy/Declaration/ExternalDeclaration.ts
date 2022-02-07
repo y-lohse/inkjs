@@ -1,10 +1,16 @@
 import { INamedContent } from '../../../../engine/INamedContent';
 import { ParsedObject } from '../Object';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
+import { Identifier } from '../Identifier';
 
 export class ExternalDeclaration extends ParsedObject implements INamedContent {
+  
+  public get  name(): string | undefined{
+    return this.identifier?.name;
+  }
+  
   constructor (
-    public readonly name: string,
+    public readonly identifier: Identifier,
     public readonly argumentNames: string[],
   )
   {

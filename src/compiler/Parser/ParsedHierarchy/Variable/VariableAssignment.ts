@@ -9,11 +9,15 @@ import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
 import { VariableReference } from './VariableReference'
+import { Identifier } from '../Identifier';
 
 export class VariableAssignment extends ParsedObject {
   private _runtimeAssignment: RuntimeVariableAssignment | null = null;
   
-  public readonly variableName: string;
+  get variableName(): string{
+    return this.variableIdentifier.name!
+  }
+  public readonly variableIdentifier: Identifier;
   public readonly expression: Expression | null = null;
   public readonly listDefinition: ListDefinition | null = null;
   public readonly isGlobalDeclaration: boolean;
@@ -38,17 +42,17 @@ export class VariableAssignment extends ParsedObject {
     isGlobalDeclaration,
     isTemporaryNewDeclaration,
     listDef,
-    variableName,
+    variableIdentifier,
   }: {
     readonly assignedExpression?: Expression,
     readonly isGlobalDeclaration?: boolean,
     readonly isTemporaryNewDeclaration?: boolean,
     readonly listDef?: ListDefinition,
-    readonly variableName: string,
+    readonly variableIdentifier: Identifier,
   }) {
     super();
 
-    this.variableName = variableName;
+    this.variableIdentifier = variableIdentifier;
     this.isGlobalDeclaration = Boolean(isGlobalDeclaration);
     this.isNewTemporaryDeclaration = Boolean(isTemporaryNewDeclaration);
 
@@ -109,7 +113,7 @@ export class VariableAssignment extends ParsedObject {
     if (this.isDeclaration && this.listDefinition === null) {
       context.CheckForNamingCollisions(
         this,
-        this.variableName,
+        this.variableIdentifier,
         this.isGlobalDeclaration ? SymbolType.Var : SymbolType.Temp,
       );
     }

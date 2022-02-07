@@ -124,14 +124,14 @@ export class Divert extends ParsedObject {
             const varRef = argToPass as VariableReference;
             if (!varRef) {
               this.Error(
-                `Expected variable name to pass by reference to 'ref ${argExpected.name}' but saw ${argToPass.ToString()}`,
+                `Expected variable name to pass by reference to 'ref ${argExpected.identifier}' but saw ${argToPass.ToString()}`,
               );
 
               break;
             }
 
             // Check that we're not attempting to pass a read count by reference
-            const targetPath = new Path(varRef.path);
+            const targetPath = new Path(varRef.pathIdentifiers);
             const targetForCount: ParsedObject | null = targetPath.ResolveFromContext(this);
             if (targetForCount) {
               this.Error(
@@ -196,37 +196,31 @@ export class Divert extends ParsedObject {
       // at runtime? If so, there won't be any further reference resolution
       // we can do at this point.
       var variableTargetName = this.PathAsVariableName();
-      if (variableTargetName) {
+      if (variableTargetName !== null) {
         const flowBaseScope = ClosestFlowBase(this) as FlowBase;
         if (flowBaseScope) {
-          const resolveResult = flowBaseScope.ResolveVariableWithName(
-            variableTargetName,
-            this,
-          );
-  
-          if (resolveResult.found &&
-            resolveResult.isArgument &&
-            resolveResult.ownerFlow &&
-            resolveResult.ownerFlow.args)
-          {
+          const resolveResult = flowBaseScope.ResolveVariableWithName(variableTargetName, this);
+
+
+          if(resolveResult.found){
             // Make sure that the flow was typed correctly, given that we know that this
             // is meant to be a divert target
-            const argument = resolveResult.ownerFlow.args.find(({ name }) => (
-              name === variableTargetName
-            ));
-            
-            if (argument) {
-              if (!argument.isDivertTarget) {
+            if (resolveResult.isArgument
+              && resolveResult.ownerFlow
+              && resolveResult.ownerFlow.args
+              ) {
+              var argument = resolveResult.ownerFlow.args.find(a => a.identifier?.name == variableTargetName);
+
+              if (argument && !argument.isDivertTarget ) {
                 this.Error(
-                  `Since '${argument.name}' is used as a variable divert target (on ${this.debugMetadata}), it should be marked as: -> ${argument.name}`,
+                  `Since '${argument.identifier}' is used as a variable divert target (on ${this.debugMetadata}), it should be marked as: -> ${argument.identifier}`,
                   resolveResult.ownerFlow,
                 );
               }
-    
               this.runtimeDivert.variableDivertName = variableTargetName;
+              return;
             }
-  
-            return;
+
           }
         }
 
@@ -260,13 +254,13 @@ export class Divert extends ParsedObject {
     if (targetFlow) {
       if (!targetFlow.isFunction && this.isFunctionCall) {
         super.Error(
-          `${targetFlow.name} hasn't been marked as a function, but it's being called as one. Do you need to delcare the knot as '== function ${targetFlow.name} =='?`,
+          `${targetFlow.identifier} hasn't been marked as a function, but it's being called as one. Do you need to delcare the knot as '== function ${targetFlow.identifier} =='?`,
         );
       } else if (targetFlow.isFunction &&
         !this.isFunctionCall &&
         !(this.parent instanceof DivertTarget))
       {
-        super.Error(targetFlow.name + " can't be diverted to. It can only be called as a function since it's been marked as such: '" + targetFlow.name + "(...)'");
+        super.Error(targetFlow.identifier + " can't be diverted to. It can only be called as a function since it's been marked as such: '" + targetFlow.identifier + "(...)'");
       }
     }
 
@@ -375,7 +369,7 @@ export class Divert extends ParsedObject {
         butClause = `but got ${numArgs}`;
       }
 
-      this.Error(`to '${targetFlow.name}' requires ${paramCount} arguments, ${butClause}`);
+      this.Error(`to '${targetFlow.identifier}' requires ${paramCount} arguments, ${butClause}`);
 
       return;
     }
@@ -391,14 +385,14 @@ export class Divert extends ParsedObject {
         var varRef = divArgExpr as VariableReference;
         if (!(divArgExpr instanceof DivertTarget) && varRef === null) {
           this.Error(
-            `Target '${targetFlow.name}' expects a divert target for the parameter named -> ${flowArg.name} but saw ${divArgExpr}`,
+            `Target '${targetFlow.identifier}' expects a divert target for the parameter named -> ${flowArg.identifier} but saw ${divArgExpr}`,
             divArgExpr,
           );
         } else if (varRef) {
           // Passing 'a' instead of '-> a'? 
           // i.e. read count instead of divert target
           // Unfortunately have to manually resolve here since we're still in code gen
-          const knotCountPath = new Path(varRef.path);
+          const knotCountPath = new Path(varRef.pathIdentifiers);
           const targetForCount: ParsedObject | null = knotCountPath.ResolveFromContext(varRef);
           if (targetForCount) {
             this.Error(

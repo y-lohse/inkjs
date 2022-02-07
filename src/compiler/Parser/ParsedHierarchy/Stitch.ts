@@ -1,6 +1,7 @@
 import { Argument } from './Argument';
 import { FlowBase } from './Flow/FlowBase';
 import { FlowLevel } from './Flow/FlowLevel';
+import { Identifier } from './Identifier';
 import { ParsedObject } from './Object';
 
 export class Stitch extends FlowBase { 
@@ -9,7 +10,7 @@ export class Stitch extends FlowBase {
 	}
 
 	constructor(
-		name: string,
+		name: Identifier,
 		topLevelObjects: ParsedObject[],
 		args: Argument[],
 		isFunction: boolean)

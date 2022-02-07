@@ -13,6 +13,7 @@ import { Story } from './Story';
 import { SymbolType } from './SymbolType';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
 import { Expression } from './Expression/Expression';
+import { Identifier } from './Identifier';
 
 export class Choice
   extends ParsedObject
@@ -43,7 +44,10 @@ export class Choice
   public startContent: ContentList;
   public choiceOnlyContent: ContentList;
   public innerContent: ContentList;
-  public name: string = '';
+  public identifier?: Identifier;
+  get name() {
+    return this.identifier?.name;
+  }
   public onceOnly: boolean;
   public isInvisibleDefault: boolean = false;
   public indentationDepth: number;
@@ -312,10 +316,10 @@ export class Choice
 
     super.ResolveReferences(context);
 
-    if (this.name !== null && this.name.length > 0) {
+    if (this.identifier && (this.identifier?.name || '').length > 0) {
       context.CheckForNamingCollisions(
         this as ParsedObject,
-        this.name,
+        this.identifier,
         SymbolType.SubFlowAndWeave,
       );
     }

@@ -122,7 +122,7 @@ export class Weave extends ParsedObject {
     for (const weavePoint of namedWeavePoints) {
       // Check for weave point naming collisions
       const existingWeavePoint: IWeavePoint | null | undefined = this.namedWeavePoints.get(
-        weavePoint.name,
+        weavePoint.identifier?.name!,
       );
 
       if (existingWeavePoint) {
@@ -135,7 +135,7 @@ export class Weave extends ParsedObject {
         );
       }
 
-      this.namedWeavePoints.set(weavePoint.name, weavePoint);
+      this.namedWeavePoints.set(weavePoint.identifier?.name!, weavePoint);
     }
   };
 

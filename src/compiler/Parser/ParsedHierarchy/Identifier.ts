@@ -1,6 +1,6 @@
 import { DebugMetadata } from "../../../engine/DebugMetadata";
 
-class Identifier {
+export class Identifier {
     public name?: string;
     public debugMetadata: DebugMetadata|null = null;
 

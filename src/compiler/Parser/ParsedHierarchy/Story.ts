@@ -20,9 +20,10 @@ import { SymbolType } from './SymbolType';
 import { Text } from './Text';
 // import { VariableAssignment } from './Variable/VariableAssignment';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
+import { Identifier } from './Identifier';
 
 export class Story extends FlowBase {
-  public static readonly IsReservedKeyword = (name: string): boolean => {
+  public static readonly IsReservedKeyword = (name?: string): boolean => {
       switch (name) {
         case 'true':
         case 'false':
@@ -74,7 +75,7 @@ export class Story extends FlowBase {
   constructor(toplevelObjects: ParsedObject[], isInclude: boolean = false) {
     // Don't do anything much on construction, leave it lightweight until
     // the ExportRuntime method is called.
-    super('', toplevelObjects, null, false, isInclude);
+    super(new Identifier('topLevelStory'), toplevelObjects, null, false, isInclude);
   }
 
   get typeName(): string {
@@ -161,7 +162,7 @@ export class Story extends FlowBase {
     for (const constDecl of this.FindAll<ConstantDeclaration>(ConstantDeclaration)()) {
       // Check for duplicate definitions
       const existingDefinition: ConstantDeclaration | null | undefined = this.constants.get(
-        constDecl.constantName,
+        constDecl.constantName!,
       ) as any;
 
       if (existingDefinition) {
@@ -172,14 +173,14 @@ export class Story extends FlowBase {
         }
       }
 
-      this.constants.set(constDecl.constantName, constDecl.expression);
+      this.constants.set(constDecl.constantName!, constDecl.expression);
     }
 
     // List definitions are treated like constants too - they should be usable
     // from other variable declarations.
     this._listDefs = new Map();
     for (const listDef of this.FindAll<ListDefinition>(ListDefinition)()) {
-      this._listDefs.set(listDef.name, listDef);
+      this._listDefs.set(listDef.identifier?.name!, listDef);
     }
 
     this.externals = new Map();
@@ -304,7 +305,7 @@ export class Story extends FlowBase {
         if (itemInThisList) {
           if (foundItem) {
             this.Error(
-              `Ambiguous item name '${itemName}' found in multiple sets, including ${originalFoundList!.name} and ${value!.name}`,
+              `Ambiguous item name '${itemName}' found in multiple sets, including ${originalFoundList!.identifier} and ${value!.identifier}`,
               source,
               false,
             );
@@ -435,10 +436,10 @@ export class Story extends FlowBase {
   );
 
   public readonly AddExternal = (decl: ExternalDeclaration): void => {
-    if (decl.name in this.externals) {
+    if (decl.name! in this.externals) {
       this.Error(`Duplicate EXTERNAL definition of '${decl.name}'`, decl, false); 
     } else {
-      this.externals.set(decl.name, decl);
+      this.externals.set(decl.name!, decl);
     }
   };
 
@@ -461,7 +462,7 @@ export class Story extends FlowBase {
   // When the given symbol type level is reached, we early-out / return.
   public readonly CheckForNamingCollisions = (
     obj: ParsedObject,
-    name: string,
+    identifier: Identifier,
     symbolType: SymbolType,
     typeNameOverride: string = '',
   ): void => {
@@ -469,32 +470,32 @@ export class Story extends FlowBase {
   /*
   public readonly CheckForNamingCollisions = (
     obj: ParsedObject,
-    name: string,
+    identifier: string,
     symbolType: SymbolType,
     typeNameOverride: string = '',
   ): void => {
     const typeNameToPrint: string = typeNameOverride || obj.typeName;
-    if (Story.IsReservedKeyword(name)) {
+    if (Story.IsReservedKeyword(identifier?.name)) {
         obj.Error(
-          `'${name}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`);
+          `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`);
         return;
-    } else if (FunctionCall.IsBuiltIn(name)) {
+    } else if (FunctionCall.IsBuiltIn(identifier?.name)) {
       obj.Error(
-        `'${name}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`);
+        `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`);
 
       return;
     }
 
     // Top level knots
     const knotOrFunction: FlowBase = this.ContentWithNameAtLevel(
-      name,
+      identifier?.name,
       FlowLevel.Knot,
     ) as FlowBase;
   
     if (knotOrFunction &&
       (knotOrFunction !== obj || symbolType === SymbolType.Arg))
     {
-      this.NameConflictError(obj, name, knotOrFunction, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name, knotOrFunction, typeNameToPrint);
       return;
     }
 
@@ -504,19 +505,19 @@ export class Story extends FlowBase {
 
     // Lists
     for (const [ key, value ] of this._listDefs) {
-      if (name === key &&
+      if (identifier?.name === key &&
         obj !== value &&
         value.variableAssignment !== obj)
       {
-        this.NameConflictError(obj, name, value, typeNameToPrint);
+        this.NameConflictError(obj, identifier?.name, value, typeNameToPrint);
       }
 
       // We don't check for conflicts between individual elements in 
       // different lists because they are namespaced.
       if (!(obj instanceof ListElementDefinition)) {
         for (const item of value.itemDefinitions) {
-          if (name === item.name) {
-            this.NameConflictError(obj, name, item, typeNameToPrint);
+          if (identifier?.name === item.name) {
+            this.NameConflictError(obj, identifier?.name, item, typeNameToPrint);
           }
         }
       }
@@ -529,13 +530,13 @@ export class Story extends FlowBase {
     }
 
     // Global variable collision
-    const varDecl: VariableAssignment | null = this.variableDeclarations.get(name) || null;
+    const varDecl: VariableAssignment | null = this.variableDeclarations.get(identifier?.name) || null;
     if (varDecl &&
       varDecl !== obj &&
       varDecl.isGlobalDeclaration &&
       varDecl.listDefinition == null)
     {
-      this.NameConflictError(obj, name, varDecl, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name, varDecl, typeNameToPrint);
     }
 
     if (symbolType < SymbolType.SubFlowAndWeave) {
@@ -546,7 +547,7 @@ export class Story extends FlowBase {
     const path = new Path(name);
     const targetContent = path.ResolveFromContext (obj);
     if (targetContent && targetContent !== obj) {
-      this.NameConflictError(obj, name, targetContent, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name, targetContent, typeNameToPrint);
       return;
     }
 
@@ -563,9 +564,9 @@ export class Story extends FlowBase {
 
       if (flow && flow.hasParameters && flow.args) {
         for (const arg of flow.args) {
-          if (arg.name === name) {
+          if (arg.name === identifier?.name) {
             obj.Error(
-              `${typeNameToPrint} '${name}': Name has already been used for a argument to ${flow.name} on ${flow.debugMetadata}`,
+              `${typeNameToPrint} '${identifier}': Name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`,
             );
 
             return;

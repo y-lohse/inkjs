@@ -3,6 +3,7 @@ import { ParsedObject } from '../Object';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
 import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
+import { Identifier } from '../Identifier';
 
 export class ListElementDefinition extends ParsedObject {
   public seriesValue: number = 0;
@@ -15,15 +16,19 @@ export class ListElementDefinition extends ParsedObject {
       throw new Error('Can\'t get full name without a parent list.');
     }
 
-    return `${parentList.name}.${this.name}`;
+    return `${parentList.identifier?.name}.${this.name}`;
   }
 
   get typeName(): string {
     return 'List element';
   }
 
+  get name(): string|undefined{
+    return this.indentifier?.name;
+  }
+
   constructor(
-    public readonly name: string,
+    public readonly indentifier: Identifier,
     public readonly inInitialList: boolean,
     public readonly explicitValue: number | null = null,
   ) {
@@ -37,6 +42,6 @@ export class ListElementDefinition extends ParsedObject {
 
   public readonly ResolveReferences = (context: Story): void => {
     super.ResolveReferences(context);
-    context.CheckForNamingCollisions(this, this.name, SymbolType.ListItem);
+    context.CheckForNamingCollisions(this, this.indentifier, SymbolType.ListItem);
   };
 }

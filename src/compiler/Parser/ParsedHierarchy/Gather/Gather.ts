@@ -5,23 +5,27 @@ import { ParsedObject } from '../Object';
 import { InkObject as RuntimeObject } from '../../../../engine/Object';
 import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
+import { Identifier } from '../Identifier';
 
 export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
-  public readonly name: string = 'null';
+
+  get name(): string|undefined {
+    return this.identifier?.name;
+  }
+  public identifier?: Identifier | undefined;
 
   get runtimeContainer(): RuntimeContainer {
     return this.runtimeObject as RuntimeContainer; 
   }
 
   constructor(
-    name: string | null,
+    identifier: Identifier | null,
     public readonly indentationDepth: number,
   ) {
     super();
 
-    if (name) {
-      this.name = name;
-    }
+    if(identifier)
+      this.identifier = identifier;
   }
 
   get typeName(): string {
@@ -30,7 +34,7 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
       
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
-    container.name = this.name;
+    container.name = this.identifier?.name!;
 
     if (this.story.countAllVisits) {
       container.visitsShouldBeCounted = true;
@@ -51,10 +55,10 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
   public readonly ResolveReferences = (context: Story): void => {
     super.ResolveReferences(context);
 
-    if (this.name !== null && this.name.length > 0) {
+    if (this.identifier && (this.identifier.name || '').length > 0) {
       context.CheckForNamingCollisions(
         this,
-        this.name,
+        this.identifier,
         SymbolType.SubFlowAndWeave,
       );
     }

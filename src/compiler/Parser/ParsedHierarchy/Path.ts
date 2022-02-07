@@ -1,11 +1,16 @@
 import { FlowBase } from './Flow/FlowBase';
 import { FlowLevel } from './Flow/FlowLevel';
+import { Identifier } from './Identifier';
 import { ParsedObject } from './Object';
 import { Weave } from './Weave';
 
 export class Path {
   private _baseTargetLevel: FlowLevel | null;
-  private _components: string[];
+  private components: Identifier[] | null;
+
+  get _components(): string[]{
+    return (this.components ? this.components : []).map(c => c.name!)
+  }
 
   get baseTargetLevel() {
     if (this.baseLevelIsAmbiguous) {
@@ -20,7 +25,7 @@ export class Path {
   }
 
   get firstComponent(): string | null {
-    if (!this._components || !this._components.length) {
+    if (this._components == null || !this._components.length) {
       return null;
     }
 
@@ -28,26 +33,26 @@ export class Path {
   }
 
   get numberOfComponents(): number {
-    return this._components.length;
+    return this._components ? this._components.length : 0;
   }
 
   get dotSeparatedComponents(): string {
-    return this._components.join('.');
+    return (this._components ? this._components : []).join('.');
   }
 
   constructor(
-    argOne: FlowLevel | string[] | string,
-    argTwo?: string[],
+    argOne: FlowLevel | Identifier[] | Identifier,
+    argTwo?: Identifier[],
   ) {
     if (Object.values(FlowLevel).includes(argOne as FlowLevel)) {
       this._baseTargetLevel = argOne as FlowLevel;
-      this._components = argTwo || [];
+      this.components = argTwo || [];
     } else if (Array.isArray(argOne)) {
       this._baseTargetLevel = null;
-      this._components = argTwo || [];
+      this.components = argTwo || [];
     } else {
       this._baseTargetLevel = null;
-      this._components = [ argOne as string ];
+      this.components = [ argOne as Identifier ];
     }
   }
         
@@ -129,6 +134,9 @@ export class Path {
     rootTarget: ParsedObject,
   ): ParsedObject | null => {
     let foundComponent: ParsedObject | null = rootTarget;
+
+    if(!this._components) return null;
+
     for (let ii = 1; ii < this._components.length; ++ii) {
       const compName = this._components[ii];
 
