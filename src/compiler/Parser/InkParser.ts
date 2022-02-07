@@ -172,7 +172,7 @@ export class InkParser extends StringParser {
       md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
       md.endLineNumber = stateAtEnd.lineIndex + 1;
       md.fileName = this._filename;
-      // parsedObj.debugMetadata = md;
+      parsedObj.debugMetadata = md;
 
       return;
     }
@@ -186,7 +186,7 @@ export class InkParser extends StringParser {
           md.startLineNumber = stateAtStart ? stateAtStart.lineIndex + 1 : -1;
           md.endLineNumber = stateAtEnd.lineIndex + 1;
           md.fileName = this._filename;
-          //parsedListObj.debugMetadata = md;
+          parsedListObj.debugMetadata = md;
         }
       }
     }
@@ -2327,7 +2327,7 @@ export class InkParser extends StringParser {
     // If no text gets printed, then the extra newline will have to be culled later.
     // Multiple newlines on the output will be removed, so there will be no "leak" for
     // long running calculations. It's disappointingly messy though :-/
-    if (result.Find<FunctionCall>() !== null) {
+    if (result.Find(FunctionCall)() !== null) {
       result = new ContentList(result as any, new Text('\n'));
     }
 

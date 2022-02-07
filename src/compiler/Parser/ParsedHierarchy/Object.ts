@@ -55,7 +55,7 @@ export abstract class ParsedObject {
     if (!this._runtimeObject) {
       this._runtimeObject = this.GenerateRuntimeObject();
       if (this._runtimeObject) {
-        // this._runtimeObject.debugMetadata = this.debugMetadata;
+        this._runtimeObject.debugMetadata = this.debugMetadata;
       }
     }
 
@@ -229,7 +229,7 @@ export abstract class ParsedObject {
     return subContent;
   }
 
-  public readonly Find = <T extends ParsedObject>(
+  public readonly Find = <T extends ParsedObject>(type: (new (...arg: any[]) => T) | (Function & { prototype: T })) =>(
     queryFunc: FindQueryFunc<T> | null = null,
   ): T | null => {
     var tObj = this as any as T;
@@ -242,7 +242,7 @@ export abstract class ParsedObject {
     }
     
     for (const obj of this.content) {
-      var nestedResult = obj.Find(queryFunc);
+      var nestedResult = obj.Find(type)(queryFunc);
       if (nestedResult !== null) {
         return nestedResult as T;
       }

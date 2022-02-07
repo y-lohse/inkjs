@@ -228,7 +228,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       this.flowLevel === FlowLevel.Stitch)
     {
       // Non-functon: Make sure knots and stitches don't attempt to use Return statement
-      foundReturn = this.Find<ReturnType>();
+      foundReturn = this.Find(ReturnType)();
 
       if (foundReturn !== null) {
         this.Error(

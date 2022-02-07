@@ -17,6 +17,7 @@ import { Story } from './Story';
 import { Text } from './Text';
 import { TunnelOnwards } from './TunnelOnwards';
 import { VariableAssignment } from './Variable/VariableAssignment';
+import { asOrNull } from '../../../engine/TypeAssertion';
 
 type BadTerminationHandler = (terminatingObj: ParsedObject) => void; 
 
@@ -692,7 +693,7 @@ export class Weave extends ParsedObject {
     let terminated = false;
     let terminatingObj: ParsedObject = defaultObj;
     for (const flowObj of objFlow) {
-      const divert = flowObj.Find<Divert>((d) => (
+      const divert = flowObj.Find(Divert)((d) => (
         !d.isThread &&
           !d.isTunnel &&
           !d.isFunctionCall &&
@@ -703,7 +704,7 @@ export class Weave extends ParsedObject {
         terminated = true;
       }
 
-      if (flowObj.Find<TunnelOnwards> () != null) {
+      if (flowObj.Find(TunnelOnwards)() != null) {
         terminated = true;
         break;
       }
@@ -756,7 +757,7 @@ export class Weave extends ParsedObject {
  
     const ancestorFlows = [];
     for (const obj of this.ancestry) {
-      const flow = obj as FlowBase;
+      const flow = asOrNull(obj, FlowBase);
       if (flow) {
         ancestorFlows.push(flow);
       } else {
@@ -764,17 +765,18 @@ export class Weave extends ParsedObject {
       }
     }
 
-
-    for (const [ key, value ] of this.namedWeavePoints) {
+    
+    for (const [ weavePointName, weavePoint ] of this.namedWeavePoints) {
       for (const flow of ancestorFlows) {
         // Shallow search
-        const otherContentWithName = flow.ContentWithNameAtLevel(key);
-        if (otherContentWithName && otherContentWithName !== value) {
-          const errorMsg = `${value.GetType()} '${key}' has the same label name as a ${otherContentWithName.GetType()} (on ${otherContentWithName.debugMetadata})`;
+        const otherContentWithName = flow.ContentWithNameAtLevel(weavePointName);
+        if (otherContentWithName && otherContentWithName !== weavePoint) {
+          debugger;
+          const errorMsg = `${weavePoint.GetType()} '${weavePointName}' has the same label name as a ${otherContentWithName.GetType()} (on ${otherContentWithName.debugMetadata})`;
 
           this.Error(
             errorMsg,
-            value,
+            weavePoint,
           );
         }
       }

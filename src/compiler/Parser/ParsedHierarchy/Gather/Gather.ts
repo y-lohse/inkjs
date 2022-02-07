@@ -7,7 +7,7 @@ import { Story } from '../Story';
 import { SymbolType } from '../SymbolType';
 
 export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
-  public readonly name: string = '';
+  public readonly name: string = 'null';
 
   get runtimeContainer(): RuntimeContainer {
     return this.runtimeObject as RuntimeContainer; 
@@ -22,6 +22,10 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
     if (name) {
       this.name = name;
     }
+  }
+
+  get typeName(): string {
+    return 'Gather';
   }
       
   public readonly GenerateRuntimeObject = (): RuntimeObject => {

@@ -77,6 +77,10 @@ export class Story extends FlowBase {
     super('', toplevelObjects, null, false, isInclude);
   }
 
+  get typeName(): string {
+    return 'Story';
+  }
+
   // Before this function is called, we have IncludedFile objects interspersed
   // in our content wherever an include statement was.
   // So that the include statement can be added in a sensible place (e.g. the
@@ -368,7 +372,7 @@ export class Story extends FlowBase {
         for (const innerContent of container.content) {
           innerContent.parent = null;
           if (dm !== null && innerContent.ownDebugMetadata === null) {
-            // innerContent.debugMetadata = dm;
+            innerContent.debugMetadata = dm;
           }
 
           parentContainer.InsertContent(innerContent, contentIdx);
