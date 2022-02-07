@@ -466,7 +466,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       throw new Error();
     }
 
-    const allDiverts = this._rootWeave.FindAll<Divert>();
+    const allDiverts = this._rootWeave.FindAll<Divert>(Divert)();
     for (const divert of allDiverts) {
       if (!divert.isFunctionCall && !(divert.parent instanceof DivertTarget)) {
         this.Error(
@@ -476,7 +476,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       }
     }
 
-    const allChoices = this._rootWeave.FindAll<Choice>();
+    const allChoices = this._rootWeave.FindAll<Choice>(Choice)();
     for (const choice of allChoices) {
       this.Error(
         `Functions may not contain choices, but saw '${choice.ToString()}'`,

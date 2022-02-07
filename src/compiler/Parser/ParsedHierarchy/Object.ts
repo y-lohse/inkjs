@@ -4,6 +4,7 @@ import { FindQueryFunc } from './FindQueryFunc';
 import { InkObject as RuntimeObject } from '../../../engine/Object';
 import { Path as RuntimePath } from '../../../engine/Path';
 import { Story } from './Story';
+import { asOrNull } from '../../../engine/TypeAssertion';
 
 export abstract class ParsedObject {
   public abstract readonly GenerateRuntimeObject: () => RuntimeObject | null;
@@ -250,13 +251,13 @@ export abstract class ParsedObject {
     return null;
   };
 
-  public readonly FindAll = <T extends ParsedObject>(
+  public readonly FindAll = <T extends ParsedObject>(type: (new (...arg: any[]) => T) | (Function & { prototype: T })) => (
     queryFunc?: FindQueryFunc<T>,
     foundSoFar?: T[],
   ): T[] => {
     const found = Array.isArray(foundSoFar) ? foundSoFar : [];
 
-    const tObj = this as any as T;
+    const tObj = asOrNull(this, type);
     if (tObj !== null && (!queryFunc || queryFunc(tObj) === true)) {
       found.push(tObj);
     }
@@ -266,7 +267,7 @@ export abstract class ParsedObject {
     }
 
     for (const obj of this.content) {
-      obj.FindAll(queryFunc, found);
+      obj.FindAll(type)(queryFunc, found);
     }
 
     return found;

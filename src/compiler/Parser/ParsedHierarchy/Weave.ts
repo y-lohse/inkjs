@@ -112,7 +112,10 @@ export class Weave extends ParsedObject {
   }
 
   public readonly ResolveWeavePointNaming = (): void => {
-    const namedWeavePoints = this.FindAll<IWeavePoint>(w => !(w.name === null || w.name === undefined));
+    const namedWeavePoints = [
+      ...this.FindAll<IWeavePoint>(Gather)(w => !(w.name === null || w.name === undefined)),
+      ...this.FindAll<IWeavePoint>(Choice)(w => !(w.name === null || w.name === undefined))
+    ] ;
     this._namedWeavePoints = new Map();
 
     for (const weavePoint of namedWeavePoints) {
@@ -672,7 +675,7 @@ export class Weave extends ParsedObject {
     //      * choice
     // }
     if (conditional !== null) {
-      let numChoices = conditional.FindAll<Choice>().length;
+      let numChoices = conditional.FindAll<Choice>(Choice)().length;
       if (numChoices === 1 ) {
         errorMsg = `Choices with conditions should be written: '* {condition} choice'. Otherwise, ${errorMsg.toLowerCase()}`;
       }
