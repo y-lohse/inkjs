@@ -408,7 +408,6 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
       this._startingSubFlowDivert.targetPath = this._startingSubFlowRuntime.path;
     }
-    debugger;
 
     super.ResolveReferences(context);
 
