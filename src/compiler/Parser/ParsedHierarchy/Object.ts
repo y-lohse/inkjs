@@ -274,7 +274,7 @@ export abstract class ParsedObject {
   };
 
 
-  public readonly ResolveReferences = (context: Story) => {
+  public ResolveReferences(context: Story) {
     if (this.content !== null) {
       for (const obj of this.content) {
         obj.ResolveReferences(context);
