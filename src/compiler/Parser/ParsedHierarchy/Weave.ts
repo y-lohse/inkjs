@@ -319,8 +319,10 @@ export class Weave extends ParsedObject {
     // Current level Gather
     if (weavePoint instanceof Gather) {
       this.AddRuntimeForGather(weavePoint);
-    } else if (weavePoint instanceof Choice) {
-      // Current level choice
+    } 
+    
+    // Current level choice
+    else if (weavePoint instanceof Choice) {
 
       if (!this.currentContainer) {
         throw new Error();
@@ -329,19 +331,16 @@ export class Weave extends ParsedObject {
       // Gathers that contain choices are no longer loose ends
       // (same as when weave points get nested content)
       if (this.previousWeavePoint instanceof Gather) {
-        this.looseEnds.splice(
-          this.looseEnds.indexOf(this.previousWeavePoint),
-          1,
-        );
+        this.looseEnds.splice( this.looseEnds.indexOf(this.previousWeavePoint), 1 );
       }
 
       // Add choice point content
       const choice = asOrThrows(weavePoint, Choice);
-      if (!choice.innerContentContainer) {
-        throw new Error();
-      }
+      
 
       this.currentContainer.AddContent(choice.runtimeObject);
+
+      if (!choice.innerContentContainer) { throw new Error();} //guaranteed not to happen
 
       // Add choice's inner content to self
       choice.innerContentContainer.name = `c-${this._choiceCount}`;

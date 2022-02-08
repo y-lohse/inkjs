@@ -61,6 +61,10 @@ export class Divert extends ParsedObject {
       this.AddContent(args);
     }
   }
+  
+  get typeName(): string {
+    return 'Divert';
+  }
 
   public readonly GenerateRuntimeObject = () => {
     // End = end flow immediately
@@ -431,11 +435,11 @@ export class Divert extends ParsedObject {
     }
   };
 
-  public readonly Error = (
+  public Error(
     message: string,
     source:  ParsedObject | null = null, 
     isWarning: boolean = false,
-  ): void => {
+  ): void {
     // Could be getting an error from a nested Divert
     if (source !== this && source) {
       super.Error(message, source);

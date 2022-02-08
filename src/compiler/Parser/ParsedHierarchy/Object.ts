@@ -284,11 +284,11 @@ export abstract class ParsedObject {
     }
   };
 
-  public readonly Error = (
+  public Error(
     message: string,
     source: ParsedObject | null = null,
     isWarning: boolean = false,
-  ): void => {
+  ): void {
     if (source === null) {
       source = this;
     }
@@ -311,7 +311,7 @@ export abstract class ParsedObject {
     } else {
       source._alreadyHadError = true;
     }
-  };
+  }
 
   public readonly Warning = (
     message: string,

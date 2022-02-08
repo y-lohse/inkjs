@@ -371,7 +371,7 @@ export class InkParser extends StringParser {
       this.OptionalExclude(this.Whitespace),
       this.String('*'),
     );
-
+    
     if (!bullets) {
       bullets = this.Interleave<string>(
         this.OptionalExclude(this.Whitespace),
@@ -461,49 +461,47 @@ export class InkParser extends StringParser {
       this.Warning(
         'Blank choice - if you intended a default fallback choice, use the `* ->` syntax',
       );
-
-      if (!innerContent) {
-        innerContent = new ContentList();
-      }
-
-      const tags = this.Parse(this.Tags) as ParsedObject[];
-      if (tags !== null) {
-        innerContent.AddContent(tags);
-      }
-
-      // Normal diverts on the end of a choice - simply add to the normal content
-      if (diverts !== null) {
-        for (const divObj of diverts) {
-          // may be TunnelOnwards
-          const div = asOrNull(divObj, Divert); 
-
-          // Empty divert serves no purpose other than to say
-          // "this choice is intentionally left blank"
-          // (as an invisible default choice)
-          if (div && div.isEmpty) {
-            continue;
-          }
-
-          innerContent.AddContent(divObj);
-        }
-      }
-
-      // Terminate main content with a newline since this is the end of the line
-      // Note that this will be redundant if the diverts above definitely take
-      // the flow away permanently.
-      innerContent.AddContent(new Text('\n'));
-
-      const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
-      choice.identifier = optionalName;
-      choice.indentationDepth = bullets.length;
-      choice.hasWeaveStyleInlineBrackets = hasWeaveStyleInlineBrackets;
-      choice.condition = conditionExpr;
-      choice.onceOnly = onceOnlyChoice;
-      choice.isInvisibleDefault = emptyContent;
-      return choice;
     }
 
-    return null;
+    if (!innerContent) {
+      innerContent = new ContentList();
+    }
+
+    const tags = this.Parse(this.Tags) as ParsedObject[];
+    if (tags !== null) {
+      innerContent.AddContent(tags);
+    }
+
+    // Normal diverts on the end of a choice - simply add to the normal content
+    if (diverts !== null) {
+      for (const divObj of diverts) {
+        // may be TunnelOnwards
+        const div = asOrNull(divObj, Divert); 
+
+        // Empty divert serves no purpose other than to say
+        // "this choice is intentionally left blank"
+        // (as an invisible default choice)
+        if (div && div.isEmpty) {
+          continue;
+        }
+
+        innerContent.AddContent(divObj);
+      }
+    }
+
+    // Terminate main content with a newline since this is the end of the line
+    // Note that this will be redundant if the diverts above definitely take
+    // the flow away permanently.
+    innerContent.AddContent(new Text('\n'));
+
+    const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
+    choice.identifier = optionalName;
+    choice.indentationDepth = bullets.length;
+    choice.hasWeaveStyleInlineBrackets = hasWeaveStyleInlineBrackets;
+    choice.condition = conditionExpr;
+    choice.onceOnly = onceOnlyChoice;
+    choice.isInvisibleDefault = emptyContent;
+    return choice;
   };
 
   public readonly ChoiceCondition = (): Expression | null => {

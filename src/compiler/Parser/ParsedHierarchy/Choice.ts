@@ -116,6 +116,10 @@ export class Choice
 
     this.onceOnly = true; // default
   }
+  
+  get typeName(): string {
+    return 'Choice';
+  }
 
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     this._outerContainer = new RuntimeContainer();
