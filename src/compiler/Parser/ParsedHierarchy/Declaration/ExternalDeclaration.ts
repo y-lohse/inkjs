@@ -5,8 +5,8 @@ import { Identifier } from '../Identifier';
 
 export class ExternalDeclaration extends ParsedObject implements INamedContent {
   
-  public get  name(): string | undefined{
-    return this.identifier?.name;
+  public get  name(): string | null{
+    return this.identifier?.name || null;
   }
   
   constructor (

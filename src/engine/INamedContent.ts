@@ -1,4 +1,4 @@
 export interface INamedContent {
-  name?: string;
+  name: string | null;
   hasValidName?: boolean;
 }

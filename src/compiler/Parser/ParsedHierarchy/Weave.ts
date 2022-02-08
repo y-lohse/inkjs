@@ -252,7 +252,7 @@ export class Weave extends ParsedObject {
 
     const gatherContainer = gather.runtimeContainer;
 
-    if (gather.name === null) {
+    if (!gather.name) {
       // Use disallowed character so it's impossible to have a name collision
       gatherContainer.name = `g-${this._unnamedGatherCount}`;
       this._unnamedGatherCount += 1;

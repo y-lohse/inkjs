@@ -22,6 +22,10 @@ import { Text } from './Text';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
 import { Identifier } from './Identifier';
 import { asOrNull } from '../../../engine/TypeAssertion';
+import { ClosestFlowBase } from './Flow/ClosestFlowBase';
+import { FunctionCall } from './FunctionCall';
+import { Path } from './Path';
+import { VariableAssignment } from './Variable/VariableAssignment';
 
 export class Story extends FlowBase {
   public static readonly IsReservedKeyword = (name?: string): boolean => {
@@ -468,20 +472,13 @@ export class Story extends FlowBase {
     symbolType: SymbolType,
     typeNameOverride: string = '',
   ): void => {
-  }
-  /*
-  public readonly CheckForNamingCollisions = (
-    obj: ParsedObject,
-    identifier: string,
-    symbolType: SymbolType,
-    typeNameOverride: string = '',
-  ): void => {
+  
     const typeNameToPrint: string = typeNameOverride || obj.typeName;
     if (Story.IsReservedKeyword(identifier?.name)) {
         obj.Error(
           `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`);
         return;
-    } else if (FunctionCall.IsBuiltIn(identifier?.name)) {
+    } else if (FunctionCall.IsBuiltIn(identifier?.name!)) {
       obj.Error(
         `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`);
 
@@ -490,14 +487,14 @@ export class Story extends FlowBase {
 
     // Top level knots
     const knotOrFunction: FlowBase = this.ContentWithNameAtLevel(
-      identifier?.name,
+      identifier?.name!,
       FlowLevel.Knot,
     ) as FlowBase;
   
     if (knotOrFunction &&
       (knotOrFunction !== obj || symbolType === SymbolType.Arg))
     {
-      this.NameConflictError(obj, identifier?.name, knotOrFunction, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name!, knotOrFunction, typeNameToPrint);
       return;
     }
 
@@ -519,7 +516,7 @@ export class Story extends FlowBase {
       if (!(obj instanceof ListElementDefinition)) {
         for (const item of value.itemDefinitions) {
           if (identifier?.name === item.name) {
-            this.NameConflictError(obj, identifier?.name, item, typeNameToPrint);
+            this.NameConflictError(obj, identifier?.name!, item, typeNameToPrint);
           }
         }
       }
@@ -532,13 +529,13 @@ export class Story extends FlowBase {
     }
 
     // Global variable collision
-    const varDecl: VariableAssignment | null = this.variableDeclarations.get(identifier?.name) || null;
+    const varDecl: VariableAssignment | null = this.variableDeclarations.get(identifier?.name!) || null;
     if (varDecl &&
       varDecl !== obj &&
       varDecl.isGlobalDeclaration &&
       varDecl.listDefinition == null)
     {
-      this.NameConflictError(obj, identifier?.name, varDecl, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name!, varDecl, typeNameToPrint);
     }
 
     if (symbolType < SymbolType.SubFlowAndWeave) {
@@ -546,10 +543,10 @@ export class Story extends FlowBase {
     }
 
     // Stitches, Choices and Gathers
-    const path = new Path(name);
+    const path = new Path(this.identifier!);
     const targetContent = path.ResolveFromContext (obj);
     if (targetContent && targetContent !== obj) {
-      this.NameConflictError(obj, identifier?.name, targetContent, typeNameToPrint);
+      this.NameConflictError(obj, identifier?.name!, targetContent, typeNameToPrint);
       return;
     }
 
@@ -566,7 +563,7 @@ export class Story extends FlowBase {
 
       if (flow && flow.hasParameters && flow.args) {
         for (const arg of flow.args) {
-          if (arg.name === identifier?.name) {
+          if (arg.identifier?.name === identifier?.name) {
             obj.Error(
               `${typeNameToPrint} '${identifier}': Name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`,
             );
@@ -577,5 +574,4 @@ export class Story extends FlowBase {
       }
     }
   }
-  */
 }

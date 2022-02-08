@@ -46,7 +46,7 @@ export class Choice
   public innerContent: ContentList;
   public identifier?: Identifier;
   get name() {
-    return this.identifier?.name;
+    return this.identifier?.name || null;
   }
   public onceOnly: boolean;
   public isInvisibleDefault: boolean = false;

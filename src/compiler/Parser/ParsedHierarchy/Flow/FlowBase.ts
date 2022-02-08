@@ -55,8 +55,8 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return String(this.flowLevel);
   }
 
-  get name(): string|undefined {
-    return this.identifier?.name;
+  get name(): string|null {
+    return this.identifier?.name || null;
   }
 
   public identifier: Identifier|null = null;
@@ -114,7 +114,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         weaveObjs.push(obj);
       }
     }
-
+debugger;
     // Implicit final gather in top level story for ending without warning that you run out of content
     if (isRootStory) {
       weaveObjs.push(

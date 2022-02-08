@@ -9,8 +9,8 @@ import { Identifier } from '../Identifier';
 
 export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
 
-  get name(): string|undefined {
-    return this.identifier?.name;
+  get name(): string|null {
+    return this.identifier?.name || null;
   }
   public identifier?: Identifier | undefined;
 
