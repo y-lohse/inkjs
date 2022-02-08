@@ -22,6 +22,26 @@ export default [
     input: inputFile,
     output: {
       name: moduleName,
+      file: 'dist/ink-es6.js',
+      format: 'es',
+      sourcemap: true
+    },
+    plugins: [
+      nodeResolve(),
+      typescript(tsconfig),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
+      }),
+      terser(),
+      sourcemaps()
+    ]
+  },
+  {
+    input: inputFile,
+    output: {
+      name: moduleName,
       file: 'dist/ink.js',
       format: format,
       sourcemap: true

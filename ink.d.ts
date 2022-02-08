@@ -9,3 +9,4 @@ declare interface Inkjs {
 
 declare let inkjs: Inkjs
 export = inkjs
+export default inkjs
