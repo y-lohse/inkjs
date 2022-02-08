@@ -134,8 +134,9 @@ export class Weave extends ParsedObject {
           weavePoint as ParsedObject,
         );
       }
-
-      this.namedWeavePoints.set(weavePoint.identifier?.name!, weavePoint);
+      if(weavePoint.identifier?.name){
+        this.namedWeavePoints.set(weavePoint.identifier?.name, weavePoint);
+      }
     }
   };
 
@@ -315,6 +316,7 @@ export class Weave extends ParsedObject {
   }
 
   public readonly AddRuntimeForWeavePoint = (weavePoint: IWeavePoint): void => {
+    debugger;
     // Current level Gather
     if (weavePoint instanceof Gather) {
       this.AddRuntimeForGather(weavePoint);
@@ -562,7 +564,7 @@ export class Weave extends ParsedObject {
   public readonly ContentThatFollowsWeavePoint = (
     weavePoint: IWeavePoint,
   ): ParsedObject[] => {
-    const contents = [];
+    const returned = [];
     const obj = weavePoint as ParsedObject;
 
     // Inner content first (e.g. for a choice)
@@ -573,7 +575,7 @@ export class Weave extends ParsedObject {
           continue;
         }
 
-        contents.push(contentObj);
+        returned.push(contentObj);
       }
     }
 
@@ -601,10 +603,10 @@ export class Weave extends ParsedObject {
         break;
       }
 
-      contents.push(laterObj);
+      returned.push(laterObj);
     }
 
-    return contents;
+    return returned;
   };
 
   public readonly ValidateTermination = (

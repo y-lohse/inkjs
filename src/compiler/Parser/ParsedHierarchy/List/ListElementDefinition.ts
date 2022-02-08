@@ -23,8 +23,8 @@ export class ListElementDefinition extends ParsedObject {
     return 'List element';
   }
 
-  get name(): string|undefined{
-    return this.indentifier?.name;
+  get name(): string | null {
+    return this.indentifier?.name || null;
   }
 
   constructor(

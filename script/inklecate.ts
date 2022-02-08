@@ -3,7 +3,6 @@ import { Story } from '../src/engine/Story';
 
 //const c = new Compiler("hello world");
 const c = new Compiler(`Hello, world!`)
-console.debug("Successfully compiled !")
 const rstory = c.Compile();
 
 debugger;

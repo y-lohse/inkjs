@@ -71,7 +71,7 @@ export class ListDefinition extends ParsedObject {
     const initialValues = new RuntimeInkList();
     for (const itemDef of this.itemDefinitions) {
       if (itemDef.inInitialList) {
-        const item = new RuntimeInkListItem(this.identifier?.name!, itemDef.name!);
+        const item = new RuntimeInkListItem(this.identifier?.name || null, itemDef.name || null);
         initialValues.Add(item, itemDef.seriesValue);
       }
     }

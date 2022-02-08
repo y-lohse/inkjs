@@ -38,7 +38,7 @@ export class DivertTarget extends Expression {
   constructor(divert: Divert) {
     super();
 
-    this.divert = this.AddContent(divert);
+    this.divert = this.AddContent(divert) as Divert;
   }
 
   public readonly GenerateIntoContainer = (

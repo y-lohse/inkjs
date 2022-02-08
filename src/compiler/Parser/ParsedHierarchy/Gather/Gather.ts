@@ -12,7 +12,7 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
   get name(): string|null {
     return this.identifier?.name || null;
   }
-  public identifier?: Identifier | undefined;
+  public identifier?: Identifier;
 
   get runtimeContainer(): RuntimeContainer {
     return this.runtimeObject as RuntimeContainer; 
@@ -34,7 +34,7 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
       
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
-    container.name = this.identifier?.name!;
+    container.name = this.name;
 
     if (this.story.countAllVisits) {
       container.visitsShouldBeCounted = true;

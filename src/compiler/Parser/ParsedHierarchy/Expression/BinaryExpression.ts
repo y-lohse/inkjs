@@ -15,8 +15,8 @@ export class BinaryExpression extends Expression {
   ) {
     super();
 
-    this.leftExpression = this.AddContent(left);
-    this.rightExpression = this.AddContent(right);
+    this.leftExpression = this.AddContent(left) as Expression;
+    this.rightExpression = this.AddContent(right) as Expression;
 
     this.opName = opName;
   }

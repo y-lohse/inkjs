@@ -190,7 +190,8 @@ export abstract class ParsedObject {
   // Return the object so that method can be chained easily
   public readonly AddContent = <T extends ParsedObject, V extends (T | T[])>(
     subContent: V,
-  ): V extends T[] ? T[] : T => {
+  ) => {
+    
     if (this.content === null) {
       this.content = [];
     }
@@ -201,18 +202,17 @@ export abstract class ParsedObject {
     // in the case of parse errors where we've already reported
     // an error but still want a valid structure so we can
     // carry on parsing.
-    if (sub[0]) {
-      for (const ss of sub) {
-        ss.parent = this;
-        this.content.push(ss);
-      }
+    for (const ss of sub) {
+      ss.parent = this;
+      this.content.push(ss);
     }
 
     if (Array.isArray(subContent)) {
-      return sub as any;
+      return;
+    }else{
+      return subContent;
     }
 
-    return sub[0];
   };
 
   public readonly InsertContent = <T extends ParsedObject>(

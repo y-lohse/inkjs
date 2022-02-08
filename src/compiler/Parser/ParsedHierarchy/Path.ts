@@ -1,3 +1,4 @@
+import { filterUndef } from '../../../engine/TypeAssertion';
 import { FlowBase } from './Flow/FlowBase';
 import { FlowLevel } from './Flow/FlowLevel';
 import { Identifier } from './Identifier';
@@ -9,7 +10,7 @@ export class Path {
   private components: Identifier[] | null;
 
   get _components(): string[]{
-    return (this.components ? this.components : []).map(c => c.name!)
+    return (this.components ? this.components : []).map(c => c.name).filter(filterUndef)
   }
 
   get baseTargetLevel() {

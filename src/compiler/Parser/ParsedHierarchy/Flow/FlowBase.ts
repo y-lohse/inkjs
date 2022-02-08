@@ -109,12 +109,14 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         }
 
         subFlowObjs.push(obj);
-        this._subFlowsByName.set(subFlow.identifier?.name!, subFlow);
+        if(subFlow.identifier?.name){
+          this._subFlowsByName.set(subFlow.identifier?.name, subFlow);
+        }
       } else {
         weaveObjs.push(obj);
       }
     }
-debugger;
+
     // Implicit final gather in top level story for ending without warning that you run out of content
     if (isRootStory) {
       weaveObjs.push(

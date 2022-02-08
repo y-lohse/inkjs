@@ -1,7 +1,7 @@
 import { DebugMetadata } from "../../../engine/DebugMetadata";
 
 export class Identifier {
-    public name?: string;
+    public name: string;
     public debugMetadata: DebugMetadata|null = null;
 
     get toString(): string{

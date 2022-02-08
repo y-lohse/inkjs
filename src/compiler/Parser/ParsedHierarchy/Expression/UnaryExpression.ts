@@ -45,7 +45,7 @@ export class UnaryExpression extends Expression {
   ) {
     super();
 
-    this.innerExpression = this.AddContent(inner);
+    this.innerExpression = this.AddContent(inner) as Expression;
   }
 
   public readonly GenerateIntoContainer = (container: RuntimeContainer) => {

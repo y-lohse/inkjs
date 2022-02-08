@@ -2440,7 +2440,7 @@ export class InkParser extends StringParser {
     ) as ListDefinition;
 
     if (definition) {
-      definition.identifier = new Identifier(varName.name!);
+      definition.identifier = new Identifier(varName.name);
       return new VariableAssignment({
         variableIdentifier: varName,
         listDef: definition,
