@@ -17,7 +17,7 @@ import { Story } from './Story';
 import { Text } from './Text';
 import { TunnelOnwards } from './TunnelOnwards';
 import { VariableAssignment } from './Variable/VariableAssignment';
-import { asOrNull } from '../../../engine/TypeAssertion';
+import { asOrNull, asOrThrows } from '../../../engine/TypeAssertion';
 
 type BadTerminationHandler = (terminatingObj: ParsedObject) => void; 
 
@@ -90,7 +90,7 @@ export class Weave extends ParsedObject {
       break;
     }
 
-    const lastWeave = lastObject as Weave;
+    const lastWeave = asOrNull(lastObject, Weave);
     if (lastWeave) {
       lastObject = lastWeave.lastParsedSignificantObject;
     }
@@ -316,7 +316,6 @@ export class Weave extends ParsedObject {
   }
 
   public readonly AddRuntimeForWeavePoint = (weavePoint: IWeavePoint): void => {
-    debugger;
     // Current level Gather
     if (weavePoint instanceof Gather) {
       this.AddRuntimeForGather(weavePoint);
@@ -337,7 +336,7 @@ export class Weave extends ParsedObject {
       }
 
       // Add choice point content
-      const choice = weavePoint as Choice;
+      const choice = asOrThrows(weavePoint, Choice);
       if (!choice.innerContentContainer) {
         throw new Error();
       }
@@ -357,7 +356,7 @@ export class Weave extends ParsedObject {
     if (this.WeavePointHasLooseEnd(weavePoint)) {
       this.looseEnds.push(weavePoint);
 
-      const looseChoice = weavePoint as Choice;
+      const looseChoice = asOrNull(weavePoint, Choice);
       if (looseChoice) {
         this.addContentToPreviousWeavePoint = true;
       }
@@ -444,8 +443,8 @@ export class Weave extends ParsedObject {
     let nested = false;
     for (let ancestor = this.parent; ancestor !== null; ancestor = ancestor.parent) {
       // Found ancestor?
-      const weaveAncestor = ancestor as Weave;
-      if (weaveAncestor != null) {
+      const weaveAncestor = asOrNull(ancestor, Weave);
+      if (weaveAncestor) {
         if ((!nested && closestInnerWeaveAncestor === null) ||
           (nested && closestOuterWeaveAncestor === null))
         {
@@ -579,7 +578,7 @@ export class Weave extends ParsedObject {
       }
     }
 
-    const parentWeave = obj.parent as Weave;
+    const parentWeave = asOrNull(obj.parent, Weave);
     if (parentWeave === null) {
       throw new Error('Expected weave point parent to be weave?');
     }

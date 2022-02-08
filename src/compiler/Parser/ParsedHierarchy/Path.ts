@@ -1,4 +1,4 @@
-import { filterUndef } from '../../../engine/TypeAssertion';
+import { asOrNull, filterUndef } from '../../../engine/TypeAssertion';
 import { FlowBase } from './Flow/FlowBase';
 import { FlowLevel } from './Flow/FlowLevel';
 import { Identifier } from './Identifier';
@@ -177,7 +177,7 @@ export class Path {
     const ambiguousChildLevel: boolean = minimumLevel === null;
 
     // Search for WeavePoint within Weave
-    const weaveContext = context as Weave;
+    const weaveContext = asOrNull(context, Weave);
     if (childName &&
       weaveContext !== null &&
       (ambiguousChildLevel || minimumLevel === FlowLevel.WeavePoint))

@@ -341,6 +341,7 @@ export class Story extends FlowBase {
     // iterate through their children
     if (container.namedContent) {
       for (const [_, value] of container.namedContent) {
+        debugger;
         const namedInnerContainer = asOrNull(value, RuntimeContainer);
         if (namedInnerContainer) {
           innerContainers.add(namedInnerContainer);
