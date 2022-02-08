@@ -19,6 +19,7 @@ import { VariableAssignment } from '../Variable/VariableAssignment';
 import { Weave } from '../Weave';
 import { ClosestFlowBase } from './ClosestFlowBase';
 import { Identifier } from '../Identifier';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 type VariableResolveResult = {
   found: boolean;
@@ -83,8 +84,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
     topLevelObjects = this.SplitWeaveAndSubFlowContent(
       topLevelObjects,
-      //this instanceof Story && 
-      !isIncludedStory,
+      this.GetType() ==  'Story' && !isIncludedStory,
     );
 
     this.AddContent(topLevelObjects);
@@ -101,8 +101,8 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
     this._subFlowsByName = new Map();
 
-    for (const obj of (contentObjs as FlowBase[])) {
-      const subFlow = obj;
+    for (const obj of contentObjs) {
+      const subFlow = asOrNull(obj, FlowBase);
       if (subFlow) {
         if (this._firstChildFlow === null) {
           this._firstChildFlow = subFlow;
@@ -135,7 +135,6 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     if (subFlowObjs.length > 0) {
       finalContent.push(...subFlowObjs);
     }
-
     return finalContent;
   };
 
