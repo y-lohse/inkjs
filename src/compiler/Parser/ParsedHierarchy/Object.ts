@@ -224,7 +224,7 @@ export abstract class ParsedObject {
     }
 
     subContent.parent = this;
-    this.content.unshift(subContent);
+    this.content.splice(index,0,subContent);
 
     return subContent;
   }

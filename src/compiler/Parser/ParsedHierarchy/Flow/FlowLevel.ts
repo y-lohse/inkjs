@@ -1,8 +1,8 @@
 export enum FlowLevel{
-  Story,
-  Knot,
-  Stitch,
+  Story,      // 0
+  Knot,       // 1
+  Stitch,     // 2
   // not actually a FlowBase, but used for diverts
-  WeavePoint,
+  WeavePoint, // 3
 }
 

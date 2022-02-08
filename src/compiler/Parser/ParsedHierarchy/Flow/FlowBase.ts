@@ -63,7 +63,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   public args: Argument[]|null = null;
 
   constructor(
-    identifier: Identifier,
+    identifier: Identifier|null,
     topLevelObjects: ParsedObject[] | null = null,
     args: Argument[] | null = null,
     public readonly isFunction: boolean = false,

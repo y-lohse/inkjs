@@ -5,8 +5,10 @@ import { Story } from '../src/engine/Story';
 const c = new Compiler(`Hello, world!`)
 console.log(c)
 
-const res = c.Compile();
-const jsonStory = res.ToJson()
+const rstory = c.Compile();
+
+debugger;
+const jsonStory = rstory.ToJson()
 console.log(jsonStory)
 
 if(jsonStory){

@@ -771,9 +771,7 @@ export class Weave extends ParsedObject {
         // Shallow search
         const otherContentWithName = flow.ContentWithNameAtLevel(weavePointName);
         if (otherContentWithName && otherContentWithName !== weavePoint) {
-          debugger;
           const errorMsg = `${weavePoint.GetType()} '${weavePointName}' has the same label name as a ${otherContentWithName.GetType()} (on ${otherContentWithName.debugMetadata})`;
-
           this.Error(
             errorMsg,
             weavePoint,

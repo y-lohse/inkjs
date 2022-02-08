@@ -180,7 +180,7 @@ export class Container extends InkObject implements INamedContent {
     return result;
   }
   public InsertContent(contentObj: InkObject, index: number) {
-    this.content[index] = contentObj;
+    this.content.splice(index,0, contentObj);
 
     if (contentObj.parent) {
       throw new Error("content is already in " + contentObj.parent);
