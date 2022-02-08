@@ -1,0 +1,10 @@
+Should you cross the river?
+
+1: Yes
+2: No
+?> You follow the path along the river for some time and finally encounter a huge man with a wooden stick.
+As you start talking to him, he beats you with his weapon.
+
+1: Fight back
+2: Flee
+?> You desperately run for your life and never look back.

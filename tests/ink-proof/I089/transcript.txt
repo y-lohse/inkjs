@@ -1,0 +1,16 @@
+This is the first time.
+
+1: Eat ice-cream
+2: Drink coke
+3: Munch cookies
+?> Eat ice-cream
+This is the second time.
+
+1: Drink coke
+2: Munch cookies
+?> Drink coke
+This is the third time.
+
+1: Munch cookies
+?> Munch cookies
+I've finished eating now.

@@ -1,0 +1,6 @@
+{
+  "oneLineDescription": "Top flow terminator should not kill thread choices",
+  "tags": [
+    "threads"
+  ]
+}

@@ -203,7 +203,9 @@ export abstract class ParsedObject {
     // an error but still want a valid structure so we can
     // carry on parsing.
     for (const ss of sub) {
-      ss.parent = this;
+      if(ss.hasOwnProperty('parent')){
+        ss.parent = this;
+      } 
       this.content.push(ss);
     }
 

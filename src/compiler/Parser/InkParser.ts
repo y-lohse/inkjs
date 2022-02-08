@@ -191,6 +191,8 @@ export class InkParser extends StringParser {
     const parsedListObjs: ParsedObject[]|null = Array.isArray(result) ? result as ParsedObject[] : null;
     if (parsedListObjs !== null) {
       for (const parsedListObj of parsedListObjs) {
+        const singleObj = asOrNull(parsedListObj, ParsedObject);
+        if(!singleObj) continue;
         if (!parsedListObj.hasOwnDebugMetadata) {
           parsedListObj.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
         }
