@@ -11,7 +11,8 @@ import { Story } from '../src/engine/Story';
 // - They lived happily ever after.
 //    -> END
 // `)
-const c = new Compiler(`* a choice`, {countAllVisits: true} as CompilerOptions)
+const c = new Compiler(`VAR hp = 2
+{hp}`)
 const rstory = c.Compile();
 
 debugger;

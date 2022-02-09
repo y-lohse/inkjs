@@ -159,8 +159,7 @@ export class Story extends FlowBase {
     // Find all constants before main export begins, so that VariableReferences know
     // whether to generate a runtime variable reference or the literal value
     this.constants = new Map();
-
-    for (const constDecl of this.FindAll<ConstantDeclaration>(ConstantDeclaration)()) {
+    for (const constDecl of this.FindAll(ConstantDeclaration)() ) {
       // Check for duplicate definitions
       const existingDefinition: ConstantDeclaration | null | undefined = this.constants.get(
         constDecl.constantName!,
@@ -217,7 +216,6 @@ export class Story extends FlowBase {
           if (!value.expression) {
             throw new Error();
           }
-
           value.expression.GenerateIntoContainer(variableInitialisation);
         }
 
@@ -230,7 +228,7 @@ export class Story extends FlowBase {
     variableInitialisation.AddContent(RuntimeControlCommand.EvalEnd());
     variableInitialisation.AddContent(RuntimeControlCommand.End());
 
-    if (Object.keys(this.variableDeclarations).length > 0) {
+    if (this.variableDeclarations.size > 0) {
       variableInitialisation.name = 'global decl';
       rootContainer.AddToNamedContentOnly(variableInitialisation);
     }
@@ -418,7 +416,6 @@ export class Story extends FlowBase {
 
     message = sb;
     
-    console.error(message)
     if (this._errorHandler !== null) {
       this._errorHandler(message, errorType);
     } else {

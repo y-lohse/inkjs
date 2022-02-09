@@ -63,5 +63,9 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
       );
     }
   };
+
+  public readonly toString = (): string => (
+    `- ${this.identifier?.name ? '('+this.identifier?.name+')' : 'gather'}`
+  );
 }
 

@@ -524,6 +524,8 @@ export class JsonSerialisation {
       }
     }
 
+    if (countFlags > 0) writer.WriteIntProperty("#f", countFlags);
+
     if (hasNameProperty) writer.WriteProperty("#n", container.name);
 
     if (hasTerminator) writer.WriteObjectEnd();

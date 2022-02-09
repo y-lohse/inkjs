@@ -181,7 +181,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     }
 
     // Global
-    if (varName in this.story.variableDeclarations) {
+    if (this.story.variableDeclarations.has(varName)) {
       result.found = true;
       result.ownerFlow = this.story;
       result.isGlobal = true;

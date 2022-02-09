@@ -50,7 +50,7 @@ export class Path {
       this.components = argTwo || [];
     } else if (Array.isArray(argOne)) {
       this._baseTargetLevel = null;
-      this.components = argTwo || [];
+      this.components = argOne || [];
     } else {
       this._baseTargetLevel = null;
       this.components = [ argOne as Identifier ];

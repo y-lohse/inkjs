@@ -156,5 +156,11 @@ export class VariableAssignment extends ParsedObject {
       }
     }
   };
+
+  public readonly toString = (): string => (
+    `${this.isGlobalDeclaration ? 'VAR' 
+     : this.isNewTemporaryDeclaration ? '~ temp' 
+     : ''} ${this.variableName}`
+  );
 }
 

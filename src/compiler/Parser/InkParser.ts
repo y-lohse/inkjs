@@ -57,6 +57,7 @@ import { UnaryExpression } from './ParsedHierarchy/Expression/UnaryExpression';
 import { FileHandler } from '../FileHandler';
 import { asOrNull, filterUndef } from '../../engine/TypeAssertion';
 import { Identifier } from './ParsedHierarchy/Identifier';
+import { NumberType } from './ParsedHierarchy/NumberType';
 
 export enum ErrorType {
   Author,
@@ -1623,22 +1624,22 @@ export class InkParser extends StringParser {
     return new DivertTarget(divert);
   };
 
-  public readonly ExpressionInt = (): number | null => {
+  public readonly ExpressionInt = (): NumberType | null => {
     const intOrNull: number = this.ParseInt() as number;
     if (intOrNull === null) {
       return null;
     }
 
-    return intOrNull;
+    return new NumberType(intOrNull);
   };
 
-  public readonly ExpressionFloat = (): number | null => {
+  public readonly ExpressionFloat = (): NumberType | null => {
     const floatOrNull: number = this.ParseFloat() as number;
     if (floatOrNull === null) {
       return null;
     }
     
-    return floatOrNull;
+    return new NumberType(floatOrNull);
   };
 
   public readonly ExpressionString = (): StringExpression | null => {
@@ -2381,7 +2382,7 @@ export class InkParser extends StringParser {
     const expr = definition as Expression;
 
     if (expr) {
-      const check = typeof expr === 'number' ||
+      const check = expr instanceof NumberType ||
         expr instanceof StringExpression ||
         expr instanceof DivertTarget ||
         expr instanceof VariableReference ||

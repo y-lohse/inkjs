@@ -161,7 +161,7 @@ export class VariableReference extends Expression {
   };
 
   public readonly toString = (): string => (
-    this.path.join('.')
+    `{${this.path.join('.')}}`
   );
 }
 

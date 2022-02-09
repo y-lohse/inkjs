@@ -183,8 +183,8 @@ export abstract class ParsedObject {
     }
     
     for (const obj of this.content) {
-      var nestedResult = obj.Find(type)(queryFunc);
-      if (nestedResult !== null) {
+      var nestedResult = obj.Find && obj.Find(type)(queryFunc);
+      if (nestedResult) {
         return nestedResult as T;
       }
     }
@@ -208,7 +208,7 @@ export abstract class ParsedObject {
     }
 
     for (const obj of this.content) {
-      obj.FindAll(type)(queryFunc, found);
+      obj.FindAll && obj.FindAll(type)(queryFunc, found);
     }
 
     return found;
