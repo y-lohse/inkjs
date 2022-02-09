@@ -13,6 +13,7 @@ import { FunctionCall } from '../FunctionCall';
 import { MultipleConditionExpression } from '../Expression/MultipleConditionExpression';
 import { Story } from '../Story';
 import { VariableReference } from '../Variable/VariableReference';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class DivertTarget extends Expression {
   private _runtimeDivert: RuntimeDivert | null = null;
@@ -73,7 +74,7 @@ export class DivertTarget extends Expression {
       if (usageParent instanceof BinaryExpression) {
         // Only allowed to compare for equality
 
-        const binaryExprParent = usageParent as BinaryExpression;
+        const binaryExprParent = usageParent;
         if (binaryExprParent.opName !== '==' &&
           binaryExprParent.opName !== '!=')
         {
@@ -92,7 +93,7 @@ export class DivertTarget extends Expression {
 
         foundUsage = true;
       } else if (usageParent instanceof FunctionCall) {
-        const funcCall = usageParent as FunctionCall;
+        const funcCall = usageParent;
         if (!funcCall.isTurnsSince && !funcCall.isReadCount) {
           badUsage = true;
         }
@@ -159,7 +160,7 @@ export class DivertTarget extends Expression {
       let target = targetContent.containerForCounting;
       if (target !== null) {
         // Purpose is known: used directly in TURNS_SINCE(-> divTarg)
-        const parentFunc = this.parent as FunctionCall;
+        const parentFunc = asOrNull(this.parent, FunctionCall);
         if (parentFunc && parentFunc.isTurnsSince) {
           target.turnIndexShouldBeCounted = true;
         } else {
@@ -181,7 +182,7 @@ export class DivertTarget extends Expression {
       // to be called, it needs to know ahead of time when
       // compiling whether to pass a variable reference or value.
       //
-      var targetFlow = (targetContent as FlowBase);
+      var targetFlow = asOrNull(targetContent, FlowBase);
       if (targetFlow != null && targetFlow.args !== null) {
         for (const arg of targetFlow.args) {
           if (arg.isByReference) {
@@ -196,7 +197,7 @@ export class DivertTarget extends Expression {
 
   // Equals override necessary in order to check for CONST multiple definition equality
   public readonly Equals = (obj: ParsedObject): boolean => {
-    const otherDivTarget = obj as DivertTarget;
+    const otherDivTarget = asOrNull(obj, DivertTarget);
     if (!otherDivTarget ||
       !this.divert.target ||
       !otherDivTarget.divert.target)

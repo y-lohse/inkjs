@@ -10,6 +10,7 @@ import { SymbolType } from '../SymbolType';
 import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
 import { VariableReference } from './VariableReference'
 import { Identifier } from '../Identifier';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class VariableAssignment extends ParsedObject {
   private _runtimeAssignment: RuntimeVariableAssignment | null = null;
@@ -120,7 +121,7 @@ export class VariableAssignment extends ParsedObject {
 
     // Initial VAR x = [intialValue] declaration, not re-assignment
     if (this.isGlobalDeclaration) {
-      const variableReference = this.expression as VariableReference;
+      const variableReference = asOrNull(this.expression, VariableReference);
       if (variableReference && !variableReference.isConstantReference && !variableReference.isListItemReference) {
         this.Error(
           'global variable assignments cannot refer to other variables, only literal values, constants and list items'

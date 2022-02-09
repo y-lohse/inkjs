@@ -9,6 +9,7 @@ import { StringValue } from '../../../../engine/Value';
 import { Story } from '../Story';
 import { Text } from '../Text';
 import { Weave } from '../Weave';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class ConditionalSingleBranch extends ParsedObject {
   public _contentContainer: RuntimeContainer | null = null;
@@ -72,7 +73,7 @@ export class ConditionalSingleBranch extends ParsedObject {
     // Check for common mistake, of putting "else:" instead of "- else:"
     if (this._innerWeave) {
       for (const c of this._innerWeave.content) {
-        const text = c as Text;
+        const text = asOrNull(c, Text);
         if (text) {
           // Don't need to trim at the start since the parser handles that already
           if (text.text.startsWith('else:')) {

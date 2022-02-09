@@ -371,7 +371,7 @@ export class InkParser extends StringParser {
       this.OptionalExclude(this.Whitespace),
       this.String('*'),
     );
-    
+
     if (!bullets) {
       bullets = this.Interleave<string>(
         this.OptionalExclude(this.Whitespace),
@@ -495,7 +495,7 @@ export class InkParser extends StringParser {
     innerContent.AddContent(new Text('\n'));
 
     const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
-    choice.identifier = optionalName;
+    choice.identifier = optionalName || undefined;
     choice.indentationDepth = bullets.length;
     choice.hasWeaveStyleInlineBrackets = hasWeaveStyleInlineBrackets;
     choice.condition = conditionExpr;
@@ -595,7 +595,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const name: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    const name = this.Parse(this.IdentifierWithMetadata) as Identifier | null;
     if (name === null) {
       return null;
     }
@@ -938,7 +938,7 @@ export class InkParser extends StringParser {
       const lastObjIdx = mixedTextAndLogicResults.length - 1;
       const lastObj = mixedTextAndLogicResults[lastObjIdx];
       if (lastObj instanceof Text) {
-        const textObj: Text = lastObj as Text;
+        const textObj: Text = lastObj;
         textObj.text = textObj.text.replace(new RegExp(/[ \t]+/g), ' ');
 
         if (terminateWithSpace) {

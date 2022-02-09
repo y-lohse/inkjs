@@ -13,6 +13,7 @@ import { Story } from './Story';
 import { StringValue } from '../../../engine/Value';
 import { VariableReference } from './Variable/VariableReference';
 import { Identifier } from './Identifier';
+import { asOrNull } from '../../../engine/TypeAssertion';
 
 export class FunctionCall extends Expression {
   public static readonly IsBuiltIn = (name: string): boolean => {
@@ -111,14 +112,14 @@ export class FunctionCall extends Expression {
 
       container.AddContent(RuntimeControlCommand.Turns());
     } else if (this.isTurnsSince || this.isReadCount) {
-      const divertTarget = this.args[0] as DivertTarget;
-      const variableDivertTarget = this.args[0] as VariableReference;
+      const divertTarget = asOrNull(this.args[0], DivertTarget);
+      const variableDivertTarget = asOrNull(this.args[0], VariableReference);
 
       if (this.args.length !== 1 ||
         (divertTarget === null && variableDivertTarget === null))
       {
         this.Error(
-          `The ${name}() function should take one argument: a divert target to the target knot, stitch, gather or choice you want to check. e.g. TURNS_SINCE(-> myKnot)`,
+          `The ${this.name}() function should take one argument: a divert target to the target knot, stitch, gather or choice you want to check. e.g. TURNS_SINCE(-> myKnot)`,
         );
         return;
       }
@@ -128,7 +129,7 @@ export class FunctionCall extends Expression {
         this.AddContent(this._divertTargetToCount);
 
         this._divertTargetToCount.GenerateIntoContainer (container);
-      } else {
+      } else if(variableDivertTarget) {
         this._variableReferenceToCount = variableDivertTarget;
         this.AddContent(this._variableReferenceToCount);
 

@@ -3,6 +3,7 @@ import { ControlCommand as RuntimeControlCommand } from '../../../../engine/Cont
 import { Expression } from './Expression';
 import { ParsedObject } from '../Object';
 import { Text } from '../Text';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class StringExpression extends Expression {
   get isSingleString() {
@@ -47,7 +48,7 @@ export class StringExpression extends Expression {
 
   // Equals override necessary in order to check for CONST multiple definition equality
   public readonly Equals = (obj: ParsedObject): boolean => {
-    const otherStr = obj as StringExpression;
+    const otherStr = asOrNull(obj, StringExpression);
     if (otherStr === null) {
       return false;
     }

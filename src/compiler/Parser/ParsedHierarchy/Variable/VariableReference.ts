@@ -8,6 +8,7 @@ import { Story } from '../Story';
 import { VariableReference as RuntimeVariableReference } from '../../../../engine/VariableReference';
 import { Weave } from '../Weave';
 import { Identifier } from '../Identifier';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class VariableReference extends Expression {
   private _runtimeVarRef: RuntimeVariableReference | null = null;
@@ -125,7 +126,7 @@ export class VariableReference extends Expression {
       // Check for very specific writer error: getting read count and
       // printing it as content rather than as a piece of logic
       // e.g. Writing {myFunc} instead of {myFunc()}
-      var targetFlow = targetForCount as FlowBase;
+      var targetFlow = asOrNull(targetForCount, FlowBase);
       if (targetFlow && targetFlow.isFunction) {
         // Is parent context content rather than logic?
         if (parent instanceof Weave ||

@@ -78,7 +78,7 @@ export class Weave extends ParsedObject {
     for (let ii = this.content.length - 1; ii >= 0; --ii) {
       lastObject = this.content[ii];
 
-      var lastText = lastObject as Text;
+      var lastText = asOrNull(lastObject, Text);
       if (lastText && lastText.text === '\n') {
         continue;
       }
@@ -158,7 +158,7 @@ export class Weave extends ParsedObject {
           // Step through content until indent jumps out again
           let innerWeaveStartIdx = contentIdx;
           while (contentIdx < this.content.length) {
-            const innerWeaveObj = this.content[contentIdx] as IWeavePoint;
+            const innerWeaveObj = asOrNull(this.content[contentIdx], Choice) || asOrNull(this.content[contentIdx], Gather);
             if (innerWeaveObj !== null) {
               const innerIndentIdx = innerWeaveObj.indentationDepth - 1;
               if (innerIndentIdx <= this.baseIndentIndex) {
@@ -282,7 +282,7 @@ export class Weave extends ParsedObject {
       // since they'll be handled by the auto-enter code below
       // that only jumps into the gather if (current runtime choices == 0)
       if (looseEnd instanceof Gather) {
-        const prevGather = looseEnd as Gather;
+        const prevGather = looseEnd;
         if (prevGather.indentationDepth == gather.indentationDepth) {
           continue;
         }
@@ -336,7 +336,6 @@ export class Weave extends ParsedObject {
 
       // Add choice point content
       const choice = asOrThrows(weavePoint, Choice);
-      
 
       this.currentContainer.AddContent(choice.runtimeObject);
 
@@ -544,12 +543,12 @@ export class Weave extends ParsedObject {
   // Global VARs and CONSTs are treated as "outside of the flow"
   // when iterating over content that follows loose ends
   public readonly IsGlobalDeclaration = (obj: ParsedObject) => {
-    const varAss = obj as VariableAssignment;
+    const varAss = asOrNull(obj, VariableAssignment);
     if (varAss && varAss.isGlobalDeclaration && varAss.isDeclaration) {
       return true;
     }
 
-    const constDecl = obj as ConstantDeclaration;
+    const constDecl = asOrNull(obj, ConstantDeclaration);
     if (constDecl) {
       return true;
     }
@@ -664,7 +663,7 @@ export class Weave extends ParsedObject {
     let conditional: Conditional | null = null;
     for (let ancestor = terminatingObj.parent; ancestor !== null; ancestor = ancestor.parent) {
       if (ancestor instanceof Sequence || ancestor instanceof Conditional) {
-        conditional = ancestor as Conditional;
+        conditional = asOrNull(ancestor, Conditional);
         break;
       }
     }
@@ -736,7 +735,7 @@ export class Weave extends ParsedObject {
     // although it doesn't actually make a difference!
     // (content after a divert will simply be inaccessible)
     for (let ii = weavePoint.content.length - 1; ii >= 0; --ii) {
-      var innerDivert = weavePoint.content[ii] as Divert;
+      var innerDivert = asOrNull(weavePoint.content[ii], Divert);
       if (innerDivert) {
         const willReturn = innerDivert.isThread || innerDivert.isTunnel || innerDivert.isFunctionCall;
         if (!willReturn) {

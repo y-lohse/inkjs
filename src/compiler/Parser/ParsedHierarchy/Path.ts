@@ -142,7 +142,7 @@ export class Path {
       const compName = this._components[ii];
 
       let minimumExpectedLevel: FlowLevel;
-      var foundFlow = foundComponent as FlowBase;
+      var foundFlow = asOrNull(foundComponent, FlowBase);
       if (foundFlow !== null) {
         minimumExpectedLevel = (foundFlow.flowLevel + 1) as FlowLevel;
       } else {
@@ -186,7 +186,7 @@ export class Path {
     }
 
     // Search for content within Flow (either a sub-Flow or a WeavePoint)
-    var flowContext = context as FlowBase;
+    var flowContext = asOrNull(context, FlowBase);
     if (childName && flowContext !== null) {
       // When searching within a Knot, allow a deep searches so that
       // named weave points (choices and gathers) can be found within any stitch

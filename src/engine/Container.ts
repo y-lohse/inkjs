@@ -116,8 +116,6 @@ export class Container extends InkObject implements INamedContent {
       let contentObj = contentObjOrList as InkObject;
       
       if (contentObj.parent) {
-        // if(contentObj.parent === this) return;
-        // debugger;
         throw new Error("content is already in " + contentObj.parent);
       }
 
@@ -194,7 +192,7 @@ export class Container extends InkObject implements INamedContent {
     this.TryAddNamedContent(contentObj);
   }
   public AddContentsOfContainer(otherContainer: Container) {
-    this.content = this.content.concat(otherContainer.content);
+    this.content.push(... otherContainer.content);
 
     for (let obj of otherContainer.content) {
       obj.parent = this;

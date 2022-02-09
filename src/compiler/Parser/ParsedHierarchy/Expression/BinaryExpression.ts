@@ -3,6 +3,7 @@ import { Expression } from './Expression';
 import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
 import { Story } from '../Story';
 import { UnaryExpression } from './UnaryExpression';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class BinaryExpression extends Expression {
   public readonly leftExpression: Expression;
@@ -43,7 +44,7 @@ export class BinaryExpression extends Expression {
     //
     //    not (A ? B)
     if (this.NativeNameForOp(this.opName) === '?') {
-      const leftUnary = this.leftExpression as UnaryExpression;
+      const leftUnary = asOrNull(this.leftExpression, UnaryExpression);
       if (leftUnary !== null &&
         (leftUnary.op === 'not' || leftUnary.op === '!'))
       {

@@ -14,6 +14,7 @@ import { Story } from '../Story';
 import { VariablePointerValue } from '../../../../engine/Value';
 import { VariableReference } from '../Variable/VariableReference';
 import { ClosestFlowBase } from '../Flow/ClosestFlowBase';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class Divert extends ParsedObject {
   public readonly args: Expression[] = [];
@@ -125,7 +126,7 @@ export class Divert extends ParsedObject {
 
           // Pass by reference: argument needs to be a variable reference
           if (argExpected && argExpected.isByReference) {
-            const varRef = argToPass as VariableReference;
+            const varRef = asOrNull(argToPass, VariableReference);
             if (!varRef) {
               this.Error(
                 `Expected variable name to pass by reference to 'ref ${argExpected.identifier}' but saw ${argToPass.ToString()}`,
@@ -201,7 +202,7 @@ export class Divert extends ParsedObject {
       // we can do at this point.
       var variableTargetName = this.PathAsVariableName();
       if (variableTargetName !== null) {
-        const flowBaseScope = ClosestFlowBase(this) as FlowBase;
+        const flowBaseScope = asOrNull(ClosestFlowBase(this),FlowBase);
         if (flowBaseScope) {
           const resolveResult = flowBaseScope.ResolveVariableWithName(variableTargetName, this);
 
@@ -254,7 +255,7 @@ export class Divert extends ParsedObject {
 
     // May be null if it's a built in function (e.g. TURNS_SINCE)
     // or if it's a variable target.
-    var targetFlow = this.targetContent as FlowBase;
+    var targetFlow = asOrNull(this.targetContent, FlowBase);
     if (targetFlow) {
       if (!targetFlow.isFunction && this.isFunctionCall) {
         super.Error(
@@ -343,7 +344,7 @@ export class Divert extends ParsedObject {
       return;
     }
 
-    const targetFlow: FlowBase = this.targetContent as FlowBase;
+    const targetFlow = asOrNull(this.targetContent, FlowBase);
 
     // No error, crikey!
     if (numArgs === 0 && (targetFlow === null || !targetFlow.hasParameters)) {
@@ -351,7 +352,7 @@ export class Divert extends ParsedObject {
     } else if (targetFlow === null && numArgs > 0) {
       this.Error('target needs to be a knot or stitch in order to pass arguments');
       return;
-    } else if (targetFlow.args === null || !targetFlow.args && numArgs > 0) {
+    } else if ( targetFlow !== null && (targetFlow.args === null || !targetFlow.args && numArgs > 0)) {
       this.Error(`target (${targetFlow.name}) doesn't take parameters`);
       return;
     } else if (this.parent instanceof DivertTarget) {
@@ -362,7 +363,7 @@ export class Divert extends ParsedObject {
       return;
     }
     
-    const paramCount = targetFlow.args.length;
+    const paramCount = targetFlow!.args!.length;
     if (paramCount !== numArgs) {
       let butClause: string;
       if (numArgs === 0) {
@@ -373,23 +374,23 @@ export class Divert extends ParsedObject {
         butClause = `but got ${numArgs}`;
       }
 
-      this.Error(`to '${targetFlow.identifier}' requires ${paramCount} arguments, ${butClause}`);
+      this.Error(`to '${targetFlow!.identifier}' requires ${paramCount} arguments, ${butClause}`);
 
       return;
     }
 
     // Light type-checking for divert target arguments
     for (let ii = 0; ii < paramCount; ++ii) {
-      const flowArg: Argument = targetFlow.args[ii];
+      const flowArg: Argument = targetFlow!.args![ii];
       const divArgExpr: Expression = this.args[ii];
 
       // Expecting a divert target as an argument, let's do some basic type checking
       if (flowArg.isDivertTarget) {
         // Not passing a divert target or any kind of variable reference?
-        var varRef = divArgExpr as VariableReference;
+        var varRef = asOrNull(divArgExpr, VariableReference);
         if (!(divArgExpr instanceof DivertTarget) && varRef === null) {
           this.Error(
-            `Target '${targetFlow.identifier}' expects a divert target for the parameter named -> ${flowArg.identifier} but saw ${divArgExpr}`,
+            `Target '${targetFlow!.identifier}' expects a divert target for the parameter named -> ${flowArg.identifier} but saw ${divArgExpr}`,
             divArgExpr,
           );
         } else if (varRef) {

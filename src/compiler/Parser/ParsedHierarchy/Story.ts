@@ -483,10 +483,12 @@ export class Story extends FlowBase {
     }
 
     // Top level knots
-    const knotOrFunction: FlowBase = this.ContentWithNameAtLevel(
+    const maybeKnotOrFunction = this.ContentWithNameAtLevel(
       identifier?.name!,
       FlowLevel.Knot,
-    ) as FlowBase;
+    );
+
+    const knotOrFunction = asOrNull(maybeKnotOrFunction, FlowBase);
   
     if (knotOrFunction &&
       (knotOrFunction !== obj || symbolType === SymbolType.Arg))
@@ -553,7 +555,7 @@ export class Story extends FlowBase {
 
     // Arguments to the current flow
     if (symbolType !== SymbolType.Arg) {
-      let flow: FlowBase | null = obj as FlowBase;
+      let flow: FlowBase | null = asOrNull(obj, FlowBase);
       if (!flow) {
         flow = ClosestFlowBase(obj);
       }

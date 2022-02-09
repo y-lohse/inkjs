@@ -272,7 +272,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
       // Inner knots and stitches
       if (obj instanceof FlowBase) {
-        const childFlow: FlowBase = obj as FlowBase;
+        const childFlow: FlowBase = obj;
         const childFlowRuntime = childFlow.runtimeObject;
 
         // First inner stitch - automatically step into it
@@ -498,7 +498,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       message = `${message} Note that if you intend to enter '${this._firstChildFlow.identifier}' next, you need to divert to it explicitly.`;
     }
 
-    const terminatingDivert = terminatingObject as Divert;
+    const terminatingDivert = asOrNull(terminatingObject, Divert);
     if (terminatingDivert && terminatingDivert.isTunnel) {
       message += ` When final tunnel to '${terminatingDivert.target} ->' returns it won't have anywhere to go.`;
     }

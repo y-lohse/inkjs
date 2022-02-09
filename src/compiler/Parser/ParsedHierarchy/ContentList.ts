@@ -2,6 +2,7 @@ import { Container as RuntimeContainer } from '../../../engine/Container';
 import { ParsedObject } from './Object';
 import { InkObject as RuntimeObject } from '../../../engine/Object';
 import { Text } from './Text';
+import { asOrNull } from '../../../engine/TypeAssertion';
 
 export class ContentList extends ParsedObject {
   public dontFlatten: boolean = false;
@@ -24,7 +25,7 @@ export class ContentList extends ParsedObject {
 
   public readonly TrimTrailingWhitespace = (): void => {
     for (let ii = this.content.length - 1; ii >= 0; --ii) {
-      const text = this.content[ii] as Text;
+      const text = asOrNull(this.content[ii],Text);
       if (text === null) {
         break;
       }

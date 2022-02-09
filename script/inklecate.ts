@@ -1,4 +1,5 @@
 import { Compiler } from '../src/compiler/Compiler';
+import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
 
 // const c = new Compiler(`Hello, world!`)
@@ -10,7 +11,7 @@ import { Story } from '../src/engine/Story';
 // - They lived happily ever after.
 //    -> END
 // `)
-const c = new Compiler(`* a choice`)
+const c = new Compiler(`* a choice`, {countAllVisits: true} as CompilerOptions)
 const rstory = c.Compile();
 
 debugger;

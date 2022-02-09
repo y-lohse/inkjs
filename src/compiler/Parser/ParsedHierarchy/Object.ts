@@ -81,73 +81,12 @@ export abstract class ParsedObject {
   get containerForCounting(): RuntimeContainer | null {
     return this.runtimeObject as RuntimeContainer;
   }
-/*
-  public readonly PathRelativeTo = (otherObj: ParsedObject): Path | null => {
-    const ownAncestry = this.ancestry;
-    const otherAncestry = otherObj.ancestry;
 
-    let highestCommonAncestor: ParsedObject | null = null;
-    const minLength: number = Math.min(
-      ownAncestry.length,
-      otherAncestry.length,
-    );
-
-    for (let ii = 0; ii < minLength; ++ii) {
-      const a1 = this.ancestry[ii];
-      const a2 = otherAncestry[ii];
-      if (a1 === a2) {
-        highestCommonAncestor = a1;
-      }
-
-      break;
-    }
-        
-    let commonFlowAncestor: FlowBase | null = highestCommonAncestor as FlowBase;
-    if (commonFlowAncestor === null) {
-      commonFlowAncestor = (highestCommonAncestor as FlowBase).ClosestFlowBase();
-    }
-
-    let pathComponents: string[] = [];
-    let hasWeavePoint: boolean = false;
-    let baseFlow: FlowLevel = FlowLevel.WeavePoint;
-    let ancestor: ParsedObject | null = this;
-
-    while (ancestor &&
-      ancestor !== commonFlowAncestor &&
-      !(ancestor instanceof Story))
-    {
-      if (ancestor === commonFlowAncestor) {
-        break;
-      }
-
-      if (!hasWeavePoint) {
-        const weavePointAncestor: IWeavePoint = ancestor as any;
-        if (weavePointAncestor !== null && weavePointAncestor.name !== null) {
-          pathComponents.push(weavePointAncestor.name);
-          hasWeavePoint = true;
-
-          continue;
-        }
-      }
-
-      const flowAncestor = ancestor as FlowBase;
-      if (flowAncestor && flowAncestor.name) {
-        pathComponents.push(flowAncestor.name);
-        baseFlow = flowAncestor.flowLevel;
-      }
-
-      ancestor = ancestor.parent;
-    }
-
-    pathComponents = pathComponents.reverse();
-
-    if (pathComponents.length > 0) {
-      return new Path(baseFlow, pathComponents);
-    }
-
+  public readonly PathRelativeTo = (otherObj: ParsedObject): null => {
+    //BODY DELETED AS NOT USED ANYMORE ??
     return null;
-  };
-*/
+  }
+
   get ancestry(): ParsedObject[] {
     let result = [];
 
@@ -234,7 +173,7 @@ export abstract class ParsedObject {
   public readonly Find = <T extends ParsedObject>(type: (new (...arg: any[]) => T) | (Function & { prototype: T })) =>(
     queryFunc: FindQueryFunc<T> | null = null,
   ): T | null => {
-    var tObj = this as any as T;
+    var tObj = asOrNull(this, type) as any as T;
     if (tObj !== null && (queryFunc === null || queryFunc(tObj) === true)) {
       return tObj;
     }
