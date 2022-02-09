@@ -80,7 +80,7 @@ export class Compiler {
     );
 
     this._parsedStory = this.parser.ParseStory();
-    //debugger;
+    debugger;
     
     if (this.errors.length === 0) {
       this.parsedStory.countAllVisits = this.options.countAllVisits;

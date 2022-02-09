@@ -297,7 +297,7 @@ export namespace SimpleJson {
     }
 
     // Serialise the root object into a JSON string.
-    public ToString() {
+    public toString() {
       if (this._jsonObject === null) {
         return "";
       }

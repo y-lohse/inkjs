@@ -129,7 +129,7 @@ export class Divert extends ParsedObject {
             const varRef = asOrNull(argToPass, VariableReference);
             if (!varRef) {
               this.Error(
-                `Expected variable name to pass by reference to 'ref ${argExpected.identifier}' but saw ${argToPass.ToString()}`,
+                `Expected variable name to pass by reference to 'ref ${argExpected.identifier}' but saw ${argToPass}`,
               );
 
               break;
@@ -454,9 +454,9 @@ export class Divert extends ParsedObject {
     }
   };
 
-  public ToString = (): string => {
+  public toString = (): string => {
     if (this.target !== null) {
-      return this.target.ToString();
+      return this.target.toString();
     }
     
     return '-> <empty divert>';

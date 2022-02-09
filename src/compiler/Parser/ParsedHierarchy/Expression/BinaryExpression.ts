@@ -71,7 +71,7 @@ export class BinaryExpression extends Expression {
     return opName;
   };
 
-  public readonly ToString = (): string => (
+  public readonly toString = (): string => (
     `(${this.leftExpression} ${this.opName} ${this.rightExpression})`
   );
 }

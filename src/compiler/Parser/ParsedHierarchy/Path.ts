@@ -57,7 +57,7 @@ export class Path {
     }
   }
         
-  public readonly ToString = (): string => {
+  public readonly toString = (): string => {
     if (this._components === null || this._components.length === 0) {
       if (this.baseTargetLevel === FlowLevel.WeavePoint) {
         return '-> <next gather point>';

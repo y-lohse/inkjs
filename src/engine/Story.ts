@@ -264,7 +264,7 @@ export class Story extends InkObject {
 
     writer.WriteObjectEnd();
 
-    if (shouldReturn) return writer.ToString();
+    if (shouldReturn) return writer.toString();
   }
 
   public ResetState() {

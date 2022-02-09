@@ -6,5 +6,5 @@ export class InfixOperator {
   )
   {}
 
-  public readonly ToString = (): string => this.type;
+  public readonly toString = (): string => this.type;
 }

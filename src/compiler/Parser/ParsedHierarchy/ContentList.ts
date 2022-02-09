@@ -59,7 +59,7 @@ export class ContentList extends ParsedObject {
     return container;
   };
 
-  public ToString = (): string => (
+  public toString = (): string => (
     `ContentList(${this.content.join(', ')})`
   );
 }

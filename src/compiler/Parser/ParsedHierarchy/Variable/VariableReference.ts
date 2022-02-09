@@ -156,11 +156,11 @@ export class VariableReference extends Expression {
     }
 
     if (!context.ResolveVariableWithName(this.name, this).found) {
-      this.Error(`Unresolved variable: ${this.ToString()}`, this);
+      this.Error(`Unresolved variable: ${this}`, this);
     }
   };
 
-  public readonly ToString = (): string => (
+  public readonly toString = (): string => (
     this.path.join('.')
   );
 }

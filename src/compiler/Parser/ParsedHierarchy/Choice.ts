@@ -329,7 +329,7 @@ export class Choice
     }
   };
 
-  public readonly ToString = () => {
+  public readonly toString = () => {
     if (this.choiceOnlyContent !== null) {
       return `* ${this.startContent}[${this.choiceOnlyContent}]...`;
     }

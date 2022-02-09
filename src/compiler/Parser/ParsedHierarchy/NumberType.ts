@@ -25,7 +25,7 @@ export class NumberType extends Expression {
     }
   }
 
-  public readonly ToString = (): string => (
+  public readonly toString = (): string => (
     String(this.value)
   );
 }

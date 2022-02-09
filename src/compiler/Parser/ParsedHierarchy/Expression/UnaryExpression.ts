@@ -53,7 +53,7 @@ export class UnaryExpression extends Expression {
     container.AddContent(NativeFunctionCall.CallWithName(this.nativeNameForOp));
   };
 
-  public readonly ToString = (): string => (
+  public readonly toString = (): string => (
     this.nativeNameForOp + this.innerExpression
   );
 }

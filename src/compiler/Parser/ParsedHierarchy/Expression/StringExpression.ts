@@ -37,7 +37,7 @@ export class StringExpression extends Expression {
     container.AddContent(RuntimeControlCommand.EndString());
   };
 
-  public readonly ToString = (): string => {
+  public readonly toString = (): string => {
     let sb = '';
     for (const c of this.content) {
       sb += c;
@@ -59,8 +59,8 @@ export class StringExpression extends Expression {
       return false;
     }
 
-    const thisTxt = this.ToString();
-    const otherTxt = otherStr.ToString();
+    const thisTxt = this.toString();
+    const otherTxt = otherStr.toString();
     return thisTxt === otherTxt;
   };
 }

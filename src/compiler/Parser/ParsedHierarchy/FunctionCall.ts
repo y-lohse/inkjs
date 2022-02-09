@@ -300,7 +300,7 @@ export class FunctionCall extends Expression {
     }
   };
 
-  public readonly ToString = (): string => {
+  public readonly toString = (): string => {
     const strArgs = this.args.join(', ');
     return `${this.name}(${strArgs})`;
   };

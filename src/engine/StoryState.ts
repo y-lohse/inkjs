@@ -35,7 +35,7 @@ export class StoryState {
   public ToJson(indented: boolean = false) {
     let writer = new SimpleJson.Writer();
     this.WriteJson(writer);
-    return writer.ToString();
+    return writer.toString();
   }
   public toJson(indented: boolean = false) {
     return this.ToJson(indented);

@@ -11,7 +11,7 @@ export class Text extends ParsedObject {
 		new StringValue(this.text)
 	);
 
-	public readonly ToString = (): string => (
+	public readonly toString = (): string => (
 		this.text
 	);
 }

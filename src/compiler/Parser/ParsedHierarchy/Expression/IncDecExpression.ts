@@ -98,9 +98,9 @@ export class IncDecExpression extends Expression {
     return 'decrement';
   }
 
-  public readonly ToString = (): string => {
+  public readonly toString = (): string => {
     if (this.expression) {
-      return `${this.varIdentifier?.name!}${this.isInc ? ' += ' : ' -= '}${this.expression.ToString()}`;
+      return `${this.varIdentifier?.name!}${this.isInc ? ' += ' : ' -= '}${this.expression}`;
     }
 
     return this.varIdentifier?.name! + (this.isInc ? "++" : "--");
