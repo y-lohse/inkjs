@@ -9,10 +9,6 @@ export class Path {
   private _baseTargetLevel: FlowLevel | null;
   private components: Identifier[] | null;
 
-  get _components(): string[]{
-    return (this.components ? this.components : []).map(c => c.name).filter(filterUndef)
-  }
-
   get baseTargetLevel() {
     if (this.baseLevelIsAmbiguous) {
       return FlowLevel.Story;
@@ -26,19 +22,28 @@ export class Path {
   }
 
   get firstComponent(): string | null {
-    if (this._components == null || !this._components.length) {
+    if (this.components == null || !this.components.length) {
       return null;
     }
 
-    return this._components[0];
+    return this.components[0].name;
   }
 
   get numberOfComponents(): number {
-    return this._components ? this._components.length : 0;
+    return this.components ? this.components.length : 0;
   }
 
+  private _dotSeparatedComponents: string | null = null;
+
   get dotSeparatedComponents(): string {
-    return (this._components ? this._components : []).join('.');
+    if( this._dotSeparatedComponents == null ) {
+      this._dotSeparatedComponents = (this.components ? 
+                                              this.components : []
+                                     ).map(c => c.name)
+                                      .filter(filterUndef)
+                                      .join('.')
+    }
+    return this._dotSeparatedComponents;
   }
 
   constructor(
@@ -58,7 +63,7 @@ export class Path {
   }
         
   public readonly toString = (): string => {
-    if (this._components === null || this._components.length === 0) {
+    if (this.components === null || this.components.length === 0) {
       if (this.baseTargetLevel === FlowLevel.WeavePoint) {
         return '-> <next gather point>';
       }
@@ -72,7 +77,7 @@ export class Path {
   public readonly ResolveFromContext = (
     context: ParsedObject,
   ): ParsedObject | null => {
-    if (this._components == null || this._components.length == 0) {
+    if (this.components == null || this.components.length == 0) {
       return null;
     }
 
@@ -85,7 +90,7 @@ export class Path {
 
     // Given base of path, resolve final target by working deeper into hierarchy
     //  e.g. ==> base.mid.FINAL
-    if (this._components.length > 1) {
+    if (this.components.length > 1) {
       return this.ResolveTailComponents(baseTargetObject);
     }
 
@@ -136,10 +141,10 @@ export class Path {
   ): ParsedObject | null => {
     let foundComponent: ParsedObject | null = rootTarget;
 
-    if(!this._components) return null;
+    if(!this.components) return null;
 
-    for (let ii = 1; ii < this._components.length; ++ii) {
-      const compName = this._components[ii];
+    for (let ii = 1; ii < this.components.length; ++ii) {
+      const compName = this.components[ii].name;
 
       let minimumExpectedLevel: FlowLevel;
       var foundFlow = asOrNull(foundComponent, FlowBase);
