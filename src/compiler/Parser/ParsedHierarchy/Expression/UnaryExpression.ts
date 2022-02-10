@@ -30,20 +30,20 @@ export class UnaryExpression extends Expression {
 
         if( op === "-" ) {
           if(innerNumber.isInt()){
-            return new NumberExpression(-innerNumber.value)
+            return new NumberExpression(-innerNumber.value, 'int')
           }else if(innerNumber.isFloat()){
-            return new NumberExpression(-innerNumber.value)
+            return new NumberExpression(-innerNumber.value, 'float')
           }
         
         }
         
         else if( op == "!" || op == "not" ) {
           if( innerNumber.isInt() ) {
-              return new NumberExpression( innerNumber.value == 0 );
+              return new NumberExpression( innerNumber.value == 0, 'int');
           } else if( innerNumber.isFloat() ) {
-              return new NumberExpression( innerNumber.value == 0.0 );
+              return new NumberExpression( innerNumber.value == 0.0, 'float');
           } else if( innerNumber.isBool() ) {
-              return new NumberExpression( !innerNumber.value );
+              return new NumberExpression( !innerNumber.value, 'bool');
           }
         }
         

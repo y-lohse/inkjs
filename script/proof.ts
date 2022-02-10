@@ -32,7 +32,7 @@ function testAll(from: number, to: number){
             }
         } catch (error) {
             process.stdout.write(`🚨 Compile error : ${error}\n`);
-            throw error;
+            // throw error;
             
             report.compile++
             continue;
@@ -82,7 +82,8 @@ function run(compiledString: string, input: number[]){
             transcript+= nextText;
         }
 
-        if(story.currentChoices.length > 0){
+        const hasChoice = story.currentChoices.length > 0;
+        if(hasChoice){
             transcript+= '\n';
             for (let ci=0; ci<story.currentChoices.length; ++ci) {
                 const choice = story.currentChoices[ci];
@@ -90,10 +91,18 @@ function run(compiledString: string, input: number[]){
                 transcript += `${choice.index+1}: ${choice.text}\n`
             }
             transcript+= '?> ';
+            
             const nextChoice = input.shift();
-            if(!nextChoice) throw new Error("Not enough choices");
+            if(nextChoice === undefined) break;//throw new Error("Not enough choices");
             story.ChooseChoiceIndex(nextChoice);
-        }else{
+        }
+        
+        if (story.currentTags?.length) {
+            transcript+= "# tags: " + story.currentTags.join(", ");
+            transcript+= '\n'
+        }
+        
+        if(!hasChoice){
             break;
         }
     }while(true);
@@ -107,7 +116,11 @@ function iterRead(n: number){
     const testFolder = path.join(baselinePath, fullTestId(n));
     const meta = JSON.parse(fs.readFileSync(path.join(testFolder,'metadata.json'), "utf-8"));
     const story = fs.readFileSync(path.join(testFolder,'story.ink'), "utf-8");
-    const input = fs.readFileSync(path.join(testFolder,'input.txt'), "utf-8").split('\n').map(n => parseInt(n, 10) - 1);
+    const input = fs.readFileSync(path.join(testFolder,'input.txt'), "utf-8")
+                                .split('\n')
+                                .map(n => parseInt(n, 10) - 1)
+                                .filter( n => !isNaN(n))
+                                ;
     const transcript = fs.readFileSync(path.join(testFolder,'transcript.txt'), "utf-8");
 
     return {

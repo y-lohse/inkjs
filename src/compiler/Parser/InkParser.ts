@@ -1630,7 +1630,7 @@ export class InkParser extends StringParser {
       return null;
     }
 
-    return new NumberExpression(intOrNull);
+    return new NumberExpression(intOrNull, 'int');
   };
 
   public readonly ExpressionFloat = (): NumberExpression | null => {
@@ -1639,7 +1639,7 @@ export class InkParser extends StringParser {
       return null;
     }
     
-    return new NumberExpression(floatOrNull);
+    return new NumberExpression(floatOrNull, 'float');
   };
 
   public readonly ExpressionString = (): StringExpression | null => {

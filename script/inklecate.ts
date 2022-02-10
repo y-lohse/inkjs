@@ -14,16 +14,18 @@ import { Story } from '../src/engine/Story';
 // const c = new Compiler(`VAR hp = 2
 // {hp}`)
 
-const c = new Compiler(`-> main
-=== main ===
-Should you cross the river?
+// const c = new Compiler(`-> main // NOT PASSING
+// === main ===
+// Should you cross the river?
 
-*   [Yes]
-*   [No]
-**  [Fight back]
-**  [Flee]
-- -> END
-`)
+// *   [Yes]
+// *   [No]
+// **  [Fight back]
+// **  [Flee]
+// - -> END
+// `)
+
+const c = new Compiler(`{ 7 / 3.0 }`)
 const rstory = c.Compile();
 
 debugger;

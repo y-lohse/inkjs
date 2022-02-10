@@ -256,6 +256,8 @@ export namespace SimpleJson {
         this._addToCurrentObject(-3.4e38);
       } else if (isNaN(value)) {
         this._addToCurrentObject(0.0);
+      } else if (value % 1 == 0){
+        this._addToCurrentObject(`${value}.0f`);
       } else {
         this._addToCurrentObject(value);
       }
@@ -302,7 +304,9 @@ export namespace SimpleJson {
         return "";
       }
 
-      return JSON.stringify(this._jsonObject);
+      const standardJson = JSON.stringify(this._jsonObject);
+      // Input relies on float to be represented with at leat 1-precision
+      return standardJson.replace(/"([0-9]+.0)f"/g, '$1')
     }
 
     // Prepare the state stack when adding new objects / values.
