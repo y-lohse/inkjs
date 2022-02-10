@@ -8,7 +8,7 @@ import { Story } from '../Story';
 import { VariableReference as RuntimeVariableReference } from '../../../../engine/VariableReference';
 import { Weave } from '../Weave';
 import { Identifier } from '../Identifier';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+import { asOrNull, filterUndef } from '../../../../engine/TypeAssertion';
 
 export class VariableReference extends Expression {
   private _runtimeVarRef: RuntimeVariableReference | null = null;
@@ -22,7 +22,7 @@ export class VariableReference extends Expression {
   }
 
   get path(): string[] {
-    return this.pathIdentifiers.map(id => id.name!)
+    return this.pathIdentifiers.map(id => id.name!).filter(filterUndef)
   }
 
   get identifier(): Identifier|null {
