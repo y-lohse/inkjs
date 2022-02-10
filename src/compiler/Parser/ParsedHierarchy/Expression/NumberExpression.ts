@@ -8,7 +8,7 @@ export class NumberExpression extends Expression {
   constructor(value: number|boolean) {
     super();
 
-    if (typeof value === 'number' && !Number.isNaN(value)) {
+    if (typeof value === 'number' && !Number.isNaN(value) || typeof value == 'boolean') {
       this.value = value;
     } else {
       throw new Error('Unexpected object type in NumberExpression.');
