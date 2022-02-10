@@ -11,7 +11,10 @@ export class SimpleJson {
 export namespace SimpleJson {
   export class Reader {
     constructor(text: string) {
-      this._rootObject = JSON.parse(text);
+      // Enforce float detection
+      const jsonWithExplicitFloat = text.replace(/(,)([0-9]+\.[0-9]+)([,]*)/g, '$1"$2f"$3')
+      debugger;
+      this._rootObject = JSON.parse(jsonWithExplicitFloat);
     }
 
     public ToDictionary() {
@@ -257,7 +260,7 @@ export namespace SimpleJson {
       } else if (isNaN(value)) {
         this._addToCurrentObject(0.0);
       } else if (value % 1 == 0){
-        this._addToCurrentObject(`${value}.0f`);
+        this._addToCurrentObject(`${value}.0f`); //forces 1 decimal precision for ints
       } else {
         this._addToCurrentObject(value);
       }
@@ -305,8 +308,8 @@ export namespace SimpleJson {
       }
 
       const standardJson = JSON.stringify(this._jsonObject);
-      // Input relies on float to be represented with at leat 1-precision
-      return standardJson.replace(/"([0-9]+.0)f"/g, '$1')
+      // HACK : Input relies on float to be represented with at leat 1-precision
+      return standardJson.replace(/"([0-9]+\.0)f"/g, '$1')
     }
 
     // Prepare the state stack when adding new objects / values.
