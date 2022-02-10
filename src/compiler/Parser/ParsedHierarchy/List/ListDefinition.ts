@@ -22,10 +22,10 @@ export class ListDefinition extends ParsedObject {
   get runtimeListDefinition(): RuntimeListDefinition {
     const allItems: Map<string, number> = new Map();
     for (const e of this.itemDefinitions) {
-      if (allItems.has(e.name!)) {
+      if (!allItems.has(e.name!)) {
         allItems.set(e.name!, e.seriesValue);
       } else {
-        this.Error(`List '${this.identifier}' contains dupicate items called '${e.name}'`);
+        this.Error(`List '${this.identifier}' contains duplicate items called '${e.name}'`);
       }
     }
 

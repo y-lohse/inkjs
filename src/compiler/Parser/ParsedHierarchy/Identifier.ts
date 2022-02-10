@@ -4,10 +4,6 @@ export class Identifier {
     public name: string;
     public debugMetadata: DebugMetadata|null = null;
 
-    get toString(): string{
-        return this.name || 'undefined identifer';
-    }
-
     constructor(name: string){
         this.name = name;
     }
@@ -15,4 +11,8 @@ export class Identifier {
     public static Done() : Identifier{
         return new Identifier("DONE");
     }
+
+    public readonly toString = (): string => (
+        this.name || 'undefined identifer'
+    );
 }

@@ -32,7 +32,7 @@ function testAll(from: number, to: number){
             }
         } catch (error) {
             process.stdout.write(`🚨 Compile error : ${error}\n`);
-            //throw error;
+            throw error;
             
             report.compile++
             continue;

@@ -1,6 +1,8 @@
 import { Container as RuntimeContainer } from '../../../../engine/Container';
 import { Expression } from './Expression';
 import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
+import { NumberExpression } from './NumberExpression';
+import { asOrNull } from '../../../../engine/TypeAssertion';
 
 export class UnaryExpression extends Expression {
   get nativeNameForOp(): string {
@@ -21,17 +23,34 @@ export class UnaryExpression extends Expression {
   public static readonly WithInner = (
     inner: Expression,
     op: string,
-  ): Expression | number => {
-    const innerNumber = Number(inner);
-    if (!Number.isNaN(innerNumber)) {
-      if (op === '-') {
-        return -Number(innerNumber as any);
-      } else if (op === '!' || op === 'not') {
-        return innerNumber === 0 ? 1 : 0;
-      }
+  ): Expression => {
+    const innerNumber = asOrNull(inner, NumberExpression);
 
-      throw new Error('Unexpected operation or number type');
+    if(innerNumber){
+
+        if( op === "-" ) {
+          if(innerNumber.isInt()){
+            return new NumberExpression(-innerNumber.value)
+          }else if(innerNumber.isFloat()){
+            return new NumberExpression(-innerNumber.value)
+          }
+        
+        }
+        
+        else if( op == "!" || op == "not" ) {
+          if( innerNumber.isInt() ) {
+              return new NumberExpression( innerNumber.value == 0 );
+          } else if( innerNumber.isFloat() ) {
+              return new NumberExpression( innerNumber.value == 0.0 );
+          } else if( innerNumber.isBool() ) {
+              return new NumberExpression( !innerNumber.value );
+          }
+        }
+        
+        throw new Error('Unexpected operation or number type');
+      
     }
+    
 
     // Normal fallback
     const unary = new UnaryExpression(inner, op);

@@ -7,7 +7,7 @@ import { Expression } from './Expression/Expression';
 import { InkList as RuntimeInkList } from '../../../engine/InkList';
 import { ListValue } from '../../../engine/Value';
 import { NativeFunctionCall } from '../../../engine/NativeFunctionCall';
-import { NumberType } from './NumberType';
+import { NumberExpression } from './Expression/NumberExpression';
 import { Path } from './Path';
 import { Story } from './Story';
 import { StringValue } from '../../../engine/Value';
@@ -148,12 +148,10 @@ export class FunctionCall extends Expression {
 
       // We can type check single values, but not complex expressions
       for (let ii = 0; ii < this.args.length; ii += 1) {
-        const num: NumberType = this.args[ii] as any;
-        if (this.args[ii] instanceof NumberType) {
-          if (Number.isNaN(num.value) || num.value % 1 !== 0) {
+        const num = asOrNull(this.args[ii],NumberExpression);
+        if (num && !num.isInt()) {
             const paramName: string = ii === 0 ? 'minimum' : 'maximum';
             this.Error(`RANDOM's ${paramName} parameter should be an integer`);
-          }
         }
 
         this.args[ii].GenerateIntoContainer(container);
@@ -165,11 +163,8 @@ export class FunctionCall extends Expression {
         this.Error ('SEED_RANDOM should take 1 parameter - an integer seed');
       }
 
-      const num: NumberType = this.args[0] as any;
-      if (num &&
-        typeof num.value !== 'number' ||
-        Number.isNaN(num.value) ||
-        num.value % 1 !== 0)
+      const num = asOrNull(this.args[0],NumberExpression);
+      if (num && !num.isInt())
       {
         this.Error('SEED_RANDOM\'s parameter should be an integer seed');
       }

@@ -57,7 +57,7 @@ import { UnaryExpression } from './ParsedHierarchy/Expression/UnaryExpression';
 import { FileHandler } from '../FileHandler';
 import { asOrNull, filterUndef } from '../../engine/TypeAssertion';
 import { Identifier } from './ParsedHierarchy/Identifier';
-import { NumberType } from './ParsedHierarchy/NumberType';
+import { NumberExpression } from './ParsedHierarchy/Expression/NumberExpression';
 
 export enum ErrorType {
   Author,
@@ -1624,22 +1624,22 @@ export class InkParser extends StringParser {
     return new DivertTarget(divert);
   };
 
-  public readonly ExpressionInt = (): NumberType | null => {
+  public readonly ExpressionInt = (): NumberExpression | null => {
     const intOrNull: number = this.ParseInt() as number;
     if (intOrNull === null) {
       return null;
     }
 
-    return new NumberType(intOrNull);
+    return new NumberExpression(intOrNull);
   };
 
-  public readonly ExpressionFloat = (): NumberType | null => {
+  public readonly ExpressionFloat = (): NumberExpression | null => {
     const floatOrNull: number = this.ParseFloat() as number;
     if (floatOrNull === null) {
       return null;
     }
     
-    return new NumberType(floatOrNull);
+    return new NumberExpression(floatOrNull);
   };
 
   public readonly ExpressionString = (): StringExpression | null => {
@@ -2382,7 +2382,7 @@ export class InkParser extends StringParser {
     const expr = definition as Expression;
 
     if (expr) {
-      const check = expr instanceof NumberType ||
+      const check = expr instanceof NumberExpression ||
         expr instanceof StringExpression ||
         expr instanceof DivertTarget ||
         expr instanceof VariableReference ||

@@ -11,8 +11,19 @@ import { Story } from '../src/engine/Story';
 // - They lived happily ever after.
 //    -> END
 // `)
-const c = new Compiler(`VAR hp = 2
-{hp}`)
+// const c = new Compiler(`VAR hp = 2
+// {hp}`)
+
+const c = new Compiler(`-> main
+=== main ===
+Should you cross the river?
+
+*   [Yes]
+*   [No]
+**  [Fight back]
+**  [Flee]
+- -> END
+`)
 const rstory = c.Compile();
 
 debugger;
@@ -23,5 +34,9 @@ if(jsonStory){
     const story = new Story(jsonStory);
     while(story.canContinue){
         console.log(story.Continue())
+    }
+    for (let ci=0; ci<story.currentChoices.length; ++ci) {
+    const choice = story.currentChoices[ci];
+    console.log(`${choice.index+1}: ${choice.text}\n`)
     }
 }

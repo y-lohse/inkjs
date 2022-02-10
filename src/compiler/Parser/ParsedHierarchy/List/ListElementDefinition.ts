@@ -44,4 +44,8 @@ export class ListElementDefinition extends ParsedObject {
     super.ResolveReferences(context);
     context.CheckForNamingCollisions(this, this.indentifier, SymbolType.ListItem);
   };
+
+  public readonly toString = (): string => (
+    this.fullName
+  );
 }
