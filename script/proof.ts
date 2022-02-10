@@ -41,7 +41,7 @@ function testAll(from: number, to: number){
         try {
             ran = run(compiled, input);
         } catch (error) {
-            process.stdout.write(`⚙️ Runtime error : ${error}\n`);
+            process.stdout.write(`🛠 Runtime error : ${error}\n`);
             report.runtime++
             continue;
         }
@@ -50,7 +50,7 @@ function testAll(from: number, to: number){
             process.stdout.write('✅');
             report.ok++
         }else{
-            process.stdout.write('✍🏻');
+            process.stdout.write('📝');
             process.stdout.write(showDiff(transcript, ran));
             report.transcript++
 
@@ -61,8 +61,8 @@ function testAll(from: number, to: number){
     process.stdout.write("\n\n====== Report =====\n");
     process.stdout.write(`✅ success: ${report.ok}\n`);
     process.stdout.write(`🚨 fail to compile: ${report.compile}\n`);
-    process.stdout.write(`⚙️  fail to run: ${report.runtime}\n`);
-    process.stdout.write(`✍🏻 fail to transcript: ${report.transcript}\n`);
+    process.stdout.write(`🛠 fail to run: ${report.runtime}\n`);
+    process.stdout.write(`📝 fail to transcript: ${report.transcript}\n`);
     
 }
 
