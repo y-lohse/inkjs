@@ -158,9 +158,10 @@ export class InkParser extends StringParser {
     return allElements;
   };
 
-  public readonly PreProcessInputString = (str: string): string => (
-    new CommentEliminator(str).Process()
-  );
+  public PreProcessInputString(str: string): string {
+    const commentEliminator = new CommentEliminator(str);
+    return commentEliminator.Process();
+  };
 
   public readonly CreateDebugMetadata = (
     stateAtStart: StringParserElement | null, 
@@ -1670,12 +1671,12 @@ export class InkParser extends StringParser {
     return new StringExpression(textAndLogic);
   };
 
-  public readonly ExpressionBool = (): number | null => {
+  public readonly ExpressionBool = (): NumberExpression | null => {
     const id = this.Parse(this.Identifier);
     if (id === 'true') {
-      return 1;
+      return new NumberExpression(true, "bool");
     } else if (id === 'false') {
-      return 0;
+      return new NumberExpression(false, "bool");
     }
 
     return null;

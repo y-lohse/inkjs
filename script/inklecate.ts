@@ -2,19 +2,19 @@ import { Compiler } from '../src/compiler/Compiler';
 import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
 
-// const c = new Compiler(`Hello, world!`)
-// const c = new Compiler(`Once upon a time...
+// const inputString = `Hello, world!`
+// const inputString = `Once upon a time...
 
 // * There were two choices.
 // * There were four lines of content.
 
 // - They lived happily ever after.
 //    -> END
-// `)
-// const c = new Compiler(`VAR hp = 2
-// {hp}`)
+// `
+// const inputString = `VAR hp = 2
+// {hp}`
 
-// const c = new Compiler(`-> main // NOT PASSING
+// const inputString = `-> main // NOT PASSING
 // === main ===
 // Should you cross the river?
 
@@ -23,9 +23,12 @@ import { Story } from '../src/engine/Story';
 // **  [Fight back]
 // **  [Flee]
 // - -> END
-// `)
+// `
 
-const c = new Compiler(`{ 7 / 3.0 }`)
+// const inputString= `{ 7 / 3.0 }`
+const inputString= `* {false} non-choice`
+
+const c = new Compiler(inputString)
 const rstory = c.Compile();
 
 debugger;

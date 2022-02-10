@@ -13,7 +13,6 @@ export namespace SimpleJson {
     constructor(text: string) {
       // Enforce float detection
       const jsonWithExplicitFloat = text.replace(/(,)([0-9]+\.[0-9]+)([,]*)/g, '$1"$2f"$3')
-      debugger;
       this._rootObject = JSON.parse(jsonWithExplicitFloat);
     }
 
@@ -208,7 +207,8 @@ export namespace SimpleJson {
       escape: boolean = true
     ) {
       if (value === null) {
-        console.error("Warning: trying to write a null string");
+        debugger;
+        console.error("Warning: trying to write a null value");
         return;
       }
 

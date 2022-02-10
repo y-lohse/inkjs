@@ -76,6 +76,7 @@ export class Divert extends ParsedObject {
       return RuntimeControlCommand.Done();
     }
 
+    debugger;
     this.runtimeDivert = new RuntimeDivert();
 
     // Normally we resolve the target content during the

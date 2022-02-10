@@ -53,7 +53,9 @@ export abstract class StringParser {
 
     // Don't do anything by default, but provide ability for subclasses
     // to manipulate the string before it's used as input (converted to a char array)
-  public readonly PreProcessInputString = (str: string): string => str;
+  public PreProcessInputString(str: string): string {
+    return str;
+  } 
 
   //--------------------------------
   // Parse state

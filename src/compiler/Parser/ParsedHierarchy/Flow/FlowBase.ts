@@ -493,7 +493,6 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   }
 
   public readonly WarningInTermination = (terminatingObject: ParsedObject) => {
-    debugger;
     let message: string = 'Apparent loose end exists where the flow runs out. Do you need a \'-> DONE\' statement, choice or divert?';
     if (terminatingObject.parent === this._rootWeave && this._firstChildFlow) {
       message = `${message} Note that if you intend to enter '${this._firstChildFlow.identifier}' next, you need to divert to it explicitly.`;

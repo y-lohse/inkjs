@@ -14,10 +14,10 @@ export class CommentEliminator extends StringParser {
 
   public readonly Process = (): string  => {
     // Make both comments and non-comments optional to handle trivial empty file case (or *only* comments)
-    const stringList: string[] = [
-      ...(this.CommentsAndNewlines() || []),
-      ...this.MainInk()
-    ];
+    const stringList: string[] = this.Interleave<string>(
+      this.Optional(this.CommentsAndNewlines),
+      this.Optional(this.MainInk)
+    );
 
     if (stringList !== null) {
       return stringList.join('');
@@ -33,13 +33,13 @@ export class CommentEliminator extends StringParser {
   );
 
   public readonly CommentsAndNewlines = () => {
-    const newLines: string[] = [
-      ...this.ParseNewline(),
-      ...(this.ParseSingleComment() || []),
-    ];
+    let newLines: string[] = this.Interleave<string>(
+      this.Optional(this.ParseNewline),
+      this.Optional(this.ParseSingleComment),
+    );
 
     if (newLines !== null) {
-      return newLines.join();
+      return newLines.join("");
     }
     
     return null;
@@ -47,9 +47,10 @@ export class CommentEliminator extends StringParser {
 
   // Valid comments always return either an empty string or pure newlines,
   // which we want to keep so that line numbers stay the same
-  public readonly ParseSingleComment = () => (
-    this.EndOfLineComment() || this.BlockComment()
-  );
+  public readonly ParseSingleComment = () => this.OneOf([
+      this.EndOfLineComment,
+      this.BlockComment,
+    ]);
 
   public readonly EndOfLineComment = () => {
     if (this.ParseString('//') === null) {
@@ -86,5 +87,9 @@ export class CommentEliminator extends StringParser {
     // No comment at all
     return null;
   };
+
+  public PreProcessInputString(str: string): string {
+    return str;
+  } 
 }
 

@@ -76,36 +76,29 @@ function run(compiledString: string, input: number[]){
     let transcript = '';
     const story = new Story(compiledString);
 
-    do{
-        while(story.canContinue){
-            const nextText = story.Continue()
-            transcript+= nextText;
+    while (story.canContinue || story.currentChoices.length > 0) {
+        if (story.currentChoices.length > 0) {
+            transcript += "\n";
+          for (let i=0; i<story.currentChoices.length; ++i) {
+            const choice = story.currentChoices[i];
+            transcript += `${i+1}: ${choice.text}\n`;
+          }
+          transcript += "?> ";
+          const choiceIndex = input.shift();
+          if(choiceIndex == undefined) break;
+          story.ChooseChoiceIndex(choiceIndex);
         }
-
-        const hasChoice = story.currentChoices.length > 0;
-        if(hasChoice){
-            transcript+= '\n';
-            for (let ci=0; ci<story.currentChoices.length; ++ci) {
-                const choice = story.currentChoices[ci];
-                
-                transcript += `${choice.index+1}: ${choice.text}\n`
-            }
-            transcript+= '?> ';
-            
-            const nextChoice = input.shift();
-            if(nextChoice === undefined) break;//throw new Error("Not enough choices");
-            story.ChooseChoiceIndex(nextChoice);
+    
+        if (story.currentTags && story.currentTags.length) {
+            transcript += "# tags: " + story.currentTags.join(", ")+ '\n';
         }
-        
-        if (story.currentTags?.length) {
-            transcript+= "# tags: " + story.currentTags.join(", ");
-            transcript+= '\n'
+    
+        transcript += story.ContinueMaximally();
+    
+        if (story.currentTags && story.currentTags.length) {
+            transcript += "# tags: " + story.currentTags.join(", ") + '\n';
         }
-        
-        if(!hasChoice){
-            break;
-        }
-    }while(true);
+      }
 
     return transcript;
 }

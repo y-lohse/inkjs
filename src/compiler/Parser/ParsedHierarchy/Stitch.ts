@@ -17,5 +17,10 @@ export class Stitch extends FlowBase {
 	{
 		super(name, topLevelObjects, args, isFunction);
 	}
+
+	public toString = (): string => {
+		return `${this.parent !== null ? this.parent + " > " : ""}${super.toString()}`;
+	}
+	
 }
 
