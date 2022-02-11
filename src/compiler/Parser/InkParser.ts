@@ -83,7 +83,7 @@ export class InkParser extends StringParser {
 
   constructor(
     str: string,
-    private _filename: string = '',
+    private _filename: string|null = null,
     private _externalErrorHandler: ErrorHandler | null = null,
     rootParser: InkParser | null = null,
     private _fileHandler: IFileHandler | null = null,

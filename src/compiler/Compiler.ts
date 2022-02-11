@@ -2,8 +2,8 @@ import { CompilerOptions,} from './CompilerOptions';
 import { DebugSourceRange } from './DebugSourceRange';
 import { ErrorType } from './Parser/ErrorType';
 import { InkParser } from './Parser/InkParser';
-import { Story as RuntimeStory } from '../Engine/Story';
-import { Story } from './Parser/ParsedHierarchy/Story';
+import { InkList as RuntimeList, Story as RuntimeStory } from '../Engine/Story';
+import { Story as ParsedStory} from './Parser/ParsedHierarchy/Story';
 import { DebugMetadata } from '../engine/DebugMetadata';
 import { StringValue } from '../engine/Value';
 
@@ -33,8 +33,8 @@ export class Compiler {
     return this._options;
   }
 
-  private _parsedStory: Story | null = null;
-  get parsedStory(): Story {
+  private _parsedStory: ParsedStory | null = null;
+  get parsedStory(): ParsedStory {
     if (!this._parsedStory) {
       throw new Error();
     }
@@ -73,7 +73,7 @@ export class Compiler {
   public readonly Compile = (): RuntimeStory => {
     this._parser = new InkParser(
       this.inputString,
-      this.options.sourceFilename || '',
+      this.options.sourceFilename || null,
       this.OnError,
       null,
       this.options.fileHandler,
@@ -151,3 +151,8 @@ export class Compiler {
     }
   };
 }
+
+
+//for js exports and direct usage
+export class Story extends RuntimeStory{}
+export class InkList extends RuntimeList{}

@@ -98,19 +98,18 @@ export class Story extends FlowBase {
     topLevelContent: ParsedObject[],
   ): void {
     super.PreProcessTopLevelObjects(topLevelContent)
-    
+
     const flowsFromOtherFiles = [];
 
     // Inject included files
-    let ii = 0;
-    while (ii < topLevelContent.length) {
-      const obj = topLevelContent[ii];
+    for (let obj of topLevelContent) {
       if (obj instanceof IncludedFile) {
         const file: IncludedFile = obj;
 
         
         // Remove the IncludedFile itself
-        topLevelContent.splice(ii, 1);
+        const posOfObj = topLevelContent.indexOf(obj)
+        topLevelContent.splice(posOfObj, 1);
 
         // When an included story fails to load, the include
         // line itself is still valid, so we have to handle it here
@@ -131,22 +130,18 @@ export class Story extends FlowBase {
             nonFlowContent.push(new Text('\n'));
 
             // Add contents of the file in its place
-            topLevelContent.unshift(nonFlowContent[ii]);
+            topLevelContent.splice(posOfObj, 0, ...nonFlowContent);
 
             // Skip past the content of this sub story
             // (since it will already have recursively included
             //  any lines from other files)
-            ii += nonFlowContent.length;
           }
         }
 
         // Include object has been removed, with possible content inserted,
         // and position of 'i' will have been determined already.
         continue;
-      } else {
-        // Non-include: skip over it
-        ii += 1;
-      }
+      } 
     }
 
     // Add the flows we collected from the included files to the

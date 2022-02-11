@@ -76,8 +76,8 @@ export default [
   {
     input: 'src/compiler/Compiler.ts',
     output: {
-      name: 'inklecate',
-      file: 'dist/inklecate.js',
+      name: moduleName,
+      file: 'dist/ink-full.js',
       format: format,
       sourcemap: true
     },
@@ -87,9 +87,29 @@ export default [
       babel({
         exclude: 'node_modules/**',
         extensions: ['.js', '.ts'],
-        //babelHelpers: 'bundled'
+        babelHelpers: 'bundled'
       }),
-      //terser(),
+      terser(),
+      sourcemaps()
+    ]
+  },
+  {
+    input: 'script/inklecate.ts',
+    output: {
+      name: 'inklecate',
+      file: 'dist/inklecate.js',
+      format: 'commonjs',
+      sourcemap: false
+    },
+    plugins: [
+      nodeResolve(),
+      typescript(tsconfig),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
+      }),
+      terser(),
       //sourcemaps()
     ]
   },
