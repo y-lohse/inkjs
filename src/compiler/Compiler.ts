@@ -2,7 +2,7 @@ import { CompilerOptions,} from './CompilerOptions';
 import { DebugSourceRange } from './DebugSourceRange';
 import { ErrorType } from './Parser/ErrorType';
 import { InkParser } from './Parser/InkParser';
-import { InkList as RuntimeList, Story as RuntimeStory } from '../Engine/Story';
+import { InkList as RuntimeList, Story as RuntimeStory } from '../engine/Story';
 import { Story as ParsedStory} from './Parser/ParsedHierarchy/Story';
 import { DebugMetadata } from '../engine/DebugMetadata';
 import { StringValue } from '../engine/Value';
