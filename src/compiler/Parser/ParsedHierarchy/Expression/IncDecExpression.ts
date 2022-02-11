@@ -71,7 +71,7 @@ export class IncDecExpression extends Expression {
     super.ResolveReferences(context);
 
     const varResolveResult = context.ResolveVariableWithName(
-      this.varIdentifier?.name || '',
+      this.varIdentifier?.name || "",
       this
     );
 

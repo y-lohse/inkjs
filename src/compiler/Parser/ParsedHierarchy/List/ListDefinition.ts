@@ -31,7 +31,7 @@ export class ListDefinition extends ParsedObject {
       }
     }
 
-    return new RuntimeListDefinition(this.identifier?.name || '', allItems);
+    return new RuntimeListDefinition(this.identifier?.name || "", allItems);
   }
 
   public readonly ItemNamed = (
@@ -80,7 +80,7 @@ export class ListDefinition extends ParsedObject {
     }
 
     // Set origin name, so
-    initialValues.SetInitialOriginName(this.identifier?.name || '');
+    initialValues.SetInitialOriginName(this.identifier?.name || "");
 
     return new ListValue(initialValues);
   };

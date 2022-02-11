@@ -128,7 +128,9 @@ export class Weave extends ParsedObject {
       const existingWeavePoint:
         | IWeavePoint
         | null
-        | undefined = this.namedWeavePoints.get(weavePoint.identifier?.name || '');
+        | undefined = this.namedWeavePoints.get(
+        weavePoint.identifier?.name || ""
+      );
 
       if (existingWeavePoint) {
         const typeName =

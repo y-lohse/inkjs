@@ -159,7 +159,7 @@ export class Story extends FlowBase {
       const existingDefinition:
         | ConstantDeclaration
         | null
-        | undefined = constDecl.constantName && this.constants.get(constDecl.constantName) as any;
+        | undefined = this.constants.get(constDecl.constantName!) as any;
 
       if (existingDefinition) {
         const runObj = existingDefinition.GenerateRuntimeObject() || {
@@ -474,7 +474,7 @@ export class Story extends FlowBase {
         `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`
       );
       return;
-    } else if (FunctionCall.IsBuiltIn(identifier?.name || '')) {
+    } else if (FunctionCall.IsBuiltIn(identifier?.name || "")) {
       obj.Error(
         `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`
       );
@@ -484,7 +484,7 @@ export class Story extends FlowBase {
 
     // Top level knots
     const maybeKnotOrFunction = this.ContentWithNameAtLevel(
-      identifier?.name || '',
+      identifier?.name || "",
       FlowLevel.Knot
     );
 
@@ -496,7 +496,7 @@ export class Story extends FlowBase {
     ) {
       this.NameConflictError(
         obj,
-        identifier?.name || '',
+        identifier?.name || "",
         knotOrFunction,
         typeNameToPrint
       );
@@ -524,7 +524,7 @@ export class Story extends FlowBase {
           if (identifier?.name === item.name) {
             this.NameConflictError(
               obj,
-              identifier?.name || '',
+              identifier?.name || "",
               item,
               typeNameToPrint
             );
@@ -541,14 +541,20 @@ export class Story extends FlowBase {
 
     // Global variable collision
     const varDecl: VariableAssignment | null =
-    identifier?.name && this.variableDeclarations.get(identifier?.name) || null;
+      (identifier?.name && this.variableDeclarations.get(identifier?.name)) ||
+      null;
     if (
       varDecl &&
       varDecl !== obj &&
       varDecl.isGlobalDeclaration &&
       varDecl.listDefinition == null
     ) {
-      this.NameConflictError(obj, identifier?.name || '', varDecl, typeNameToPrint);
+      this.NameConflictError(
+        obj,
+        identifier?.name || "",
+        varDecl,
+        typeNameToPrint
+      );
     }
 
     if (symbolType < SymbolType.SubFlowAndWeave) {
@@ -561,7 +567,7 @@ export class Story extends FlowBase {
     if (targetContent && targetContent !== obj) {
       this.NameConflictError(
         obj,
-        identifier?.name || '',
+        identifier?.name || "",
         targetContent,
         typeNameToPrint
       );
