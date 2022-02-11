@@ -207,7 +207,6 @@ export namespace SimpleJson {
       escape: boolean = true
     ) {
       if (value === null) {
-        debugger;
         console.error("Warning: trying to write a null value");
         return;
       }

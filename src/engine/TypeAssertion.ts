@@ -18,7 +18,6 @@ export function asOrThrows<T>(
   if (obj instanceof type) {
     return unsafeTypeAssertion(obj, type);
   } else {
-    debugger;
     throw new Error(`${obj} is not of type ${type}`);
   }
 }
