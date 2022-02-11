@@ -317,7 +317,6 @@ export class Divert extends ParsedObject {
     }
           
     if( !targetWasFound && !isBuiltIn && !isExternal) {
-      debugger;
       this.Error(`target not found: '${this.target}'`);
     }
   }

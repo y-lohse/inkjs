@@ -2328,7 +2328,7 @@ export class InkParser extends StringParser {
     //  ~ f()
     // Add extra pop to make sure we tidy up after ourselves.
     // We no longer need anything on the evaluation stack.
-    const funCall = result as FunctionCall;
+    const funCall = asOrNull(result, FunctionCall);
     if (funCall) {
       funCall.shouldPopReturnedValue = true;
     }
@@ -2722,10 +2722,9 @@ export class InkParser extends StringParser {
 
     // Reject if it's just a number
     let isNumberCharsOnly: boolean = true;
-    for (let ii = 0, c = name[ii]; ii < name.length; ii += 1) {
+    for (let c of name) {
       if (!(c >= '0' && c <= '9')) {
         isNumberCharsOnly = false;
-
         break;
       }
     }

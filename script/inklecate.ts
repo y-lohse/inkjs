@@ -28,15 +28,19 @@ import { Story } from '../src/engine/Story';
 // const inputString= `{ 7 / 3.0 }`
 // const inputString= `* {false} non-choice`
 
-const inputString = `LIST Food = Pizza, Pasta, Curry, Paella
-LIST Currency = Pound, Euro, Dollar
-LIST Numbers = One, Two, Three, Four, Five, Six, Seven
-VAR all = ()`
+// const inputString = `LIST Food = Pizza, Pasta, Curry, Paella
+// LIST Currency = Pound, Euro, Dollar
+// LIST Numbers = One, Two, Three, Four, Five, Six, Seven
+// VAR all = ()`
 // ~ all = LIST_ALL(Food) + LIST_ALL(Currency)`
 // {all}`
 // {LIST_RANGE(all, 2, 3)}`
 // {LIST_RANGE(LIST_ALL(Numbers), Two, Six)}`
 // {LIST_RANGE((Pizza, Pasta), -1, 100)} // allow out of range`
+
+const inputString = `-> 2tests
+    == 2tests ==
+    ->END`
 
 const c = new Compiler(inputString)
 const rstory = c.Compile();
