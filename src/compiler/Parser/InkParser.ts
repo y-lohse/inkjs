@@ -54,7 +54,6 @@ import { TunnelOnwards } from './ParsedHierarchy/TunnelOnwards';
 import { VariableAssignment } from './ParsedHierarchy/Variable/VariableAssignment';
 import { VariableReference } from './ParsedHierarchy/Variable/VariableReference';
 import { UnaryExpression } from './ParsedHierarchy/Expression/UnaryExpression';
-import { FileHandler } from '../FileHandler';
 import { asOrNull, filterUndef } from '../../engine/TypeAssertion';
 import { Identifier } from './ParsedHierarchy/Identifier';
 import { NumberExpression } from './ParsedHierarchy/Expression/NumberExpression';
@@ -71,11 +70,9 @@ export class InkParser extends StringParser {
    */
 
   get fileHandler(): IFileHandler {
-    if (this._fileHandler) {
-      return this._fileHandler;
+    if (!this._fileHandler) {
+      throw new Error("No FileHandler defined");
     }
-
-    this._fileHandler = new FileHandler();
     return this._fileHandler;
 
   }
@@ -1942,6 +1939,7 @@ export class InkParser extends StringParser {
         filename,
         this._externalErrorHandler,
         this._rootParser,
+        this.fileHandler
       );
 
       includedStory = parser.ParseStory();

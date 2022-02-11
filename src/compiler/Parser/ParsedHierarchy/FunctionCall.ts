@@ -123,7 +123,7 @@ export class FunctionCall extends Expression {
         );
         return;
       }
-      debugger;
+      
       if (divertTarget) {
         this._divertTargetToCount = divertTarget;
         this.AddContent(this._divertTargetToCount);

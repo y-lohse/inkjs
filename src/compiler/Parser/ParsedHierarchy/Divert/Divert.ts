@@ -24,7 +24,6 @@ export class Divert extends ParsedObject {
   private _runtimeDivert: RuntimeDivert | null = null;
   get runtimeDivert(): RuntimeDivert {
     if (!this._runtimeDivert) {
-      debugger;
       throw new Error();
     }
 

@@ -4,6 +4,8 @@ import * as path from "path";
 import * as fs from "fs";
 import { Story } from "../src/engine/Story";
 import { diff } from "jest-diff";
+import { PosixFileHandler } from "../src/compiler/FileHandler/PosixFileHandler";
+import { CompilerOptions } from "../src/compiler/CompilerOptions";
 
 let baselinePath = path.join(
     getRootDir(),
@@ -23,11 +25,11 @@ function testAll(from: number, to: number){
     }
 
     for (let ii = from; ii <= to; ii++) {    
-        const {meta, story, input, transcript} = iterRead(ii);
+        const {meta, story, input, filename, transcript} = iterRead(ii);
         process.stdout.write(`${fullTestId(ii)} ${meta.oneLineDescription}: `);
         let compiled: string| void;
         try {
-            compiled = compile(story);
+            compiled = compile(story, filename);
             if(!compiled) {
                 throw new Error(`Test ${ii}`);
             }
@@ -80,8 +82,11 @@ function testAll(from: number, to: number){
     
 }
 
-function compile(inputString: string): string | void{
-    const c = new Compiler(inputString);
+function compile(inputString: string, filename: string): string | void{
+    const options = new CompilerOptions(
+        filename, [], false, null, new PosixFileHandler(filename)
+    )
+    const c = new Compiler(inputString, options);
     const rstory = c.Compile();
     return rstory.ToJson();
 }
@@ -138,7 +143,8 @@ function fullTestId(n: number){
 function iterRead(n: number){
     const testFolder = path.join(baselinePath, fullTestId(n));
     const meta = JSON.parse(fs.readFileSync(path.join(testFolder,'metadata.json'), "utf-8"));
-    const story = fs.readFileSync(path.join(testFolder,'story.ink'), "utf-8");
+    const filename = path.join(testFolder,'story.ink');
+    const story = fs.readFileSync(filename, "utf-8");
     const input = fs.readFileSync(path.join(testFolder,'input.txt'), "utf-8")
                                 .split('\n')
                                 .map(n => parseInt(n, 10) - 1)
@@ -150,6 +156,7 @@ function iterRead(n: number){
         meta,
         story,
         input,
+        filename,
         transcript,
     }
 }

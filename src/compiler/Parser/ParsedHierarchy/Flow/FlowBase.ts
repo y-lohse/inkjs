@@ -138,9 +138,9 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return finalContent;
   };
 
-  public readonly PreProcessTopLevelObjects = (
+  public PreProcessTopLevelObjects(
     topLevelObjects: ParsedObject[],
-  ): void => {
+  ): void {
     // empty by default, used by Story to process included file references
   };
 

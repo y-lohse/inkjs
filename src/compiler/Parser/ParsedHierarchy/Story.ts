@@ -94,9 +94,11 @@ export class Story extends FlowBase {
   // knots/stiches and any other content. Insert the normal content wherever
   // the include statement was, and append the knots/stitches to the very
   // end of the main story.
-  public readonly PreProcessTopLevelObjects = (
+  public PreProcessTopLevelObjects(
     topLevelContent: ParsedObject[],
-  ): void => {
+  ): void {
+    super.PreProcessTopLevelObjects(topLevelContent)
+    
     const flowsFromOtherFiles = [];
 
     // Inject included files
@@ -106,6 +108,7 @@ export class Story extends FlowBase {
       if (obj instanceof IncludedFile) {
         const file: IncludedFile = obj;
 
+        
         // Remove the IncludedFile itself
         topLevelContent.splice(ii, 1);
 

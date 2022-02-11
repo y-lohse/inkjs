@@ -1,59 +1,25 @@
 import { Compiler } from '../src/compiler/Compiler';
 import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
+import { PosixFileHandler } from '../src/compiler/FileHandler/PosixFileHandler';
 
-// const inputString = `Hello, world!`
-// const inputString = `Once upon a time...
+const countAllVisit = process.argv.includes("-c");
+const play = process.argv.includes("-p");
 
-// * There were two choices.
-// * There were four lines of content.
+const fileHandler = new PosixFileHandler(process.argv[2]);
+const mainInk = fileHandler.LoadInkFileContents(process.argv[2]);
 
-// - They lived happily ever after.
-//    -> END
-// `
-// const inputString = `VAR hp = 2
-// {hp}`
+const options = new CompilerOptions(
+    process.argv[2], [], countAllVisit, null, fileHandler
+)
 
-// const inputString = `-> main // NOT PASSING
-// === main ===
-// Should you cross the river?
-
-// *   [Yes]
-// *   [No]
-// **  [Fight back]
-// **  [Flee]
-// - -> END
-// `
-
-// const inputString= `{ 7 / 3.0 }`
-// const inputString= `* {false} non-choice`
-
-// const inputString = `LIST Food = Pizza, Pasta, Curry, Paella
-// LIST Currency = Pound, Euro, Dollar
-// LIST Numbers = One, Two, Three, Four, Five, Six, Seven
-// VAR all = ()`
-// ~ all = LIST_ALL(Food) + LIST_ALL(Currency)`
-// {all}`
-// {LIST_RANGE(all, 2, 3)}`
-// {LIST_RANGE(LIST_ALL(Numbers), Two, Six)}`
-// {LIST_RANGE((Pizza, Pasta), -1, 100)} // allow out of range`
-
-// const inputString = `-> 2tests
-//     == 2tests ==
-//     ->END`
-
-const inputString = `VAR x = ->knot
-{READ_COUNT (x)}
-=== knot ====
--> END`
-
-const c = new Compiler(inputString)
+const c = new Compiler(mainInk, options)
 const rstory = c.Compile();
 
 const jsonStory = rstory.ToJson()
 console.log(jsonStory)
 
-if(jsonStory){
+if(jsonStory && play){
     const story = new Story(jsonStory);
     while(story.canContinue){
         console.log(story.Continue())
