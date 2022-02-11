@@ -123,7 +123,7 @@ export class FunctionCall extends Expression {
         );
         return;
       }
-
+      debugger;
       if (divertTarget) {
         this._divertTargetToCount = divertTarget;
         this.AddContent(this._divertTargetToCount);
@@ -232,7 +232,7 @@ export class FunctionCall extends Expression {
 
     // Don't attempt to resolve as a divert if we're not doing a normal function call
     if (!usingProxyDivert) {
-      this.content.splice(this.content.indexOf(this._proxyDivert, 1));
+      this.content.splice(this.content.indexOf(this._proxyDivert), 1);
     }
 
     // Function calls that are used alone on a tilda-based line:

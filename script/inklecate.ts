@@ -38,14 +38,18 @@ import { Story } from '../src/engine/Story';
 // {LIST_RANGE(LIST_ALL(Numbers), Two, Six)}`
 // {LIST_RANGE((Pizza, Pasta), -1, 100)} // allow out of range`
 
-const inputString = `-> 2tests
-    == 2tests ==
-    ->END`
+// const inputString = `-> 2tests
+//     == 2tests ==
+//     ->END`
+
+const inputString = `VAR x = ->knot
+{READ_COUNT (x)}
+=== knot ====
+-> END`
 
 const c = new Compiler(inputString)
 const rstory = c.Compile();
 
-debugger;
 const jsonStory = rstory.ToJson()
 console.log(jsonStory)
 

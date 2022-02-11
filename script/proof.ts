@@ -7,6 +7,7 @@ import { diff } from "jest-diff";
 
 let baselinePath = path.join(
     getRootDir(),
+    "src",
     "tests",
     "ink-proof"
   );
@@ -27,7 +28,6 @@ function testAll(from: number, to: number){
         let compiled: string| void;
         try {
             compiled = compile(story);
-            debugger;
             if(!compiled) {
                 throw new Error(`Test ${ii}`);
             }
@@ -39,22 +39,34 @@ function testAll(from: number, to: number){
             report.compile++
             continue;
         }
-        let ran = '';
+        let ran_transcript = '';
+        let errors = [];
+        let encounterUnexpectedRuntimeError: string|false = false;
         try {
-            ran = run(compiled, input);
+            [ran_transcript, errors] = run(compiled, input);
+            if(errors.length > 0) encounterUnexpectedRuntimeError = errors.join("\n")
         } catch (error) {
-            process.stdout.write(`🛠 Runtime error : ${error}\n`);
-            report.runtime++
-            continue;
+            encounterUnexpectedRuntimeError = `${error}`;
         }
 
-        if(ran == transcript){
-            process.stdout.write('✅');
+        if(ran_transcript == transcript){
+            process.stdout.write('✅ ');
             report.ok++
         }else{
-            process.stdout.write('📝');
-            process.stdout.write(showDiff(transcript, ran));
-            report.transcript++
+
+            if(meta.hide != undefined){
+                process.stdout.write('✅⚠️  ');
+                process.stdout.write(`${meta.hide}`)
+                report.ok++
+            } else if(encounterUnexpectedRuntimeError){
+                process.stdout.write(`🛠 Runtime error : ${encounterUnexpectedRuntimeError}\n`);
+                report.runtime++
+                continue;
+            } else{
+                process.stdout.write('📝 ');
+                process.stdout.write(showDiff(transcript, ran_transcript));
+                report.transcript++
+            }
 
         }
         
@@ -74,35 +86,51 @@ function compile(inputString: string): string | void{
     return rstory.ToJson();
 }
 
-function run(compiledString: string, input: number[]){
+function run(compiledString: string, input: number[]) : [string, string[]]{
     let transcript = '';
+    let errors: string[] = [];
+    const addToTranscript = (str: string) =>{
+        transcript +=  str ;
+    }
+    const addToErrors = (str: string) => {
+        errors.push(str)
+    }
     const story = new Story(compiledString);
+          story.onError = (message) => {
+            addToErrors( message )
+          }
 
     while (story.canContinue || story.currentChoices.length > 0) {
         if (story.currentChoices.length > 0) {
             transcript += "\n";
           for (let i=0; i<story.currentChoices.length; ++i) {
             const choice = story.currentChoices[i];
-            transcript += `${i+1}: ${choice.text}\n`;
+            addToTranscript( `${i+1}: ${choice.text}\n` );
           }
-          transcript += "?> ";
+          addToTranscript( "?> " );
           const choiceIndex = input.shift();
           if(choiceIndex == undefined) break;
           story.ChooseChoiceIndex(choiceIndex);
         }
     
         if (story.currentTags && story.currentTags.length) {
-            transcript += "# tags: " + story.currentTags.join(", ")+ '\n';
+            addToTranscript( "# tags: " + story.currentTags.join(", ")+ '\n' );
         }
     
-        transcript += story.ContinueMaximally();
+        addToTranscript( story.ContinueMaximally() );
     
         if (story.currentTags && story.currentTags.length) {
-            transcript += "# tags: " + story.currentTags.join(", ") + '\n';
+            addToTranscript( "# tags: " + story.currentTags.join(", ") + '\n' );
         }
       }
 
-    return transcript;
+    if(errors.length > 0){
+        for(let e of errors){
+            addToTranscript(e + "\n")
+        }
+    }
+    
+    return [transcript, errors];
 }
 function fullTestId(n: number){
     return `I${String(n).padStart(3,'0')}`
