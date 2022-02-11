@@ -13,10 +13,7 @@ describe("Evaluation", () => {
 
   it("tests arithmetic", () => {
     loadStory("arithmetic");
-
-    // inkjs can't see 3.0 as a "float", so
-    // { 7 / 3.0 } is 2 instead of 2.3333.
-    expect(story.ContinueMaximally()).toBe("36\n2\n3\n2\n2\n8\n8\n");
+    expect(story.ContinueMaximally()).toBe("36\n2\n3\n2\n2.3333333333333335\n8\n8\n");
   });
 
   it("tests basic string literal", () => {
