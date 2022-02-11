@@ -1,20 +1,20 @@
-import { InkList as RuntimeInkList } from '../../../../engine/InkList';
-import { InkListItem as RuntimeInkListItem } from '../../../../engine/InkList';
-import { ListDefinition as RuntimeListDefinition } from '../../../../engine/ListDefinition';
-import { ListElementDefinition } from './ListElementDefinition';
-import { ListValue } from '../../../../engine/Value';
-import { ParsedObject } from '../Object';
-import { Story } from '../Story';
-import { SymbolType } from '../SymbolType';
-import { VariableAssignment } from '../Variable/VariableAssignment';
-import { Identifier } from '../Identifier';
+import { InkList as RuntimeInkList } from "../../../../engine/InkList";
+import { InkListItem as RuntimeInkListItem } from "../../../../engine/InkList";
+import { ListDefinition as RuntimeListDefinition } from "../../../../engine/ListDefinition";
+import { ListElementDefinition } from "./ListElementDefinition";
+import { ListValue } from "../../../../engine/Value";
+import { ParsedObject } from "../Object";
+import { Story } from "../Story";
+import { SymbolType } from "../SymbolType";
+import { VariableAssignment } from "../Variable/VariableAssignment";
+import { Identifier } from "../Identifier";
 
 export class ListDefinition extends ParsedObject {
-  public identifier: Identifier|null = null;
+  public identifier: Identifier | null = null;
   public variableAssignment: VariableAssignment | null = null;
 
   get typeName() {
-    return 'List definition';
+    return "List definition";
   }
 
   private _elementsByName: Map<string, ListElementDefinition> | null = null;
@@ -25,7 +25,9 @@ export class ListDefinition extends ParsedObject {
       if (!allItems.has(e.name!)) {
         allItems.set(e.name!, e.seriesValue);
       } else {
-        this.Error(`List '${this.identifier}' contains duplicate items called '${e.name}'`);
+        this.Error(
+          `List '${this.identifier}' contains duplicate items called '${e.name}'`
+        );
       }
     }
 
@@ -33,22 +35,20 @@ export class ListDefinition extends ParsedObject {
   }
 
   public readonly ItemNamed = (
-    itemName: string,
+    itemName: string
   ): ListElementDefinition | null => {
     if (this._elementsByName === null) {
       this._elementsByName = new Map();
-      
+
       for (const el of this.itemDefinitions) {
         this._elementsByName.set(el.name!, el);
       }
     }
 
-    const foundElement = this._elementsByName.get(
-      itemName,
-    ) || null;
+    const foundElement = this._elementsByName.get(itemName) || null;
 
     return foundElement;
-  }
+  };
 
   constructor(public itemDefinitions: ListElementDefinition[]) {
     super();
@@ -71,19 +71,22 @@ export class ListDefinition extends ParsedObject {
     const initialValues = new RuntimeInkList();
     for (const itemDef of this.itemDefinitions) {
       if (itemDef.inInitialList) {
-        const item = new RuntimeInkListItem(this.identifier?.name || null, itemDef.name || null);
+        const item = new RuntimeInkListItem(
+          this.identifier?.name || null,
+          itemDef.name || null
+        );
         initialValues.Add(item, itemDef.seriesValue);
       }
     }
 
-    // Set origin name, so 
+    // Set origin name, so
     initialValues.SetInitialOriginName(this.identifier?.name!);
 
-    return new ListValue( initialValues );
+    return new ListValue(initialValues);
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
     context.CheckForNamingCollisions(this, this.identifier!, SymbolType.List);
-  };
+  }
 }

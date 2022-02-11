@@ -264,7 +264,7 @@ export class StringValue extends Value<string> {
 }
 
 export class DivertTargetValue extends Value<Path> {
-  constructor(targetPath: Path|null = null) {
+  constructor(targetPath: Path | null = null) {
     super(targetPath);
   }
   public get valueType() {

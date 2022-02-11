@@ -1,10 +1,10 @@
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { DebugMetadata } from '../../../engine/DebugMetadata';
-import { FindQueryFunc } from './FindQueryFunc';
-import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Path as RuntimePath } from '../../../engine/Path';
-import { Story } from './Story';
-import { asOrNull } from '../../../engine/TypeAssertion';
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { DebugMetadata } from "../../../engine/DebugMetadata";
+import { FindQueryFunc } from "./FindQueryFunc";
+import { InkObject as RuntimeObject } from "../../../engine/Object";
+import { Path as RuntimePath } from "../../../engine/Path";
+import { Story } from "./Story";
+import { asOrNull } from "../../../engine/TypeAssertion";
 
 export abstract class ParsedObject {
   public abstract readonly GenerateRuntimeObject: () => RuntimeObject | null;
@@ -17,7 +17,7 @@ export abstract class ParsedObject {
   public content: ParsedObject[] = [];
   public parent: ParsedObject | null = null;
 
-  get debugMetadata() { 
+  get debugMetadata() {
     if (this._debugMetadata === null && this.parent) {
       return this.parent.debugMetadata;
     }
@@ -29,18 +29,15 @@ export abstract class ParsedObject {
     this._debugMetadata = value;
   }
 
-
   get hasOwnDebugMetadata(): boolean {
     return Boolean(this.debugMetadata);
   }
 
   get typeName(): string {
-    return 'ParsedObject';
+    return "ParsedObject";
   }
 
-  public readonly GetType = (): string => (
-    this.typeName
-  );
+  public readonly GetType = (): string => this.typeName;
 
   get story(): Story {
     let ancestor: ParsedObject = this;
@@ -85,13 +82,13 @@ export abstract class ParsedObject {
   public readonly PathRelativeTo = (otherObj: ParsedObject): null => {
     //BODY DELETED AS NOT USED ANYMORE ??
     return null;
-  }
+  };
 
   get ancestry(): ParsedObject[] {
     let result = [];
 
     let ancestor = this.parent;
-    while(ancestor) {
+    while (ancestor) {
       result.push(ancestor);
       ancestor = ancestor.parent;
     }
@@ -127,53 +124,51 @@ export abstract class ParsedObject {
 */
 
   // Return the object so that method can be chained easily
-  public readonly AddContent = <T extends ParsedObject, V extends (T | T[])>(
-    subContent: V,
+  public readonly AddContent = <T extends ParsedObject, V extends T | T[]>(
+    subContent: V
   ) => {
-    
     if (this.content === null) {
       this.content = [];
     }
 
-    const sub = Array.isArray(subContent) ? subContent : [ subContent ];
-        
+    const sub = Array.isArray(subContent) ? subContent : [subContent];
+
     // Make resilient to content not existing, which can happen
     // in the case of parse errors where we've already reported
     // an error but still want a valid structure so we can
     // carry on parsing.
     for (const ss of sub) {
-      if(ss.hasOwnProperty('parent')){
+      if (ss.hasOwnProperty("parent")) {
         ss.parent = this;
-      } 
+      }
       this.content.push(ss);
     }
 
     if (Array.isArray(subContent)) {
       return;
-    }else{
+    } else {
       return subContent;
     }
-
   };
 
   public readonly InsertContent = <T extends ParsedObject>(
     index: number,
-    subContent: T,
+    subContent: T
   ): T => {
     if (this.content === null) {
       this.content = [];
     }
 
     subContent.parent = this;
-    this.content.splice(index,0,subContent);
+    this.content.splice(index, 0, subContent);
 
     return subContent;
-  }
+  };
 
-  public readonly Find = <T extends ParsedObject>(type: (new (...arg: any[]) => T) | (Function & { prototype: T })) =>(
-    queryFunc: FindQueryFunc<T> | null = null,
-  ): T | null => {
-    var tObj = asOrNull(this, type) as any as T;
+  public readonly Find = <T extends ParsedObject>(
+    type: (new (...arg: any[]) => T) | (Function & { prototype: T })
+  ) => (queryFunc: FindQueryFunc<T> | null = null): T | null => {
+    let tObj = (asOrNull(this, type) as any) as T;
     if (tObj !== null && (queryFunc === null || queryFunc(tObj) === true)) {
       return tObj;
     }
@@ -181,9 +176,9 @@ export abstract class ParsedObject {
     if (this.content === null) {
       return null;
     }
-    
+
     for (const obj of this.content) {
-      var nestedResult = obj.Find && obj.Find(type)(queryFunc);
+      let nestedResult = obj.Find && obj.Find(type)(queryFunc);
       if (nestedResult) {
         return nestedResult as T;
       }
@@ -192,10 +187,9 @@ export abstract class ParsedObject {
     return null;
   };
 
-  public readonly FindAll = <T extends ParsedObject>(type: (new (...arg: any[]) => T) | (Function & { prototype: T })) => (
-    queryFunc?: FindQueryFunc<T>,
-    foundSoFar?: T[],
-  ): T[] => {
+  public readonly FindAll = <T extends ParsedObject>(
+    type: (new (...arg: any[]) => T) | (Function & { prototype: T })
+  ) => (queryFunc?: FindQueryFunc<T>, foundSoFar?: T[]): T[] => {
     const found = Array.isArray(foundSoFar) ? foundSoFar : [];
 
     const tObj = asOrNull(this, type);
@@ -214,28 +208,28 @@ export abstract class ParsedObject {
     return found;
   };
 
-
   public ResolveReferences(context: Story) {
     if (this.content !== null) {
       for (const obj of this.content) {
         obj.ResolveReferences(context);
       }
     }
-  };
+  }
 
   public Error(
     message: string,
     source: ParsedObject | null = null,
-    isWarning: boolean = false,
+    isWarning: boolean = false
   ): void {
     if (source === null) {
       source = this;
     }
 
     // Only allow a single parsed object to have a single error *directly* associated with it
-    if ((source._alreadyHadError && !isWarning) ||
-      (source._alreadyHadWarning && isWarning))
-    {
+    if (
+      (source._alreadyHadError && !isWarning) ||
+      (source._alreadyHadWarning && isWarning)
+    ) {
       return;
     }
 
@@ -254,9 +248,8 @@ export abstract class ParsedObject {
 
   public readonly Warning = (
     message: string,
-    source: ParsedObject | null = null,
+    source: ParsedObject | null = null
   ): void => {
     this.Error(message, source, true);
   };
 }
-

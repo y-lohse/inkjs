@@ -13,7 +13,9 @@ describe("Evaluation", () => {
 
   it("tests arithmetic", () => {
     loadStory("arithmetic");
-    expect(story.ContinueMaximally()).toBe("36\n2\n3\n2\n2.3333333333333335\n8\n8\n");
+    expect(story.ContinueMaximally()).toBe(
+      "36\n2\n3\n2\n2.3333333333333335\n8\n8\n"
+    );
   });
 
   it("tests basic string literal", () => {

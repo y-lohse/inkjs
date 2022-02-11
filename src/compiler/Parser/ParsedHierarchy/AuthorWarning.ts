@@ -1,4 +1,4 @@
-﻿import { ParsedObject } from './Object';
+﻿import { ParsedObject } from "./Object";
 
 export class AuthorWarning extends ParsedObject {
   constructor(public readonly warningMessage: string) {
@@ -10,4 +10,3 @@ export class AuthorWarning extends ParsedObject {
     return null;
   };
 }
-

@@ -1,8 +1,8 @@
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { ParsedObject } from './Object';
-import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Text } from './Text';
-import { asOrNull } from '../../../engine/TypeAssertion';
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { ParsedObject } from "./Object";
+import { InkObject as RuntimeObject } from "../../../engine/Object";
+import { Text } from "./Text";
+import { asOrNull } from "../../../engine/TypeAssertion";
 
 export class ContentList extends ParsedObject {
   public dontFlatten: boolean = false;
@@ -25,12 +25,12 @@ export class ContentList extends ParsedObject {
 
   public readonly TrimTrailingWhitespace = (): void => {
     for (let ii = this.content.length - 1; ii >= 0; --ii) {
-      const text = asOrNull(this.content[ii],Text);
+      const text = asOrNull(this.content[ii], Text);
       if (text === null) {
         break;
       }
 
-      text.text = text.text.replace(new RegExp(/[ \t]/g), '');
+      text.text = text.text.replace(new RegExp(/[ \t]/g), "");
       if (text.text.length === 0) {
         this.content.splice(ii, 1);
       } else {
@@ -59,8 +59,5 @@ export class ContentList extends ParsedObject {
     return container;
   };
 
-  public toString = (): string => (
-    `ContentList(${this.content.join(', ')})`
-  );
+  public toString = (): string => `ContentList(${this.content.join(", ")})`;
 }
-

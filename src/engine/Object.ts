@@ -188,7 +188,6 @@ export class InkObject {
   }
 
   public Equals(obj: any) {
-  
     return obj === this;
   }
 }

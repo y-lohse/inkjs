@@ -1,25 +1,25 @@
-import { Argument } from '../Argument';
-import { Choice } from '../Choice';
-import { Divert } from '../Divert/Divert';
-import { DivertTarget } from '../Divert/DivertTarget';
-import { FlowLevel } from './FlowLevel';
-import { Gather } from '../Gather/Gather';
-import { INamedContent } from '../../../../engine/INamedContent';
+import { Argument } from "../Argument";
+import { Choice } from "../Choice";
+import { Divert } from "../Divert/Divert";
+import { DivertTarget } from "../Divert/DivertTarget";
+import { FlowLevel } from "./FlowLevel";
+import { Gather } from "../Gather/Gather";
+import { INamedContent } from "../../../../engine/INamedContent";
 // import { Knot } from '../Knot';
-import { ParsedObject } from '../Object';
-import { Path } from '../Path';
-import { ReturnType } from '../ReturnType';
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { Divert as RuntimeDivert } from '../../../../engine/Divert';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
+import { ParsedObject } from "../Object";
+import { Path } from "../Path";
+import { ReturnType } from "../ReturnType";
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { Divert as RuntimeDivert } from "../../../../engine/Divert";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { VariableAssignment as RuntimeVariableAssignment } from "../../../../engine/VariableAssignment";
 //import { Story } from '../Story';
-import { SymbolType } from '../SymbolType';
-import { VariableAssignment } from '../Variable/VariableAssignment';
-import { Weave } from '../Weave';
-import { ClosestFlowBase } from './ClosestFlowBase';
-import { Identifier } from '../Identifier';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+import { SymbolType } from "../SymbolType";
+import { VariableAssignment } from "../Variable/VariableAssignment";
+import { Weave } from "../Weave";
+import { ClosestFlowBase } from "./ClosestFlowBase";
+import { Identifier } from "../Identifier";
+import { asOrNull } from "../../../../engine/TypeAssertion";
 
 type VariableResolveResult = {
   found: boolean;
@@ -38,8 +38,8 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   public _startingSubFlowDivert: RuntimeDivert | null = null;
   public _startingSubFlowRuntime: RuntimeObject | null = null;
   public _firstChildFlow: FlowBase | null = null;
-  public variableDeclarations: Map<string, VariableAssignment> = new Map();  
-  
+  public variableDeclarations: Map<string, VariableAssignment> = new Map();
+
   get hasParameters() {
     return this.args !== null && this.args.length > 0;
   }
@@ -50,26 +50,26 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
   get typeName(): string {
     if (this.isFunction) {
-      return 'Function'
+      return "Function";
     }
 
     return String(this.flowLevel);
   }
 
-  get name(): string|null {
+  get name(): string | null {
     return this.identifier?.name || null;
   }
 
-  public identifier: Identifier|null = null;
-  public args: Argument[]|null = null;
+  public identifier: Identifier | null = null;
+  public args: Argument[] | null = null;
 
   constructor(
-    identifier: Identifier|null,
+    identifier: Identifier | null,
     topLevelObjects: ParsedObject[] | null = null,
     args: Argument[] | null = null,
     public readonly isFunction: boolean = false,
-    isIncludedStory: boolean = false)
-  {
+    isIncludedStory: boolean = false
+  ) {
     super();
 
     this.identifier = identifier;
@@ -84,17 +84,17 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
     topLevelObjects = this.SplitWeaveAndSubFlowContent(
       topLevelObjects,
-      this.GetType() ==  'Story' && !isIncludedStory,
+      this.GetType() == "Story" && !isIncludedStory
     );
 
     this.AddContent(topLevelObjects);
-  };
+  }
 
   public iamFlowbase = () => true;
 
   public readonly SplitWeaveAndSubFlowContent = (
     contentObjs: ParsedObject[],
-    isRootStory: boolean,
+    isRootStory: boolean
   ): ParsedObject[] => {
     const weaveObjs: ParsedObject[] = [];
     const subFlowObjs: ParsedObject[] = [];
@@ -109,7 +109,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         }
 
         subFlowObjs.push(obj);
-        if(subFlow.identifier?.name){
+        if (subFlow.identifier?.name) {
           this._subFlowsByName.set(subFlow.identifier?.name, subFlow);
         }
       } else {
@@ -121,7 +121,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     if (isRootStory) {
       weaveObjs.push(
         new Gather(null, 1),
-        new Divert(new Path(Identifier.Done())),
+        new Divert(new Path(Identifier.Done()))
       );
     }
 
@@ -138,28 +138,24 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return finalContent;
   };
 
-  public PreProcessTopLevelObjects(
-    topLevelObjects: ParsedObject[],
-  ): void {
+  public PreProcessTopLevelObjects(topLevelObjects: ParsedObject[]): void {
     // empty by default, used by Story to process included file references
-  };
+  }
 
   public VariableResolveResult?: VariableResolveResult | null | undefined;
 
   public ResolveVariableWithName = (
     varName: string,
-    fromNode: ParsedObject,
+    fromNode: ParsedObject
   ): VariableResolveResult => {
     const result: VariableResolveResult = {} as any;
 
     // Search in the stitch / knot that owns the node first
-    const ownerFlow = fromNode === null ?
-      this :
-      ClosestFlowBase(fromNode);
+    const ownerFlow = fromNode === null ? this : ClosestFlowBase(fromNode);
 
     if (ownerFlow) {
       // Argument
-      if (ownerFlow.args !== null ) {
+      if (ownerFlow.args !== null) {
         for (const arg of ownerFlow.args) {
           if (arg.identifier?.name === varName) {
             result.found = true;
@@ -169,13 +165,16 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
           }
         }
       }
-  
+
       // Temp
-      if (ownerFlow !== this.story && ownerFlow.variableDeclarations.has(varName)) {
+      if (
+        ownerFlow !== this.story &&
+        ownerFlow.variableDeclarations.has(varName)
+      ) {
         result.found = true;
         result.ownerFlow = ownerFlow;
         result.isTemporary = true;
-  
+
         return result;
       }
     }
@@ -198,7 +197,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     const varName = varDecl.variableName;
     if (this.variableDeclarations.has(varName)) {
       const varab = this.variableDeclarations.get(varName)!;
-      let prevDeclError = '';
+      let prevDeclError = "";
       const debugMetadata = varab.debugMetadata;
       if (debugMetadata) {
         prevDeclError = ` (${varab.debugMetadata})`;
@@ -207,7 +206,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       this.Error(
         `found declaration variable '${varName}' that was already declared${prevDeclError}`,
         varDecl,
-        false,
+        false
       );
 
       return;
@@ -223,27 +222,28 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       this._rootWeave.ResolveWeavePointNaming();
     }
 
-    for (const [ , value ] of this._subFlowsByName) {
-      if(value.hasOwnProperty('ResolveWeavePointNaming')){
+    for (const [, value] of this._subFlowsByName) {
+      if (value.hasOwnProperty("ResolveWeavePointNaming")) {
         value.ResolveWeavePointNaming();
       }
     }
-  }
-        
+  };
+
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     let foundReturn: ReturnType | null = null;
     if (this.isFunction) {
       this.CheckForDisallowedFunctionFlowControl();
-    } else if (this.flowLevel === FlowLevel.Knot ||
-      this.flowLevel === FlowLevel.Stitch)
-    {
+    } else if (
+      this.flowLevel === FlowLevel.Knot ||
+      this.flowLevel === FlowLevel.Stitch
+    ) {
       // Non-functon: Make sure knots and stitches don't attempt to use Return statement
       foundReturn = this.Find(ReturnType)();
 
       if (foundReturn !== null) {
         this.Error(
           `Return statements can only be used in knots that are declared as functions: == function ${this.identifier} ==`,
-          foundReturn,
+          foundReturn
         );
       }
     }
@@ -264,7 +264,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     //    the others are only accessible by an explicit divert
     //       - The exception to this rule is if the knot/stitch takes
     //         parameters, in which case it can't be auto-entered.
-    //  - Any Choices and Gathers (i.e. IWeavePoint) found are 
+    //  - Any Choices and Gathers (i.e. IWeavePoint) found are
     //    processsed by GenerateFlowContent.
     let contentIdx: number = 0;
     while (this.content !== null && contentIdx < this.content.length) {
@@ -277,10 +277,11 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
         // First inner stitch - automatically step into it
         // 20/09/2016 - let's not auto step into knots
-        if (contentIdx === 0 &&
+        if (
+          contentIdx === 0 &&
           !childFlow.hasParameters &&
-          this.flowLevel === FlowLevel.Knot)
-        {
+          this.flowLevel === FlowLevel.Knot
+        ) {
           this._startingSubFlowDivert = new RuntimeDivert();
           container.AddContent(this._startingSubFlowDivert);
           this._startingSubFlowRuntime = childFlowRuntime;
@@ -288,12 +289,13 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
 
         // Check for duplicate knots/stitches with same name
         const namedChild = childFlowRuntime as RuntimeObject & INamedContent;
-        const existingChild: INamedContent | null = container.namedContent.get(
-          namedChild.name!,
-        ) || null;
+        const existingChild: INamedContent | null =
+          container.namedContent.get(namedChild.name!) || null;
 
         if (existingChild) {
-          const errorMsg = `${this.GetType()} already contains flow named '${namedChild.name}' (at ${(existingChild as any as RuntimeObject).debugMetadata})`;
+          const errorMsg = `${this.GetType()} already contains flow named '${
+            namedChild.name
+          }' (at ${((existingChild as any) as RuntimeObject).debugMetadata})`;
           this.Error(errorMsg, childFlow);
         }
 
@@ -315,11 +317,12 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // since it's likely that a return statement has been used instead of a ->-> or something,
     // or the writer failed to mark the knot as a function.
     //  - _rootWeave may be null if it's a knot that only has stitches
-    if (this.flowLevel !== FlowLevel.Story &&
+    if (
+      this.flowLevel !== FlowLevel.Story &&
       !this.isFunction &&
       this._rootWeave !== null &&
-      foundReturn === null)
-    {
+      foundReturn === null
+    ) {
       this._rootWeave.ValidateTermination(this.WarningInTermination);
     }
 
@@ -327,7 +330,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   };
 
   public readonly GenerateArgumentVariableAssignments = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     if (this.args === null || this.args.length === 0) {
       return;
@@ -346,11 +349,11 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   public readonly ContentWithNameAtLevel = (
     name: string,
     level: FlowLevel | null = null,
-    deepSearch: boolean = false,
+    deepSearch: boolean = false
   ): ParsedObject | null => {
     // Referencing self?
-    if (level === this.flowLevel || level === null){
-      if( name === this.identifier?.name) {
+    if (level === this.flowLevel || level === null) {
+      if (name === this.identifier?.name) {
         return this;
       }
     }
@@ -359,7 +362,9 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       let weavePointResult: ParsedObject | null = null;
 
       if (this._rootWeave) {
-        weavePointResult = this._rootWeave.WeavePointNamed(name) as ParsedObject;
+        weavePointResult = this._rootWeave.WeavePointNamed(
+          name
+        ) as ParsedObject;
         if (weavePointResult) {
           return weavePointResult;
         }
@@ -390,19 +395,15 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     const weaveResultSelf = this.ContentWithNameAtLevel(
       name,
       FlowLevel.WeavePoint,
-      false,
+      false
     );
 
     if (weaveResultSelf) {
       return weaveResultSelf;
     }
 
-    for (const [ , value ] of this._subFlowsByName) {
-      const deepResult = value.ContentWithNameAtLevel(
-        name,
-        null,
-        true,
-      );
+    for (const [, value] of this._subFlowsByName) {
+      const deepResult = value.ContentWithNameAtLevel(name, null, true);
 
       if (deepResult) {
         return deepResult;
@@ -426,16 +427,23 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // Check validity of parameter names
     if (this.args !== null) {
       for (const arg of this.args) {
-        context.CheckForNamingCollisions( this, arg.identifier, SymbolType.Arg, 'argument' );
+        context.CheckForNamingCollisions(
+          this,
+          arg.identifier,
+          SymbolType.Arg,
+          "argument"
+        );
       }
 
       // Separately, check for duplicate arugment names, since they aren't Parsed.Objects,
       // so have to be checked independently.
       for (let ii = 0; ii < this.args.length; ii += 1) {
         for (let jj = ii + 1; jj < this.args.length; jj += 1) {
-          if (this.args[ii].identifier?.name == this.args[jj].identifier?.name) {
+          if (
+            this.args[ii].identifier?.name == this.args[jj].identifier?.name
+          ) {
             this.Error(
-              `Multiple arguments with the same name: '${this.args[ii].identifier}'`,
+              `Multiple arguments with the same name: '${this.args[ii].identifier}'`
             );
           }
         }
@@ -445,27 +453,28 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // Check naming collisions for knots and stitches
     if (this.flowLevel !== FlowLevel.Story) {
       // Weave points aren't FlowBases, so this will only be knot or stitch
-      const symbolType = this.flowLevel === FlowLevel.Knot ?
-        SymbolType.Knot :
-        SymbolType.SubFlowAndWeave;
+      const symbolType =
+        this.flowLevel === FlowLevel.Knot
+          ? SymbolType.Knot
+          : SymbolType.SubFlowAndWeave;
 
       context.CheckForNamingCollisions(this, this.identifier, symbolType);
     }
-  };
+  }
 
   public readonly CheckForDisallowedFunctionFlowControl = (): void => {
     // if (!(this instanceof Knot)) { // cannont use Knot here because of circular dependancy
-    if(this.flowLevel !== FlowLevel.Knot){
-        this.Error(
-          'Functions cannot be stitches - i.e. they should be defined as \'== function myFunc ==\' rather than internal to another knot.',
-        );
+    if (this.flowLevel !== FlowLevel.Knot) {
+      this.Error(
+        "Functions cannot be stitches - i.e. they should be defined as '== function myFunc ==' rather than internal to another knot."
+      );
     }
-    
+
     // Not allowed sub-flows
-    for (const [ key, value ] of this._subFlowsByName) {
+    for (const [key, value] of this._subFlowsByName) {
       this.Error(
         `Functions may not contain stitches, but saw '${key}' within the function '${this.identifier}'`,
-        value,
+        value
       );
     }
 
@@ -478,7 +487,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
       if (!divert.isFunctionCall && !(divert.parent instanceof DivertTarget)) {
         this.Error(
           `Functions may not contain diverts, but saw '${divert}'`,
-          divert,
+          divert
         );
       }
     }
@@ -487,13 +496,14 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     for (const choice of allChoices) {
       this.Error(
         `Functions may not contain choices, but saw '${choice}'`,
-        choice,
+        choice
       );
     }
-  }
+  };
 
   public readonly WarningInTermination = (terminatingObject: ParsedObject) => {
-    let message: string = 'Apparent loose end exists where the flow runs out. Do you need a \'-> DONE\' statement, choice or divert?';
+    let message: string =
+      "Apparent loose end exists where the flow runs out. Do you need a '-> DONE' statement, choice or divert?";
     if (terminatingObject.parent === this._rootWeave && this._firstChildFlow) {
       message = `${message} Note that if you intend to enter '${this._firstChildFlow.identifier}' next, you need to divert to it explicitly.`;
     }
@@ -504,12 +514,8 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     }
 
     this.Warning(message, terminatingObject);
-  }
+  };
 
-  public readonly toString = (): string => (
-    `${this.typeName} '${this.identifier}'`
-  );
+  public readonly toString = (): string =>
+    `${this.typeName} '${this.identifier}'`;
 }
-
-
-

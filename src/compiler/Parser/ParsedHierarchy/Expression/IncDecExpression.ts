@@ -1,14 +1,14 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ContentList } from '../ContentList';
-import { Expression } from './Expression';
-import { FlowBase } from '../Flow/FlowBase';
-import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
-import { IntValue } from '../../../../engine/Value';
-import { Story } from '../Story';
-import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
-import { VariableReference as RuntimeVariableReference } from '../../../../engine/VariableReference';
-import { Weave } from '../Weave';
-import { Identifier } from '../Identifier';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ContentList } from "../ContentList";
+import { Expression } from "./Expression";
+import { FlowBase } from "../Flow/FlowBase";
+import { NativeFunctionCall } from "../../../../engine/NativeFunctionCall";
+import { IntValue } from "../../../../engine/Value";
+import { Story } from "../Story";
+import { VariableAssignment as RuntimeVariableAssignment } from "../../../../engine/VariableAssignment";
+import { VariableReference as RuntimeVariableReference } from "../../../../engine/VariableReference";
+import { Weave } from "../Weave";
+import { Identifier } from "../Identifier";
 
 export class IncDecExpression extends Expression {
   private _runtimeAssignment: RuntimeVariableAssignment | null = null;
@@ -17,9 +17,9 @@ export class IncDecExpression extends Expression {
   public expression: Expression | null = null;
 
   constructor(
-    public readonly varIdentifier: Identifier|null,
+    public readonly varIdentifier: Identifier | null,
     isIncOrExpression: boolean | Expression,
-    isInc?: boolean,
+    isInc?: boolean
   ) {
     super();
 
@@ -33,7 +33,7 @@ export class IncDecExpression extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     // x = x + y
     // ^^^ ^ ^ ^
@@ -41,7 +41,9 @@ export class IncDecExpression extends Expression {
     // Reverse polish notation: (x 1 +) (assign to x)
 
     // 1.
-    container.AddContent(new RuntimeVariableReference(this.varIdentifier?.name!));
+    container.AddContent(
+      new RuntimeVariableReference(this.varIdentifier?.name!)
+    );
 
     // 2.
     // - Expression used in the form ~ x += y
@@ -54,25 +56,28 @@ export class IncDecExpression extends Expression {
 
     // 3.
     container.AddContent(
-      NativeFunctionCall.CallWithName(this.isInc ? '+' : '-'),
+      NativeFunctionCall.CallWithName(this.isInc ? "+" : "-")
     );
 
     // 4.
-    this._runtimeAssignment = new RuntimeVariableAssignment(this.varIdentifier?.name!, false);
+    this._runtimeAssignment = new RuntimeVariableAssignment(
+      this.varIdentifier?.name!,
+      false
+    );
     container.AddContent(this._runtimeAssignment);
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     const varResolveResult = context.ResolveVariableWithName(
       this.varIdentifier?.name!,
-      this,
+      this
     );
 
     if (!varResolveResult.found) {
       this.Error(
-        `variable for ${this.incrementDecrementWord} could not be found: '${this.varIdentifier}' after searching: {this.descriptionOfScope}`,
+        `variable for ${this.incrementDecrementWord} could not be found: '${this.varIdentifier}' after searching: {this.descriptionOfScope}`
       );
     }
 
@@ -82,25 +87,28 @@ export class IncDecExpression extends Expression {
 
     this._runtimeAssignment.isGlobal = varResolveResult.isGlobal;
 
-    if (!(this.parent instanceof Weave) &&
+    if (
+      !(this.parent instanceof Weave) &&
       !(this.parent instanceof FlowBase) &&
-      !(this.parent instanceof ContentList))
-    {
+      !(this.parent instanceof ContentList)
+    ) {
       this.Error(`Can't use ${this.incrementDecrementWord} as sub-expression`);
     }
-  };
+  }
 
-  get incrementDecrementWord(): 'increment' | 'decrement' {
+  get incrementDecrementWord(): "increment" | "decrement" {
     if (this.isInc) {
-        return 'increment';
+      return "increment";
     }
 
-    return 'decrement';
+    return "decrement";
   }
 
   public readonly toString = (): string => {
     if (this.expression) {
-      return `${this.varIdentifier?.name!}${this.isInc ? ' += ' : ' -= '}${this.expression}`;
+      return `${this.varIdentifier?.name!}${this.isInc ? " += " : " -= "}${
+        this.expression
+      }`;
     }
 
     return this.varIdentifier?.name! + (this.isInc ? "++" : "--");

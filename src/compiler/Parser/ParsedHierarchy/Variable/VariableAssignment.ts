@@ -1,22 +1,22 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { Expression } from '../Expression/Expression';
-import { FlowBase } from '../Flow/FlowBase';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { Expression } from "../Expression/Expression";
+import { FlowBase } from "../Flow/FlowBase";
 import { ClosestFlowBase } from "../Flow/ClosestFlowBase";
-import { ListDefinition } from '../List/ListDefinition';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { Story } from '../Story';
-import { SymbolType } from '../SymbolType';
-import { VariableAssignment as RuntimeVariableAssignment } from '../../../../engine/VariableAssignment';
-import { VariableReference } from './VariableReference'
-import { Identifier } from '../Identifier';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+import { ListDefinition } from "../List/ListDefinition";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { Story } from "../Story";
+import { SymbolType } from "../SymbolType";
+import { VariableAssignment as RuntimeVariableAssignment } from "../../../../engine/VariableAssignment";
+import { VariableReference } from "./VariableReference";
+import { Identifier } from "../Identifier";
+import { asOrNull } from "../../../../engine/TypeAssertion";
 
 export class VariableAssignment extends ParsedObject {
   private _runtimeAssignment: RuntimeVariableAssignment | null = null;
-  
-  get variableName(): string{
-    return this.variableIdentifier.name!
+
+  get variableName(): string {
+    return this.variableIdentifier.name!;
   }
   public readonly variableIdentifier: Identifier;
   public readonly expression: Expression | null = null;
@@ -26,12 +26,12 @@ export class VariableAssignment extends ParsedObject {
 
   get typeName() {
     if (this.isNewTemporaryDeclaration) {
-      return 'temp';
+      return "temp";
     } else if (this.isGlobalDeclaration) {
-      return 'VAR';
+      return "VAR";
     }
 
-    return 'variable assignment';
+    return "variable assignment";
   }
 
   get isDeclaration(): boolean {
@@ -45,11 +45,11 @@ export class VariableAssignment extends ParsedObject {
     listDef,
     variableIdentifier,
   }: {
-    readonly assignedExpression?: Expression,
-    readonly isGlobalDeclaration?: boolean,
-    readonly isTemporaryNewDeclaration?: boolean,
-    readonly listDef?: ListDefinition,
-    readonly variableIdentifier: Identifier,
+    readonly assignedExpression?: Expression;
+    readonly isGlobalDeclaration?: boolean;
+    readonly isTemporaryNewDeclaration?: boolean;
+    readonly listDef?: ListDefinition;
+    readonly variableIdentifier: Identifier;
   }) {
     super();
 
@@ -99,7 +99,7 @@ export class VariableAssignment extends ParsedObject {
 
     this._runtimeAssignment = new RuntimeVariableAssignment(
       this.variableName,
-      this.isNewTemporaryDeclaration,
+      this.isNewTemporaryDeclaration
     );
 
     container.AddContent(this._runtimeAssignment);
@@ -107,7 +107,7 @@ export class VariableAssignment extends ParsedObject {
     return container;
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     // List definitions are checked for conflicts separately
@@ -115,16 +115,20 @@ export class VariableAssignment extends ParsedObject {
       context.CheckForNamingCollisions(
         this,
         this.variableIdentifier,
-        this.isGlobalDeclaration ? SymbolType.Var : SymbolType.Temp,
+        this.isGlobalDeclaration ? SymbolType.Var : SymbolType.Temp
       );
     }
 
     // Initial VAR x = [intialValue] declaration, not re-assignment
     if (this.isGlobalDeclaration) {
       const variableReference = asOrNull(this.expression, VariableReference);
-      if (variableReference && !variableReference.isConstantReference && !variableReference.isListItemReference) {
+      if (
+        variableReference &&
+        !variableReference.isConstantReference &&
+        !variableReference.isListItemReference
+      ) {
         this.Error(
-          'global variable assignments cannot refer to other variables, only literal values, constants and list items'
+          "global variable assignments cannot refer to other variables, only literal values, constants and list items"
         );
       }
     }
@@ -132,19 +136,19 @@ export class VariableAssignment extends ParsedObject {
     if (!this.isNewTemporaryDeclaration) {
       const resolvedVarAssignment = context.ResolveVariableWithName(
         this.variableName,
-        this,
+        this
       );
 
       if (!resolvedVarAssignment.found) {
         if (this.variableName in this.story.constants) {
           this.Error(
             `Can't re-assign to a constant (do you need to use VAR when declaring '${this.variableName}'?)`,
-            this,
+            this
           );
         } else {
           this.Error(
             `Variable could not be found to assign to: '${this.variableName}'`,
-            this,
+            this
           );
         }
       }
@@ -155,12 +159,14 @@ export class VariableAssignment extends ParsedObject {
         this._runtimeAssignment.isGlobal = resolvedVarAssignment.isGlobal;
       }
     }
-  };
+  }
 
-  public readonly toString = (): string => (
-    `${this.isGlobalDeclaration ? 'VAR' 
-     : this.isNewTemporaryDeclaration ? '~ temp' 
-     : ''} ${this.variableName}`
-  );
+  public readonly toString = (): string =>
+    `${
+      this.isGlobalDeclaration
+        ? "VAR"
+        : this.isNewTemporaryDeclaration
+        ? "~ temp"
+        : ""
+    } ${this.variableName}`;
 }
-

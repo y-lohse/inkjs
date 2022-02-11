@@ -1,25 +1,25 @@
-import { AuthorWarning } from './AuthorWarning';
-import { Choice } from './Choice';
-import { Conditional } from './Conditional/Conditional';
-import { ConstantDeclaration } from './Declaration/ConstantDeclaration';
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { Divert } from './Divert/Divert';
-import { Divert as RuntimeDivert } from '../../../engine/Divert';
-import { DivertTarget } from './Divert/DivertTarget';
-import { FlowBase } from './Flow/FlowBase';
-import { Gather } from './Gather/Gather';
-import { GatherPointToResolve } from './Gather/GatherPointToResolve';
-import { IWeavePoint } from './IWeavePoint';
-import { ParsedObject } from './Object';
-import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Sequence } from './Sequence/Sequence';
-import { Story } from './Story';
-import { Text } from './Text';
-import { TunnelOnwards } from './TunnelOnwards';
-import { VariableAssignment } from './Variable/VariableAssignment';
-import { asOrNull } from '../../../engine/TypeAssertion';
+import { AuthorWarning } from "./AuthorWarning";
+import { Choice } from "./Choice";
+import { Conditional } from "./Conditional/Conditional";
+import { ConstantDeclaration } from "./Declaration/ConstantDeclaration";
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { Divert } from "./Divert/Divert";
+import { Divert as RuntimeDivert } from "../../../engine/Divert";
+import { DivertTarget } from "./Divert/DivertTarget";
+import { FlowBase } from "./Flow/FlowBase";
+import { Gather } from "./Gather/Gather";
+import { GatherPointToResolve } from "./Gather/GatherPointToResolve";
+import { IWeavePoint } from "./IWeavePoint";
+import { ParsedObject } from "./Object";
+import { InkObject as RuntimeObject } from "../../../engine/Object";
+import { Sequence } from "./Sequence/Sequence";
+import { Story } from "./Story";
+import { Text } from "./Text";
+import { TunnelOnwards } from "./TunnelOnwards";
+import { VariableAssignment } from "./Variable/VariableAssignment";
+import { asOrNull } from "../../../engine/TypeAssertion";
 
-type BadTerminationHandler = (terminatingObj: ParsedObject) => void; 
+type BadTerminationHandler = (terminatingObj: ParsedObject) => void;
 
 // Used by the FlowBase when constructing the weave flow from
 // a flat list of content objects.
@@ -78,15 +78,15 @@ export class Weave extends ParsedObject {
     for (let ii = this.content.length - 1; ii >= 0; --ii) {
       lastObject = this.content[ii];
 
-      var lastText = asOrNull(lastObject, Text);
-      if (lastText && lastText.text === '\n') {
+      let lastText = asOrNull(lastObject, Text);
+      if (lastText && lastText.text === "\n") {
         continue;
       }
 
       if (this.IsGlobalDeclaration(lastObject)) {
         continue;
       }
-      
+
       break;
     }
 
@@ -97,7 +97,7 @@ export class Weave extends ParsedObject {
 
     return lastObject;
   }
-                  
+
   constructor(cont: ParsedObject[], indentIndex: number = -1) {
     super();
 
@@ -114,27 +114,39 @@ export class Weave extends ParsedObject {
 
   public readonly ResolveWeavePointNaming = (): void => {
     const namedWeavePoints = [
-      ...this.FindAll<IWeavePoint>(Gather)(w => !(w.name === null || w.name === undefined)),
-      ...this.FindAll<IWeavePoint>(Choice)(w => !(w.name === null || w.name === undefined))
-    ] ;
+      ...this.FindAll<IWeavePoint>(Gather)(
+        (w) => !(w.name === null || w.name === undefined)
+      ),
+      ...this.FindAll<IWeavePoint>(Choice)(
+        (w) => !(w.name === null || w.name === undefined)
+      ),
+    ];
     this._namedWeavePoints = new Map();
 
     for (const weavePoint of namedWeavePoints) {
       // Check for weave point naming collisions
-      const existingWeavePoint: IWeavePoint | null | undefined = this.namedWeavePoints.get(
-        weavePoint.identifier?.name!,
-      );
+      const existingWeavePoint:
+        | IWeavePoint
+        | null
+        | undefined = this.namedWeavePoints.get(weavePoint.identifier?.name!);
 
       if (existingWeavePoint) {
-        const typeName = existingWeavePoint instanceof Gather ? 'gather' : 'choice';
+        const typeName =
+          existingWeavePoint instanceof Gather ? "gather" : "choice";
         const existingObj: ParsedObject = existingWeavePoint;
 
         this.Error(
-          `A ${typeName} with the same label name '${weavePoint.name}' already exists in this context on line ${existingObj.debugMetadata ? existingObj.debugMetadata.startLineNumber : 'NO DEBUG METADATA AVAILABLE'}`,
-          weavePoint as ParsedObject,
+          `A ${typeName} with the same label name '${
+            weavePoint.name
+          }' already exists in this context on line ${
+            existingObj.debugMetadata
+              ? existingObj.debugMetadata.startLineNumber
+              : "NO DEBUG METADATA AVAILABLE"
+          }`,
+          weavePoint as ParsedObject
         );
       }
-      if(weavePoint.identifier?.name){
+      if (weavePoint.identifier?.name) {
         this.namedWeavePoints.set(weavePoint.identifier?.name, weavePoint);
       }
     }
@@ -158,7 +170,9 @@ export class Weave extends ParsedObject {
           // Step through content until indent jumps out again
           let innerWeaveStartIdx = contentIdx;
           while (contentIdx < this.content.length) {
-            const innerWeaveObj = asOrNull(this.content[contentIdx], Choice) || asOrNull(this.content[contentIdx], Gather);
+            const innerWeaveObj =
+              asOrNull(this.content[contentIdx], Choice) ||
+              asOrNull(this.content[contentIdx], Gather);
             if (innerWeaveObj !== null) {
               const innerIndentIdx = innerWeaveObj.indentationDepth - 1;
               if (innerIndentIdx <= this.baseIndentIndex) {
@@ -170,7 +184,10 @@ export class Weave extends ParsedObject {
           }
 
           const weaveContentCount = contentIdx - innerWeaveStartIdx;
-          const weaveContent = this.content.slice(innerWeaveStartIdx, innerWeaveStartIdx + weaveContentCount);
+          const weaveContent = this.content.slice(
+            innerWeaveStartIdx,
+            innerWeaveStartIdx + weaveContentCount
+          );
 
           this.content.splice(innerWeaveStartIdx, weaveContentCount);
 
@@ -185,12 +202,12 @@ export class Weave extends ParsedObject {
       contentIdx += 1;
     }
   };
-      
+
   // When the indentation wasn't told to us at construction time using
   // a choice point with a known indentation level, we may be told to
   // determine the indentation level by incrementing from our closest ancestor.
   public readonly DetermineBaseIndentationFromContent = (
-    contentList: ParsedObject[],
+    contentList: ParsedObject[]
   ): number => {
     for (const obj of contentList) {
       if (obj instanceof Choice || obj instanceof Gather) {
@@ -225,7 +242,7 @@ export class Weave extends ParsedObject {
           this.gatherPointsToResolve.splice(
             0,
             0,
-            ...weave.gatherPointsToResolve,
+            ...weave.gatherPointsToResolve
           );
         } else {
           // Other object
@@ -258,7 +275,7 @@ export class Weave extends ParsedObject {
       gatherContainer.name = `g-${this._unnamedGatherCount}`;
       this._unnamedGatherCount += 1;
     }
-        
+
     if (autoEnter) {
       if (!this.currentContainer) {
         throw new Error();
@@ -271,7 +288,7 @@ export class Weave extends ParsedObject {
       // Add this gather to the main content, but only accessible
       // by name so that it isn't stepped into automatically, but only via
       // a divert from a loose end.
-      this.rootContainer.AddToNamedContentOnly (gatherContainer);
+      this.rootContainer.AddToNamedContentOnly(gatherContainer);
     }
 
     // Consume loose ends: divert them to this gather
@@ -300,30 +317,29 @@ export class Weave extends ParsedObject {
 
         looseWeavePoint.runtimeContainer.AddContent(divert);
       }
-          
+
       // Pass back knowledge of this loose end being diverted
       // to the FlowBase so that it can maintain a list of them,
       // and resolve the divert references later
       this.gatherPointsToResolve.push(
-        new GatherPointToResolve(divert, gatherContainer),
+        new GatherPointToResolve(divert, gatherContainer)
       );
-    };
+    }
 
     this.looseEnds = [];
 
     // Replace the current container itself
     this.currentContainer = gatherContainer;
-  }
+  };
 
   public readonly AddRuntimeForWeavePoint = (weavePoint: IWeavePoint): void => {
     // Current level Gather
     if (weavePoint instanceof Gather) {
       this.AddRuntimeForGather(weavePoint);
-    } 
-    
+    }
+
     // Current level choice
     else if (weavePoint instanceof Choice) {
-
       if (!this.currentContainer) {
         throw new Error();
       }
@@ -331,15 +347,20 @@ export class Weave extends ParsedObject {
       // Gathers that contain choices are no longer loose ends
       // (same as when weave points get nested content)
       if (this.previousWeavePoint instanceof Gather) {
-        this.looseEnds.splice( this.looseEnds.indexOf(this.previousWeavePoint), 1 );
+        this.looseEnds.splice(
+          this.looseEnds.indexOf(this.previousWeavePoint),
+          1
+        );
       }
 
       // Add choice point content
-      const choice = weavePoint;//, Choice);
+      const choice = weavePoint; //, Choice);
 
       this.currentContainer.AddContent(choice.runtimeObject);
 
-      if (!choice.innerContentContainer) { throw new Error();} //guaranteed not to happen
+      if (!choice.innerContentContainer) {
+        throw new Error();
+      } //guaranteed not to happen
 
       // Add choice's inner content to self
       choice.innerContentContainer.name = `c-${this._choiceCount}`;
@@ -372,10 +393,7 @@ export class Weave extends ParsedObject {
     // Now there's a deeper indentation level, the previous weave point doesn't
     // count as a loose end (since it will have content to go to)
     if (this.previousWeavePoint !== null) {
-      this.looseEnds.splice(
-        this.looseEnds.indexOf(this.previousWeavePoint),
-        1,
-      );
+      this.looseEnds.splice(this.looseEnds.indexOf(this.previousWeavePoint), 1);
 
       this.addContentToPreviousWeavePoint = false;
     }
@@ -389,9 +407,12 @@ export class Weave extends ParsedObject {
     if (content === null) {
       return;
     }
-    
+
     if (this.addContentToPreviousWeavePoint) {
-      if (!this.previousWeavePoint || !this.previousWeavePoint.runtimeContainer) {
+      if (
+        !this.previousWeavePoint ||
+        !this.previousWeavePoint.runtimeContainer
+      ) {
         throw new Error();
       }
 
@@ -401,7 +422,7 @@ export class Weave extends ParsedObject {
         throw new Error();
       }
 
-      this.currentContainer.AddContent (content);
+      this.currentContainer.AddContent(content);
     }
   };
 
@@ -439,13 +460,18 @@ export class Weave extends ParsedObject {
 
     // Find inner and outer ancestor weaves as defined above.
     let nested = false;
-    for (let ancestor = this.parent; ancestor !== null; ancestor = ancestor.parent) {
+    for (
+      let ancestor = this.parent;
+      ancestor !== null;
+      ancestor = ancestor.parent
+    ) {
       // Found ancestor?
       const weaveAncestor = asOrNull(ancestor, Weave);
       if (weaveAncestor) {
-        if ((!nested && closestInnerWeaveAncestor === null) ||
-          (nested && closestOuterWeaveAncestor === null))
-        {
+        if (
+          (!nested && closestInnerWeaveAncestor === null) ||
+          (nested && closestOuterWeaveAncestor === null)
+        ) {
           closestInnerWeaveAncestor = weaveAncestor;
         }
       }
@@ -458,9 +484,10 @@ export class Weave extends ParsedObject {
     }
 
     // No weave to pass loose ends to at all?
-    if (closestInnerWeaveAncestor === null &&
-      closestOuterWeaveAncestor === null)
-    {
+    if (
+      closestInnerWeaveAncestor === null &&
+      closestOuterWeaveAncestor === null
+    ) {
       return;
     }
 
@@ -477,8 +504,9 @@ export class Weave extends ParsedObject {
         if (looseEnd instanceof Choice && closestInnerWeaveAncestor !== null) {
           closestInnerWeaveAncestor.ReceiveLooseEnd(looseEnd);
           received = true;
-        } else if(!(looseEnd instanceof Choice)) {
-          const receivingWeave = closestInnerWeaveAncestor || closestOuterWeaveAncestor;
+        } else if (!(looseEnd instanceof Choice)) {
+          const receivingWeave =
+            closestInnerWeaveAncestor || closestOuterWeaveAncestor;
           if (receivingWeave !== null) {
             receivingWeave.ReceiveLooseEnd(looseEnd);
             received = true;
@@ -486,7 +514,7 @@ export class Weave extends ParsedObject {
         }
       } else {
         // No nesting, all loose ends can be safely passed up
-        if(closestInnerWeaveAncestor?.hasOwnProperty('ReceiveLooseEnd')){
+        if (closestInnerWeaveAncestor?.hasOwnProperty("ReceiveLooseEnd")) {
           closestInnerWeaveAncestor!.ReceiveLooseEnd(looseEnd);
         }
         received = true;
@@ -498,7 +526,7 @@ export class Weave extends ParsedObject {
     }
   };
 
-  public readonly ReceiveLooseEnd= (childWeaveLooseEnd: IWeavePoint): void => {
+  public readonly ReceiveLooseEnd = (childWeaveLooseEnd: IWeavePoint): void => {
     this.looseEnds.push(childWeaveLooseEnd);
   };
 
@@ -508,7 +536,11 @@ export class Weave extends ParsedObject {
     // Check that choices nested within conditionals and sequences are terminated
     if (this.looseEnds !== null && this.looseEnds.length > 0) {
       let isNestedWeave = false;
-      for (let ancestor = this.parent; ancestor !== null; ancestor = ancestor.parent) {
+      for (
+        let ancestor = this.parent;
+        ancestor !== null;
+        ancestor = ancestor.parent
+      ) {
         if (ancestor instanceof Sequence || ancestor instanceof Conditional) {
           isNestedWeave = true;
           break;
@@ -523,16 +555,19 @@ export class Weave extends ParsedObject {
     for (const gatherPoint of this.gatherPointsToResolve) {
       gatherPoint.divert.targetPath = gatherPoint.targetRuntimeObj.path;
     }
-        
+
     this.CheckForWeavePointNamingCollisions();
-  };
+  }
 
   public readonly WeavePointNamed = (name: string): IWeavePoint | null => {
     if (!this.namedWeavePoints) {
       return null;
     }
 
-    let weavePointResult: IWeavePoint | null | undefined = this.namedWeavePoints.get(name);
+    let weavePointResult:
+      | IWeavePoint
+      | null
+      | undefined = this.namedWeavePoints.get(name);
     if (weavePointResult) {
       return weavePointResult;
     }
@@ -554,12 +589,12 @@ export class Weave extends ParsedObject {
     }
 
     return false;
-  }
+  };
 
   // While analysing final loose ends, we look to see whether there
   // are any diverts etc which choices etc divert from
   public readonly ContentThatFollowsWeavePoint = (
-    weavePoint: IWeavePoint,
+    weavePoint: IWeavePoint
   ): ParsedObject[] => {
     const returned = [];
     const obj = weavePoint as ParsedObject;
@@ -568,7 +603,7 @@ export class Weave extends ParsedObject {
     if (obj.content !== null) {
       for (const contentObj of obj.content) {
         // Global VARs and CONSTs are treated as "outside of the flow"
-        if (this.IsGlobalDeclaration (contentObj)) {
+        if (this.IsGlobalDeclaration(contentObj)) {
           continue;
         }
 
@@ -578,7 +613,7 @@ export class Weave extends ParsedObject {
 
     const parentWeave = asOrNull(obj.parent, Weave);
     if (parentWeave === null) {
-      throw new Error('Expected weave point parent to be weave?');
+      throw new Error("Expected weave point parent to be weave?");
     }
 
     const weavePointIdx = parentWeave.content.indexOf(obj);
@@ -591,7 +626,7 @@ export class Weave extends ParsedObject {
       }
 
       // End of the current flow
-      if (laterObj instanceof Choice || laterObj instanceof Divert) { 
+      if (laterObj instanceof Choice || laterObj instanceof Divert) {
         break;
       }
 
@@ -607,7 +642,7 @@ export class Weave extends ParsedObject {
   };
 
   public readonly ValidateTermination = (
-    badTerminationHandler: BadTerminationHandler,
+    badTerminationHandler: BadTerminationHandler
   ): void => {
     // Don't worry if the last object in the flow is a "TODO",
     // even if there are other loose ends in other places
@@ -624,8 +659,8 @@ export class Weave extends ParsedObject {
     //  - This weave is just a list of content with no actual weave points,
     //    so we just need to check that the list of content terminates.
 
-    const hasLooseEnds: boolean = this.looseEnds !== null &&
-      this.looseEnds.length > 0;
+    const hasLooseEnds: boolean =
+      this.looseEnds !== null && this.looseEnds.length > 0;
 
     if (hasLooseEnds) {
       for (const looseEnd of this.looseEnds) {
@@ -633,14 +668,14 @@ export class Weave extends ParsedObject {
         this.ValidateFlowOfObjectsTerminates(
           looseEndFlow,
           looseEnd as ParsedObject,
-          badTerminationHandler,
+          badTerminationHandler
         );
       }
     } else {
       // No loose ends... is there any inner weaving at all?
       // If not, make sure the single content stream is terminated correctly
-      // 
-      // If there's any actual weaving, assume that content is 
+      //
+      // If there's any actual weaving, assume that content is
       // terminated correctly since we would've had a loose end otherwise
       for (const obj of this.content) {
         if (obj instanceof Choice || obj instanceof Divert) {
@@ -652,23 +687,28 @@ export class Weave extends ParsedObject {
       this.ValidateFlowOfObjectsTerminates(
         this.content,
         this,
-        badTerminationHandler,
+        badTerminationHandler
       );
     }
-  }
+  };
 
   readonly BadNestedTerminationHandler: BadTerminationHandler = (
-    terminatingObj,
+    terminatingObj
   ) => {
     let conditional: Conditional | null = null;
-    for (let ancestor = terminatingObj.parent; ancestor !== null; ancestor = ancestor.parent) {
+    for (
+      let ancestor = terminatingObj.parent;
+      ancestor !== null;
+      ancestor = ancestor.parent
+    ) {
       if (ancestor instanceof Sequence || ancestor instanceof Conditional) {
         conditional = asOrNull(ancestor, Conditional);
         break;
       }
     }
 
-    let errorMsg = 'Choices nested in conditionals or sequences need to explicitly divert afterwards.';
+    let errorMsg =
+      "Choices nested in conditionals or sequences need to explicitly divert afterwards.";
 
     // Tutorialise proper choice syntax if this looks like a single choice within a condition, e.g.
     // { condition:
@@ -676,7 +716,7 @@ export class Weave extends ParsedObject {
     // }
     if (conditional !== null) {
       let numChoices = conditional.FindAll<Choice>(Choice)().length;
-      if (numChoices === 1 ) {
+      if (numChoices === 1) {
         errorMsg = `Choices with conditions should be written: '* {condition} choice'. Otherwise, ${errorMsg.toLowerCase()}`;
       }
     }
@@ -687,17 +727,18 @@ export class Weave extends ParsedObject {
   public readonly ValidateFlowOfObjectsTerminates = (
     objFlow: ParsedObject[],
     defaultObj: ParsedObject,
-    badTerminationHandler: BadTerminationHandler,
+    badTerminationHandler: BadTerminationHandler
   ) => {
     let terminated = false;
     let terminatingObj: ParsedObject = defaultObj;
     for (const flowObj of objFlow) {
-      const divert = flowObj.Find(Divert)((d) => (
-        !d.isThread &&
+      const divert = flowObj.Find(Divert)(
+        (d) =>
+          !d.isThread &&
           !d.isTunnel &&
           !d.isFunctionCall &&
           !(d.parent instanceof DivertTarget)
-      ));
+      );
 
       if (divert !== null) {
         terminated = true;
@@ -711,7 +752,6 @@ export class Weave extends ParsedObject {
       terminatingObj = flowObj;
     }
 
-
     if (!terminated) {
       // Author has left a note to self here - clearly we don't need
       // to leave them with another warning since they know what they're doing.
@@ -722,8 +762,10 @@ export class Weave extends ParsedObject {
       badTerminationHandler(terminatingObj);
     }
   };
-      
-  public readonly WeavePointHasLooseEnd = (weavePoint: IWeavePoint): boolean => {
+
+  public readonly WeavePointHasLooseEnd = (
+    weavePoint: IWeavePoint
+  ): boolean => {
     // No content, must be a loose end.
     if (weavePoint.content === null) {
       return true;
@@ -735,9 +777,12 @@ export class Weave extends ParsedObject {
     // although it doesn't actually make a difference!
     // (content after a divert will simply be inaccessible)
     for (let ii = weavePoint.content.length - 1; ii >= 0; --ii) {
-      var innerDivert = asOrNull(weavePoint.content[ii], Divert);
+      let innerDivert = asOrNull(weavePoint.content[ii], Divert);
       if (innerDivert) {
-        const willReturn = innerDivert.isThread || innerDivert.isTunnel || innerDivert.isFunctionCall;
+        const willReturn =
+          innerDivert.isThread ||
+          innerDivert.isTunnel ||
+          innerDivert.isFunctionCall;
         if (!willReturn) {
           return false;
         }
@@ -753,7 +798,7 @@ export class Weave extends ParsedObject {
     if (!this.namedWeavePoints) {
       return;
     }
- 
+
     const ancestorFlows = [];
     for (const obj of this.ancestry) {
       const flow = asOrNull(obj, FlowBase);
@@ -764,17 +809,17 @@ export class Weave extends ParsedObject {
       }
     }
 
-    
-    for (const [ weavePointName, weavePoint ] of this.namedWeavePoints) {
+    for (const [weavePointName, weavePoint] of this.namedWeavePoints) {
       for (const flow of ancestorFlows) {
         // Shallow search
-        const otherContentWithName = flow.ContentWithNameAtLevel(weavePointName);
+        const otherContentWithName = flow.ContentWithNameAtLevel(
+          weavePointName
+        );
         if (otherContentWithName && otherContentWithName !== weavePoint) {
-          const errorMsg = `${weavePoint.GetType()} '${weavePointName}' has the same label name as a ${otherContentWithName.GetType()} (on ${otherContentWithName.debugMetadata})`;
-          this.Error(
-            errorMsg,
-            weavePoint,
-          );
+          const errorMsg = `${weavePoint.GetType()} '${weavePointName}' has the same label name as a ${otherContentWithName.GetType()} (on ${
+            otherContentWithName.debugMetadata
+          })`;
+          this.Error(errorMsg, weavePoint);
         }
       }
     }

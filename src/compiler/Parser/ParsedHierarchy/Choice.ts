@@ -1,26 +1,21 @@
-import { ChoicePoint } from '../../../engine/ChoicePoint';
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { ContentList } from './ContentList';
-import { ControlCommand as RuntimeControlCommand } from '../../../engine/ControlCommand';
-import { Divert as RuntimeDivert } from '../../../engine/Divert';
-import { DivertTargetValue } from '../../../engine/Value';
-import { INamedContent } from '../../../engine/INamedContent';
-import { IWeavePoint } from './IWeavePoint';
-import { ParsedObject } from './Object';
-import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Path as RuntimePath } from '../../../engine/Path';
-import { Story } from './Story';
-import { SymbolType } from './SymbolType';
-import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
-import { Expression } from './Expression/Expression';
-import { Identifier } from './Identifier';
+import { ChoicePoint } from "../../../engine/ChoicePoint";
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { ContentList } from "./ContentList";
+import { ControlCommand as RuntimeControlCommand } from "../../../engine/ControlCommand";
+import { Divert as RuntimeDivert } from "../../../engine/Divert";
+import { DivertTargetValue } from "../../../engine/Value";
+import { INamedContent } from "../../../engine/INamedContent";
+import { IWeavePoint } from "./IWeavePoint";
+import { ParsedObject } from "./Object";
+import { InkObject as RuntimeObject } from "../../../engine/Object";
+import { Path as RuntimePath } from "../../../engine/Path";
+import { Story } from "./Story";
+import { SymbolType } from "./SymbolType";
+import { VariableAssignment as RuntimeVariableAssignment } from "../../../engine/VariableAssignment";
+import { Expression } from "./Expression/Expression";
+import { Identifier } from "./Identifier";
 
-export class Choice
-  extends ParsedObject
-  implements
-    IWeavePoint,
-    INamedContent
-{
+export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
   private _condition: Expression | null = null;
   private _innerContentContainer: RuntimeContainer | null = null;
   private _outerContainer: RuntimeContainer | null = null;
@@ -53,12 +48,12 @@ export class Choice
   public indentationDepth: number;
   public hasWeaveStyleInlineBrackets: boolean = false;
 
-  get condition() { 
+  get condition() {
     return this._condition;
   }
 
-  set condition(value) { 
-    this._condition = value; 
+  set condition(value) {
+    this._condition = value;
     if (value) {
       this.AddContent(value as ParsedObject);
     }
@@ -93,7 +88,7 @@ export class Choice
   constructor(
     startContent: ContentList,
     choiceOnlyContent: ContentList,
-    innerContent: ContentList,
+    innerContent: ContentList
   ) {
     super();
 
@@ -116,9 +111,9 @@ export class Choice
 
     this.onceOnly = true; // default
   }
-  
+
   get typeName(): string {
-    return 'Choice';
+    return "Choice";
   }
 
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
@@ -160,13 +155,13 @@ export class Choice
     //      [(r2)]            -- return label 1 (after start content)
     //      inner content
     //  ]
-    // 
+    //
 
     this._runtimeChoice = new ChoicePoint(this.onceOnly);
     this._runtimeChoice.isInvisibleDefault = this.isInvisibleDefault;
 
     if (this.startContent || this.choiceOnlyContent || this.condition) {
-      this._outerContainer.AddContent(RuntimeControlCommand.EvalStart ());
+      this._outerContainer.AddContent(RuntimeControlCommand.EvalStart());
     }
 
     // Start content is put into a named container that's referenced both
@@ -180,31 +175,33 @@ export class Choice
       this._returnToR1 = new DivertTargetValue();
       this._outerContainer.AddContent(this._returnToR1);
 
-      const varAssign = new RuntimeVariableAssignment('$r', true);
+      const varAssign = new RuntimeVariableAssignment("$r", true);
       this._outerContainer.AddContent(varAssign);
 
       // Mark the start of the choice text generation, so that the runtime
       // knows where to rewind to to extract the content from the output stream.
-      this._outerContainer.AddContent(RuntimeControlCommand.BeginString ());
+      this._outerContainer.AddContent(RuntimeControlCommand.BeginString());
 
       this._divertToStartContentOuter = new RuntimeDivert();
       this._outerContainer.AddContent(this._divertToStartContentOuter);
 
       // Start content itself in a named container
       this._startContentRuntimeContainer = this.startContent.GenerateRuntimeObject() as RuntimeContainer;
-      this._startContentRuntimeContainer.name = 's';
+      this._startContentRuntimeContainer.name = "s";
 
       // Effectively, the "return" statement - return to the point specified by $r
-      const varDivert = new RuntimeDivert ();
-      varDivert.variableDivertName = '$r';
+      const varDivert = new RuntimeDivert();
+      varDivert.variableDivertName = "$r";
       this._startContentRuntimeContainer.AddContent(varDivert);
 
       // Add the container
-      this._outerContainer.AddToNamedContentOnly(this._startContentRuntimeContainer);
+      this._outerContainer.AddToNamedContentOnly(
+        this._startContentRuntimeContainer
+      );
 
       // This is the label to return to
       this._r1Label = new RuntimeContainer();
-      this._r1Label.name = '$r1';
+      this._r1Label.name = "$r1";
       this._outerContainer.AddContent(this._r1Label);
 
       this._outerContainer.AddContent(RuntimeControlCommand.EndString());
@@ -248,7 +245,7 @@ export class Choice
       this._innerContentContainer.AddContent(RuntimeControlCommand.EvalStart());
       this._innerContentContainer.AddContent(this._returnToR2);
       this._innerContentContainer.AddContent(RuntimeControlCommand.EvalEnd());
-      const varAssign = new RuntimeVariableAssignment('$r', true);
+      const varAssign = new RuntimeVariableAssignment("$r", true);
       this._innerContentContainer.AddContent(varAssign);
 
       // Main divert into start content
@@ -257,14 +254,16 @@ export class Choice
 
       // Define label to return to
       this._r2Label = new RuntimeContainer();
-      this._r2Label.name = '$r2';
+      this._r2Label.name = "$r2";
       this._innerContentContainer.AddContent(this._r2Label);
     }
 
     // Choice's own inner content
     if (this.innerContent) {
       const innerChoiceOnlyContent = this.innerContent.GenerateRuntimeObject() as RuntimeContainer;
-      this._innerContentContainer.AddContentsOfContainer (innerChoiceOnlyContent);
+      this._innerContentContainer.AddContentsOfContainer(
+        innerChoiceOnlyContent
+      );
     }
 
     if (this.story.countAllVisits) {
@@ -320,14 +319,14 @@ export class Choice
 
     super.ResolveReferences(context);
 
-    if (this.identifier && (this.identifier?.name || '').length > 0) {
+    if (this.identifier && (this.identifier?.name || "").length > 0) {
       context.CheckForNamingCollisions(
         this as ParsedObject,
         this.identifier,
-        SymbolType.SubFlowAndWeave,
+        SymbolType.SubFlowAndWeave
       );
     }
-  };
+  }
 
   public readonly toString = () => {
     if (this.choiceOnlyContent !== null) {

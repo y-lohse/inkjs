@@ -1,9 +1,9 @@
-import { Argument } from './Argument';
-import { FlowBase } from './Flow/FlowBase';
-import { FlowLevel } from './Flow/FlowLevel';
-import { Identifier } from './Identifier';
-import { ParsedObject } from './Object';
-import { Story } from './Story';
+import { Argument } from "./Argument";
+import { FlowBase } from "./Flow/FlowBase";
+import { FlowLevel } from "./Flow/FlowLevel";
+import { Identifier } from "./Identifier";
+import { ParsedObject } from "./Object";
+import { Story } from "./Story";
 
 export class Knot extends FlowBase {
   get flowLevel(): FlowLevel {
@@ -14,15 +14,15 @@ export class Knot extends FlowBase {
     name: Identifier,
     topLevelObjects: ParsedObject[],
     args: Argument[],
-    isFunction: boolean)
-  {
+    isFunction: boolean
+  ) {
     super(name, topLevelObjects, args, isFunction);
   }
 
   public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
-    var parentStory = this.story;
+    let parentStory = this.story;
 
     // Enforce rule that stitches must not have the same
     // name as any knots that exist in the story
@@ -30,14 +30,18 @@ export class Knot extends FlowBase {
       const knotWithStitchName = parentStory.ContentWithNameAtLevel(
         stitchName,
         FlowLevel.Knot,
-        false,
+        false
       );
 
       if (knotWithStitchName) {
         const stitch = this.subFlowsByName.get(stitchName);
-        const errorMsg = `Stitch '${stitch ? stitch.name : 'NO STITCH FOUND'}' has the same name as a knot (on ${knotWithStitchName.debugMetadata})`;
+        const errorMsg = `Stitch '${
+          stitch ? stitch.name : "NO STITCH FOUND"
+        }' has the same name as a knot (on ${
+          knotWithStitchName.debugMetadata
+        })`;
         this.Error(errorMsg, stitch);
       }
     }
-  };
+  }
 }

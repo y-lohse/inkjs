@@ -1,12 +1,11 @@
-
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../engine/ControlCommand';
-import { Divert } from './Divert/Divert';
-import { DivertTargetValue } from '../../../engine/Value';
-import { ParsedObject } from './Object';
-import { InkObject as RuntimeObject } from '../../../engine/Object';
-import { Story } from './Story';
-import { Void } from '../../../engine/Void';
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../engine/ControlCommand";
+import { Divert } from "./Divert/Divert";
+import { DivertTargetValue } from "../../../engine/Value";
+import { ParsedObject } from "./Object";
+import { InkObject as RuntimeObject } from "../../../engine/Object";
+import { Story } from "./Story";
+import { Void } from "../../../engine/Void";
 
 export class TunnelOnwards extends ParsedObject {
   private _overrideDivertTarget: DivertTargetValue | null = null;
@@ -14,7 +13,7 @@ export class TunnelOnwards extends ParsedObject {
   private _divertAfter: Divert | null = null;
   get divertAfter() {
     return this._divertAfter;
-  };
+  }
 
   set divertAfter(value) {
     this._divertAfter = value;
@@ -40,14 +39,23 @@ export class TunnelOnwards extends ParsedObject {
           // Steal everything betwen eval start and eval end
           let evalStart = -1;
           let evalEnd = -1;
-          for (let ii = 0; ii < returnRuntimeContainer.content.length; ii += 1) {
-            const cmd = returnRuntimeContainer.content[ii] as RuntimeControlCommand;
+          for (
+            let ii = 0;
+            ii < returnRuntimeContainer.content.length;
+            ii += 1
+          ) {
+            const cmd = returnRuntimeContainer.content[
+              ii
+            ] as RuntimeControlCommand;
             if (cmd) {
-              if (evalStart == -1 &&
-                cmd.commandType === RuntimeControlCommand.CommandType.EvalStart)
-              {
+              if (
+                evalStart == -1 &&
+                cmd.commandType === RuntimeControlCommand.CommandType.EvalStart
+              ) {
                 evalStart = ii;
-              } else if (cmd.commandType === RuntimeControlCommand.CommandType.EvalEnd) {
+              } else if (
+                cmd.commandType === RuntimeControlCommand.CommandType.EvalEnd
+              ) {
                 evalEnd = ii;
               }
             }
@@ -61,7 +69,7 @@ export class TunnelOnwards extends ParsedObject {
         }
       }
 
-      // Finally, divert to the requested target 
+      // Finally, divert to the requested target
       this._overrideDivertTarget = new DivertTargetValue();
       container.AddContent(this._overrideDivertTarget);
     } else {
@@ -81,10 +89,9 @@ export class TunnelOnwards extends ParsedObject {
     if (this.divertAfter && this.divertAfter.targetContent) {
       this._overrideDivertTarget!.targetPath = this.divertAfter.targetContent.runtimePath;
     }
-  };
+  }
 
   public toString = (): string => {
-    return ` -> ${this._divertAfter}`
-  }
+    return ` -> ${this._divertAfter}`;
+  };
 }
-

@@ -1,46 +1,46 @@
-import { AuthorWarning } from './AuthorWarning';
-import { ConstantDeclaration } from './Declaration/ConstantDeclaration';
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../engine/ControlCommand';
-import { ErrorHandler } from '../../../engine/Error';
-import { ErrorType } from '../ErrorType';
-import { Expression } from './Expression/Expression';
-import { ExternalDeclaration } from './Declaration/ExternalDeclaration';
-import { FlowBase } from './Flow/FlowBase';
-import { FlowLevel } from './Flow/FlowLevel';
-import { IncludedFile } from './IncludedFile';
-import { ListDefinition } from './List/ListDefinition';
-import { ListElementDefinition } from './List/ListElementDefinition';
-import { ParsedObject } from './Object';
-import { Story as RuntimeStory } from '../../../engine/Story';
-import { SymbolType } from './SymbolType';
-import { Text } from './Text';
-import { VariableAssignment as RuntimeVariableAssignment } from '../../../engine/VariableAssignment';
-import { Identifier } from './Identifier';
-import { asOrNull } from '../../../engine/TypeAssertion';
-import { ClosestFlowBase } from './Flow/ClosestFlowBase';
-import { FunctionCall } from './FunctionCall';
-import { Path } from './Path';
-import { VariableAssignment } from './Variable/VariableAssignment';
+import { AuthorWarning } from "./AuthorWarning";
+import { ConstantDeclaration } from "./Declaration/ConstantDeclaration";
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../engine/ControlCommand";
+import { ErrorHandler } from "../../../engine/Error";
+import { ErrorType } from "../ErrorType";
+import { Expression } from "./Expression/Expression";
+import { ExternalDeclaration } from "./Declaration/ExternalDeclaration";
+import { FlowBase } from "./Flow/FlowBase";
+import { FlowLevel } from "./Flow/FlowLevel";
+import { IncludedFile } from "./IncludedFile";
+import { ListDefinition } from "./List/ListDefinition";
+import { ListElementDefinition } from "./List/ListElementDefinition";
+import { ParsedObject } from "./Object";
+import { Story as RuntimeStory } from "../../../engine/Story";
+import { SymbolType } from "./SymbolType";
+import { Text } from "./Text";
+import { VariableAssignment as RuntimeVariableAssignment } from "../../../engine/VariableAssignment";
+import { Identifier } from "./Identifier";
+import { asOrNull } from "../../../engine/TypeAssertion";
+import { ClosestFlowBase } from "./Flow/ClosestFlowBase";
+import { FunctionCall } from "./FunctionCall";
+import { Path } from "./Path";
+import { VariableAssignment } from "./Variable/VariableAssignment";
 
 export class Story extends FlowBase {
   public static readonly IsReservedKeyword = (name?: string): boolean => {
-      switch (name) {
-        case 'true':
-        case 'false':
-        case 'not':
-        case 'return':
-        case 'else':
-        case 'VAR':
-        case 'CONST':
-        case 'temp':
-        case 'LIST':
-        case 'function':
-          return true;
-      }
+    switch (name) {
+      case "true":
+      case "false":
+      case "not":
+      case "return":
+      case "else":
+      case "VAR":
+      case "CONST":
+      case "temp":
+      case "LIST":
+      case "function":
+        return true;
+    }
 
-      return false;
-  }
+    return false;
+  };
 
   private _errorHandler: ErrorHandler | null = null;
   private _hadError: boolean = false;
@@ -65,11 +65,11 @@ export class Story extends FlowBase {
 
   // Build setting for exporting:
   // When true, the visit count for *all* knots, stitches, choices,
-  // and gathers is counted. When false, only those that are direclty 
-  // referenced by the ink are recorded. Use this flag to allow game-side 
+  // and gathers is counted. When false, only those that are direclty
+  // referenced by the ink are recorded. Use this flag to allow game-side
   // querying of  arbitrary knots/stitches etc.
   // Storing all counts is more robust and future proof (updates to the story file
-  // that reference previously uncounted visits are possible, but generates a much 
+  // that reference previously uncounted visits are possible, but generates a much
   // larger safe file, with a lot of potentially redundant counts.
   public countAllVisits: boolean = false;
 
@@ -80,7 +80,7 @@ export class Story extends FlowBase {
   }
 
   get typeName(): string {
-    return 'Story';
+    return "Story";
   }
 
   // Before this function is called, we have IncludedFile objects interspersed
@@ -89,15 +89,13 @@ export class Story extends FlowBase {
   // top of the file) without side-effects of jumping into a knot that was
   // defined in that include, we separate knots and stitches from anything
   // else defined at the top scope of the included file.
-  // 
+  //
   // Algorithm: For each IncludedFile we find, split its contents into
   // knots/stiches and any other content. Insert the normal content wherever
   // the include statement was, and append the knots/stitches to the very
   // end of the main story.
-  public PreProcessTopLevelObjects(
-    topLevelContent: ParsedObject[],
-  ): void {
-    super.PreProcessTopLevelObjects(topLevelContent)
+  public PreProcessTopLevelObjects(topLevelContent: ParsedObject[]): void {
+    super.PreProcessTopLevelObjects(topLevelContent);
 
     const flowsFromOtherFiles = [];
 
@@ -106,9 +104,8 @@ export class Story extends FlowBase {
       if (obj instanceof IncludedFile) {
         const file: IncludedFile = obj;
 
-        
         // Remove the IncludedFile itself
-        const posOfObj = topLevelContent.indexOf(obj)
+        const posOfObj = topLevelContent.indexOf(obj);
         topLevelContent.splice(posOfObj, 1);
 
         // When an included story fails to load, the include
@@ -127,7 +124,7 @@ export class Story extends FlowBase {
             }
 
             // Add newline on the end of the include
-            nonFlowContent.push(new Text('\n'));
+            nonFlowContent.push(new Text("\n"));
 
             // Add contents of the file in its place
             topLevelContent.splice(posOfObj, 0, ...nonFlowContent);
@@ -141,30 +138,33 @@ export class Story extends FlowBase {
         // Include object has been removed, with possible content inserted,
         // and position of 'i' will have been determined already.
         continue;
-      } 
+      }
     }
 
     // Add the flows we collected from the included files to the
     // end of our list of our content
     topLevelContent.splice(0, 0, ...flowsFromOtherFiles);
-  };
+  }
 
   public readonly ExportRuntime = (
-    errorHandler: ErrorHandler | null = null,
+    errorHandler: ErrorHandler | null = null
   ): RuntimeStory | null => {
     this._errorHandler = errorHandler;
 
     // Find all constants before main export begins, so that VariableReferences know
     // whether to generate a runtime variable reference or the literal value
     this.constants = new Map();
-    for (const constDecl of this.FindAll(ConstantDeclaration)() ) {
+    for (const constDecl of this.FindAll(ConstantDeclaration)()) {
       // Check for duplicate definitions
-      const existingDefinition: ConstantDeclaration | null | undefined = this.constants.get(
-        constDecl.constantName!,
-      ) as any;
+      const existingDefinition:
+        | ConstantDeclaration
+        | null
+        | undefined = this.constants.get(constDecl.constantName!) as any;
 
       if (existingDefinition) {
-        const runObj = existingDefinition.GenerateRuntimeObject() || { Equals: () => false };
+        const runObj = existingDefinition.GenerateRuntimeObject() || {
+          Equals: () => false,
+        };
         if (!runObj.Equals(constDecl.expression)) {
           const errorMsg = `CONST '${constDecl.constantName}' has been redefined with a different value. Multiple definitions of the same CONST are valid so long as they contain the same value. Initial definition was on ${existingDefinition.debugMetadata}.`;
           this.Error(errorMsg, constDecl, false);
@@ -178,7 +178,7 @@ export class Story extends FlowBase {
     // from other variable declarations.
     this._listDefs = new Map();
     for (const listDef of this.FindAll<ListDefinition>(ListDefinition)()) {
-      if(listDef.identifier?.name){
+      if (listDef.identifier?.name) {
         this._listDefs.set(listDef.identifier?.name, listDef);
       }
     }
@@ -201,12 +201,12 @@ export class Story extends FlowBase {
 
     // Global variables are those that are local to the story and marked as global
     const runtimeLists = [];
-    for (const [ key, value ] of this.variableDeclarations) {
+    for (const [key, value] of this.variableDeclarations) {
       if (value.isGlobalDeclaration) {
         if (value.listDefinition) {
           this._listDefs.set(key, value.listDefinition);
           variableInitialisation.AddContent(
-            value.listDefinition.runtimeObject!,
+            value.listDefinition.runtimeObject!
           );
 
           runtimeLists.push(value.listDefinition.runtimeListDefinition);
@@ -227,7 +227,7 @@ export class Story extends FlowBase {
     variableInitialisation.AddContent(RuntimeControlCommand.End());
 
     if (this.variableDeclarations.size > 0) {
-      variableInitialisation.name = 'global decl';
+      variableInitialisation.name = "global decl";
       rootContainer.AddToNamedContentOnly(variableInitialisation);
     }
 
@@ -237,13 +237,13 @@ export class Story extends FlowBase {
 
     // Replace runtimeObject with Story object instead of the Runtime.Container generated by Parsed.ContainerBase
     const runtimeStory = new RuntimeStory(rootContainer, runtimeLists);
-    
+
     this.runtimeObject = runtimeStory;
-    
+
     if (this.hadError) {
       return null;
     }
-    
+
     // Optimisation step - inline containers that can be
     this.FlattenContainersIn(rootContainer);
 
@@ -266,9 +266,7 @@ export class Story extends FlowBase {
     return runtimeStory;
   };
 
-  public readonly ResolveList = (
-    listName: string,
-  ): ListDefinition | null => {
+  public readonly ResolveList = (listName: string): ListDefinition | null => {
     let list: ListDefinition | null | undefined = this._listDefs.get(listName);
     if (!list) {
       return null;
@@ -278,9 +276,9 @@ export class Story extends FlowBase {
   };
 
   public readonly ResolveListItem = (
-    listName: string|null,
+    listName: string | null,
     itemName: string,
-    source: ParsedObject | null = null,
+    source: ParsedObject | null = null
   ): ListElementDefinition | null => {
     let listDef: ListDefinition | null | undefined = null;
 
@@ -297,14 +295,16 @@ export class Story extends FlowBase {
       let foundItem: ListElementDefinition | null = null;
       let originalFoundList: ListDefinition | null = null;
 
-      for (const [ key, value ] of this._listDefs.entries()) {
+      for (const [key, value] of this._listDefs.entries()) {
         const itemInThisList = value.ItemNamed(itemName);
         if (itemInThisList) {
           if (foundItem) {
             this.Error(
-              `Ambiguous item name '${itemName}' found in multiple sets, including ${originalFoundList!.identifier} and ${value!.identifier}`,
+              `Ambiguous item name '${itemName}' found in multiple sets, including ${
+                originalFoundList!.identifier
+              } and ${value!.identifier}`,
               source,
-              false,
+              false
             );
           } else {
             foundItem = itemInThisList;
@@ -315,15 +315,13 @@ export class Story extends FlowBase {
 
       return foundItem;
     }
-  }
+  };
 
-  public readonly FlattenContainersIn = (
-    container: RuntimeContainer,
-  ): void => {
+  public readonly FlattenContainersIn = (container: RuntimeContainer): void => {
     // Need to create a collection to hold the inner containers
     // because otherwise we'd end up modifying during iteration
     const innerContainers = new Set<RuntimeContainer>();
-    if(container.content){
+    if (container.content) {
       for (const c of container.content) {
         const innerContainer = asOrNull(c, RuntimeContainer);
         if (innerContainer) {
@@ -349,18 +347,17 @@ export class Story extends FlowBase {
     }
   };
 
-  public readonly TryFlattenContainer = (
-    container: RuntimeContainer,
-  ): void => {
-    if ( (container.namedContent && container.namedContent.size > 0)  ||
+  public readonly TryFlattenContainer = (container: RuntimeContainer): void => {
+    if (
+      (container.namedContent && container.namedContent.size > 0) ||
       container.hasValidName ||
-      this._dontFlattenContainers.has(container))
-    {
+      this._dontFlattenContainers.has(container)
+    ) {
       return;
     }
 
     // Inline all the content in container into the parent
-    const parentContainer = asOrNull(container.parent,RuntimeContainer);
+    const parentContainer = asOrNull(container.parent, RuntimeContainer);
     if (parentContainer) {
       let contentIdx = parentContainer.content.indexOf(container);
       parentContainer.content.splice(contentIdx, 1);
@@ -379,30 +376,30 @@ export class Story extends FlowBase {
         }
       }
     }
-    
   };
 
   public readonly Error = (
     message: string,
     source: ParsedObject | null | undefined,
-    isWarning: boolean | null | undefined,
+    isWarning: boolean | null | undefined
   ) => {
     let errorType: ErrorType = isWarning ? ErrorType.Warning : ErrorType.Error;
 
-    let sb = '';
+    let sb = "";
     if (source instanceof AuthorWarning) {
-      sb += 'TODO: ';
+      sb += "TODO: ";
       errorType = ErrorType.Author;
     } else if (isWarning) {
-      sb += 'WARNING: ';
+      sb += "WARNING: ";
     } else {
-      sb += 'ERROR: ';
+      sb += "ERROR: ";
     }
 
-    if (source &&
+    if (
+      source &&
       source.debugMetadata !== null &&
-      source.debugMetadata.startLineNumber >= 1)
-    {
+      source.debugMetadata.startLineNumber >= 1
+    ) {
       if (source.debugMetadata.fileName != null) {
         sb += `'${source.debugMetadata.fileName}' `;
       }
@@ -413,7 +410,7 @@ export class Story extends FlowBase {
     sb += message;
 
     message = sb;
-    
+
     if (this._errorHandler !== null) {
       this._errorHandler(message, errorType);
     } else {
@@ -429,19 +426,24 @@ export class Story extends FlowBase {
     this._hadWarning = false;
   };
 
-  public readonly IsExternal = (namedFuncTarget: string): boolean => (
-    namedFuncTarget in this.externals
-  );
+  public readonly IsExternal = (namedFuncTarget: string): boolean =>
+    namedFuncTarget in this.externals;
 
   public readonly AddExternal = (decl: ExternalDeclaration): void => {
     if (decl.name! in this.externals) {
-      this.Error(`Duplicate EXTERNAL definition of '${decl.name}'`, decl, false); 
-    } else if(decl.name){
+      this.Error(
+        `Duplicate EXTERNAL definition of '${decl.name}'`,
+        decl,
+        false
+      );
+    } else if (decl.name) {
       this.externals.set(decl.name, decl);
     }
   };
 
-  public readonly DontFlattenContainer = (container: RuntimeContainer): void => {
+  public readonly DontFlattenContainer = (
+    container: RuntimeContainer
+  ): void => {
     this._dontFlattenContainers.add(container);
   };
 
@@ -449,10 +451,12 @@ export class Story extends FlowBase {
     obj: ParsedObject,
     name: string,
     existingObj: ParsedObject,
-    typeNameToPrint: string,
+    typeNameToPrint: string
   ): void => {
     obj.Error(
-      `${typeNameToPrint} '${name}': name has already been used for a ${existingObj.typeName.toLowerCase()} on ${existingObj.debugMetadata}`,
+      `${typeNameToPrint} '${name}': name has already been used for a ${existingObj.typeName.toLowerCase()} on ${
+        existingObj.debugMetadata
+      }`
     );
   };
 
@@ -462,17 +466,18 @@ export class Story extends FlowBase {
     obj: ParsedObject,
     identifier: Identifier,
     symbolType: SymbolType,
-    typeNameOverride: string = '',
+    typeNameOverride: string = ""
   ): void => {
-  
     const typeNameToPrint: string = typeNameOverride || obj.typeName;
     if (Story.IsReservedKeyword(identifier?.name)) {
-        obj.Error(
-          `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`);
-        return;
+      obj.Error(
+        `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a reserved keyword`
+      );
+      return;
     } else if (FunctionCall.IsBuiltIn(identifier?.name!)) {
       obj.Error(
-        `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`);
+        `'${identifier}' cannot be used for the name of a ${typeNameToPrint.toLowerCase()} because it's a built in function`
+      );
 
       return;
     }
@@ -480,15 +485,21 @@ export class Story extends FlowBase {
     // Top level knots
     const maybeKnotOrFunction = this.ContentWithNameAtLevel(
       identifier?.name!,
-      FlowLevel.Knot,
+      FlowLevel.Knot
     );
 
     const knotOrFunction = asOrNull(maybeKnotOrFunction, FlowBase);
-  
-    if (knotOrFunction &&
-      (knotOrFunction !== obj || symbolType === SymbolType.Arg))
-    {
-      this.NameConflictError(obj, identifier?.name!, knotOrFunction, typeNameToPrint);
+
+    if (
+      knotOrFunction &&
+      (knotOrFunction !== obj || symbolType === SymbolType.Arg)
+    ) {
+      this.NameConflictError(
+        obj,
+        identifier?.name!,
+        knotOrFunction,
+        typeNameToPrint
+      );
       return;
     }
 
@@ -497,20 +508,26 @@ export class Story extends FlowBase {
     }
 
     // Lists
-    for (const [ key, value ] of this._listDefs) {
-      if (identifier?.name === key &&
+    for (const [key, value] of this._listDefs) {
+      if (
+        identifier?.name === key &&
         obj !== value &&
-        value.variableAssignment !== obj)
-      {
+        value.variableAssignment !== obj
+      ) {
         this.NameConflictError(obj, identifier?.name, value, typeNameToPrint);
       }
 
-      // We don't check for conflicts between individual elements in 
+      // We don't check for conflicts between individual elements in
       // different lists because they are namespaced.
       if (!(obj instanceof ListElementDefinition)) {
         for (const item of value.itemDefinitions) {
           if (identifier?.name === item.name) {
-            this.NameConflictError(obj, identifier?.name!, item, typeNameToPrint);
+            this.NameConflictError(
+              obj,
+              identifier?.name!,
+              item,
+              typeNameToPrint
+            );
           }
         }
       }
@@ -523,12 +540,14 @@ export class Story extends FlowBase {
     }
 
     // Global variable collision
-    const varDecl: VariableAssignment | null = this.variableDeclarations.get(identifier?.name!) || null;
-    if (varDecl &&
+    const varDecl: VariableAssignment | null =
+      this.variableDeclarations.get(identifier?.name!) || null;
+    if (
+      varDecl &&
       varDecl !== obj &&
       varDecl.isGlobalDeclaration &&
-      varDecl.listDefinition == null)
-    {
+      varDecl.listDefinition == null
+    ) {
       this.NameConflictError(obj, identifier?.name!, varDecl, typeNameToPrint);
     }
 
@@ -538,9 +557,14 @@ export class Story extends FlowBase {
 
     // Stitches, Choices and Gathers
     const path = new Path(this.identifier!);
-    const targetContent = path.ResolveFromContext (obj);
+    const targetContent = path.ResolveFromContext(obj);
     if (targetContent && targetContent !== obj) {
-      this.NameConflictError(obj, identifier?.name!, targetContent, typeNameToPrint);
+      this.NameConflictError(
+        obj,
+        identifier?.name!,
+        targetContent,
+        typeNameToPrint
+      );
       return;
     }
 
@@ -559,7 +583,7 @@ export class Story extends FlowBase {
         for (const arg of flow.args) {
           if (arg.identifier?.name === identifier?.name) {
             obj.Error(
-              `${typeNameToPrint} '${identifier}': Name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`,
+              `${typeNameToPrint} '${identifier}': Name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`
             );
 
             return;
@@ -567,5 +591,5 @@ export class Story extends FlowBase {
         }
       }
     }
-  }
+  };
 }

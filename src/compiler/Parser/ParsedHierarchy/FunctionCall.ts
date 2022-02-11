@@ -1,19 +1,19 @@
-﻿import { Container as RuntimeContainer } from '../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../engine/ControlCommand';
-import { Divert } from './Divert/Divert';
-import { Divert as RuntimeDivert } from '../../../engine/Divert';
-import { DivertTarget } from './Divert/DivertTarget';
-import { Expression } from './Expression/Expression';
-import { InkList as RuntimeInkList } from '../../../engine/InkList';
-import { ListValue } from '../../../engine/Value';
-import { NativeFunctionCall } from '../../../engine/NativeFunctionCall';
-import { NumberExpression } from './Expression/NumberExpression';
-import { Path } from './Path';
-import { Story } from './Story';
-import { StringValue } from '../../../engine/Value';
-import { VariableReference } from './Variable/VariableReference';
-import { Identifier } from './Identifier';
-import { asOrNull } from '../../../engine/TypeAssertion';
+﻿import { Container as RuntimeContainer } from "../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../engine/ControlCommand";
+import { Divert } from "./Divert/Divert";
+import { Divert as RuntimeDivert } from "../../../engine/Divert";
+import { DivertTarget } from "./Divert/DivertTarget";
+import { Expression } from "./Expression/Expression";
+import { InkList as RuntimeInkList } from "../../../engine/InkList";
+import { ListValue } from "../../../engine/Value";
+import { NativeFunctionCall } from "../../../engine/NativeFunctionCall";
+import { NumberExpression } from "./Expression/NumberExpression";
+import { Path } from "./Path";
+import { Story } from "./Story";
+import { StringValue } from "../../../engine/Value";
+import { VariableReference } from "./Variable/VariableReference";
+import { Identifier } from "./Identifier";
+import { asOrNull } from "../../../engine/TypeAssertion";
 
 export class FunctionCall extends Expression {
   public static readonly IsBuiltIn = (name: string): boolean => {
@@ -21,25 +21,27 @@ export class FunctionCall extends Expression {
       return true;
     }
 
-    return name === 'CHOICE_COUNT' ||
-      name === 'TURNS_SINCE' ||
-      name === 'TURNS' ||
-      name === 'RANDOM' ||
-      name === 'SEED_RANDOM' ||
-      name === 'LIST_VALUE' ||
-      name === 'LIST_RANDOM' ||
-      name === 'READ_COUNT';
+    return (
+      name === "CHOICE_COUNT" ||
+      name === "TURNS_SINCE" ||
+      name === "TURNS" ||
+      name === "RANDOM" ||
+      name === "SEED_RANDOM" ||
+      name === "LIST_VALUE" ||
+      name === "LIST_RANDOM" ||
+      name === "READ_COUNT"
+    );
   };
 
   private _proxyDivert: Divert;
-  get proxyDivert(): Divert{
+  get proxyDivert(): Divert {
     return this._proxyDivert;
   }
   private _divertTargetToCount: DivertTarget | null = null;
   private _variableReferenceToCount: VariableReference | null = null;
 
   get name(): string {
-    return (this._proxyDivert.target as Path).firstComponent || '';
+    return (this._proxyDivert.target as Path).firstComponent || "";
   }
 
   get args(): Expression[] {
@@ -51,41 +53,41 @@ export class FunctionCall extends Expression {
   }
 
   get isChoiceCount(): boolean {
-    return this.name === 'CHOICE_COUNT';
+    return this.name === "CHOICE_COUNT";
   }
 
   get isTurns(): boolean {
-    return this.name === 'TURNS';
+    return this.name === "TURNS";
   }
 
   get isTurnsSince(): boolean {
-    return this.name === 'TURNS_SINCE';
+    return this.name === "TURNS_SINCE";
   }
 
   get isRandom(): boolean {
-    return this.name === 'RANDOM';
+    return this.name === "RANDOM";
   }
- 
+
   get isSeedRandom(): boolean {
-    return this.name === 'SEED_RANDOM';
+    return this.name === "SEED_RANDOM";
   }
 
   get isListRange(): boolean {
-    return this.name === 'LIST_RANGE';
+    return this.name === "LIST_RANGE";
   }
 
   get isListRandom(): boolean {
-    return this.name === 'LIST_RANDOM';
+    return this.name === "LIST_RANDOM";
   }
 
   get isReadCount(): boolean {
-    return this.name === 'READ_COUNT';
+    return this.name === "READ_COUNT";
   }
 
   public shouldPopReturnedValue: boolean = false;
 
   constructor(functionName: Identifier, args: Expression[]) {
-    super()
+    super();
 
     this._proxyDivert = new Divert(new Path(functionName), args);
     this._proxyDivert.isFunctionCall = true;
@@ -93,7 +95,7 @@ export class FunctionCall extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     const foundList = this.story.ResolveList(this.name);
 
@@ -101,13 +103,13 @@ export class FunctionCall extends Expression {
 
     if (this.isChoiceCount) {
       if (this.args.length > 0) {
-        this.Error('The CHOICE_COUNT() function shouldn\'t take any arguments');
+        this.Error("The CHOICE_COUNT() function shouldn't take any arguments");
       }
 
       container.AddContent(RuntimeControlCommand.ChoiceCount());
-    } else if (this.isTurns) { 
-      if (this.args.length > 0){
-        this.Error('The TURNS() function shouldn\'t take any arguments');
+    } else if (this.isTurns) {
+      if (this.args.length > 0) {
+        this.Error("The TURNS() function shouldn't take any arguments");
       }
 
       container.AddContent(RuntimeControlCommand.Turns());
@@ -115,21 +117,22 @@ export class FunctionCall extends Expression {
       const divertTarget = asOrNull(this.args[0], DivertTarget);
       const variableDivertTarget = asOrNull(this.args[0], VariableReference);
 
-      if (this.args.length !== 1 ||
-        (divertTarget === null && variableDivertTarget === null))
-      {
+      if (
+        this.args.length !== 1 ||
+        (divertTarget === null && variableDivertTarget === null)
+      ) {
         this.Error(
-          `The ${this.name}() function should take one argument: a divert target to the target knot, stitch, gather or choice you want to check. e.g. TURNS_SINCE(-> myKnot)`,
+          `The ${this.name}() function should take one argument: a divert target to the target knot, stitch, gather or choice you want to check. e.g. TURNS_SINCE(-> myKnot)`
         );
         return;
       }
-      
+
       if (divertTarget) {
         this._divertTargetToCount = divertTarget;
         this.AddContent(this._divertTargetToCount);
 
-        this._divertTargetToCount.GenerateIntoContainer (container);
-      } else if(variableDivertTarget) {
+        this._divertTargetToCount.GenerateIntoContainer(container);
+      } else if (variableDivertTarget) {
         this._variableReferenceToCount = variableDivertTarget;
         this.AddContent(this._variableReferenceToCount);
 
@@ -143,15 +146,17 @@ export class FunctionCall extends Expression {
       }
     } else if (this.isRandom) {
       if (this.args.length !== 2) {
-        this.Error('RANDOM should take 2 parameters: a minimum and a maximum integer');
+        this.Error(
+          "RANDOM should take 2 parameters: a minimum and a maximum integer"
+        );
       }
 
       // We can type check single values, but not complex expressions
       for (let ii = 0; ii < this.args.length; ii += 1) {
-        const num = asOrNull(this.args[ii],NumberExpression);
+        const num = asOrNull(this.args[ii], NumberExpression);
         if (num && !num.isInt()) {
-            const paramName: string = ii === 0 ? 'minimum' : 'maximum';
-            this.Error(`RANDOM's ${paramName} parameter should be an integer`);
+          const paramName: string = ii === 0 ? "minimum" : "maximum";
+          this.Error(`RANDOM's ${paramName} parameter should be an integer`);
         }
 
         this.args[ii].GenerateIntoContainer(container);
@@ -160,13 +165,12 @@ export class FunctionCall extends Expression {
       container.AddContent(RuntimeControlCommand.Random());
     } else if (this.isSeedRandom) {
       if (this.args.length !== 1) {
-        this.Error ('SEED_RANDOM should take 1 parameter - an integer seed');
+        this.Error("SEED_RANDOM should take 1 parameter - an integer seed");
       }
 
-      const num = asOrNull(this.args[0],NumberExpression);
-      if (num && !num.isInt())
-      {
-        this.Error('SEED_RANDOM\'s parameter should be an integer seed');
+      const num = asOrNull(this.args[0], NumberExpression);
+      if (num && !num.isInt()) {
+        this.Error("SEED_RANDOM's parameter should be an integer seed");
       }
 
       this.args[0].GenerateIntoContainer(container);
@@ -174,7 +178,9 @@ export class FunctionCall extends Expression {
       container.AddContent(RuntimeControlCommand.SeedRandom());
     } else if (this.isListRange) {
       if (this.args.length !== 3) {
-        this.Error('LIST_RANGE should take 3 parameters - a list, a min and a max');
+        this.Error(
+          "LIST_RANGE should take 3 parameters - a list, a min and a max"
+        );
       }
 
       for (let ii = 0; ii < this.args.length; ii += 1) {
@@ -184,7 +190,7 @@ export class FunctionCall extends Expression {
       container.AddContent(RuntimeControlCommand.ListRange());
     } else if (this.isListRandom) {
       if (this.args.length !== 1) {
-        this.Error('LIST_RANDOM should take 1 parameter - a list');
+        this.Error("LIST_RANDOM should take 1 parameter - a list");
       }
 
       this.args[0].GenerateIntoContainer(container);
@@ -195,7 +201,7 @@ export class FunctionCall extends Expression {
       if (nativeCall.numberOfParameters !== this.args.length) {
         let msg = `${name} should take ${nativeCall.numberOfParameters} parameter`;
         if (nativeCall.numberOfParameters > 1) {
-          msg += 's';
+          msg += "s";
         }
 
         this.Error(msg);
@@ -209,7 +215,7 @@ export class FunctionCall extends Expression {
     } else if (foundList !== null) {
       if (this.args.length > 1) {
         this.Error(
-          'Can currently only construct a list from one integer (or an empty list from a given list definition)',
+          "Can currently only construct a list from one integer (or an empty list from a given list definition)"
         );
       }
 
@@ -222,7 +228,7 @@ export class FunctionCall extends Expression {
         // Empty list with given origin.
         const list = new RuntimeInkList();
         list.SetInitialOriginName(this.name);
-        container.AddContent(new ListValue( list ));
+        container.AddContent(new ListValue(list));
       }
     } else {
       // Normal function call
@@ -242,12 +248,12 @@ export class FunctionCall extends Expression {
     if (this.shouldPopReturnedValue) {
       container.AddContent(RuntimeControlCommand.PopEvaluatedValue());
     }
-  }
+  };
 
   public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
-    // If we aren't using the proxy divert after all (e.g. if 
+    // If we aren't using the proxy divert after all (e.g. if
     // it's a native function call), but we still have arguments,
     // we need to make sure they get resolved since the proxy divert
     // is no longer in the content array.
@@ -259,11 +265,12 @@ export class FunctionCall extends Expression {
 
     if (this._divertTargetToCount) {
       const divert = this._divertTargetToCount.divert;
-      const attemptingTurnCountOfVariableTarget = divert.runtimeDivert.variableDivertName != null;
+      const attemptingTurnCountOfVariableTarget =
+        divert.runtimeDivert.variableDivertName != null;
 
       if (attemptingTurnCountOfVariableTarget) {
         this.Error(
-          `When getting the TURNS_SINCE() of a variable target, remove the '->' - i.e. it should just be TURNS_SINCE(${divert.runtimeDivert.variableDivertName})`,
+          `When getting the TURNS_SINCE() of a variable target, remove the '->' - i.e. it should just be TURNS_SINCE(${divert.runtimeDivert.variableDivertName})`
         );
 
         return;
@@ -271,8 +278,10 @@ export class FunctionCall extends Expression {
 
       const targetObject = divert.targetContent;
       if (targetObject === null) {
-        if(!attemptingTurnCountOfVariableTarget) {
-          this.Error(`Failed to find target for TURNS_SINCE: '${divert.target}'`);
+        if (!attemptingTurnCountOfVariableTarget) {
+          this.Error(
+            `Failed to find target for TURNS_SINCE: '${divert.target}'`
+          );
         }
       } else {
         if (!targetObject.containerForCounting) {
@@ -289,15 +298,14 @@ export class FunctionCall extends Expression {
 
       if (runtimeVarRef.pathForCount !== null) {
         this.Error(
-          `Should be '${name}'(-> '${this._variableReferenceToCount.name}). Usage without the '->' only makes sense for variable targets.`,
+          `Should be '${name}'(-> '${this._variableReferenceToCount.name}). Usage without the '->' only makes sense for variable targets.`
         );
       }
     }
-  };
+  }
 
   public readonly toString = (): string => {
-    const strArgs = this.args.join(', ');
+    const strArgs = this.args.join(", ");
     return `${this.name}(${strArgs})`;
   };
 }
-

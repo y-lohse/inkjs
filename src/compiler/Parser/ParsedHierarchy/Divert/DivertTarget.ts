@@ -1,19 +1,19 @@
-﻿import { BinaryExpression } from '../Expression/BinaryExpression';
-import { Choice } from '../Choice';
-import { Conditional } from '../Conditional/Conditional';
-import { ConditionalSingleBranch } from '../Conditional/ConditionalSingleBranch';
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ParsedObject } from '../Object';
-import { Divert } from './Divert';
-import { Divert as RuntimeDivert } from '../../../../engine/Divert';
-import { DivertTargetValue } from '../../../../engine/Value';
-import { Expression } from '../Expression/Expression';
-import { FlowBase } from '../Flow/FlowBase';
-import { FunctionCall } from '../FunctionCall';
-import { MultipleConditionExpression } from '../Expression/MultipleConditionExpression';
-import { Story } from '../Story';
-import { VariableReference } from '../Variable/VariableReference';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+﻿import { BinaryExpression } from "../Expression/BinaryExpression";
+import { Choice } from "../Choice";
+import { Conditional } from "../Conditional/Conditional";
+import { ConditionalSingleBranch } from "../Conditional/ConditionalSingleBranch";
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ParsedObject } from "../Object";
+import { Divert } from "./Divert";
+import { Divert as RuntimeDivert } from "../../../../engine/Divert";
+import { DivertTargetValue } from "../../../../engine/Value";
+import { Expression } from "../Expression/Expression";
+import { FlowBase } from "../Flow/FlowBase";
+import { FunctionCall } from "../FunctionCall";
+import { MultipleConditionExpression } from "../Expression/MultipleConditionExpression";
+import { Story } from "../Story";
+import { VariableReference } from "../Variable/VariableReference";
+import { asOrNull } from "../../../../engine/TypeAssertion";
 
 export class DivertTarget extends Expression {
   private _runtimeDivert: RuntimeDivert | null = null;
@@ -43,7 +43,7 @@ export class DivertTarget extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     this.divert.GenerateRuntimeObject();
 
@@ -53,13 +53,13 @@ export class DivertTarget extends Expression {
     container.AddContent(this.runtimeDivertTargetValue);
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     if (this.divert.isDone || this.divert.isEnd) {
       this.Error(
         `Can't use -> DONE or -> END as variable divert targets`,
-        this,
+        this
       );
 
       return;
@@ -75,18 +75,25 @@ export class DivertTarget extends Expression {
         // Only allowed to compare for equality
 
         const binaryExprParent = usageParent;
-        if (binaryExprParent.opName !== '==' &&
-          binaryExprParent.opName !== '!=')
-        {
+        if (
+          binaryExprParent.opName !== "==" &&
+          binaryExprParent.opName !== "!="
+        ) {
           badUsage = true;
         } else {
-          if (!(binaryExprParent.leftExpression instanceof DivertTarget ||
-            binaryExprParent.leftExpression instanceof VariableReference))
-          {
+          if (
+            !(
+              binaryExprParent.leftExpression instanceof DivertTarget ||
+              binaryExprParent.leftExpression instanceof VariableReference
+            )
+          ) {
             badUsage = true;
-          } else if (!(binaryExprParent.rightExpression instanceof DivertTarget ||
-            binaryExprParent.rightExpression instanceof VariableReference))
-          {
+          } else if (
+            !(
+              binaryExprParent.rightExpression instanceof DivertTarget ||
+              binaryExprParent.rightExpression instanceof VariableReference
+            )
+          ) {
             badUsage = true;
           }
         }
@@ -105,14 +112,16 @@ export class DivertTarget extends Expression {
       } else if (usageParent instanceof MultipleConditionExpression) {
         badUsage = true;
         foundUsage = true;
-      } else if (usageParent instanceof Choice &&
-        (usageParent as Choice).condition === usageContext)
-      {
+      } else if (
+        usageParent instanceof Choice &&
+        (usageParent as Choice).condition === usageContext
+      ) {
         badUsage = true;
         foundUsage = true;
-      } else if (usageParent instanceof Conditional ||
-        usageParent instanceof ConditionalSingleBranch)
-      {
+      } else if (
+        usageParent instanceof Conditional ||
+        usageParent instanceof ConditionalSingleBranch
+      ) {
         badUsage = true;
         foundUsage = true;
       }
@@ -120,7 +129,7 @@ export class DivertTarget extends Expression {
       if (badUsage) {
         this.Error(
           `Can't use a divert target like that. Did you intend to call '${this.divert.target}' as a function: likeThis(), or check the read count: likeThis, with no arrows?`,
-          this,
+          this
         );
       }
 
@@ -145,18 +154,19 @@ export class DivertTarget extends Expression {
       }
 
       this.Error(
-        `Since '${this.divert.target.dotSeparatedComponents}' is a variable, it shouldn't be preceded by '->' here.`,
+        `Since '${this.divert.target.dotSeparatedComponents}' is a variable, it shouldn't be preceded by '->' here.`
       );
     }
 
     // Main resolve
-    this.runtimeDivert.targetPath && (this.runtimeDivertTargetValue.targetPath = this.runtimeDivert.targetPath)
+    this.runtimeDivert.targetPath &&
+      (this.runtimeDivertTargetValue.targetPath = this.runtimeDivert.targetPath);
 
     // Tell hard coded (yet variable) divert targets that they also need to be counted
     // TODO: Only detect DivertTargets that are values rather than being used directly for
     // read or turn counts. Should be able to detect this by looking for other uses of containerForCounting
     let targetContent = this.divert.targetContent;
-    if (targetContent !== null ) {
+    if (targetContent !== null) {
       let target = targetContent.containerForCounting;
       if (target !== null) {
         // Purpose is known: used directly in TURNS_SINCE(-> divTarg)
@@ -182,26 +192,27 @@ export class DivertTarget extends Expression {
       // to be called, it needs to know ahead of time when
       // compiling whether to pass a variable reference or value.
       //
-      var targetFlow = asOrNull(targetContent, FlowBase);
+      let targetFlow = asOrNull(targetContent, FlowBase);
       if (targetFlow != null && targetFlow.args !== null) {
         for (const arg of targetFlow.args) {
           if (arg.isByReference) {
             this.Error(
-              `Can't store a divert target to a knot or function that has by-reference arguments ('${targetFlow.identifier}' has 'ref ${arg.identifier}').`,
+              `Can't store a divert target to a knot or function that has by-reference arguments ('${targetFlow.identifier}' has 'ref ${arg.identifier}').`
             );
           }
         }
       }
     }
-  };
+  }
 
   // Equals override necessary in order to check for CONST multiple definition equality
   public readonly Equals = (obj: ParsedObject): boolean => {
     const otherDivTarget = asOrNull(obj, DivertTarget);
-    if (!otherDivTarget ||
+    if (
+      !otherDivTarget ||
       !this.divert.target ||
-      !otherDivTarget.divert.target)
-    {
+      !otherDivTarget.divert.target
+    ) {
       return false;
     }
 
@@ -211,4 +222,3 @@ export class DivertTarget extends Expression {
     return targetStr === otherTargetStr;
   };
 }
-

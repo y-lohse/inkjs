@@ -1,15 +1,15 @@
-import { ContentList } from '../ContentList';
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../../engine/ControlCommand';
-import { Divert as RuntimeDivert } from '../../../../engine/Divert';
-import { IntValue } from '../../../../engine/Value';
-import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { SequenceDivertToResolve } from './SequenceDivertToResolve';
-import { SequenceType } from './SequenceType';
-import { Story } from '../Story';
-import { Weave } from '../Weave';
+import { ContentList } from "../ContentList";
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../../engine/ControlCommand";
+import { Divert as RuntimeDivert } from "../../../../engine/Divert";
+import { IntValue } from "../../../../engine/Value";
+import { NativeFunctionCall } from "../../../../engine/NativeFunctionCall";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { SequenceDivertToResolve } from "./SequenceDivertToResolve";
+import { SequenceType } from "./SequenceType";
+import { Story } from "../Story";
+import { Weave } from "../Weave";
 
 export class Sequence extends ParsedObject {
   private _sequenceDivertsToResolve: SequenceDivertToResolve[] = [];
@@ -18,7 +18,7 @@ export class Sequence extends ParsedObject {
 
   constructor(
     elementContentLists: ContentList[],
-    public readonly sequenceType: SequenceType,
+    public readonly sequenceType: SequenceType
   ) {
     super();
 
@@ -29,14 +29,14 @@ export class Sequence extends ParsedObject {
       const contentObjs = elementContentList.content;
       let seqElObject: ParsedObject | null = null;
 
-      // Don't attempt to create a weave for the sequence element 
+      // Don't attempt to create a weave for the sequence element
       // if the content list is empty. Weaves don't like it!
       if (contentObjs === null || contentObjs.length === 0) {
         seqElObject = elementContentList;
       } else {
         seqElObject = new Weave(contentObjs);
       }
-      
+
       this.sequenceElements.push(seqElObject);
       this.AddContent(seqElObject);
     }
@@ -88,11 +88,11 @@ export class Sequence extends ParsedObject {
     if (stopping || once) {
       //var limit = stopping ? seqBranchCount-1 : seqBranchCount;
       container.AddContent(new IntValue(seqBranchCount - 1));
-      container.AddContent(NativeFunctionCall.CallWithName('MIN'));
+      container.AddContent(NativeFunctionCall.CallWithName("MIN"));
     } else if (cycle) {
       // - Cycle: take (read count % num elements)
       container.AddContent(new IntValue(this.sequenceElements.length));
-      container.AddContent(NativeFunctionCall.CallWithName('%'));
+      container.AddContent(NativeFunctionCall.CallWithName("%"));
     }
 
     // Shuffle
@@ -103,13 +103,13 @@ export class Sequence extends ParsedObject {
       // When visitIndex == lastIdx, we skip the shuffle
       if (once || stopping) {
         // if( visitIndex == lastIdx ) -> skipShuffle
-        const lastIdx = stopping ?
-          this.sequenceElements.length - 1 :
-          this.sequenceElements.length;
+        const lastIdx = stopping
+          ? this.sequenceElements.length - 1
+          : this.sequenceElements.length;
 
         container.AddContent(RuntimeControlCommand.Duplicate());
         container.AddContent(new IntValue(lastIdx));
-        container.AddContent(NativeFunctionCall.CallWithName('=='));
+        container.AddContent(NativeFunctionCall.CallWithName("=="));
 
         const skipShuffleDivert = new RuntimeDivert();
         skipShuffleDivert.isConditional = true;
@@ -119,7 +119,7 @@ export class Sequence extends ParsedObject {
       }
 
       // This one's a bit more complex! Choose the index at runtime.
-      var elementCountToShuffle = this.sequenceElements.length;
+      let elementCountToShuffle = this.sequenceElements.length;
       if (stopping) {
         elementCountToShuffle -= 1;
       }
@@ -131,21 +131,21 @@ export class Sequence extends ParsedObject {
       }
     }
 
-    container.AddContent(RuntimeControlCommand.EvalEnd ());
+    container.AddContent(RuntimeControlCommand.EvalEnd());
 
     // Create point to return to when sequence is complete
     const postSequenceNoOp = RuntimeControlCommand.NoOp();
 
-    // Each of the main sequence branches, and one extra empty branch if 
+    // Each of the main sequence branches, and one extra empty branch if
     // we have a "once" sequence.
     for (let elIndex = 0; elIndex < seqBranchCount; elIndex += 1) {
       // This sequence element:
       //  if( chosenIndex == this index ) divert to this sequence element
       // duplicate chosen sequence index, since it'll be consumed by "=="
       container.AddContent(RuntimeControlCommand.EvalStart());
-      container.AddContent(RuntimeControlCommand.Duplicate()); 
+      container.AddContent(RuntimeControlCommand.Duplicate());
       container.AddContent(new IntValue(elIndex));
-      container.AddContent(NativeFunctionCall.CallWithName('=='));
+      container.AddContent(NativeFunctionCall.CallWithName("=="));
       container.AddContent(RuntimeControlCommand.EvalEnd());
 
       // Divert branch for this sequence element
@@ -167,7 +167,7 @@ export class Sequence extends ParsedObject {
       contentContainerForSequenceBranch.name = `s${elIndex}`;
       contentContainerForSequenceBranch.InsertContent(
         RuntimeControlCommand.PopEvaluatedValue(),
-        0,
+        0
       );
 
       // When sequence element is complete, divert back to end of sequence
@@ -178,11 +178,11 @@ export class Sequence extends ParsedObject {
       // Save the diverts for reference resolution later (in ResolveReferences)
       this.AddDivertToResolve(
         sequenceDivert,
-        contentContainerForSequenceBranch,
+        contentContainerForSequenceBranch
       );
 
       this.AddDivertToResolve(seqBranchCompleteDivert, postSequenceNoOp);
-    };
+    }
 
     container.AddContent(postSequenceNoOp);
 
@@ -191,15 +191,14 @@ export class Sequence extends ParsedObject {
 
   public readonly AddDivertToResolve = (
     divert: RuntimeDivert,
-    targetContent: RuntimeObject,
+    targetContent: RuntimeObject
   ) => {
-    this._sequenceDivertsToResolve.push(new SequenceDivertToResolve( 
-      divert, 
-      targetContent,
-    ));
-  }
+    this._sequenceDivertsToResolve.push(
+      new SequenceDivertToResolve(divert, targetContent)
+    );
+  };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     for (const toResolve of this._sequenceDivertsToResolve) {

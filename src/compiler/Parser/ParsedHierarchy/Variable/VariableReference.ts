@@ -1,14 +1,14 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ContentList } from '../ContentList';
-import { Expression } from '../Expression/Expression';
-import { FlowBase } from '../Flow/FlowBase';
-import { ParsedObject } from '../Object';
-import { Path } from '../Path';
-import { Story } from '../Story';
-import { VariableReference as RuntimeVariableReference } from '../../../../engine/VariableReference';
-import { Weave } from '../Weave';
-import { Identifier } from '../Identifier';
-import { asOrNull, filterUndef } from '../../../../engine/TypeAssertion';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ContentList } from "../ContentList";
+import { Expression } from "../Expression/Expression";
+import { FlowBase } from "../Flow/FlowBase";
+import { ParsedObject } from "../Object";
+import { Path } from "../Path";
+import { Story } from "../Story";
+import { VariableReference as RuntimeVariableReference } from "../../../../engine/VariableReference";
+import { Weave } from "../Weave";
+import { Identifier } from "../Identifier";
+import { asOrNull, filterUndef } from "../../../../engine/TypeAssertion";
 
 export class VariableReference extends Expression {
   private _runtimeVarRef: RuntimeVariableReference | null = null;
@@ -17,21 +17,21 @@ export class VariableReference extends Expression {
   // - Knot/stitch names for read counts are actual dot-separated paths
   //   (though this isn't actually used at time of writing)
   // - List names are dot separated: listName.itemName (or just itemName)
-  get name() { 
-    return this.path.join('.');
+  get name() {
+    return this.path.join(".");
   }
 
   get path(): string[] {
-    return this.pathIdentifiers.map(id => id.name!).filter(filterUndef)
+    return this.pathIdentifiers.map((id) => id.name!).filter(filterUndef);
   }
 
-  get identifier(): Identifier|null {
+  get identifier(): Identifier | null {
     if (!this.pathIdentifiers || this.pathIdentifiers.length == 0) {
-        return null;
+      return null;
     }
-    const name = this.path.join('.');
+    const name = this.path.join(".");
     const id = new Identifier(name);
-    
+
     return id;
   }
 
@@ -48,9 +48,11 @@ export class VariableReference extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
-    let constantValue: Expression | null | undefined = this.story.constants.get(this.name);
+    let constantValue: Expression | null | undefined = this.story.constants.get(
+      this.name
+    );
 
     // If it's a constant reference, just generate the literal expression value
     // It's okay to access the constants at code generation time, since the
@@ -68,8 +70,8 @@ export class VariableReference extends Expression {
     // List item reference?
     // Path might be to a list (listName.listItemName or just listItemName)
     if (this.path.length === 1 || this.path.length === 2) {
-      let listItemName: string = '';
-      let listName: string = '';
+      let listItemName: string = "";
+      let listName: string = "";
 
       if (this.path.length === 1) {
         listItemName = this.path[0];
@@ -78,11 +80,7 @@ export class VariableReference extends Expression {
         listItemName = this.path[1];
       }
 
-      const listItem = this.story.ResolveListItem(
-        listName,
-        listItemName,
-        this,
-      );
+      const listItem = this.story.ResolveListItem(listName, listItemName, this);
 
       if (listItem) {
         this.isListItemReference = true;
@@ -92,7 +90,7 @@ export class VariableReference extends Expression {
     container.AddContent(this._runtimeVarRef);
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     // Work is already done if it's a constant or list item reference
@@ -102,7 +100,9 @@ export class VariableReference extends Expression {
 
     // Is it a read count?
     const parsedPath = new Path(this.pathIdentifiers);
-    const targetForCount: ParsedObject | null = parsedPath.ResolveFromContext(this);
+    const targetForCount: ParsedObject | null = parsedPath.ResolveFromContext(
+      this
+    );
     if (targetForCount) {
       if (!targetForCount.containerForCounting) {
         throw new Error();
@@ -126,15 +126,16 @@ export class VariableReference extends Expression {
       // Check for very specific writer error: getting read count and
       // printing it as content rather than as a piece of logic
       // e.g. Writing {myFunc} instead of {myFunc()}
-      var targetFlow = asOrNull(targetForCount, FlowBase);
+      let targetFlow = asOrNull(targetForCount, FlowBase);
       if (targetFlow && targetFlow.isFunction) {
         // Is parent context content rather than logic?
-        if (parent instanceof Weave ||
+        if (
+          parent instanceof Weave ||
           parent instanceof ContentList ||
-          parent instanceof FlowBase)
-        {
+          parent instanceof FlowBase
+        ) {
           this.Warning(
-            `'${targetFlow.identifier}' being used as read count rather than being called as function. Perhaps you intended to write ${targetFlow.identifier}()`,
+            `'${targetFlow.identifier}' being used as read count rather than being called as function. Perhaps you intended to write ${targetFlow.identifier}()`
           );
         }
       }
@@ -147,7 +148,9 @@ export class VariableReference extends Expression {
     if (this.path.length > 1) {
       let errorMsg = `Could not find target for read count: ${parsedPath}`;
       if (this.path.length <= 2) {
-        errorMsg += `, or couldn't find list item with the name ${this.path.join(',')}`;
+        errorMsg += `, or couldn't find list item with the name ${this.path.join(
+          ","
+        )}`;
       }
 
       this.Error(errorMsg);
@@ -158,10 +161,7 @@ export class VariableReference extends Expression {
     if (!context.ResolveVariableWithName(this.name, this).found) {
       this.Error(`Unresolved variable: ${this}`, this);
     }
-  };
+  }
 
-  public readonly toString = (): string => (
-    `{${this.path.join('.')}}`
-  );
+  public readonly toString = (): string => `{${this.path.join(".")}}`;
 }
-

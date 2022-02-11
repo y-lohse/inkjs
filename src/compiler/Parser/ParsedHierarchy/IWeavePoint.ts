@@ -1,6 +1,6 @@
-import { Container as RuntimeContainer } from '../../../engine/Container';
-import { Identifier } from './Identifier';
-import { ParsedObject } from './Object';
+import { Container as RuntimeContainer } from "../../../engine/Container";
+import { Identifier } from "./Identifier";
+import { ParsedObject } from "./Object";
 
 export interface IWeavePoint extends ParsedObject {
   readonly content: ParsedObject[];

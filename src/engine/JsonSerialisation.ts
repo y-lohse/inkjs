@@ -316,9 +316,9 @@ export class JsonSerialisation {
       let str = token.toString();
 
       //Float value
-      const floatRepresentation = str.match(/^([0-9]+.[0-9]+f)$/);
-      if(floatRepresentation){
-        return new FloatValue(parseFloat(floatRepresentation[0]))
+      const floatRepresentation = /^([0-9]+.[0-9]+f)$/.exec(str);
+      if (floatRepresentation) {
+        return new FloatValue(parseFloat(floatRepresentation[0]));
       }
 
       // String value
@@ -491,12 +491,21 @@ export class JsonSerialisation {
     if (token === null || token === undefined) return null;
 
     throw new Error(
-      "Failed to convert token to runtime object: " + this.toJson(token, ['parent'])
+      "Failed to convert token to runtime object: " +
+        this.toJson(token, ["parent"])
     );
   }
 
-  public static toJson<T>(me: T, removes?: (keyof T)[], space?: number): string {
-    return JSON.stringify(me, (k, v) => (removes?.some((r) => r === k) ? undefined : v), space);
+  public static toJson<T>(
+    me: T,
+    removes?: (keyof T)[],
+    space?: number
+  ): string {
+    return JSON.stringify(
+      me,
+      (k, v) => (removes?.some((r) => r === k) ? undefined : v),
+      space
+    );
   }
 
   public static WriteRuntimeContainer(

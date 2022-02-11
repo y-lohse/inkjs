@@ -1,62 +1,62 @@
-import { Argument } from './ParsedHierarchy/Argument';
-import { AuthorWarning } from './ParsedHierarchy/AuthorWarning';
-import { BinaryExpression } from './ParsedHierarchy/Expression/BinaryExpression';
-import { CharacterRange } from './CharacterRange';
-import { CharacterSet } from './CharacterSet';
-import { Choice } from './ParsedHierarchy/Choice';
-import { CommentEliminator } from './CommentEliminator';
-import { Conditional } from './ParsedHierarchy/Conditional/Conditional';
-import { ConditionalSingleBranch } from './ParsedHierarchy/Conditional/ConditionalSingleBranch';
-import { ContentList } from './ParsedHierarchy/ContentList';
-import { ConstantDeclaration } from './ParsedHierarchy/Declaration/ConstantDeclaration';
-import { CustomFlags } from './CustomFlags';
-import { DebugMetadata } from '../../engine/DebugMetadata';
-import { Divert } from './ParsedHierarchy/Divert/Divert';
-import { DivertTarget } from './ParsedHierarchy/Divert/DivertTarget';
-import { Expression } from './ParsedHierarchy/Expression/Expression';
-import { ErrorHandler } from '../../engine/Error';
-import { ExternalDeclaration } from './ParsedHierarchy/Declaration/ExternalDeclaration';
-import { FlowDecl } from './FlowDecl';
-import { FunctionCall } from './ParsedHierarchy/FunctionCall';
-import { Gather } from './ParsedHierarchy/Gather/Gather';
-import { Glue } from './ParsedHierarchy/Glue';
-import { Glue as RuntimeGlue } from '../../engine/Glue';
-import { IFileHandler } from '../IFileHandler';
-import { IncDecExpression } from './ParsedHierarchy/Expression/IncDecExpression';
-import { IncludedFile } from './ParsedHierarchy/IncludedFile';
-import { InfixOperator } from './InfixOperator';
-import { Knot } from './ParsedHierarchy/Knot';
-import { List } from './ParsedHierarchy/List/List';
-import { ListDefinition } from './ParsedHierarchy/List/ListDefinition';
-import { ListElementDefinition } from './ParsedHierarchy/List/ListElementDefinition';
-import { MultipleConditionExpression } from './ParsedHierarchy/Expression/MultipleConditionExpression';
-import { ParsedObject } from './ParsedHierarchy/Object';
-import { Path } from './ParsedHierarchy/Path';
-import { ReturnType } from './ParsedHierarchy/ReturnType';
-import { Sequence } from './ParsedHierarchy/Sequence/Sequence';
-import { SequenceType } from './ParsedHierarchy/Sequence/SequenceType';
-import { StatementLevel } from './StatementLevel';
-import { Stitch } from './ParsedHierarchy/Stitch';
-import { Story } from './ParsedHierarchy/Story';
-import { StringExpression } from './ParsedHierarchy/Expression/StringExpression';
-import { 
-  StringParser, 
+import { Argument } from "./ParsedHierarchy/Argument";
+import { AuthorWarning } from "./ParsedHierarchy/AuthorWarning";
+import { BinaryExpression } from "./ParsedHierarchy/Expression/BinaryExpression";
+import { CharacterRange } from "./CharacterRange";
+import { CharacterSet } from "./CharacterSet";
+import { Choice } from "./ParsedHierarchy/Choice";
+import { CommentEliminator } from "./CommentEliminator";
+import { Conditional } from "./ParsedHierarchy/Conditional/Conditional";
+import { ConditionalSingleBranch } from "./ParsedHierarchy/Conditional/ConditionalSingleBranch";
+import { ContentList } from "./ParsedHierarchy/ContentList";
+import { ConstantDeclaration } from "./ParsedHierarchy/Declaration/ConstantDeclaration";
+import { CustomFlags } from "./CustomFlags";
+import { DebugMetadata } from "../../engine/DebugMetadata";
+import { Divert } from "./ParsedHierarchy/Divert/Divert";
+import { DivertTarget } from "./ParsedHierarchy/Divert/DivertTarget";
+import { Expression } from "./ParsedHierarchy/Expression/Expression";
+import { ErrorHandler } from "../../engine/Error";
+import { ExternalDeclaration } from "./ParsedHierarchy/Declaration/ExternalDeclaration";
+import { FlowDecl } from "./FlowDecl";
+import { FunctionCall } from "./ParsedHierarchy/FunctionCall";
+import { Gather } from "./ParsedHierarchy/Gather/Gather";
+import { Glue } from "./ParsedHierarchy/Glue";
+import { Glue as RuntimeGlue } from "../../engine/Glue";
+import { IFileHandler } from "../IFileHandler";
+import { IncDecExpression } from "./ParsedHierarchy/Expression/IncDecExpression";
+import { IncludedFile } from "./ParsedHierarchy/IncludedFile";
+import { InfixOperator } from "./InfixOperator";
+import { Knot } from "./ParsedHierarchy/Knot";
+import { List } from "./ParsedHierarchy/List/List";
+import { ListDefinition } from "./ParsedHierarchy/List/ListDefinition";
+import { ListElementDefinition } from "./ParsedHierarchy/List/ListElementDefinition";
+import { MultipleConditionExpression } from "./ParsedHierarchy/Expression/MultipleConditionExpression";
+import { ParsedObject } from "./ParsedHierarchy/Object";
+import { Path } from "./ParsedHierarchy/Path";
+import { ReturnType } from "./ParsedHierarchy/ReturnType";
+import { Sequence } from "./ParsedHierarchy/Sequence/Sequence";
+import { SequenceType } from "./ParsedHierarchy/Sequence/SequenceType";
+import { StatementLevel } from "./StatementLevel";
+import { Stitch } from "./ParsedHierarchy/Stitch";
+import { Story } from "./ParsedHierarchy/Story";
+import { StringExpression } from "./ParsedHierarchy/Expression/StringExpression";
+import {
+  StringParser,
   SpecificParseRule,
   ParseRule,
   ParseRuleReturn,
   ParseSuccess,
-} from './StringParser/StringParser';
-import { StringParserElement } from './StringParser/StringParserElement';
-import { Tag } from './ParsedHierarchy/Tag';
-import { Tag as RuntimeTag } from '../../engine/Tag';
-import { Text } from './ParsedHierarchy/Text';
-import { TunnelOnwards } from './ParsedHierarchy/TunnelOnwards';
-import { VariableAssignment } from './ParsedHierarchy/Variable/VariableAssignment';
-import { VariableReference } from './ParsedHierarchy/Variable/VariableReference';
-import { UnaryExpression } from './ParsedHierarchy/Expression/UnaryExpression';
-import { asOrNull, filterUndef } from '../../engine/TypeAssertion';
-import { Identifier } from './ParsedHierarchy/Identifier';
-import { NumberExpression } from './ParsedHierarchy/Expression/NumberExpression';
+} from "./StringParser/StringParser";
+import { StringParserElement } from "./StringParser/StringParserElement";
+import { Tag } from "./ParsedHierarchy/Tag";
+import { Tag as RuntimeTag } from "../../engine/Tag";
+import { Text } from "./ParsedHierarchy/Text";
+import { TunnelOnwards } from "./ParsedHierarchy/TunnelOnwards";
+import { VariableAssignment } from "./ParsedHierarchy/Variable/VariableAssignment";
+import { VariableReference } from "./ParsedHierarchy/Variable/VariableReference";
+import { UnaryExpression } from "./ParsedHierarchy/Expression/UnaryExpression";
+import { asOrNull, filterUndef } from "../../engine/TypeAssertion";
+import { Identifier } from "./ParsedHierarchy/Identifier";
+import { NumberExpression } from "./ParsedHierarchy/Expression/NumberExpression";
 
 export enum ErrorType {
   Author,
@@ -74,19 +74,18 @@ export class InkParser extends StringParser {
       throw new Error("No FileHandler defined");
     }
     return this._fileHandler;
-
   }
 
   set fileHandler(value: IFileHandler) {
     this._fileHandler = value;
-  } 
+  }
 
   constructor(
     str: string,
-    private _filename: string|null = null,
+    private _filename: string | null = null,
     private _externalErrorHandler: ErrorHandler | null = null,
     rootParser: InkParser | null = null,
-    private _fileHandler: IFileHandler | null = null,
+    private _fileHandler: IFileHandler | null = null
   ) {
     super(str);
 
@@ -100,7 +99,9 @@ export class InkParser extends StringParser {
       this._openFilenames = [];
 
       if (this._filename !== null) {
-        const fullRootInkPath = this.fileHandler.ResolveInkFilename(this._filename);
+        const fullRootInkPath = this.fileHandler.ResolveInkFilename(
+          this._filename
+        );
         this._openFilenames.push(fullRootInkPath);
       }
     } else {
@@ -111,7 +112,7 @@ export class InkParser extends StringParser {
   // Main entry point
   public readonly ParseStory = (): Story => {
     const topLevelContent: ParsedObject[] = this.StatementsAtLevel(
-      StatementLevel.Top,
+      StatementLevel.Top
     );
 
     // Note we used to return null if there were any errors, but this would mean
@@ -124,7 +125,7 @@ export class InkParser extends StringParser {
 
   public readonly SeparatedList = <T extends ParseRule>(
     mainRule: SpecificParseRule<T>,
-    separatorRule: ParseRule,
+    separatorRule: ParseRule
   ): ParseRuleReturn[] | null => {
     const firstElement: ParseRuleReturn = this.Parse(mainRule);
     if (firstElement === null) {
@@ -136,7 +137,7 @@ export class InkParser extends StringParser {
 
     do {
       const nextElementRuleId: number = this.BeginRule();
-      var sep = separatorRule();
+      let sep = separatorRule();
       if (sep === null) {
         this.FailRule(nextElementRuleId);
         break;
@@ -158,52 +159,60 @@ export class InkParser extends StringParser {
   public PreProcessInputString(str: string): string {
     const commentEliminator = new CommentEliminator(str);
     return commentEliminator.Process();
-  };
+  }
 
   public readonly CreateDebugMetadata = (
-    stateAtStart: StringParserElement | null, 
+    stateAtStart: StringParserElement | null,
     stateAtEnd: StringParserElement
   ): DebugMetadata => {
     const md = new DebugMetadata();
-      md.startLineNumber = stateAtStart?.lineIndex||0 + 1;
-      md.endLineNumber = stateAtEnd.lineIndex + 1;
-      md.startCharacterNumber = stateAtStart?.characterInLineIndex||0 + 1;
-      md.endCharacterNumber = stateAtEnd.characterInLineIndex + 1;
-      md.fileName = this._filename;
+    md.startLineNumber = stateAtStart?.lineIndex || 0 + 1;
+    md.endLineNumber = stateAtEnd.lineIndex + 1;
+    md.startCharacterNumber = stateAtStart?.characterInLineIndex || 0 + 1;
+    md.endCharacterNumber = stateAtEnd.characterInLineIndex + 1;
+    md.fileName = this._filename;
 
-      return md;
-  }
+    return md;
+  };
 
   public readonly RuleDidSucceed = (
     result: ParseRuleReturn,
     stateAtStart: StringParserElement | null,
-    stateAtEnd: StringParserElement,
+    stateAtEnd: StringParserElement
   ): void => {
     // Apply DebugMetadata based on the state at the start of the rule
     // (i.e. use line number as it was at the start of the rule)
     const parsedObj = asOrNull(result, ParsedObject);
     if (parsedObj) {
-      parsedObj.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
+      parsedObj.debugMetadata = this.CreateDebugMetadata(
+        stateAtStart,
+        stateAtEnd
+      );
     }
 
     // A list of objects that doesn't already have metadata?
-    const parsedListObjs: ParsedObject[]|null = Array.isArray(result) ? result as ParsedObject[] : null;
+    const parsedListObjs: ParsedObject[] | null = Array.isArray(result)
+      ? (result as ParsedObject[])
+      : null;
     if (parsedListObjs !== null) {
       for (const parsedListObj of parsedListObjs) {
         const singleObj = asOrNull(parsedListObj, ParsedObject);
-        if(!singleObj) continue;
+        if (!singleObj) continue;
         if (!parsedListObj.hasOwnDebugMetadata) {
-          parsedListObj.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
+          parsedListObj.debugMetadata = this.CreateDebugMetadata(
+            stateAtStart,
+            stateAtEnd
+          );
         }
       }
     }
 
     const id = asOrNull(result, Identifier);
     if (id != null) {
-        id.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
+      id.debugMetadata = this.CreateDebugMetadata(stateAtStart, stateAtEnd);
     }
   };
-      
+
   get parsingStringExpression(): boolean {
     return this.GetFlag(Number(CustomFlags.ParsingString));
   }
@@ -216,13 +225,13 @@ export class InkParser extends StringParser {
     message: string,
     index: number,
     lineIndex: number = -2,
-    isWarning: boolean = false,
+    isWarning: boolean = false
   ): void => {
-    const warningType: string = isWarning ? 'WARNING:' : 'ERROR:';
+    const warningType: string = isWarning ? "WARNING:" : "ERROR:";
     let fullMessage: string = warningType;
 
     if (this._filename !== null) {
-      fullMessage += `'${this._filename}'`;      
+      fullMessage += `'${this._filename}'`;
     }
 
     fullMessage += `line ${lineIndex + 1}, index: ${index}: ${message}`;
@@ -230,27 +239,29 @@ export class InkParser extends StringParser {
     if (this._externalErrorHandler !== null) {
       this._externalErrorHandler(
         fullMessage,
-        isWarning ? ErrorType.Warning : ErrorType.Error,
+        isWarning ? ErrorType.Warning : ErrorType.Error
       );
     } else {
       throw new Error(fullMessage);
     }
-  }
+  };
 
   public readonly AuthorWarning = (): AuthorWarning | null => {
     this.Whitespace();
-  
-    const identifier = this.Parse(this.IdentifierWithMetadata) as unknown as Identifier | null;
-    if (identifier === null || identifier.name !== 'TODO') {
+
+    const identifier = (this.Parse(
+      this.IdentifierWithMetadata
+    ) as unknown) as Identifier | null;
+    if (identifier === null || identifier.name !== "TODO") {
       return null;
     }
 
     this.Whitespace();
-    this.ParseString(':');
+    this.ParseString(":");
     this.Whitespace();
-  
-    const message = this.ParseUntilCharactersFromString ('\n\r');
-  
+
+    const message = this.ParseUntilCharactersFromString("\n\r");
+
     if (message) {
       return new AuthorWarning(message);
     }
@@ -260,73 +271,73 @@ export class InkParser extends StringParser {
 
   /**
    * End base InkParser section.
-   */  
+   */
 
   /**
    * Begin CharacterRanges section.
    */
 
   public static readonly LatinBasic: CharacterRange = CharacterRange.Define(
-    '\u0041',
-    '\u007A',
-    new CharacterSet().AddRange('\u005B', '\u0060'),
+    "\u0041",
+    "\u007A",
+    new CharacterSet().AddRange("\u005B", "\u0060")
   );
 
   public static readonly LatinExtendedA: CharacterRange = CharacterRange.Define(
-    '\u0100',
-    '\u017F',
+    "\u0100",
+    "\u017F"
     // no excludes here
   );
 
   public static readonly LatinExtendedB: CharacterRange = CharacterRange.Define(
-    '\u0180',
-    '\u024F',
+    "\u0180",
+    "\u024F"
     // no excludes here
   );
 
   public static readonly Greek: CharacterRange = CharacterRange.Define(
-    '\u0370',
-    '\u03FF',
+    "\u0370",
+    "\u03FF",
     new CharacterSet()
-      .AddRange('\u0378','\u0385')
-      .AddCharacters('\u0374\u0375\u0378\u0387\u038B\u038D\u03A2'),
+      .AddRange("\u0378", "\u0385")
+      .AddCharacters("\u0374\u0375\u0378\u0387\u038B\u038D\u03A2")
   );
 
   public static readonly Cyrillic: CharacterRange = CharacterRange.Define(
-    '\u0400',
-    '\u04FF',
-    new CharacterSet().AddRange('\u0482', '\u0489'),
+    "\u0400",
+    "\u04FF",
+    new CharacterSet().AddRange("\u0482", "\u0489")
   );
 
   public static readonly Armenian: CharacterRange = CharacterRange.Define(
-    '\u0530',
-    '\u058F',
+    "\u0530",
+    "\u058F",
     new CharacterSet()
-      .AddCharacters('\u0530')
-      .AddRange('\u0557', '\u0560')
-      .AddRange('\u0588', '\u058E'),
+      .AddCharacters("\u0530")
+      .AddRange("\u0557", "\u0560")
+      .AddRange("\u0588", "\u058E")
   );
 
   public static readonly Hebrew: CharacterRange = CharacterRange.Define(
-    '\u0590',
-    '\u05FF',
-    new CharacterSet(),
+    "\u0590",
+    "\u05FF",
+    new CharacterSet()
   );
 
   public static readonly Arabic: CharacterRange = CharacterRange.Define(
-    '\u0600',
-    '\u06FF',
-    new CharacterSet(),
+    "\u0600",
+    "\u06FF",
+    new CharacterSet()
   );
 
   public static readonly Korean: CharacterRange = CharacterRange.Define(
-    '\uAC00',
-    '\uD7AF',
-    new CharacterSet(),
+    "\uAC00",
+    "\uD7AF",
+    new CharacterSet()
   );
 
   private readonly ExtendIdentifierCharacterRanges = (
-    identifierCharSet: CharacterSet,
+    identifierCharSet: CharacterSet
   ): void => {
     const characterRanges = InkParser.ListAllCharacterRanges();
     for (const charRange of characterRanges) {
@@ -368,13 +379,13 @@ export class InkParser extends StringParser {
     let onceOnlyChoice: boolean = true;
     let bullets = this.Interleave<string>(
       this.OptionalExclude(this.Whitespace),
-      this.String('*'),
+      this.String("*")
     );
 
     if (!bullets) {
       bullets = this.Interleave<string>(
         this.OptionalExclude(this.Whitespace),
-        this.String('+'),
+        this.String("+")
       );
 
       if (bullets === null) {
@@ -383,14 +394,18 @@ export class InkParser extends StringParser {
 
       onceOnlyChoice = false;
     }
-        
+
     // Optional name for the choice
-    const optionalName: Identifier = this.Parse(this.BracketedName) as Identifier;
+    const optionalName: Identifier = this.Parse(
+      this.BracketedName
+    ) as Identifier;
 
     this.Whitespace();
 
     // Optional condition for whether the choice should be shown to the player
-    const conditionExpr: Expression = this.Parse(this.ChoiceCondition) as Expression;
+    const conditionExpr: Expression = this.Parse(
+      this.ChoiceCondition
+    ) as Expression;
 
     this.Whitespace();
 
@@ -399,14 +414,16 @@ export class InkParser extends StringParser {
     // never be able to nest choices within choice content, it's fine here.
     if (this._parsingChoice) {
       throw new Error(
-        'Already parsing a choice - shouldn\'t have nested choices',
+        "Already parsing a choice - shouldn't have nested choices"
       );
     }
 
     this._parsingChoice = true;
 
     let startContent: ContentList | null = null;
-    const startTextAndLogic = this.Parse(this.MixedTextAndLogic) as ParsedObject[];
+    const startTextAndLogic = this.Parse(
+      this.MixedTextAndLogic
+    ) as ParsedObject[];
     if (startTextAndLogic) {
       startContent = new ContentList(startTextAndLogic);
     }
@@ -416,19 +433,21 @@ export class InkParser extends StringParser {
 
     // Check for a the weave style format:
     //   * "Hello[."]," he said.
-    const hasWeaveStyleInlineBrackets: boolean = this.ParseString('[') !== null;
+    const hasWeaveStyleInlineBrackets: boolean = this.ParseString("[") !== null;
     if (hasWeaveStyleInlineBrackets) {
       const optionOnlyTextAndLogic = this.Parse(
-        this.MixedTextAndLogic,
+        this.MixedTextAndLogic
       ) as ParsedObject[];
 
       if (optionOnlyTextAndLogic !== null) {
         optionOnlyContent = new ContentList(optionOnlyTextAndLogic);
       }
 
-      this.Expect(this.String(']'), "closing ']' for weave-style option");
+      this.Expect(this.String("]"), "closing ']' for weave-style option");
 
-      let innerTextAndLogic = this.Parse(this.MixedTextAndLogic) as ParsedObject[];
+      let innerTextAndLogic = this.Parse(
+        this.MixedTextAndLogic
+      ) as ParsedObject[];
       if (innerTextAndLogic !== null) {
         innerContent = new ContentList(innerTextAndLogic);
       }
@@ -438,27 +457,28 @@ export class InkParser extends StringParser {
 
     // Finally, now we know we're at the end of the main choice body, parse
     // any diverts separately.
-    const diverts: ParsedObject[] = this.Parse(this.MultiDivert) as ParsedObject[];
+    const diverts: ParsedObject[] = this.Parse(
+      this.MultiDivert
+    ) as ParsedObject[];
 
     this._parsingChoice = false;
 
     this.Whitespace();
 
-      // Completely empty choice without even an empty divert?
-    const emptyContent: boolean = !startContent &&
-      !innerContent &&
-      !optionOnlyContent;
+    // Completely empty choice without even an empty divert?
+    const emptyContent: boolean =
+      !startContent && !innerContent && !optionOnlyContent;
 
     if (emptyContent && diverts === null) {
       this.Warning(
-        'Choice is completely empty. Interpretting as a default fallback choice. Add a divert arrow to remove this warning: * ->',
+        "Choice is completely empty. Interpretting as a default fallback choice. Add a divert arrow to remove this warning: * ->"
       );
     }
 
     if (!startContent && hasWeaveStyleInlineBrackets && !optionOnlyContent) {
       // * [] some text
       this.Warning(
-        'Blank choice - if you intended a default fallback choice, use the `* ->` syntax',
+        "Blank choice - if you intended a default fallback choice, use the `* ->` syntax"
       );
     }
 
@@ -475,7 +495,7 @@ export class InkParser extends StringParser {
     if (diverts !== null) {
       for (const divObj of diverts) {
         // may be TunnelOnwards
-        const div = asOrNull(divObj, Divert); 
+        const div = asOrNull(divObj, Divert);
 
         // Empty divert serves no purpose other than to say
         // "this choice is intentionally left blank"
@@ -491,7 +511,7 @@ export class InkParser extends StringParser {
     // Terminate main content with a newline since this is the end of the line
     // Note that this will be redundant if the diverts above definitely take
     // the flow away permanently.
-    innerContent.AddContent(new Text('\n'));
+    innerContent.AddContent(new Text("\n"));
 
     const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
     choice.identifier = optionalName || undefined;
@@ -506,7 +526,7 @@ export class InkParser extends StringParser {
   public readonly ChoiceCondition = (): Expression | null => {
     const conditions = this.Interleave<Expression>(
       this.ChoiceSingleCondition,
-      this.ChoiceConditionsSpace,
+      this.ChoiceConditionsSpace
     );
 
     if (conditions === null) {
@@ -514,28 +534,31 @@ export class InkParser extends StringParser {
     } else if (conditions.length === 1) {
       return conditions[0];
     }
-    
+
     return new MultipleConditionExpression(conditions);
   };
 
   public readonly ChoiceConditionsSpace = (): typeof ParseSuccess => {
     // Both optional
     // Newline includes initial end of line whitespace
-    this.Newline(); 
+    this.Newline();
     this.Whitespace();
 
     return ParseSuccess;
   };
 
   public readonly ChoiceSingleCondition = (): Expression | null => {
-    if (this.ParseString('{') === null) {
+    if (this.ParseString("{") === null) {
       return null;
     }
 
-    const condExpr = this.Expect(this.Expression, "choice condition inside { }") as Expression;
+    const condExpr = this.Expect(
+      this.Expression,
+      "choice condition inside { }"
+    ) as Expression;
 
     this.DisallowIncrement(condExpr);
-    this.Expect(this.String('}'), 'closing \'}\' for choice condition');
+    this.Expect(this.String("}"), "closing '}' for choice condition");
 
     return condExpr;
   };
@@ -549,7 +572,9 @@ export class InkParser extends StringParser {
     const gatherDashCount: number = Number(gatherDashCountObj);
 
     // Optional name for the gather
-    const optionalName: Identifier = this.Parse(this.BracketedName) as Identifier;
+    const optionalName: Identifier = this.Parse(
+      this.BracketedName
+    ) as Identifier;
 
     const gather = new Gather(optionalName, gatherDashCount);
 
@@ -578,17 +603,18 @@ export class InkParser extends StringParser {
   public readonly ParseDashNotArrow = () => {
     const ruleId = this.BeginRule();
 
-    if (this.ParseString('->') === null &&
-      this.ParseSingleCharacter() === '-')
-    {
+    if (
+      this.ParseString("->") === null &&
+      this.ParseSingleCharacter() === "-"
+    ) {
       return this.SucceedRule(ruleId);
     }
-    
+
     return this.FailRule(ruleId);
   };
 
   public readonly BracketedName = (): Identifier | null => {
-    if (this.ParseString('(') === null) {
+    if (this.ParseString("(") === null) {
       return null;
     }
 
@@ -601,7 +627,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    this.Expect(this.String(')'), 'closing \')\' for bracketed name');
+    this.Expect(this.String(")"), "closing ')' for bracketed name");
 
     return name;
   };
@@ -619,9 +645,9 @@ export class InkParser extends StringParser {
   ): Conditional | null => {
     if (initialQueryExpression === undefined) {
       const initialQueryExpression = this.Parse(this.ConditionExpression);
-      const conditional = this.Parse(() => (
+      const conditional = this.Parse(() =>
         this.InnerConditionalContent(initialQueryExpression as Expression)
-      )) as Conditional;
+      ) as Conditional;
 
       if (conditional === null) {
         return null;
@@ -643,26 +669,30 @@ export class InkParser extends StringParser {
       alternatives = this.InlineConditionalBranches();
     } else {
       // Multiline innards
-      alternatives = this.MultilineConditionalBranches()
+      alternatives = this.MultilineConditionalBranches();
 
       if (alternatives === null) {
         // Allow single piece of content within multi-line expression, e.g.:
-        // { true: 
+        // { true:
         //    Some content that isn't preceded by '-'
         // }
         if (initialQueryExpression) {
-          let soleContent: ParsedObject[] = this.StatementsAtLevel(StatementLevel.InnerBlock);
+          let soleContent: ParsedObject[] = this.StatementsAtLevel(
+            StatementLevel.InnerBlock
+          );
           if (soleContent !== null) {
             const soleBranch = new ConditionalSingleBranch(soleContent);
-            alternatives = [ soleBranch ];
+            alternatives = [soleBranch];
 
             // Also allow a final "- else:" clause
-            const elseBranch = this.Parse(this.SingleMultilineCondition) as ConditionalSingleBranch;
+            const elseBranch = this.Parse(
+              this.SingleMultilineCondition
+            ) as ConditionalSingleBranch;
             if (elseBranch) {
               if (!elseBranch.isElse) {
                 this.ErrorWithParsedObject(
-                  'Expected an \'- else:\' clause here rather than an extra condition',
-                  elseBranch,
+                  "Expected an '- else:' clause here rather than an extra condition",
+                  elseBranch
                 );
 
                 elseBranch.isElse = true;
@@ -677,10 +707,11 @@ export class InkParser extends StringParser {
         if (alternatives === null) {
           return null;
         }
-      } else if (alternatives.length === 1 &&
+      } else if (
+        alternatives.length === 1 &&
         alternatives[0].isElse &&
-        initialQueryExpression)
-      {
+        initialQueryExpression
+      ) {
         // Empty true branch - didn't get parsed, but should insert one for semantic correctness,
         // and to make sure that any evaluation stack values get tidied up correctly.
         const emptyTrueBranch = new ConditionalSingleBranch(null);
@@ -718,8 +749,8 @@ export class InkParser extends StringParser {
             // }
             if (!isLast && alternatives.length > 2) {
               this.ErrorWithParsedObject(
-                'Only final branch can be an \'else\'. Did you miss a \':\'?',
-                branch,
+                "Only final branch can be an 'else'. Did you miss a ':'?",
+                branch
               );
             } else {
               if (ii === 0) {
@@ -737,7 +768,7 @@ export class InkParser extends StringParser {
         //   - x == 3: equal to three
         //   - x < 3:  less than three
         // }
-        
+
         for (let ii = 0; ii < alternatives.length; ++ii) {
           const alt = alternatives[ii];
           const isLast: boolean = ii === alternatives.length - 1;
@@ -751,29 +782,32 @@ export class InkParser extends StringParser {
                 const finalClause = alternatives[alternatives.length - 1];
                 if (finalClause.isElse) {
                   this.ErrorWithParsedObject(
-                    'Multiple \'else\' cases. Can have a maximum of one, at the end.',
-                    finalClause,
+                    "Multiple 'else' cases. Can have a maximum of one, at the end.",
+                    finalClause
                   );
                 } else {
                   this.ErrorWithParsedObject(
-                    '\'else\' case in conditional should always be the final one',
-                    alt,
+                    "'else' case in conditional should always be the final one",
+                    alt
                   );
                 }
               } else {
                 this.ErrorWithParsedObject(
-                  'Branch doesn\'t have condition. Are you missing a \':\'? ',
-                  alt,
+                  "Branch doesn't have condition. Are you missing a ':'? ",
+                  alt
                 );
               }
             }
           }
         }
 
-        if (alternatives.length === 1 && alternatives[0].ownExpression === null) {
+        if (
+          alternatives.length === 1 &&
+          alternatives[0].ownExpression === null
+        ) {
           this.ErrorWithParsedObject(
-            'Condition block with no conditions',
-            alternatives[0],
+            "Condition block with no conditions",
+            alternatives[0]
           );
         }
       }
@@ -796,12 +830,14 @@ export class InkParser extends StringParser {
     return cond;
   };
 
-  public readonly InlineConditionalBranches = (): ConditionalSingleBranch[] | null => {
+  public readonly InlineConditionalBranches = ():
+    | ConditionalSingleBranch[]
+    | null => {
     const listOfLists = this.Interleave<ParsedObject[]>(
       this.MixedTextAndLogic,
-      this.Exclude(this.String('|')),
+      this.Exclude(this.String("|")),
       null,
-      false,
+      false
     );
 
     if (listOfLists === null || listOfLists.length === 0) {
@@ -811,7 +847,9 @@ export class InkParser extends StringParser {
     const result: ConditionalSingleBranch[] = [];
 
     if (listOfLists.length > 2) {
-      this.Error('Expected one or two alternatives separated by \'|\' in inline conditional');
+      this.Error(
+        "Expected one or two alternatives separated by '|' in inline conditional"
+      );
     } else {
       const trueBranch = new ConditionalSingleBranch(listOfLists[0]);
       trueBranch.isTrueBranch = true;
@@ -827,14 +865,16 @@ export class InkParser extends StringParser {
     return result;
   };
 
-  public readonly MultilineConditionalBranches = (): ConditionalSingleBranch[] | null => {
+  public readonly MultilineConditionalBranches = ():
+    | ConditionalSingleBranch[]
+    | null => {
     this.MultilineWhitespace();
 
     const multipleConditions = this.OneOrMore(this.SingleMultilineCondition);
     if (multipleConditions === null) {
       return null;
     }
-    
+
     this.MultilineWhitespace();
 
     return multipleConditions as ConditionalSingleBranch[];
@@ -845,8 +885,8 @@ export class InkParser extends StringParser {
 
     if (
       // Make sure we're not accidentally parsing a divert
-      this.ParseString('->') !== null ||
-      this.ParseString('-') === null
+      this.ParseString("->") !== null ||
+      this.ParseString("-") === null
     ) {
       return null;
     }
@@ -860,12 +900,14 @@ export class InkParser extends StringParser {
       expr = this.Parse(this.ConditionExpression) as Expression;
     }
 
-    let content: ParsedObject[] = this.StatementsAtLevel(StatementLevel.InnerBlock);
+    let content: ParsedObject[] = this.StatementsAtLevel(
+      StatementLevel.InnerBlock
+    );
     if (expr === null && content === null) {
-      this.Error('expected content for the conditional branch following \'-\'');
+      this.Error("expected content for the conditional branch following '-'");
 
       // Recover
-      content = [ new Text('') ];
+      content = [new Text("")];
     }
 
     // Allow additional multiline whitespace, if the statements were empty (valid)
@@ -894,7 +936,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    if (this.ParseString(':') === null) {
+    if (this.ParseString(":") === null) {
       return null;
     }
 
@@ -902,13 +944,13 @@ export class InkParser extends StringParser {
   };
 
   public readonly ElseExpression = (): typeof ParseSuccess | null => {
-    if (this.ParseString('else') === null) {
+    if (this.ParseString("else") === null) {
       return null;
     }
 
     this.Whitespace();
 
-    if (this.ParseString(':') === null) {
+    if (this.ParseString(":") === null) {
       return null;
     }
 
@@ -930,7 +972,7 @@ export class InkParser extends StringParser {
 
   public readonly TrimEndWhitespace = (
     mixedTextAndLogicResults: ParsedObject[],
-    terminateWithSpace: boolean,
+    terminateWithSpace: boolean
   ): void => {
     // Trim whitespace from end
     if (mixedTextAndLogicResults.length > 0) {
@@ -938,19 +980,16 @@ export class InkParser extends StringParser {
       const lastObj = mixedTextAndLogicResults[lastObjIdx];
       if (lastObj instanceof Text) {
         const textObj: Text = lastObj;
-        textObj.text = textObj.text.replace(new RegExp(/[ \t]+/g), ' ');
+        textObj.text = textObj.text.replace(new RegExp(/[ \t]+/g), " ");
 
         if (terminateWithSpace) {
-          textObj.text += ' ';
+          textObj.text += " ";
         } else if (textObj.text.length === 0) {
           // No content left at all? trim the whole object
           mixedTextAndLogicResults.splice(lastObjIdx, 1);
 
           // Recurse in case there's more whitespace
-          this.TrimEndWhitespace(
-            mixedTextAndLogicResults,
-            false,
-          );
+          this.TrimEndWhitespace(mixedTextAndLogicResults, false);
         }
       }
     }
@@ -962,7 +1001,7 @@ export class InkParser extends StringParser {
     this.Parse(this.Whitespace);
 
     let result: ParsedObject[] = this.Parse(
-      this.MixedTextAndLogic,
+      this.MixedTextAndLogic
     ) as ParsedObject[];
 
     // Terminating tag
@@ -985,9 +1024,9 @@ export class InkParser extends StringParser {
 
     // Warn about accidentally writing "return" without "~"
     const firstText = result[0] as Text;
-    if (firstText && firstText.text && firstText.text.startsWith('return')) {
+    if (firstText && firstText.text && firstText.text.startsWith("return")) {
       this.Warning(
-        'Do you need a \'~\' before \'return\'? If not, perhaps use a glue: <> (since it\'s lowercase) or rewrite somehow?',
+        "Do you need a '~' before 'return'? If not, perhaps use a glue: <> (since it's lowercase) or rewrite somehow?"
       );
     }
 
@@ -1003,44 +1042,43 @@ export class InkParser extends StringParser {
     // Add newline since it's the end of the line
     // (so long as it's a line with only tags)
     if (!onlyTags) {
-      result.push(new Text('\n'));
+      result.push(new Text("\n"));
     }
 
-    this.Expect(this.EndOfLine, 'end of line', this.SkipToNextLine);
+    this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
 
     return result;
   };
 
   public readonly MixedTextAndLogic = (): ParsedObject[] | null => {
     // Check for disallowed "~" within this context
-    const disallowedTilde = this.ParseObject(this.Spaced(this.String('~')));
+    const disallowedTilde = this.ParseObject(this.Spaced(this.String("~")));
     if (disallowedTilde !== null) {
-        this.Error(
-          'You shouldn\'t use a \'~\' here - tildas are for logic that\'s on its own line. To do inline logic, use { curly braces } instead',
-        );
+      this.Error(
+        "You shouldn't use a '~' here - tildas are for logic that's on its own line. To do inline logic, use { curly braces } instead"
+      );
     }
 
     // Either, or both interleaved
     let results: ParsedObject[] = this.Interleave<ParsedObject>(
       this.Optional(this.ContentText),
-      this.Optional(this.InlineLogicOrGlue),
+      this.Optional(this.InlineLogicOrGlue)
     );
 
     // Terminating divert?
     // (When parsing content for the text of a choice, diverts aren't allowed.
     //  The divert on the end of the body of a choice is handled specially.)
     if (!this._parsingChoice) {
-      const diverts: ParsedObject[] = this.Parse(this.MultiDivert) as ParsedObject[];
+      const diverts: ParsedObject[] = this.Parse(
+        this.MultiDivert
+      ) as ParsedObject[];
       if (diverts !== null) {
         // May not have had any results at all if there's *only* a divert!
         if (results === null) {
           results = [];
         }
 
-        this.TrimEndWhitespace(
-          results,
-          true,
-        );
+        this.TrimEndWhitespace(results, true);
 
         results.push(...diverts);
       }
@@ -1054,19 +1092,19 @@ export class InkParser extends StringParser {
   };
 
   public readonly ContentText = () => {
-    return this.ContentTextAllowingEscapeChar()
+    return this.ContentTextAllowingEscapeChar();
   };
 
   public readonly ContentTextAllowingEscapeChar = (): Text | null => {
-    let sb: string|null = null;
+    let sb: string | null = null;
 
     do {
       let str = this.Parse(this.ContentTextNoEscape);
-      const gotEscapeChar: boolean = this.ParseString('\\') !== null;
+      const gotEscapeChar: boolean = this.ParseString("\\") !== null;
 
-      if (gotEscapeChar || str !== null ) {
+      if (gotEscapeChar || str !== null) {
         if (sb === null) {
-          sb = '';
+          sb = "";
         }
 
         if (str !== null) {
@@ -1077,7 +1115,6 @@ export class InkParser extends StringParser {
           const c: string = this.ParseSingleCharacter();
           sb += c;
         }
-
       } else {
         break;
       }
@@ -1099,27 +1136,32 @@ export class InkParser extends StringParser {
     // "-": possible start of divert or start of gather
     // "<": possible start of glue
     if (this._nonTextPauseCharacters === null) {
-      this._nonTextPauseCharacters = new CharacterSet('-<');
+      this._nonTextPauseCharacters = new CharacterSet("-<");
     }
 
     // If we hit any of these characters, we stop *immediately* without bothering to even check the nonTextRule
     // "{" for start of logic
     // "|" for mid logic branch
     if (this._nonTextEndCharacters === null) {
-      this._nonTextEndCharacters = new CharacterSet('{}|\n\r\\#');
-      this._notTextEndCharactersChoice = new CharacterSet(this._nonTextEndCharacters);
-      this._notTextEndCharactersChoice.AddCharacters('[]');
-      this._notTextEndCharactersString = new CharacterSet(this._nonTextEndCharacters);
+      this._nonTextEndCharacters = new CharacterSet("{}|\n\r\\#");
+      this._notTextEndCharactersChoice = new CharacterSet(
+        this._nonTextEndCharacters
+      );
+      this._notTextEndCharactersChoice.AddCharacters("[]");
+      this._notTextEndCharactersString = new CharacterSet(
+        this._nonTextEndCharacters
+      );
       this._notTextEndCharactersString.AddCharacters('"');
     }
 
     // When the ParseUntil pauses, check these rules in case they evaluate successfully
-    const nonTextRule: ParseRule = () => this.OneOf([
-      this.ParseDivertArrow,
-      this.ParseThreadArrow,
-      this.EndOfLine,
-      this.Glue,
-    ]);
+    const nonTextRule: ParseRule = () =>
+      this.OneOf([
+        this.ParseDivertArrow,
+        this.ParseThreadArrow,
+        this.EndOfLine,
+        this.Glue,
+      ]);
 
     let endChars: CharacterSet | null = null;
     if (this.parsingStringExpression) {
@@ -1133,7 +1175,7 @@ export class InkParser extends StringParser {
     const pureTextContent: string = this.ParseUntil(
       nonTextRule,
       this._nonTextPauseCharacters,
-      endChars,
+      endChars
     );
 
     if (pureTextContent !== null) {
@@ -1159,17 +1201,17 @@ export class InkParser extends StringParser {
     // Try single thread first
     const threadDivert = this.Parse(this.StartThread) as ParsedObject;
     if (threadDivert) {
-      diverts = [ threadDivert ];
+      diverts = [threadDivert];
 
       return diverts;
     }
 
     // Normal diverts and tunnels
-    const arrowsAndDiverts = this.Interleave<ParsedObject> (
+    const arrowsAndDiverts = this.Interleave<ParsedObject>(
       this.ParseDivertArrowOrTunnelOnwards,
-      this.DivertIdentifierWithArguments,
+      this.DivertIdentifierWithArguments
     );
-    
+
     if (!arrowsAndDiverts) {
       return null;
     }
@@ -1185,32 +1227,34 @@ export class InkParser extends StringParser {
     //  -> div ->->          -- tunnel then tunnel continue
     //  -> div -> div        -- tunnel then divert
     //  -> div -> div ->     -- tunnel then tunnel
-    //  -> div -> div ->->   
+    //  -> div -> div ->->
     //  -> div -> div ->-> div    (etc)
 
     // Look at the arrows and diverts
     for (let ii = 0; ii < arrowsAndDiverts.length; ++ii) {
-      const isArrow: boolean = (ii % 2) === 0;
+      const isArrow: boolean = ii % 2 === 0;
 
       // Arrow string
       if (isArrow) {
         // Tunnel onwards
-        if (arrowsAndDiverts[ii] as any === '->->') {
-          const tunnelOnwardsPlacementValid: boolean = (
+        if ((arrowsAndDiverts[ii] as any) === "->->") {
+          const tunnelOnwardsPlacementValid: boolean =
             ii === 0 ||
             ii === arrowsAndDiverts.length - 1 ||
-            ii === arrowsAndDiverts.length - 2
-          );
+            ii === arrowsAndDiverts.length - 2;
 
           if (!tunnelOnwardsPlacementValid) {
             this.Error(
-              'Tunnel onwards \'->->\' must only come at the begining or the start of a divert',
+              "Tunnel onwards '->->' must only come at the begining or the start of a divert"
             );
           }
 
           const tunnelOnwards = new TunnelOnwards();
           if (ii < arrowsAndDiverts.length - 1) {
-            const tunnelOnwardDivert = asOrNull(arrowsAndDiverts[ii + 1], Divert);
+            const tunnelOnwardDivert = asOrNull(
+              arrowsAndDiverts[ii + 1],
+              Divert
+            );
             tunnelOnwards.divertAfter = tunnelOnwardDivert;
           }
 
@@ -1240,7 +1284,7 @@ export class InkParser extends StringParser {
       diverts.push(gatherDivert);
 
       if (!this._parsingChoice) {
-        this.Error('Empty diverts (->) are only valid on choices');
+        this.Error("Empty diverts (->) are only valid on choices");
       }
     }
 
@@ -1258,8 +1302,8 @@ export class InkParser extends StringParser {
 
     const divert = this.Expect(
       this.DivertIdentifierWithArguments,
-      'target for new thread',
-      () => new Divert(null),
+      "target for new thread",
+      () => new Divert(null)
     ) as Divert;
 
     divert.isThread = true;
@@ -1271,7 +1315,7 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const targetComponents: Identifier[] = this.Parse(
-      this.DotSeparatedDivertPathComponents,
+      this.DotSeparatedDivertPathComponents
     ) as Identifier[];
 
     if (!targetComponents) {
@@ -1280,7 +1324,9 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const optionalArguments = this.Parse(this.ExpressionFunctionCallArguments) as Expression[];
+    const optionalArguments = this.Parse(
+      this.ExpressionFunctionCallArguments
+    ) as Expression[];
 
     this.Whitespace();
 
@@ -1289,7 +1335,7 @@ export class InkParser extends StringParser {
     return new Divert(targetPath, optionalArguments);
   };
 
-  public readonly SingleDivert = (): Divert | null => {            
+  public readonly SingleDivert = (): Divert | null => {
     const diverts = this.Parse(this.MultiDivert) as ParsedObject[];
     if (!diverts) {
       return null;
@@ -1324,47 +1370,42 @@ export class InkParser extends StringParser {
     return divert;
   };
 
-  public readonly DotSeparatedDivertPathComponents = (): Identifier[] => (
+  public readonly DotSeparatedDivertPathComponents = (): Identifier[] =>
     this.Interleave<Identifier>(
       this.Spaced(this.IdentifierWithMetadata),
-      this.Exclude(this.String('.')),
-    )
-  );
+      this.Exclude(this.String("."))
+    );
 
   public readonly ParseDivertArrowOrTunnelOnwards = (): string | null => {
     let numArrows: number = 0;
-    while (this.ParseString('->') !== null) {
+    while (this.ParseString("->") !== null) {
       numArrows += 1;
     }
 
     if (numArrows === 0) {
       return null;
     } else if (numArrows === 1) {
-      return '->';
+      return "->";
     } else if (numArrows === 2) {
       return "->->";
     }
-    
+
     this.Error(
-      'Unexpected number of arrows in divert. Should only have \'->\' or \'->->\'',
+      "Unexpected number of arrows in divert. Should only have '->' or '->->'"
     );
 
-    return '->->';
+    return "->->";
   };
 
-  public readonly ParseDivertArrow = () => (
-    this.ParseString('->')
-  );
+  public readonly ParseDivertArrow = () => this.ParseString("->");
 
-  public readonly ParseThreadArrow = () => (
-    this.ParseString('<-')
-  );
+  public readonly ParseThreadArrow = () => this.ParseString("<-");
 
   /**
    * End Divert section.
    */
 
-    /**
+  /**
    * Begin Expressions section.
    */
 
@@ -1378,9 +1419,12 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    let varIdentifier: Identifier|null = null;
+    let varIdentifier: Identifier | null = null;
     if (isNewDeclaration) {
-      varIdentifier = this.Expect(this.IdentifierWithMetadata, 'variable name') as Identifier;
+      varIdentifier = this.Expect(
+        this.IdentifierWithMetadata,
+        "variable name"
+      ) as Identifier;
     } else {
       varIdentifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
     }
@@ -1392,17 +1436,17 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     // += -=
-    const isIncrement: boolean = this.ParseString('+') !== null;
-    const isDecrement: boolean = this.ParseString('-') !== null;
+    const isIncrement: boolean = this.ParseString("+") !== null;
+    const isDecrement: boolean = this.ParseString("-") !== null;
 
     if (isIncrement && isDecrement) {
-      this.Error('Unexpected sequence \'+-\'');
+      this.Error("Unexpected sequence '+-'");
     }
 
-    if (this.ParseString('=') === null) {
+    if (this.ParseString("=") === null) {
       // Definitely in an assignment expression?
       if (isNewDeclaration) {
-        this.Error('Expected \'=\'');
+        this.Error("Expected '='");
       }
 
       return null;
@@ -1410,14 +1454,18 @@ export class InkParser extends StringParser {
 
     const assignedExpression: Expression = this.Expect(
       this.Expression,
-      'value expression to be assigned',
+      "value expression to be assigned"
     ) as Expression;
 
     if (isIncrement || isDecrement) {
-      const result = new IncDecExpression(varIdentifier, assignedExpression, isIncrement);
+      const result = new IncDecExpression(
+        varIdentifier,
+        assignedExpression,
+        isIncrement
+      );
       return result;
     }
-    
+
     const result = new VariableAssignment({
       variableIdentifier: varIdentifier,
       assignedExpression,
@@ -1430,7 +1478,7 @@ export class InkParser extends StringParser {
   public readonly DisallowIncrement = (expr: ParsedObject): void => {
     if (expr instanceof IncDecExpression) {
       this.Error(
-        'Can\'t use increment/decrement here. It can only be used on a ~ line',
+        "Can't use increment/decrement here. It can only be used on a ~ line"
       );
     }
   };
@@ -1438,20 +1486,20 @@ export class InkParser extends StringParser {
   public readonly ParseTempKeyword = () => {
     const ruleId = this.BeginRule();
 
-    if (this.Parse(this.Identifier) === 'temp') {
+    if (this.Parse(this.Identifier) === "temp") {
       this.SucceedRule(ruleId);
       return true;
     }
-    
+
     this.FailRule(ruleId);
     return false;
   };
-      
+
   public readonly ReturnStatement = (): ReturnType | null => {
     this.Whitespace();
 
     const returnOrDone = this.Parse(this.Identifier);
-    if (returnOrDone !== 'return') {
+    if (returnOrDone !== "return") {
       return null;
     }
 
@@ -1476,7 +1524,7 @@ export class InkParser extends StringParser {
   // ...and #2 is handled by recursion of the right hand term in the binary expression parser.
   // (see link for advice on how to extend for postfix and mixfix operators)
   public readonly Expression = (
-    minimumPrecedence: number = 0,
+    minimumPrecedence: number = 0
   ): Expression | null => {
     this.Whitespace();
 
@@ -1499,7 +1547,7 @@ export class InkParser extends StringParser {
         const expectationMessage = `right side of '${infixOp.type}' expression`;
         const multiaryExpr = this.Expect(
           () => this.ExpressionInfixRight(expr, infixOp),
-          expectationMessage,
+          expectationMessage
         );
 
         if (multiaryExpr === null) {
@@ -1533,11 +1581,11 @@ export class InkParser extends StringParser {
     }
 
     let prefixOp: Expression = this.OneOf([
-      this.String('-'),
-      this.String('!'),
+      this.String("-"),
+      this.String("!"),
     ]) as Expression;
 
-    // Don't parse like the string rules above, in case its actually 
+    // Don't parse like the string rules above, in case its actually
     // a variable that simply starts with "not", e.g. "notable".
     // This rule uses the Identifier rule, which will scan as much text
     // as possible before returning.
@@ -1570,16 +1618,15 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const postfixOp = this.OneOf([
-      this.String('++'),
-      this.String('--'),
-    ]);
+    const postfixOp = this.OneOf([this.String("++"), this.String("--")]);
 
     if (postfixOp !== null) {
-      const isInc: boolean = postfixOp === '++';
+      const isInc: boolean = postfixOp === "++";
 
       if (!(expr instanceof VariableReference)) {
-        this.Error(`can only increment and decrement variables, but saw '${expr}'.`);
+        this.Error(
+          `can only increment and decrement variables, but saw '${expr}'.`
+        );
 
         // Drop down and succeed without the increment after reporting error
       } else {
@@ -1593,21 +1640,20 @@ export class InkParser extends StringParser {
 
   public readonly ExpressionNot = (): string | null => {
     const id = this.Identifier();
-    if (id === 'not') {
+    if (id === "not") {
       return id;
     }
 
     return null;
   };
 
-  public readonly ExpressionLiteral = (): Expression => (
+  public readonly ExpressionLiteral = (): Expression =>
     this.OneOf([
       this.ExpressionFloat,
       this.ExpressionInt,
       this.ExpressionBool,
       this.ExpressionString,
-    ]) as Expression
-  );
+    ]) as Expression;
 
   public readonly ExpressionDivertTarget = (): Expression | null => {
     this.Whitespace();
@@ -1628,7 +1674,7 @@ export class InkParser extends StringParser {
       return null;
     }
 
-    return new NumberExpression(intOrNull, 'int');
+    return new NumberExpression(intOrNull, "int");
   };
 
   public readonly ExpressionFloat = (): NumberExpression | null => {
@@ -1636,8 +1682,8 @@ export class InkParser extends StringParser {
     if (floatOrNull === null) {
       return null;
     }
-    
-    return new NumberExpression(floatOrNull, 'float');
+
+    return new NumberExpression(floatOrNull, "float");
   };
 
   public readonly ExpressionString = (): StringExpression | null => {
@@ -1650,19 +1696,18 @@ export class InkParser extends StringParser {
     // it knows to treat the quote character (") as an end character
     this.parsingStringExpression = true;
 
-    let textAndLogic: ParsedObject[] = this.Parse(this.MixedTextAndLogic) as ParsedObject[];
+    let textAndLogic: ParsedObject[] = this.Parse(
+      this.MixedTextAndLogic
+    ) as ParsedObject[];
 
-    this.Expect(
-      this.String('"'),
-      'close quote for string expression',
-    );
+    this.Expect(this.String('"'), "close quote for string expression");
 
     this.parsingStringExpression = false;
 
     if (textAndLogic === null) {
-      textAndLogic = [ new Text('') ];
+      textAndLogic = [new Text("")];
     } else if (textAndLogic.find((c) => c instanceof Divert)) {
-      this.Error('String expressions cannot contain diverts (->)');
+      this.Error("String expressions cannot contain diverts (->)");
     }
 
     return new StringExpression(textAndLogic);
@@ -1670,9 +1715,9 @@ export class InkParser extends StringParser {
 
   public readonly ExpressionBool = (): NumberExpression | null => {
     const id = this.Parse(this.Identifier);
-    if (id === 'true') {
+    if (id === "true") {
       return new NumberExpression(true, "bool");
-    } else if (id === 'false') {
+    } else if (id === "false") {
       return new NumberExpression(false, "bool");
     }
 
@@ -1696,12 +1741,12 @@ export class InkParser extends StringParser {
   };
 
   public readonly ExpressionFunctionCallArguments = (): Expression[] | null => {
-    if (this.ParseString('(') === null) {
+    if (this.ParseString("(") === null) {
       return null;
     }
 
     // "Exclude" requires the rule to succeed, but causes actual comma string to be excluded from the list of results
-    const commas: ParseRule = this.Exclude(this.String(','));
+    const commas: ParseRule = this.Exclude(this.String(","));
     let args = this.Interleave<Expression>(this.Expression, commas);
     if (args === null) {
       args = [];
@@ -1709,7 +1754,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    this.Expect(this.String(')'), 'closing \')\' for function call');
+    this.Expect(this.String(")"), "closing ')' for function call");
 
     return args;
   };
@@ -1717,7 +1762,7 @@ export class InkParser extends StringParser {
   public readonly ExpressionVariableName = (): Expression | null => {
     const path = this.Interleave<Identifier>(
       this.IdentifierWithMetadata,
-      this.Exclude(this.Spaced(this.String('.'))),
+      this.Exclude(this.Spaced(this.String(".")))
     );
 
     if (path === null || Story.IsReservedKeyword(path[0].name)) {
@@ -1728,7 +1773,7 @@ export class InkParser extends StringParser {
   };
 
   public readonly ExpressionParen = (): Expression | null => {
-    if (this.ParseString('(') === null) {
+    if (this.ParseString("(") === null) {
       return null;
     }
 
@@ -1739,17 +1784,14 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    this.Expect(
-      this.String(')'),
-      'closing parenthesis \')\' for expression',
-    );
+    this.Expect(this.String(")"), "closing parenthesis ')' for expression");
 
     return innerExpr;
   };
 
   public readonly ExpressionInfixRight = (
     left: Expression | null,
-    op: InfixOperator,
+    op: InfixOperator
   ) => {
     if (!left) {
       return null;
@@ -1757,7 +1799,9 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const right = this.Parse(() => this.Expression(op.precedence)) as Expression;
+    const right = this.Parse(() =>
+      this.Expression(op.precedence)
+    ) as Expression;
     if (right) {
       // We assume that the character we use for the operator's type is the same
       // as that used internally by e.g. Runtime.Expression.Add, Runtime.Expression.Multiply etc
@@ -1793,7 +1837,7 @@ export class InkParser extends StringParser {
   public readonly ExpressionList = (): List | null => {
     this.Whitespace();
 
-    if (this.ParseString('(') === null) {
+    if (this.ParseString("(") === null) {
       return null;
     }
 
@@ -1807,14 +1851,14 @@ export class InkParser extends StringParser {
     //  - 2 or more elements - normal!
     const memberNames: Identifier[] = this.SeparatedList(
       this.ListMember,
-      this.Spaced(this.String(',')),
+      this.Spaced(this.String(","))
     ) as Identifier[];
 
     this.Whitespace();
 
     // May have failed to parse the inner list - the parentheses may
     // be for a normal expression
-    if (this.ParseString(')') === null) {
+    if (this.ParseString(")") === null) {
       return null;
     }
     return new List(memberNames);
@@ -1823,16 +1867,18 @@ export class InkParser extends StringParser {
   public readonly ListMember = (): Identifier | null => {
     this.Whitespace();
 
-    let identifier: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    let identifier: Identifier = this.Parse(
+      this.IdentifierWithMetadata
+    ) as Identifier;
     if (identifier === null) {
       return null;
     }
 
-    const dot = this.ParseString('.');
+    const dot = this.ParseString(".");
     if (dot !== null) {
       const identifier2: Identifier = this.Expect(
         this.IdentifierWithMetadata,
-        `element name within the set ${identifier}`,
+        `element name within the set ${identifier}`
       ) as Identifier;
 
       identifier.name += `.${identifier2?.name}`;
@@ -1847,37 +1893,37 @@ export class InkParser extends StringParser {
     // These will be tried in order, so we need "<=" before "<"
     // for correctness
 
-    this.RegisterBinaryOperator('&&', 1);
-    this.RegisterBinaryOperator('||', 1);
-    this.RegisterBinaryOperator('and', 1, true);
-    this.RegisterBinaryOperator('or', 1, true);
-    this.RegisterBinaryOperator('==', 2);
-    this.RegisterBinaryOperator('>=', 2);
-    this.RegisterBinaryOperator('<=', 2);
-    this.RegisterBinaryOperator('<', 2);
-    this.RegisterBinaryOperator('>', 2);
-    this.RegisterBinaryOperator('!=', 2);
+    this.RegisterBinaryOperator("&&", 1);
+    this.RegisterBinaryOperator("||", 1);
+    this.RegisterBinaryOperator("and", 1, true);
+    this.RegisterBinaryOperator("or", 1, true);
+    this.RegisterBinaryOperator("==", 2);
+    this.RegisterBinaryOperator(">=", 2);
+    this.RegisterBinaryOperator("<=", 2);
+    this.RegisterBinaryOperator("<", 2);
+    this.RegisterBinaryOperator(">", 2);
+    this.RegisterBinaryOperator("!=", 2);
 
     // (apples, oranges) + cabbages has (oranges, cabbages) === true
-    this.RegisterBinaryOperator('?', 3);
-    this.RegisterBinaryOperator('has', 3, true);
-    this.RegisterBinaryOperator('!?', 3);
-    this.RegisterBinaryOperator('hasnt', 3, true);
-    this.RegisterBinaryOperator('^', 3);
+    this.RegisterBinaryOperator("?", 3);
+    this.RegisterBinaryOperator("has", 3, true);
+    this.RegisterBinaryOperator("!?", 3);
+    this.RegisterBinaryOperator("hasnt", 3, true);
+    this.RegisterBinaryOperator("^", 3);
 
-    this.RegisterBinaryOperator('+', 4);
-    this.RegisterBinaryOperator('-', 5);
-    this.RegisterBinaryOperator('*', 6);
-    this.RegisterBinaryOperator('/', 7);
+    this.RegisterBinaryOperator("+", 4);
+    this.RegisterBinaryOperator("-", 5);
+    this.RegisterBinaryOperator("*", 6);
+    this.RegisterBinaryOperator("/", 7);
 
-    this.RegisterBinaryOperator('%', 8);
-    this.RegisterBinaryOperator('mod', 8, true);
+    this.RegisterBinaryOperator("%", 8);
+    this.RegisterBinaryOperator("mod", 8, true);
   };
 
   public readonly RegisterBinaryOperator = (
     op: string,
     precedence: number,
-    requireWhitespace: boolean = false,
+    requireWhitespace: boolean = false
   ): void => {
     const infix = new InfixOperator(op, precedence, requireWhitespace);
     this._binaryOperators.push(infix);
@@ -1888,35 +1934,36 @@ export class InkParser extends StringParser {
    * End Expressions section.
    */
 
-  
   /**
    * Begin Include section.
    */
-              
+
   private _rootParser: InkParser;
   private _openFilenames: string[] = [];
 
   public readonly IncludeStatement = () => {
     this.Whitespace();
 
-    if (this.ParseString ('INCLUDE') === null) {
+    if (this.ParseString("INCLUDE") === null) {
       return null;
     }
 
     this.Whitespace();
 
     let filename: string = this.Expect(
-      () => this.ParseUntilCharactersFromString('\n\r'),
-      'filename for include statement',
+      () => this.ParseUntilCharactersFromString("\n\r"),
+      "filename for include statement"
     ) as string;
 
-    filename = filename.replace(new RegExp(/[ \t]+$/g), '');
+    filename = filename.replace(new RegExp(/[ \t]+$/g), "");
 
     // Working directory should already have been set up relative to the root ink file.
     const fullFilename = this.fileHandler.ResolveInkFilename(filename);
 
     if (this.FilenameIsAlreadyOpen(fullFilename)) {
-      this.Error(`Recursive INCLUDE detected: '${fullFilename}' is already open.`);
+      this.Error(
+        `Recursive INCLUDE detected: '${fullFilename}' is already open.`
+      );
       this.ParseUntilCharactersFromString("\r\n");
       return new IncludedFile(null);
     } else {
@@ -1924,10 +1971,10 @@ export class InkParser extends StringParser {
     }
 
     let includedStory: Story | null = null;
-    let includedString: string = '';
+    let includedString: string = "";
     try {
       includedString = this._rootParser.fileHandler.LoadInkFileContents(
-        fullFilename,
+        fullFilename
       );
     } catch (err) {
       this.Error(`Failed to load: '${filename}'.\nError:${err}`);
@@ -1954,9 +2001,8 @@ export class InkParser extends StringParser {
     return new IncludedFile(includedStory);
   };
 
-  public readonly FilenameIsAlreadyOpen = (fullFilename: string): boolean => (
-    this._rootParser._openFilenames.includes(fullFilename)
-  );
+  public readonly FilenameIsAlreadyOpen = (fullFilename: string): boolean =>
+    this._rootParser._openFilenames.includes(fullFilename);
 
   public readonly AddOpenFilename = (fullFilename: string): void => {
     this._rootParser._openFilenames.push(fullFilename);
@@ -1965,7 +2011,7 @@ export class InkParser extends StringParser {
   public readonly RemoveOpenFilename = (fullFilename: string) => {
     this._rootParser._openFilenames.splice(
       this._rootParser._openFilenames.indexOf(fullFilename),
-      1,
+      1
     );
   };
 
@@ -1973,7 +2019,7 @@ export class InkParser extends StringParser {
    * End Include section.
    */
 
-    /**
+  /**
    * Begin Knot section.
    */
 
@@ -1985,26 +2031,20 @@ export class InkParser extends StringParser {
 
     this.Expect(
       this.EndOfLine,
-      'end of line after knot name definition',
-      this.SkipToNextLine,
+      "end of line after knot name definition",
+      this.SkipToNextLine
     );
 
-    const innerKnotStatements: ParseRule = (): ParsedObject[] => (
-      this.StatementsAtLevel(StatementLevel.Knot)
-    );
+    const innerKnotStatements: ParseRule = (): ParsedObject[] =>
+      this.StatementsAtLevel(StatementLevel.Knot);
 
     const content = this.Expect(
       innerKnotStatements,
-      'at least one line within the knot',
-      this.KnotStitchNoContentRecoveryRule,
+      "at least one line within the knot",
+      this.KnotStitchNoContentRecoveryRule
     ) as ParsedObject[];
 
-    return new Knot(
-      knotDecl.name,
-      content,
-      knotDecl.args,
-      knotDecl.isFunction,
-    );
+    return new Knot(knotDecl.name, content, knotDecl.args, knotDecl.isFunction);
   };
 
   public readonly KnotDeclaration = (): FlowDecl | null => {
@@ -2016,15 +2056,14 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const identifier: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    const identifier: Identifier = this.Parse(
+      this.IdentifierWithMetadata
+    ) as Identifier;
     let knotName: Identifier;
 
-    const isFunc: boolean = identifier?.name === 'function';
+    const isFunc: boolean = identifier?.name === "function";
     if (isFunc) {
-      this.Expect(
-        this.Whitespace,
-        'whitespace after the \'function\' keyword',
-      );
+      this.Expect(this.Whitespace, "whitespace after the 'function' keyword");
 
       knotName = this.Parse(this.IdentifierWithMetadata) as Identifier;
     } else {
@@ -2032,14 +2071,14 @@ export class InkParser extends StringParser {
     }
 
     if (knotName === null) {
-      this.Error(`Expected the name of the ${isFunc ? 'function' : 'knot'}`);
-      knotName = new Identifier(''); // prevent later null ref
+      this.Error(`Expected the name of the ${isFunc ? "function" : "knot"}`);
+      knotName = new Identifier(""); // prevent later null ref
     }
 
     this.Whitespace();
 
     const parameterNames: Argument[] = this.Parse(
-      this.BracketedKnotDeclArguments,
+      this.BracketedKnotDeclArguments
     ) as Argument[];
 
     this.Whitespace();
@@ -2047,16 +2086,12 @@ export class InkParser extends StringParser {
     // Optional equals after name
     this.Parse(this.KnotTitleEquals);
 
-    return new FlowDecl(
-      knotName,
-      parameterNames,
-      isFunc,
-    );
+    return new FlowDecl(knotName, parameterNames, isFunc);
   };
 
   public readonly KnotTitleEquals = (): string | null => {
     // 2+ "=" starts a knot
-    const multiEquals = this.ParseCharactersFromString('=');
+    const multiEquals = this.ParseCharactersFromString("=");
     if (multiEquals === null || multiEquals.length <= 1) {
       return null;
     }
@@ -2072,18 +2107,17 @@ export class InkParser extends StringParser {
 
     this.Expect(
       this.EndOfLine,
-      'end of line after stitch name',
-      this.SkipToNextLine,
+      "end of line after stitch name",
+      this.SkipToNextLine
     );
 
-    const innerStitchStatements: ParseRule = () => (
-      this.StatementsAtLevel(StatementLevel.Stitch)
-    );
+    const innerStitchStatements: ParseRule = () =>
+      this.StatementsAtLevel(StatementLevel.Stitch);
 
     const content = this.Expect(
       innerStitchStatements,
-      'at least one line within the stitch',
-      this.KnotStitchNoContentRecoveryRule,
+      "at least one line within the stitch",
+      this.KnotStitchNoContentRecoveryRule
     ) as ParsedObject[];
 
     return new Stitch(decl.name, content, decl.args, decl.isFunction);
@@ -2093,24 +2127,26 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     // Single "=" to define a stitch
-    if (this.ParseString('=') === null) {
+    if (this.ParseString("=") === null) {
       return null;
     }
 
     // If there's more than one "=", that's actually a knot definition (or divert), so this rule should fail
-    if (this.ParseString('=') !== null) {
+    if (this.ParseString("=") !== null) {
       return null;
     }
 
     this.Whitespace();
 
     // Stitches aren't allowed to be functions, but we parse it anyway and report the error later
-    const isFunc: boolean = this.ParseString('function') !== null;
+    const isFunc: boolean = this.ParseString("function") !== null;
     if (isFunc) {
       this.Whitespace();
     }
 
-    const stitchName: Identifier = this.Parse(this.IdentifierWithMetadata) as Identifier;
+    const stitchName: Identifier = this.Parse(
+      this.IdentifierWithMetadata
+    ) as Identifier;
     if (stitchName === null) {
       return null;
     }
@@ -2118,47 +2154,36 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const flowArgs: Argument[] = this.Parse(
-      this.BracketedKnotDeclArguments,
+      this.BracketedKnotDeclArguments
     ) as Argument[];
 
     this.Whitespace();
 
-    return new FlowDecl(
-      stitchName,
-      flowArgs,
-      isFunc,
-    );
+    return new FlowDecl(stitchName, flowArgs, isFunc);
   };
 
   public readonly KnotStitchNoContentRecoveryRule = (): ParseRuleReturn => {
     // Jump ahead to the next knot or the end of the file
-    this.ParseUntil(
-      this.KnotDeclaration,
-      new CharacterSet('='),
-      null,
-    );
+    this.ParseUntil(this.KnotDeclaration, new CharacterSet("="), null);
 
-    const recoveredFlowContent: ParsedObject[] = [ new Text('<ERROR IN FLOW>') ];
+    const recoveredFlowContent: ParsedObject[] = [new Text("<ERROR IN FLOW>")];
 
     return recoveredFlowContent;
   };
 
   public readonly BracketedKnotDeclArguments = (): Argument[] | null => {
-    if (this.ParseString('(') === null) {
+    if (this.ParseString("(") === null) {
       return null;
     }
 
     let flowArguments = this.Interleave<Argument>(
       this.Spaced(this.FlowDeclArgument),
-      this.Exclude(this.String(',')),
+      this.Exclude(this.String(","))
     );
 
-    this.Expect(
-      this.String(')'),
-      'closing \')\' for parameter list',
-    );
+    this.Expect(this.String(")"), "closing ')' for parameter list");
 
-    // If no parameters, create an empty list so that this method is type safe and 
+    // If no parameters, create an empty list so that this method is type safe and
     // doesn't attempt to return the ParseSuccess object
     if (flowArguments === null) {
       flowArguments = [];
@@ -2192,9 +2217,9 @@ export class InkParser extends StringParser {
     }
 
     // Passing by reference
-    if (firstIden !== null && firstIden.name === 'ref') {
+    if (firstIden !== null && firstIden.name === "ref") {
       if (secondIden === null) {
-        this.Error('Expected an parameter name after \'ref\'');
+        this.Error("Expected an parameter name after 'ref'");
       }
 
       flowArg.identifier = secondIden;
@@ -2208,7 +2233,7 @@ export class InkParser extends StringParser {
       }
 
       if (flowArg.identifier === null) {
-        this.Error('Expected an parameter name');
+        this.Error("Expected an parameter name");
       }
 
       flowArg.isByReference = false;
@@ -2220,30 +2245,35 @@ export class InkParser extends StringParser {
   public readonly ExternalDeclaration = (): ExternalDeclaration | null => {
     this.Whitespace();
 
-    const external = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
+    const external = this.Parse(
+      this.IdentifierWithMetadata
+    ) as Identifier | null;
     if (external === null || external.name != "EXTERNAL") {
       return null;
     }
 
     this.Whitespace();
 
-    const funcIdentifier: Identifier = this.Expect(
-      this.IdentifierWithMetadata,
-      'name of external function',
-    ) as Identifier|null || new Identifier('');
+    const funcIdentifier: Identifier =
+      (this.Expect(
+        this.IdentifierWithMetadata,
+        "name of external function"
+      ) as Identifier | null) || new Identifier("");
 
     this.Whitespace();
 
     let parameterNames = this.Expect(
       this.BracketedKnotDeclArguments,
-      `declaration of arguments for EXTERNAL, even if empty, i.e. 'EXTERNAL ${funcIdentifier}()'`,
+      `declaration of arguments for EXTERNAL, even if empty, i.e. 'EXTERNAL ${funcIdentifier}()'`
     ) as Argument[];
 
     if (parameterNames === null) {
       parameterNames = [];
     }
 
-    const argNames = parameterNames.map((arg) => arg.identifier?.name).filter(filterUndef);
+    const argNames = parameterNames
+      .map((arg) => arg.identifier?.name)
+      .filter(filterUndef);
 
     return new ExternalDeclaration(funcIdentifier, argNames);
   };
@@ -2251,7 +2281,6 @@ export class InkParser extends StringParser {
   /**
    * End Knot section.
    */
-
 
   /**
    * Start Logic section.
@@ -2262,10 +2291,10 @@ export class InkParser extends StringParser {
   get identifierCharSet(): CharacterSet {
     if (this._identifierCharSet === null) {
       (this._identifierCharSet = new CharacterSet())
-        .AddRange ('A', 'Z')
-        .AddRange ('a', 'z')
-        .AddRange ('0', '9')
-        .Add ('_');
+        .AddRange("A", "Z")
+        .AddRange("a", "z")
+        .AddRange("0", "9")
+        .Add("_");
 
       // Enable non-ASCII characters for story identifiers.
       this.ExtendIdentifierCharacterRanges(this._identifierCharSet);
@@ -2277,7 +2306,7 @@ export class InkParser extends StringParser {
   public readonly LogicLine = (): ParsedObject | null => {
     this.Whitespace();
 
-    if (this.ParseString('~') === null) {
+    if (this.ParseString("~") === null) {
       return null;
     }
 
@@ -2291,16 +2320,17 @@ export class InkParser extends StringParser {
     // ~ f()         -- expr
     // We don't treat variable decl/assign as an expression since we don't want an assignment
     // to have a return value, or to be used in compound expressions.
-    const afterTilde: ParseRule = () => this.OneOf([
-      this.ReturnStatement,
-      this.TempDeclarationOrAssignment,
-      this.Expression,
-    ]);
+    const afterTilde: ParseRule = () =>
+      this.OneOf([
+        this.ReturnStatement,
+        this.TempDeclarationOrAssignment,
+        this.Expression,
+      ]);
 
     let result = this.Expect(
       afterTilde,
-      'expression after \'~\'',
-      this.SkipToNextLine,
+      "expression after '~'",
+      this.SkipToNextLine
     ) as ParsedObject;
 
     // Prevent further errors, already reported expected expression and have skipped to next line.
@@ -2314,11 +2344,12 @@ export class InkParser extends StringParser {
     //  ~ false && myFunction()
     // ...since it's bad practice, and won't do what they expect if
     // they're expecting C's lazy evaluation.
-    if (result instanceof Expression &&
-      !(result instanceof FunctionCall || result instanceof IncDecExpression))
-    {
+    if (
+      result instanceof Expression &&
+      !(result instanceof FunctionCall || result instanceof IncDecExpression)
+    ) {
       this.Error(
-        'Logic following a \'~\' can\'t be that type of expression. It can only be something like:\n\t~ return\n\t~ var x = blah\n\t~ x++\n\t~ myFunction()',
+        "Logic following a '~' can't be that type of expression. It can only be something like:\n\t~ return\n\t~ var x = blah\n\t~ x++\n\t~ myFunction()"
       );
     }
 
@@ -2339,14 +2370,10 @@ export class InkParser extends StringParser {
     // Multiple newlines on the output will be removed, so there will be no "leak" for
     // long running calculations. It's disappointingly messy though :-/
     if (result.Find(FunctionCall)() !== null) {
-      result = new ContentList(result as any, new Text('\n'));
+      result = new ContentList(result as any, new Text("\n"));
     }
 
-    this.Expect(
-      this.EndOfLine,
-      'end of line',
-      this.SkipToNextLine,
-    );
+    this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
 
     return result as ParsedObject;
   };
@@ -2355,7 +2382,7 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const id = this.Parse(this.Identifier);
-    if (id !== 'VAR') {
+    if (id !== "VAR") {
       return null;
     }
 
@@ -2363,40 +2390,45 @@ export class InkParser extends StringParser {
 
     const varName = this.Expect(
       this.IdentifierWithMetadata,
-      'variable name',
+      "variable name"
     ) as Identifier;
 
     this.Whitespace();
 
     this.Expect(
-      this.String('='),
-      'the \'=\' for an assignment of a value, e.g. \'= 5\' (initial values are mandatory)',
+      this.String("="),
+      "the '=' for an assignment of a value, e.g. '= 5' (initial values are mandatory)"
     );
 
-    this.Whitespace ();
+    this.Whitespace();
 
-    const definition = this.Expect(this.Expression, 'initial value for ');
+    const definition = this.Expect(this.Expression, "initial value for ");
 
     const expr = definition as Expression;
 
     if (expr) {
-      const check = expr instanceof NumberExpression ||
+      const check =
+        expr instanceof NumberExpression ||
         expr instanceof StringExpression ||
         expr instanceof DivertTarget ||
         expr instanceof VariableReference ||
         expr instanceof List;
 
       if (!check) {
-        this.Error('initial value for a variable must be a number, constant, list or divert target');
+        this.Error(
+          "initial value for a variable must be a number, constant, list or divert target"
+        );
       }
 
       if (this.Parse(this.ListElementDefinitionSeparator) !== null) {
-        this.Error('Unexpected \',\'. If you\'re trying to declare a new list, use the LIST keyword, not VAR');
+        this.Error(
+          "Unexpected ','. If you're trying to declare a new list, use the LIST keyword, not VAR"
+        );
       } else if (expr instanceof StringExpression) {
         // Ensure string expressions are simple
         const strExpr = expr as StringExpression;
         if (!strExpr.isSingleString) {
-          this.Error('Constant strings cannot contain any logic.');
+          this.Error("Constant strings cannot contain any logic.");
         }
       }
 
@@ -2416,26 +2448,29 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const id = this.Parse(this.Identifier);
-    if (id != 'LIST') {
+    if (id != "LIST") {
       return null;
     }
 
     this.Whitespace();
 
-    const varName = this.Expect(this.IdentifierWithMetadata, 'list name') as Identifier;
+    const varName = this.Expect(
+      this.IdentifierWithMetadata,
+      "list name"
+    ) as Identifier;
 
     this.Whitespace();
 
     this.Expect(
-      this.String('='),
-      'the \'=\' for an assignment of the list definition',
+      this.String("="),
+      "the '=' for an assignment of the list definition"
     );
 
     this.Whitespace();
 
     const definition = this.Expect(
       this.ListDefinition,
-      'list item names',
+      "list item names"
     ) as ListDefinition;
 
     if (definition) {
@@ -2454,7 +2489,7 @@ export class InkParser extends StringParser {
 
     const allElements = this.SeparatedList(
       this.ListElementDefinition,
-      this.ListElementDefinitionSeparator,
+      this.ListElementDefinitionSeparator
     ) as ListElementDefinition[];
 
     if (allElements === null) {
@@ -2467,22 +2502,22 @@ export class InkParser extends StringParser {
   public readonly ListElementDefinitionSeparator = (): string | null => {
     this.AnyWhitespace();
 
-    if (this.ParseString(',') === null) {
+    if (this.ParseString(",") === null) {
       return null;
     }
 
     this.AnyWhitespace();
 
-    return ',';
+    return ",";
   };
 
   public readonly ListElementDefinition = () => {
-    const inInitialList = this.ParseString('(') !== null;
+    const inInitialList = this.ParseString("(") !== null;
     let needsToCloseParen = inInitialList;
 
     this.Whitespace();
 
-    const name = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
+    const name = this.Parse(this.IdentifierWithMetadata) as Identifier | null;
     if (name === null) {
       return null;
     }
@@ -2490,19 +2525,19 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     if (inInitialList) {
-      if (this.ParseString(')') != null) {
+      if (this.ParseString(")") != null) {
         needsToCloseParen = false;
         this.Whitespace();
       }
     }
 
     let elementValue: number | null = null;
-    if (this.ParseString('=') !== null) {
+    if (this.ParseString("=") !== null) {
       this.Whitespace();
 
       const elementValueNum = this.Expect(
         this.ExpressionInt,
-        'value to be assigned to list item',
+        "value to be assigned to list item"
       ) as number;
 
       if (elementValueNum !== null) {
@@ -2512,14 +2547,14 @@ export class InkParser extends StringParser {
       if (needsToCloseParen) {
         this.Whitespace();
 
-        if (this.ParseString(')') !== null) {
+        if (this.ParseString(")") !== null) {
           needsToCloseParen = false;
         }
       }
     }
 
     if (needsToCloseParen) {
-      this.Error('Expected closing \')\'');
+      this.Error("Expected closing ')'");
     }
 
     return new ListElementDefinition(name, inInitialList, elementValue);
@@ -2529,36 +2564,45 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     const id = this.Parse(this.Identifier);
-    if (id !== 'CONST') {
+    if (id !== "CONST") {
       return null;
     }
 
     this.Whitespace();
 
-    const varName = this.Expect(this.IdentifierWithMetadata, 'constant name') as Identifier;
+    const varName = this.Expect(
+      this.IdentifierWithMetadata,
+      "constant name"
+    ) as Identifier;
 
     this.Whitespace();
 
     this.Expect(
-      this.String('='),
-      'the \'=\' for an assignment of a value, e.g. \'= 5\' (initial values are mandatory)',
+      this.String("="),
+      "the '=' for an assignment of a value, e.g. '= 5' (initial values are mandatory)"
     );
 
     this.Whitespace();
 
-    const expr = this.Expect(this.Expression, 'initial value for ') as Expression;
+    const expr = this.Expect(
+      this.Expression,
+      "initial value for "
+    ) as Expression;
 
-    const check = expr instanceof NumberExpression ||
+    const check =
+      expr instanceof NumberExpression ||
       expr instanceof DivertTarget ||
       expr instanceof StringExpression;
 
     if (!check) {
-      this.Error('initial value for a constant must be a number or divert target');
+      this.Error(
+        "initial value for a constant must be a number or divert target"
+      );
     } else if (expr instanceof StringExpression) {
       // Ensure string expressions are simple
       const strExpr = expr as StringExpression;
       if (!strExpr.isSingleString) {
-        this.Error('Constant strings cannot contain any logic.');
+        this.Error("Constant strings cannot contain any logic.");
       }
     }
 
@@ -2567,26 +2611,22 @@ export class InkParser extends StringParser {
     return result;
   };
 
-  public readonly InlineLogicOrGlue = (): ParsedObject => (
-    this.OneOf([
-      this.InlineLogic,
-      this.Glue,
-    ]) as ParsedObject
-  );
+  public readonly InlineLogicOrGlue = (): ParsedObject =>
+    this.OneOf([this.InlineLogic, this.Glue]) as ParsedObject;
 
   public readonly Glue = (): Glue | null => {
     // Don't want to parse whitespace, since it might be important
     // surrounding the glue.
-    const glueStr = this.ParseString('<>');
+    const glueStr = this.ParseString("<>");
     if (glueStr !== null) {
       return new Glue(new RuntimeGlue());
     }
-    
+
     return null;
   };
 
   public readonly InlineLogic = () => {
-    if (this.ParseString('{') === null) {
+    if (this.ParseString("{") === null) {
       return null;
     }
 
@@ -2594,7 +2634,7 @@ export class InkParser extends StringParser {
 
     const logic = this.Expect(
       this.InnerLogic,
-      'some kind of logic, conditional or sequence within braces: { ... }',
+      "some kind of logic, conditional or sequence within braces: { ... }"
     ) as ParsedObject;
 
     if (logic === null) {
@@ -2610,10 +2650,7 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    this.Expect(
-      this.String('}'),
-      'closing brace \'}\' for inline logic',
-    );
+    this.Expect(this.String("}"), "closing brace '}' for inline logic");
 
     return contentList;
   };
@@ -2626,13 +2663,13 @@ export class InkParser extends StringParser {
 
     // Explicit sequence annotation?
     const explicitSeqType: SequenceType = this.ParseObject(
-      this.SequenceTypeAnnotation,
+      this.SequenceTypeAnnotation
     ) as SequenceType;
 
     if (explicitSeqType !== null) {
       const contentLists = this.Expect(
         this.InnerSequenceObjects,
-        'sequence elements (for cycle/stoping etc)',
+        "sequence elements (for cycle/stoping etc)"
       ) as ContentList[];
 
       if (contentLists === null) {
@@ -2643,11 +2680,13 @@ export class InkParser extends StringParser {
     }
 
     // Conditional with expression?
-    const initialQueryExpression = this.Parse(this.ConditionExpression) as Expression;
+    const initialQueryExpression = this.Parse(
+      this.ConditionExpression
+    ) as Expression;
     if (initialQueryExpression) {
       const conditional = this.Expect(
         () => this.InnerConditionalContent(initialQueryExpression),
-        'conditional content following query',
+        "conditional content following query"
       ) as Conditional;
 
       return conditional;
@@ -2661,13 +2700,13 @@ export class InkParser extends StringParser {
       //   - true:  this is true
       //   - false: this is false
       // }
-      this.InnerConditionalContent as ParseRule, 
+      this.InnerConditionalContent as ParseRule,
       this.InnerSequence,
       this.InnerExpression,
     ];
 
-    // Adapted from "OneOf" structuring rule except that in 
-    // order for the rule to succeed, it has to maximally 
+    // Adapted from "OneOf" structuring rule except that in
+    // order for the rule to succeed, it has to maximally
     // cover the entire string within the { }. Used to
     // differentiate between:
     //  {myVar}                 -- Expression (try first)
@@ -2678,7 +2717,7 @@ export class InkParser extends StringParser {
       const result: ParsedObject = this.ParseObject(rule) as ParsedObject;
       if (result) {
         // Not yet at end?
-        if (this.Peek(this.Spaced(this.String('}'))) === null) {
+        if (this.Peek(this.Spaced(this.String("}"))) === null) {
           this.FailRule(ruleId);
         } else {
           // Full parse of content within braces
@@ -2702,12 +2741,12 @@ export class InkParser extends StringParser {
   };
 
   public readonly IdentifierWithMetadata = (): Identifier | null => {
-    const id = this.Identifier()
-    if(id === null){
+    const id = this.Identifier();
+    if (id === null) {
       return null;
     }
     return new Identifier(id);
-  }
+  };
 
   // Note: we allow identifiers that start with a number,
   // but not if they *only* comprise numbers
@@ -2721,7 +2760,7 @@ export class InkParser extends StringParser {
     // Reject if it's just a number
     let isNumberCharsOnly: boolean = true;
     for (let c of name) {
-      if (!(c >= '0' && c <= '9')) {
+      if (!(c >= "0" && c <= "9")) {
         isNumberCharsOnly = false;
         break;
       }
@@ -2733,16 +2772,16 @@ export class InkParser extends StringParser {
 
     return name;
   };
-  
+
   /**
    * End Logic section.
    */
 
-    /**
+  /**
    * Begin Sequences section.
    */
 
-  public _sequenceTypeSymbols: CharacterSet = new CharacterSet('!&~$');
+  public _sequenceTypeSymbols: CharacterSet = new CharacterSet("!&~$");
 
   public readonly InnerSequence = (): Sequence | null => {
     this.Whitespace();
@@ -2752,7 +2791,7 @@ export class InkParser extends StringParser {
 
     // Optional explicit sequence type
     const parsedSeqType: SequenceType = this.Parse(
-      this.SequenceTypeAnnotation,
+      this.SequenceTypeAnnotation
     ) as SequenceType;
 
     if (parsedSeqType !== null) {
@@ -2768,12 +2807,12 @@ export class InkParser extends StringParser {
   };
 
   public readonly SequenceTypeAnnotation = (): ParseRuleReturn => {
-    let annotation = this.Parse(this.SequenceTypeSymbolAnnotation) as SequenceType;
+    let annotation = this.Parse(
+      this.SequenceTypeSymbolAnnotation
+    ) as SequenceType;
 
     if (annotation === null) {
-      annotation = this.Parse(
-        this.SequenceTypeWordAnnotation,
-      ) as SequenceType;
+      annotation = this.Parse(this.SequenceTypeWordAnnotation) as SequenceType;
     }
 
     if (annotation === null) {
@@ -2785,8 +2824,8 @@ export class InkParser extends StringParser {
       case SequenceType.Cycle:
       case SequenceType.Stopping:
       case SequenceType.Shuffle:
-      case (SequenceType.Shuffle | SequenceType.Stopping):
-      case (SequenceType.Shuffle | SequenceType.Once):
+      case SequenceType.Shuffle | SequenceType.Stopping:
+      case SequenceType.Shuffle | SequenceType.Once:
         break;
       default:
         this.Error(`Sequence type combination not supported: ${annotation}`);
@@ -2797,13 +2836,13 @@ export class InkParser extends StringParser {
   };
 
   public readonly SequenceTypeSymbolAnnotation = (): ParseRuleReturn => {
-    if(this._sequenceTypeSymbols === null) {
-      this._sequenceTypeSymbols = new CharacterSet('!&~$ ');
+    if (this._sequenceTypeSymbols === null) {
+      this._sequenceTypeSymbols = new CharacterSet("!&~$ ");
     }
 
     let sequenceType = 0 as SequenceType;
     const sequenceAnnotations = this.ParseCharactersFromCharSet(
-      this._sequenceTypeSymbols,
+      this._sequenceTypeSymbols
     );
 
     if (sequenceAnnotations === null) {
@@ -2811,23 +2850,23 @@ export class InkParser extends StringParser {
     }
 
     for (const symbolChar of sequenceAnnotations) {
-      switch(symbolChar) {
-        case '!':
+      switch (symbolChar) {
+        case "!":
           sequenceType |= SequenceType.Once;
           break;
-        case '&':
+        case "&":
           sequenceType |= SequenceType.Cycle;
           break;
-        case '~':
+        case "~":
           sequenceType |= SequenceType.Shuffle;
           break;
-        case '$':
+        case "$":
           sequenceType |= SequenceType.Stopping;
           break;
       }
     }
 
-    if (sequenceType === 0 as SequenceType) {
+    if (sequenceType === (0 as SequenceType)) {
       return null;
     }
 
@@ -2837,14 +2876,14 @@ export class InkParser extends StringParser {
   public readonly SequenceTypeWordAnnotation = (): ParseRuleReturn => {
     const sequenceTypes = this.Interleave<SequenceType | null>(
       this.SequenceTypeSingleWord,
-      this.Exclude(this.Whitespace),
+      this.Exclude(this.Whitespace)
     );
 
     if (sequenceTypes === null || sequenceTypes.length === 0) {
       return null;
     }
 
-    if (this.ParseString(':') === null) {
+    if (this.ParseString(":") === null) {
       return null;
     }
 
@@ -2859,20 +2898,20 @@ export class InkParser extends StringParser {
   public readonly SequenceTypeSingleWord = () => {
     let seqType: SequenceType | null = null;
 
-    const word = this.Parse(this.IdentifierWithMetadata) as Identifier|null;
+    const word = this.Parse(this.IdentifierWithMetadata) as Identifier | null;
 
-    if(word !== null){
+    if (word !== null) {
       switch (word.name) {
-        case 'once':
+        case "once":
           seqType = SequenceType.Once;
           break;
-        case 'cycle':
+        case "cycle":
           seqType = SequenceType.Cycle;
           break;
-        case 'shuffle':
+        case "shuffle":
           seqType = SequenceType.Shuffle;
           break;
-        case 'stopping':
+        case "stopping":
           seqType = SequenceType.Stopping;
           break;
       }
@@ -2901,9 +2940,9 @@ export class InkParser extends StringParser {
   public readonly InnerInlineSequenceObjects = (): ContentList[] | null => {
     const interleavedContentAndPipes = this.Interleave<ParsedObject>(
       this.Optional(this.MixedTextAndLogic),
-      this.String('|'),
+      this.String("|"),
       null,
-      false,
+      false
     );
 
     if (interleavedContentAndPipes === null) {
@@ -2917,7 +2956,7 @@ export class InkParser extends StringParser {
     let justHadContent: boolean = false;
     for (const contentOrPipe of interleavedContentAndPipes) {
       // Pipe/separator
-      if (contentOrPipe as any === '|') {
+      if ((contentOrPipe as any) === "|") {
         // Expected content, saw pipe - need blank content now
         if (!justHadContent) {
           // Add blank content
@@ -2930,7 +2969,7 @@ export class InkParser extends StringParser {
         const content = contentOrPipe as any;
         if (content === null) {
           this.Error(
-            `Expected content, but got ${contentOrPipe} (this is an ink compiler bug!)`,
+            `Expected content, but got ${contentOrPipe} (this is an ink compiler bug!)`
           );
         } else {
           result.push(new ContentList(content));
@@ -2951,37 +2990,39 @@ export class InkParser extends StringParser {
   public readonly InnerMultilineSequenceObjects = (): ContentList[] | null => {
     this.MultilineWhitespace();
 
-    const contentLists = this.OneOrMore(this.SingleMultilineSequenceElement) as ContentList[];
+    const contentLists = this.OneOrMore(
+      this.SingleMultilineSequenceElement
+    ) as ContentList[];
     if (contentLists === null) {
       return null;
     }
 
     return contentLists;
-  }
+  };
 
   public readonly SingleMultilineSequenceElement = () => {
     this.Whitespace();
 
     // Make sure we're not accidentally parsing a divert
-    if (this.ParseString('->') !== null) {
+    if (this.ParseString("->") !== null) {
       return null;
     }
 
-    if (this.ParseString('-') === null) {
+    if (this.ParseString("-") === null) {
       return null;
     }
 
     this.Whitespace();
 
     const content: ParsedObject[] = this.StatementsAtLevel(
-      StatementLevel.InnerBlock,
+      StatementLevel.InnerBlock
     );
 
     if (content === null) {
       this.MultilineWhitespace();
     } else {
-    // Add newline at the start of each branch
-      content.unshift(new Text('\n'));
+      // Add newline at the start of each branch
+      content.unshift(new Text("\n"));
     }
 
     return new ContentList(content);
@@ -2991,52 +3032,59 @@ export class InkParser extends StringParser {
    * End Sequences section.
    */
 
-    /**
+  /**
    * Begin Statements section.
    */
 
   private _statementRulesAtLevel: ParseRule[][] = [];
-  private  _statementBreakRulesAtLevel: ParseRule[][] = [];
+  private _statementBreakRulesAtLevel: ParseRule[][] = [];
 
-  public readonly StatementsAtLevel = (level: StatementLevel): ParsedObject[] => {
-  
+  public readonly StatementsAtLevel = (
+    level: StatementLevel
+  ): ParsedObject[] => {
     // Check for error: Should not be allowed gather dashes within an inner block
     if (level === StatementLevel.InnerBlock) {
       const badGatherDashCount = this.Parse(this.GatherDashes) as ParsedObject;
       if (badGatherDashCount !== null) {
         this.Error(
-          'You can\'t use a gather (the dashes) within the { curly braces } context. For multi-line sequences and conditions, you should only use one dash.',
+          "You can't use a gather (the dashes) within the { curly braces } context. For multi-line sequences and conditions, you should only use one dash."
         );
       }
     }
-  
+
     return this.Interleave<ParsedObject>(
-      this.Optional(this.MultilineWhitespace), 
-      () => this.StatementAtLevel(level), 
-      () => this.StatementsBreakForLevel(level),
+      this.Optional(this.MultilineWhitespace),
+      () => this.StatementAtLevel(level),
+      () => this.StatementsBreakForLevel(level)
     );
   };
-            
+
   public readonly StatementAtLevel = (level: StatementLevel): ParsedObject => {
-    const rulesAtLevel: ParseRule[] = this._statementRulesAtLevel[level as number];
+    const rulesAtLevel: ParseRule[] = this._statementRulesAtLevel[
+      level as number
+    ];
     const statement = this.OneOf(rulesAtLevel) as ReturnType;
 
     // For some statements, allow them to parse, but create errors, since
-    // writers may think they can use the statement, so it's useful to have 
+    // writers may think they can use the statement, so it's useful to have
     // the error message.
     if (level === StatementLevel.Top) {
       if (statement instanceof ReturnType) {
-        this.Error('should not have return statement outside of a knot');
+        this.Error("should not have return statement outside of a knot");
       }
     }
 
     return statement;
   };
 
-  public readonly StatementsBreakForLevel = (level: StatementLevel): ParseRuleReturn => {
+  public readonly StatementsBreakForLevel = (
+    level: StatementLevel
+  ): ParseRuleReturn => {
     this.Whitespace();
 
-    const breakRules: ParseRule[] = this._statementBreakRulesAtLevel[level as number];
+    const breakRules: ParseRule[] = this._statementBreakRulesAtLevel[
+      level as number
+    ];
     const breakRuleResult = this.OneOf(breakRules);
     if (breakRuleResult === null) {
       return null;
@@ -3048,12 +3096,14 @@ export class InkParser extends StringParser {
   public readonly GenerateStatementLevelRules = () => {
     const levels = Object.values(StatementLevel);
 
-    this._statementRulesAtLevel = 'f'.repeat(levels.length)
-      .split('f')
+    this._statementRulesAtLevel = "f"
+      .repeat(levels.length)
+      .split("f")
       .map(() => []);
 
-    this._statementBreakRulesAtLevel = 'f'.repeat(levels.length)
-      .split('f')
+    this._statementBreakRulesAtLevel = "f"
+      .repeat(levels.length)
+      .split("f")
       .map(() => []);
 
     for (const level of levels) {
@@ -3112,66 +3162,65 @@ export class InkParser extends StringParser {
       // Breaking an inner block (like a multi-line condition statement)
       if (level <= StatementLevel.InnerBlock) {
         breakingRules.push(this.ParseDashNotArrow);
-        breakingRules.push(this.String('}'));
+        breakingRules.push(this.String("}"));
       }
 
       this._statementRulesAtLevel[level as number] = rulesAtLevel;
-      this._statementBreakRulesAtLevel [level as number] = breakingRules;
+      this._statementBreakRulesAtLevel[level as number] = breakingRules;
     }
   };
 
   public readonly SkipToNextLine = (): typeof ParseSuccess => {
-    this.ParseUntilCharactersFromString('\n\r');
+    this.ParseUntilCharactersFromString("\n\r");
     this.ParseNewline();
 
     return ParseSuccess;
   };
 
   // Modifier to turn a rule into one that expects a newline on the end.
-  // e.g. anywhere you can use "MixedTextAndLogic" as a rule, you can use 
+  // e.g. anywhere you can use "MixedTextAndLogic" as a rule, you can use
   // "Line(MixedTextAndLogic)" to specify that it expects a newline afterwards.
-  public readonly Line = (inlineRule: ParseRule): ParseRule => (
-    () => {
-      const result = this.ParseObject(inlineRule);
-      if (result === null) {
-        return null;
-      }
-
-      this.Expect(this.EndOfLine, 'end of line', this.SkipToNextLine);
-
-      return result;
+  public readonly Line = (inlineRule: ParseRule): ParseRule => () => {
+    const result = this.ParseObject(inlineRule);
+    if (result === null) {
+      return null;
     }
-  );
+
+    this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
+
+    return result;
+  };
 
   /**
    * End Statements section.
    */
 
-    /**
+  /**
    * Begin Tags section.
    */
 
-  private _endOfTagCharSet: CharacterSet = new CharacterSet('#\n\r\\');
-  
+  private _endOfTagCharSet: CharacterSet = new CharacterSet("#\n\r\\");
+
   public readonly Tag = (): Tag | null => {
     this.Whitespace();
 
-    if (this.ParseString('#') === null) {
+    if (this.ParseString("#") === null) {
       return null;
     }
 
     this.Whitespace();
 
-    let sb = ''
+    let sb = "";
     do {
       // Read up to another #, end of input or newline
-      const tagText: string = this.ParseUntilCharactersFromCharSet(this._endOfTagCharSet) || '';
+      const tagText: string =
+        this.ParseUntilCharactersFromCharSet(this._endOfTagCharSet) || "";
       sb += tagText;
 
       // Escape character
-      if (this.ParseString('\\') !== null) {
+      if (this.ParseString("\\") !== null) {
         const c: string = this.ParseSingleCharacter();
-        if (c !== '\0') {
+        if (c !== "\0") {
           sb += c;
         }
 
@@ -3184,7 +3233,7 @@ export class InkParser extends StringParser {
     const fullTagText = sb.trim();
 
     return new Tag(new RuntimeTag(fullTagText));
-  }
+  };
 
   public readonly Tags = (): Tag[] | null => {
     const tags = this.OneOrMore(this.Tag) as Tag[];
@@ -3203,15 +3252,10 @@ export class InkParser extends StringParser {
    * Begin Whitespace section.
    */
 
-  private _inlineWhitespaceChars: CharacterSet = new CharacterSet(' \t');
+  private _inlineWhitespaceChars: CharacterSet = new CharacterSet(" \t");
 
   // Handles both newline and endOfFile
-  public readonly EndOfLine = () => (
-    this.OneOf([
-      this.Newline,
-      this.EndOfFile,
-    ])
-  );
+  public readonly EndOfLine = () => this.OneOf([this.Newline, this.EndOfFile]);
 
   // Allow whitespace before the actual newline
   public readonly Newline = (): typeof ParseSuccess | null => {
@@ -3231,12 +3275,10 @@ export class InkParser extends StringParser {
   public readonly EndOfFile = (): typeof ParseSuccess | null => {
     this.Whitespace();
 
-    if (!this.endOfInput)
-      return null;
+    if (!this.endOfInput) return null;
 
     return ParseSuccess;
   };
-
 
   // General purpose space, returns N-count newlines (fails if no newlines)
   public readonly MultilineWhitespace = (): typeof ParseSuccess | null => {
@@ -3257,7 +3299,7 @@ export class InkParser extends StringParser {
 
   public readonly Whitespace = (): typeof ParseSuccess | null => {
     const doneParsed = this.ParseCharactersFromCharSet(
-      this._inlineWhitespaceChars,
+      this._inlineWhitespaceChars
     );
 
     if (doneParsed !== null) {
@@ -3267,50 +3309,41 @@ export class InkParser extends StringParser {
     return null;
   };
 
-  public readonly Spaced = (rule: ParseRule): ParseRule => (
-    () => {
-      this.Whitespace();
+  public readonly Spaced = (rule: ParseRule): ParseRule => () => {
+    this.Whitespace();
 
-      const result = this.ParseObject(rule);
-      if (result === null) {
-        return null;
-      }
-
-      this.Whitespace();
-
-      return result;
+    const result = this.ParseObject(rule);
+    if (result === null) {
+      return null;
     }
-  );
+
+    this.Whitespace();
+
+    return result;
+  };
 
   public readonly AnyWhitespace = (): typeof ParseSuccess | null => {
     let anyWhitespace: boolean = false;
 
-    while (
-      this.OneOf([
-        this.Whitespace,
-        this.MultilineWhitespace,
-      ]) !== null)
-    {
+    while (this.OneOf([this.Whitespace, this.MultilineWhitespace]) !== null) {
       anyWhitespace = true;
     }
 
     return anyWhitespace ? ParseSuccess : null;
   };
 
-  public readonly MultiSpaced = (rule: ParseRule): ParseRuleReturn => (
-    () => {
-      this.AnyWhitespace();
+  public readonly MultiSpaced = (rule: ParseRule): ParseRuleReturn => () => {
+    this.AnyWhitespace();
 
-      const result = this.ParseObject(rule);
-      if (result === null) {
-        return null;
-      }
-
-      this.AnyWhitespace();
-
-      return result;
+    const result = this.ParseObject(rule);
+    if (result === null) {
+      return null;
     }
-  );
+
+    this.AnyWhitespace();
+
+    return result;
+  };
 
   /**
    * End Whitespace section.

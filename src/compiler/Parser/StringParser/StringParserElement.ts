@@ -15,7 +15,7 @@ export class StringParserElement {
     this.lineIndex = fromElement.lineIndex;
     this.customFlags = fromElement.customFlags;
     this.reportedErrorInScope = false;
-  }
+  };
 
   // Squash is used when succeeding from a rule,
   // so only the state information we wanted to carry forward is

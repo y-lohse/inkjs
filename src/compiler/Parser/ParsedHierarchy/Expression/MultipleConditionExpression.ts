@@ -1,6 +1,6 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { Expression } from './Expression';
-import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { Expression } from "./Expression";
+import { NativeFunctionCall } from "../../../../engine/NativeFunctionCall";
 
 export class MultipleConditionExpression extends Expression {
   get subExpressions(): Expression[] {
@@ -14,7 +14,7 @@ export class MultipleConditionExpression extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     //    A && B && C && D
     // => (((A B &&) C &&) D &&) etc
@@ -23,7 +23,7 @@ export class MultipleConditionExpression extends Expression {
       conditionExpr.GenerateIntoContainer(container);
 
       if (!isFirst) {
-        container.AddContent(NativeFunctionCall.CallWithName('&&'));
+        container.AddContent(NativeFunctionCall.CallWithName("&&"));
       }
 
       isFirst = false;

@@ -1,9 +1,9 @@
-import { asOrNull, filterUndef } from '../../../engine/TypeAssertion';
-import { FlowBase } from './Flow/FlowBase';
-import { FlowLevel } from './Flow/FlowLevel';
-import { Identifier } from './Identifier';
-import { ParsedObject } from './Object';
-import { Weave } from './Weave';
+import { asOrNull, filterUndef } from "../../../engine/TypeAssertion";
+import { FlowBase } from "./Flow/FlowBase";
+import { FlowLevel } from "./Flow/FlowLevel";
+import { Identifier } from "./Identifier";
+import { ParsedObject } from "./Object";
+import { Weave } from "./Weave";
 
 export class Path {
   private _baseTargetLevel: FlowLevel | null;
@@ -13,7 +13,7 @@ export class Path {
     if (this.baseLevelIsAmbiguous) {
       return FlowLevel.Story;
     }
-    
+
     return this._baseTargetLevel;
   }
 
@@ -36,19 +36,18 @@ export class Path {
   private _dotSeparatedComponents: string | null = null;
 
   get dotSeparatedComponents(): string {
-    if( this._dotSeparatedComponents == null ) {
-      this._dotSeparatedComponents = (this.components ? 
-                                              this.components : []
-                                     ).map(c => c.name)
-                                      .filter(filterUndef)
-                                      .join('.')
+    if (this._dotSeparatedComponents == null) {
+      this._dotSeparatedComponents = (this.components ? this.components : [])
+        .map((c) => c.name)
+        .filter(filterUndef)
+        .join(".");
     }
     return this._dotSeparatedComponents;
   }
 
   constructor(
     argOne: FlowLevel | Identifier[] | Identifier,
-    argTwo?: Identifier[],
+    argTwo?: Identifier[]
   ) {
     if (Object.values(FlowLevel).includes(argOne as FlowLevel)) {
       this._baseTargetLevel = argOne as FlowLevel;
@@ -58,24 +57,24 @@ export class Path {
       this.components = argOne || [];
     } else {
       this._baseTargetLevel = null;
-      this.components = [ argOne as Identifier ];
+      this.components = [argOne as Identifier];
     }
   }
-        
+
   public readonly toString = (): string => {
     if (this.components === null || this.components.length === 0) {
       if (this.baseTargetLevel === FlowLevel.WeavePoint) {
-        return '-> <next gather point>';
+        return "-> <next gather point>";
       }
 
-      return '<invalid Path>';
+      return "<invalid Path>";
     }
 
     return `-> ${this.dotSeparatedComponents}`;
   };
-      
+
   public readonly ResolveFromContext = (
-    context: ParsedObject,
+    context: ParsedObject
   ): ParsedObject | null => {
     if (this.components == null || this.components.length == 0) {
       return null;
@@ -83,7 +82,7 @@ export class Path {
 
     // Find base target of path from current context. e.g.
     //   ==> BASE.sub.sub
-    var baseTargetObject = this.ResolveBaseTarget(context);
+    let baseTargetObject = this.ResolveBaseTarget(context);
     if (baseTargetObject === null) {
       return null;
     }
@@ -100,7 +99,7 @@ export class Path {
   // Find the root object from the base, i.e. root from:
   //    root.sub1.sub2
   public readonly ResolveBaseTarget = (
-    originalContext: ParsedObject,
+    originalContext: ParsedObject
   ): ParsedObject | null => {
     const firstComp = this.firstComponent;
 
@@ -121,7 +120,7 @@ export class Path {
         ancestorContext,
         firstComp,
         null,
-        deepSearch,
+        deepSearch
       );
 
       if (foundBase) {
@@ -137,17 +136,17 @@ export class Path {
   // Find the final child from path given root, i.e.:
   //   root.sub.finalChild
   public readonly ResolveTailComponents = (
-    rootTarget: ParsedObject,
+    rootTarget: ParsedObject
   ): ParsedObject | null => {
     let foundComponent: ParsedObject | null = rootTarget;
 
-    if(!this.components) return null;
+    if (!this.components) return null;
 
     for (let ii = 1; ii < this.components.length; ++ii) {
       const compName = this.components[ii].name;
 
       let minimumExpectedLevel: FlowLevel;
-      var foundFlow = asOrNull(foundComponent, FlowBase);
+      let foundFlow = asOrNull(foundComponent, FlowBase);
       if (foundFlow !== null) {
         minimumExpectedLevel = (foundFlow.flowLevel + 1) as FlowLevel;
       } else {
@@ -157,7 +156,7 @@ export class Path {
       foundComponent = this.GetChildFromContext(
         foundComponent,
         compName,
-        minimumExpectedLevel,
+        minimumExpectedLevel
       );
 
       if (foundComponent === null) {
@@ -176,37 +175,37 @@ export class Path {
     context: ParsedObject,
     childName: string | null,
     minimumLevel: FlowLevel | null,
-    forceDeepSearch: boolean = false,
+    forceDeepSearch: boolean = false
   ): ParsedObject | null => {
     // null childLevel means that we don't know where to find it
     const ambiguousChildLevel: boolean = minimumLevel === null;
 
     // Search for WeavePoint within Weave
     const weaveContext = asOrNull(context, Weave);
-    if (childName &&
+    if (
+      childName &&
       weaveContext !== null &&
-      (ambiguousChildLevel || minimumLevel === FlowLevel.WeavePoint))
-    {
+      (ambiguousChildLevel || minimumLevel === FlowLevel.WeavePoint)
+    ) {
       return weaveContext.WeavePointNamed(childName) as ParsedObject;
     }
 
     // Search for content within Flow (either a sub-Flow or a WeavePoint)
-    var flowContext = asOrNull(context, FlowBase);
+    let flowContext = asOrNull(context, FlowBase);
     if (childName && flowContext !== null) {
       // When searching within a Knot, allow a deep searches so that
       // named weave points (choices and gathers) can be found within any stitch
       // Otherwise, we just search within the immediate object.
-      const shouldDeepSearch = forceDeepSearch ||
-        flowContext.flowLevel === FlowLevel.Knot;
+      const shouldDeepSearch =
+        forceDeepSearch || flowContext.flowLevel === FlowLevel.Knot;
 
       return flowContext.ContentWithNameAtLevel(
         childName,
         minimumLevel,
-        shouldDeepSearch,
+        shouldDeepSearch
       );
     }
 
     return null;
   };
 }
-

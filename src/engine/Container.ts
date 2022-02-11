@@ -10,7 +10,7 @@ import { tryGetValueFromMap } from "./TryGetResult";
 import { asINamedContentOrNull, asOrNull, asOrThrows } from "./TypeAssertion";
 
 export class Container extends InkObject implements INamedContent {
-  public name: string|null = null;
+  public name: string | null = null;
 
   public _content: InkObject[] = [];
   public namedContent: Map<string, INamedContent> = new Map();
@@ -114,7 +114,7 @@ export class Container extends InkObject implements INamedContent {
       }
     } else {
       let contentObj = contentObjOrList as InkObject;
-      
+
       if (contentObj.parent) {
         throw new Error("content is already in " + contentObj.parent);
       }
@@ -180,11 +180,10 @@ export class Container extends InkObject implements INamedContent {
     return result;
   }
   public InsertContent(contentObj: InkObject, index: number) {
-
     if (contentObj.parent) {
       throw new Error("content is already in " + contentObj.parent);
     }
-    
+
     this.content.splice(index, 0, contentObj);
 
     contentObj.parent = this;
@@ -192,7 +191,7 @@ export class Container extends InkObject implements INamedContent {
     this.TryAddNamedContent(contentObj);
   }
   public AddContentsOfContainer(otherContainer: Container) {
-    this.content.push(... otherContainer.content);
+    this.content.push(...otherContainer.content);
 
     for (let obj of otherContainer.content) {
       obj.parent = this;

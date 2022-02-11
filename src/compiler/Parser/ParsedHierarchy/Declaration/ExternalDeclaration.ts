@@ -1,19 +1,17 @@
-import { INamedContent } from '../../../../engine/INamedContent';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { Identifier } from '../Identifier';
+import { INamedContent } from "../../../../engine/INamedContent";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { Identifier } from "../Identifier";
 
 export class ExternalDeclaration extends ParsedObject implements INamedContent {
-  
-  public get  name(): string | null{
+  public get name(): string | null {
     return this.identifier?.name || null;
   }
-  
-  constructor (
+
+  constructor(
     public readonly identifier: Identifier,
-    public readonly argumentNames: string[],
-  )
-  {
+    public readonly argumentNames: string[]
+  ) {
     super();
   }
 
@@ -24,4 +22,3 @@ export class ExternalDeclaration extends ParsedObject implements INamedContent {
     return null;
   };
 }
-

@@ -1,11 +1,11 @@
-import { CompilerOptions,} from './CompilerOptions';
-import { DebugSourceRange } from './DebugSourceRange';
-import { ErrorType } from './Parser/ErrorType';
-import { InkParser } from './Parser/InkParser';
-import { InkList as RuntimeList, Story as RuntimeStory } from '../engine/Story';
-import { Story as ParsedStory} from './Parser/ParsedHierarchy/Story';
-import { DebugMetadata } from '../engine/DebugMetadata';
-import { StringValue } from '../engine/Value';
+import { CompilerOptions } from "./CompilerOptions";
+import { DebugSourceRange } from "./DebugSourceRange";
+import { ErrorType } from "./Parser/ErrorType";
+import { InkParser } from "./Parser/InkParser";
+import { InkList as RuntimeList, Story as RuntimeStory } from "../engine/Story";
+import { Story as ParsedStory } from "./Parser/ParsedHierarchy/Story";
+import { DebugMetadata } from "../engine/DebugMetadata";
+import { StringValue } from "../engine/Value";
 
 export class Compiler {
   private _errors: string[] = [];
@@ -39,7 +39,7 @@ export class Compiler {
       throw new Error();
     }
 
-    return this._parsedStory; 
+    return this._parsedStory;
   }
 
   private _runtimeStory: RuntimeStory | null = null;
@@ -76,21 +76,20 @@ export class Compiler {
       this.options.sourceFilename || null,
       this.OnError,
       null,
-      this.options.fileHandler,
+      this.options.fileHandler
     );
 
     this._parsedStory = this.parser.ParseStory();
-    
+
     if (this.errors.length === 0) {
       this.parsedStory.countAllVisits = this.options.countAllVisits;
       this._runtimeStory = this.parsedStory.ExportRuntime(this.OnError);
-
     } else {
       this._runtimeStory = null;
     }
 
     return this.runtimeStory;
-  }
+  };
 
   public readonly RetrieveDebugSourceForLatestContent = (): void => {
     for (const outputObj of this.runtimeStory.state.outputStream) {
@@ -99,7 +98,7 @@ export class Compiler {
         const range = new DebugSourceRange(
           textContent.value?.length || 0,
           textContent.debugMetadata,
-          textContent.value || "unknown",
+          textContent.value || "unknown"
         );
 
         this.debugSourceRanges.push(range);
@@ -108,7 +107,7 @@ export class Compiler {
   };
 
   public readonly DebugMetadataForContentAtOffset = (
-    offset: number,
+    offset: number
   ): DebugMetadata | null => {
     let currOffset = 0;
 
@@ -132,17 +131,17 @@ export class Compiler {
     switch (errorType) {
       case ErrorType.Author:
         this._authorMessages.push(message);
-        console.info(message)
+        console.info(message);
         break;
 
       case ErrorType.Warning:
         this._warnings.push(message);
-        console.warn(message)
+        console.warn(message);
         break;
 
       case ErrorType.Error:
         this._errors.push(message);
-        console.error(message)
+        console.error(message);
         break;
     }
 
@@ -152,7 +151,6 @@ export class Compiler {
   };
 }
 
-
 //for js exports and direct usage
-export class Story extends RuntimeStory{}
-export class InkList extends RuntimeList{}
+export class Story extends RuntimeStory {}
+export class InkList extends RuntimeList {}

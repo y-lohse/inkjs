@@ -1,37 +1,35 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { INamedContent } from '../../../../engine/INamedContent';
-import { IWeavePoint } from '../IWeavePoint';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { Story } from '../Story';
-import { SymbolType } from '../SymbolType';
-import { Identifier } from '../Identifier';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { INamedContent } from "../../../../engine/INamedContent";
+import { IWeavePoint } from "../IWeavePoint";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { Story } from "../Story";
+import { SymbolType } from "../SymbolType";
+import { Identifier } from "../Identifier";
 
 export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
-
-  get name(): string|null {
+  get name(): string | null {
     return this.identifier?.name || null;
   }
   public identifier?: Identifier;
 
   get runtimeContainer(): RuntimeContainer {
-    return this.runtimeObject as RuntimeContainer; 
+    return this.runtimeObject as RuntimeContainer;
   }
 
   constructor(
     identifier: Identifier | null,
-    public readonly indentationDepth: number,
+    public readonly indentationDepth: number
   ) {
     super();
 
-    if(identifier)
-      this.identifier = identifier;
+    if (identifier) this.identifier = identifier;
   }
 
   get typeName(): string {
-    return 'Gather';
+    return "Gather";
   }
-      
+
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
     container.name = this.name;
@@ -52,20 +50,18 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
     return container;
   };
 
-  public ResolveReferences(context: Story): void{
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
-    if (this.identifier && (this.identifier.name || '').length > 0) {
+    if (this.identifier && (this.identifier.name || "").length > 0) {
       context.CheckForNamingCollisions(
         this,
         this.identifier,
-        SymbolType.SubFlowAndWeave,
+        SymbolType.SubFlowAndWeave
       );
     }
-  };
+  }
 
-  public readonly toString = (): string => (
-    `- ${this.identifier?.name ? '('+this.identifier?.name+')' : 'gather'}`
-  );
+  public readonly toString = (): string =>
+    `- ${this.identifier?.name ? "(" + this.identifier?.name + ")" : "gather"}`;
 }
-

@@ -1,9 +1,9 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../../engine/ControlCommand';
-import { Expression } from './Expression';
-import { ParsedObject } from '../Object';
-import { Text } from '../Text';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../../engine/ControlCommand";
+import { Expression } from "./Expression";
+import { ParsedObject } from "../Object";
+import { Text } from "../Text";
+import { asOrNull } from "../../../../engine/TypeAssertion";
 
 export class StringExpression extends Expression {
   get isSingleString() {
@@ -26,7 +26,7 @@ export class StringExpression extends Expression {
   }
 
   public readonly GenerateIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
     container.AddContent(RuntimeControlCommand.BeginString());
 
@@ -38,7 +38,7 @@ export class StringExpression extends Expression {
   };
 
   public readonly toString = (): string => {
-    let sb = '';
+    let sb = "";
     for (const c of this.content) {
       sb += c;
     }

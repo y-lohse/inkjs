@@ -1,16 +1,16 @@
-import { Expression } from '../Expression/Expression';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { Story } from '../Story';
-import { SymbolType } from '../SymbolType';
-import { Identifier } from '../Identifier';
+import { Expression } from "../Expression/Expression";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { Story } from "../Story";
+import { SymbolType } from "../SymbolType";
+import { Identifier } from "../Identifier";
 
 export class ConstantDeclaration extends ParsedObject {
-  get constantName(): string|undefined{
+  get constantName(): string | undefined {
     return this.constantIdentifier?.name;
-  };
+  }
   public constantIdentifier: Identifier;
-  
+
   private _expression: Expression | null = null;
 
   get expression(): Expression {
@@ -21,12 +21,9 @@ export class ConstantDeclaration extends ParsedObject {
     return this._expression;
   }
 
-  constructor(
-    name: Identifier,
-    assignedExpression: Expression,
-  ) {
+  constructor(name: Identifier, assignedExpression: Expression) {
     super();
-    
+
     this.constantIdentifier = name;
 
     // Defensive programming in case parsing of assignedExpression failed
@@ -49,10 +46,9 @@ export class ConstantDeclaration extends ParsedObject {
       this.constantIdentifier,
       SymbolType.Var
     );
-  };
+  }
 
   get typeName() {
-    return 'Constant';
+    return "Constant";
   }
 }
-

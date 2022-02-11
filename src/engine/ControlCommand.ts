@@ -97,30 +97,30 @@ export class ControlCommand extends InkObject {
 export namespace ControlCommand {
   export enum CommandType {
     NotSet = -1,
-    EvalStart,                 // 0
-    EvalOutput,                // 1
-    EvalEnd,                   // 2
-    Duplicate,                 // 3
-    PopEvaluatedValue,         // 4
-    PopFunction,               // 5
-    PopTunnel,                 // 6
-    BeginString,               // 7
-    EndString,                 // 8
-    NoOp,                      // 9
-    ChoiceCount,               // 10
-    Turns,                     // 11
-    TurnsSince,                // 12
-    Random,                    // 13
-    SeedRandom,                // 14
-    VisitIndex,                // 15
-    SequenceShuffleIndex,      // 16
-    StartThread,               // 17
-    Done,                      // 18
-    End,                       // 19
-    ListFromInt,               // 20
-    ListRange,                 // 21
-    ListRandom,                // 22
-    ReadCount,                 // 23
+    EvalStart, // 0
+    EvalOutput, // 1
+    EvalEnd, // 2
+    Duplicate, // 3
+    PopEvaluatedValue, // 4
+    PopFunction, // 5
+    PopTunnel, // 6
+    BeginString, // 7
+    EndString, // 8
+    NoOp, // 9
+    ChoiceCount, // 10
+    Turns, // 11
+    TurnsSince, // 12
+    Random, // 13
+    SeedRandom, // 14
+    VisitIndex, // 15
+    SequenceShuffleIndex, // 16
+    StartThread, // 17
+    Done, // 18
+    End, // 19
+    ListFromInt, // 20
+    ListRange, // 21
+    ListRandom, // 22
+    ReadCount, // 23
 
     TOTAL_VALUES,
   }

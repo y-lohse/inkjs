@@ -1,15 +1,15 @@
-﻿import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../../engine/ControlCommand';
-import { Divert as RuntimeDivert } from '../../../../engine/Divert';
-import { Expression } from '../Expression/Expression';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
-import { NativeFunctionCall } from '../../../../engine/NativeFunctionCall';
-import { StringValue } from '../../../../engine/Value';
-import { Story } from '../Story';
-import { Text } from '../Text';
-import { Weave } from '../Weave';
-import { asOrNull } from '../../../../engine/TypeAssertion';
+﻿import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../../engine/ControlCommand";
+import { Divert as RuntimeDivert } from "../../../../engine/Divert";
+import { Expression } from "../Expression/Expression";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
+import { NativeFunctionCall } from "../../../../engine/NativeFunctionCall";
+import { StringValue } from "../../../../engine/Value";
+import { Story } from "../Story";
+import { Text } from "../Text";
+import { Weave } from "../Weave";
+import { asOrNull } from "../../../../engine/TypeAssertion";
 
 export class ConditionalSingleBranch extends ParsedObject {
   public _contentContainer: RuntimeContainer | null = null;
@@ -29,14 +29,14 @@ export class ConditionalSingleBranch extends ParsedObject {
   //    - 4: the value of x is four (ownExpression is the value 4)
   //    - 3: the value of x is three
   // }
-  get ownExpression() { 
-    return this._ownExpression; 
+  get ownExpression() {
+    return this._ownExpression;
   }
-  
-  set ownExpression(value) { 
-    this._ownExpression = value; 
+
+  set ownExpression(value) {
+    this._ownExpression = value;
     if (this._ownExpression) {
-      this.AddContent(this._ownExpression); 
+      this.AddContent(this._ownExpression);
     }
   }
 
@@ -76,10 +76,10 @@ export class ConditionalSingleBranch extends ParsedObject {
         const text = asOrNull(c, Text);
         if (text) {
           // Don't need to trim at the start since the parser handles that already
-          if (text.text.startsWith('else:')) {
+          if (text.text.startsWith("else:")) {
             this.Warning(
-              'Saw the text \'else:\' which is being treated as content. Did you mean \'- else:\'?',
-              text,
+              "Saw the text 'else:' which is being treated as content. Did you mean '- else:'?",
+              text
             );
           }
         }
@@ -92,8 +92,7 @@ export class ConditionalSingleBranch extends ParsedObject {
     // branch? If so, the first thing we need to do is replicate the value that's
     // on the evaluation stack so that we don't fully consume it, in case other
     // branches need to use it.
-    const duplicatesStackValue: boolean = this.matchingEquality &&
-      !this.isElse;
+    const duplicatesStackValue: boolean = this.matchingEquality && !this.isElse;
 
     if (duplicatesStackValue) {
       container.AddContent(RuntimeControlCommand.Duplicate());
@@ -117,31 +116,31 @@ export class ConditionalSingleBranch extends ParsedObject {
 
       // Uses existing duplicated value
       if (this.matchingEquality) {
-        container.AddContent(NativeFunctionCall.CallWithName('=='));
+        container.AddContent(NativeFunctionCall.CallWithName("=="));
       }
 
-      if (needsEval) { 
+      if (needsEval) {
         container.AddContent(RuntimeControlCommand.EvalEnd());
-      } 
+      }
     }
 
     // Will pop from stack if conditional
     container.AddContent(this._conditionalDivert);
 
     this._contentContainer = this.GenerateRuntimeForContent();
-    this._contentContainer.name = 'b';
+    this._contentContainer.name = "b";
 
     // Multi-line conditionals get a newline at the start of each branch
     // (as opposed to the start of the multi-line conditional since the condition
     //  may evaluate to false.)
     if (!this.isInline) {
-      this._contentContainer.InsertContent(new StringValue('\n'), 0);
+      this._contentContainer.InsertContent(new StringValue("\n"), 0);
     }
 
     if (duplicatesStackValue || (this.isElse && this.matchingEquality)) {
       this._contentContainer.InsertContent(
         RuntimeControlCommand.PopEvaluatedValue(),
-        0,
+        0
       );
     }
 
@@ -169,5 +168,5 @@ export class ConditionalSingleBranch extends ParsedObject {
 
     this._conditionalDivert.targetPath = this._contentContainer.path;
     super.ResolveReferences(context);
-  };
+  }
 }

@@ -1,7 +1,7 @@
-import { Container as RuntimeContainer } from '../../../../engine/Container';
-import { ControlCommand as RuntimeControlCommand } from '../../../../engine/ControlCommand';
-import { ParsedObject } from '../Object';
-import { InkObject as RuntimeObject } from '../../../../engine/Object';
+import { Container as RuntimeContainer } from "../../../../engine/Container";
+import { ControlCommand as RuntimeControlCommand } from "../../../../engine/ControlCommand";
+import { ParsedObject } from "../Object";
+import { InkObject as RuntimeObject } from "../../../../engine/Object";
 
 export abstract class Expression extends ParsedObject {
   public abstract GenerateIntoContainer: (container: RuntimeContainer) => void;
@@ -36,9 +36,9 @@ export abstract class Expression extends ParsedObject {
   // Instead, we generate a prototype of the runtime object(s), then
   // copy them each time they're used.
   public readonly GenerateConstantIntoContainer = (
-    container: RuntimeContainer,
+    container: RuntimeContainer
   ): void => {
-    if (this. _prototypeRuntimeConstantExpression === null ) {
+    if (this._prototypeRuntimeConstantExpression === null) {
       this._prototypeRuntimeConstantExpression = new RuntimeContainer();
       this.GenerateIntoContainer(this._prototypeRuntimeConstantExpression);
     }
@@ -49,7 +49,7 @@ export abstract class Expression extends ParsedObject {
         container.AddContent(copy);
       }
     }
-  }
+  };
 
-  public readonly toString = () => 'No string value in JavaScript.';
+  public readonly toString = () => "No string value in JavaScript.";
 }
