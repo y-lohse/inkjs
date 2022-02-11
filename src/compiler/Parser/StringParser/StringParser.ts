@@ -3,7 +3,6 @@ import { ErrorHandler, ErrorType } from "../../../engine/Error";
 import { ParsedObject } from "../ParsedHierarchy/Object";
 import { StringParserState } from "./StringParserState";
 import { StringParserElement } from "./StringParserElement";
-import { Identifier } from "../ParsedHierarchy/Identifier";
 
 export const ParseSuccess = Symbol("ParseSuccessStruct");
 

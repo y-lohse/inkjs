@@ -138,7 +138,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return finalContent;
   };
 
-  public PreProcessTopLevelObjects(topLevelObjects: ParsedObject[]): void {
+  public PreProcessTopLevelObjects(_: ParsedObject[]): void {
     // empty by default, used by Story to process included file references
   }
 
@@ -340,7 +340,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     // No need to generate EvalStart and EvalEnd since there's nothing being pushed
     // back onto the evaluation stack.
     for (let ii = this.args.length - 1; ii >= 0; --ii) {
-      const paramName = this.args[ii].identifier?.name!;
+      const paramName = this.args[ii].identifier?.name || null;
       const assign = new RuntimeVariableAssignment(paramName, true);
       container.AddContent(assign);
     }

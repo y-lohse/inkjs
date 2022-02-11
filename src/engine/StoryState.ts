@@ -6,7 +6,6 @@ import { Tag } from "./Tag";
 import { Glue } from "./Glue";
 import { Path } from "./Path";
 import { ControlCommand } from "./ControlCommand";
-import { StoryException } from "./StoryException";
 import { StringBuilder } from "./StringBuilder";
 import { JsonSerialisation } from "./JsonSerialisation";
 import { PRNG } from "./PRNG";

@@ -1,13 +1,11 @@
 import { PushPopType } from "./PushPop";
 import { Path } from "./Path";
 import { Story } from "./Story";
-import { StoryException } from "./StoryException";
 import { JsonSerialisation } from "./JsonSerialisation";
 import { ListValue } from "./Value";
 import { StringBuilder } from "./StringBuilder";
 import { Pointer } from "./Pointer";
 import { InkObject } from "./Object";
-import { Container } from "./Container";
 import { Debug } from "./Debug";
 import { tryGetValueFromMap } from "./TryGetResult";
 import { throwNullException } from "./NullException";

@@ -51,7 +51,7 @@ export class List extends Expression {
             return;
           }
           if (!listName) {
-            listName = listItem.parent.identifier?.name!;
+            listName = listItem.parent.identifier?.name || null;
           }
 
           const item = new RuntimeInkListItem(listName, listItem.name || null);

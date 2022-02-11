@@ -42,7 +42,7 @@ export class IncDecExpression extends Expression {
 
     // 1.
     container.AddContent(
-      new RuntimeVariableReference(this.varIdentifier?.name!)
+      new RuntimeVariableReference(this.varIdentifier?.name || null)
     );
 
     // 2.
@@ -61,7 +61,7 @@ export class IncDecExpression extends Expression {
 
     // 4.
     this._runtimeAssignment = new RuntimeVariableAssignment(
-      this.varIdentifier?.name!,
+      this.varIdentifier?.name || null,
       false
     );
     container.AddContent(this._runtimeAssignment);
@@ -71,7 +71,7 @@ export class IncDecExpression extends Expression {
     super.ResolveReferences(context);
 
     const varResolveResult = context.ResolveVariableWithName(
-      this.varIdentifier?.name!,
+      this.varIdentifier?.name || '',
       this
     );
 
@@ -106,11 +106,11 @@ export class IncDecExpression extends Expression {
 
   public readonly toString = (): string => {
     if (this.expression) {
-      return `${this.varIdentifier?.name!}${this.isInc ? " += " : " -= "}${
+      return `${this.varIdentifier?.name}${this.isInc ? " += " : " -= "}${
         this.expression
       }`;
     }
 
-    return this.varIdentifier?.name! + (this.isInc ? "++" : "--");
+    return `${this.varIdentifier?.name}` + (this.isInc ? "++" : "--");
   };
 }

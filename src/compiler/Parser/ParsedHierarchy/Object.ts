@@ -79,11 +79,6 @@ export abstract class ParsedObject {
     return this.runtimeObject as RuntimeContainer;
   }
 
-  public readonly PathRelativeTo = (otherObj: ParsedObject): null => {
-    //BODY DELETED AS NOT USED ANYMORE ??
-    return null;
-  };
-
   get ancestry(): ParsedObject[] {
     let result = [];
 
