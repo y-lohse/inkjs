@@ -11,6 +11,7 @@ let baselinePath = path.join(
     "ink-proof"
   );
 
+let stopOnError = false;
 
 function testAll(from: number, to: number){
     const report = {
@@ -32,7 +33,8 @@ function testAll(from: number, to: number){
             }
         } catch (error) {
             process.stdout.write(`🚨 Compile error : ${error}\n`);
-            //throw error;
+            if(stopOnError)
+                throw error;
             
             report.compile++
             continue;
@@ -46,7 +48,7 @@ function testAll(from: number, to: number){
             continue;
         }
 
-        if(ran == transcript || ii == 131){
+        if(ran == transcript){
             process.stdout.write('✅');
             report.ok++
         }else{
@@ -137,6 +139,12 @@ function showDiff(expected: string, received: string){
         : `Expected: ${expected}\n` +
         `Received: ${received}`)
     );
+}
+
+const shouldStopOnError = process.argv.includes("-soe");
+if(shouldStopOnError){
+    stopOnError = true;
+    process.argv = process.argv.filter(p => p != "-soe");
 }
 
 const [fromTest, toTest] = [parseInt(process.argv[2]), parseInt(process.argv[3])] as [number|undefined, number|undefined]

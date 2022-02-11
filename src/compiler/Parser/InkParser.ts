@@ -1213,7 +1213,7 @@ export class InkParser extends StringParser {
 
           const tunnelOnwards = new TunnelOnwards();
           if (ii < arrowsAndDiverts.length - 1) {
-            const tunnelOnwardDivert = arrowsAndDiverts[ii + 1] as Divert;
+            const tunnelOnwardDivert = asOrNull(arrowsAndDiverts[ii + 1], Divert);
             tunnelOnwards.divertAfter = tunnelOnwardDivert;
           }
 

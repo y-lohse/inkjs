@@ -78,13 +78,13 @@ export class TunnelOnwards extends ParsedObject {
   public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
-    if (!this._overrideDivertTarget) {
-      throw new Error();
-    }
-
     if (this.divertAfter && this.divertAfter.targetContent) {
-      this._overrideDivertTarget.targetPath = this.divertAfter.targetContent.runtimePath;
+      this._overrideDivertTarget!.targetPath = this.divertAfter.targetContent.runtimePath;
     }
   };
+
+  public toString = (): string => {
+    return ` -> ${this._divertAfter}`
+  }
 }
 

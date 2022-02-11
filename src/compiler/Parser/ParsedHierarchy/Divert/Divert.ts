@@ -222,9 +222,10 @@ export class Divert extends ParsedObject {
                   resolveResult.ownerFlow,
                 );
               }
-              this.runtimeDivert.variableDivertName = variableTargetName;
-              return;
             }
+
+            this.runtimeDivert.variableDivertName = variableTargetName;
+            return;
 
           }
         }
@@ -316,6 +317,7 @@ export class Divert extends ParsedObject {
     }
           
     if( !targetWasFound && !isBuiltIn && !isExternal) {
+      debugger;
       this.Error(`target not found: '${this.target}'`);
     }
   }
@@ -453,11 +455,21 @@ export class Divert extends ParsedObject {
   };
 
   public toString = (): string => {
+    let returnString = "";
     if (this.target !== null) {
-      return this.target.toString();
+      returnString += this.target.toString();
+    }else{
+      return '-> <empty divert>';
+    }
+
+    if (this.isTunnel){
+      returnString += " ->";
+    }
+    if (this.isFunctionCall){
+      returnString += " ()";
     }
     
-    return '-> <empty divert>';
+    return returnString;
   };
 }
 
