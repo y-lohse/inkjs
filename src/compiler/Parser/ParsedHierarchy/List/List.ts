@@ -17,45 +17,47 @@ export class List extends Expression {
   ): void => {
     const runtimeRawList = new RuntimeInkList();
 
-    for (const itemIdentifier of this.itemIdentifierList) {
-      const nameParts = itemIdentifier?.name?.split('.') || [];
+    if (this.itemIdentifierList != null) {
+      for (const itemIdentifier of this.itemIdentifierList) {
+        const nameParts = itemIdentifier?.name?.split('.') || [];
 
-      let listName: string = '';
-      let listItemName: string = '';
-      if (nameParts.length > 1) {
-        listName = nameParts[0];
-        listItemName = nameParts[1];
-      } else {
-        listItemName = nameParts[0];
-      }
-
-      const listItem = this.story.ResolveListItem(
-        listName,
-        listItemName,
-        this,
-      ) as ListElementDefinition;
-
-      if (listItem === null) {
-        if (listName === null) {
-          this.Error(`Could not find list definition that contains item '${itemIdentifier}'`);
+        let listName: string|null = null;
+        let listItemName: string = '';
+        if (nameParts.length > 1) {
+          listName = nameParts[0];
+          listItemName = nameParts[1];
         } else {
-          this.Error(`Could not find list item ${itemIdentifier}`);
-        }
-      } else {
-        if( listItem.parent == null){
-          this.Error(`Could not find list definition for item ${itemIdentifier}`);
-          return;
-        }
-        if (listName === null) {
-          listName = listItem.parent.identifier?.name!;
+          listItemName = nameParts[0];
         }
 
-        const item = new RuntimeInkListItem(listName, listItem.name || null);
+        const listItem = this.story.ResolveListItem(
+          listName,
+          listItemName,
+          this,
+        ) as ListElementDefinition;
 
-        if (runtimeRawList.has(item.serialized())) {
-          this.Warning(`Duplicate of item '${itemIdentifier}' in list.`);
+        if (listItem === null) {
+          if (listName === null) {
+            this.Error(`Could not find list definition that contains item '${itemIdentifier}'`);
+          } else {
+            this.Error(`Could not find list item ${itemIdentifier}`);
+          }
         } else {
-          runtimeRawList.Add(item, listItem.seriesValue);
+          if( listItem.parent == null){
+            this.Error(`Could not find list definition for item ${itemIdentifier}`);
+            return;
+          }
+          if (!listName) {
+            listName = listItem.parent.identifier?.name!;
+          }
+
+          const item = new RuntimeInkListItem(listName, listItem.name || null);
+
+          if (runtimeRawList.has(item.serialized())) {
+            this.Warning(`Duplicate of item '${itemIdentifier}' in list.`);
+          } else {
+            runtimeRawList.Add(item, listItem.seriesValue);
+          }
         }
       }
     }

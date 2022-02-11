@@ -17,7 +17,7 @@ export class ListDefinition extends ParsedObject {
     return 'List definition';
   }
 
-  private _elementsByName: Map<string, ListElementDefinition> = new Map();
+  private _elementsByName: Map<string, ListElementDefinition> | null = null;
 
   get runtimeListDefinition(): RuntimeListDefinition {
     const allItems: Map<string, number> = new Map();
@@ -37,6 +37,7 @@ export class ListDefinition extends ParsedObject {
   ): ListElementDefinition | null => {
     if (this._elementsByName === null) {
       this._elementsByName = new Map();
+      
       for (const el of this.itemDefinitions) {
         this._elementsByName.set(el.name!, el);
       }
@@ -46,7 +47,6 @@ export class ListDefinition extends ParsedObject {
       itemName,
     ) || null;
 
-    
     return foundElement;
   }
 
@@ -82,7 +82,7 @@ export class ListDefinition extends ParsedObject {
     return new ListValue( initialValues );
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
     context.CheckForNamingCollisions(this, this.identifier!, SymbolType.List);
   };

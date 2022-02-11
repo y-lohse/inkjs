@@ -29,7 +29,7 @@ export class BinaryExpression extends Expression {
     container.AddContent(NativeFunctionCall.CallWithName(this.opName));
   };
 
-  public ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     // Check for the following case:

@@ -162,7 +162,7 @@ export class ConditionalSingleBranch extends ParsedObject {
     return this._innerWeave.rootContainer;
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     if (!this._conditionalDivert || !this._contentContainer) {
       throw new Error();
     }

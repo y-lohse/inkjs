@@ -280,7 +280,7 @@ export class Story extends FlowBase {
   };
 
   public readonly ResolveListItem = (
-    listName: string,
+    listName: string|null,
     itemName: string,
     source: ParsedObject | null = null,
   ): ListElementDefinition | null => {

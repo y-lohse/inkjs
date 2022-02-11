@@ -17,7 +17,7 @@ import { Story } from './Story';
 import { Text } from './Text';
 import { TunnelOnwards } from './TunnelOnwards';
 import { VariableAssignment } from './Variable/VariableAssignment';
-import { asOrNull, asOrThrows } from '../../../engine/TypeAssertion';
+import { asOrNull } from '../../../engine/TypeAssertion';
 
 type BadTerminationHandler = (terminatingObj: ParsedObject) => void; 
 
@@ -335,7 +335,7 @@ export class Weave extends ParsedObject {
       }
 
       // Add choice point content
-      const choice = asOrThrows(weavePoint, Choice);
+      const choice = weavePoint;//, Choice);
 
       this.currentContainer.AddContent(choice.runtimeObject);
 
@@ -502,7 +502,7 @@ export class Weave extends ParsedObject {
     this.looseEnds.push(childWeaveLooseEnd);
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     // Check that choices nested within conditionals and sequences are terminated

@@ -107,7 +107,7 @@ export class VariableAssignment extends ParsedObject {
     return container;
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     // List definitions are checked for conflicts separately

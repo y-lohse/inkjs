@@ -19,7 +19,7 @@ export class Knot extends FlowBase {
     super(name, topLevelObjects, args, isFunction);
   }
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     var parentStory = this.story;

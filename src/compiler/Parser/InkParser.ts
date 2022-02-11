@@ -1793,7 +1793,7 @@ export class InkParser extends StringParser {
     return null;
   };
 
-  public readonly ExpressionList = (): Identifier[] | null => {
+  public readonly ExpressionList = (): List | null => {
     this.Whitespace();
 
     if (this.ParseString('(') === null) {
@@ -1820,8 +1820,7 @@ export class InkParser extends StringParser {
     if (this.ParseString(')') === null) {
       return null;
     }
-
-    return memberNames;
+    return new List(memberNames);
   };
 
   public readonly ListMember = (): Identifier | null => {
@@ -2551,7 +2550,7 @@ export class InkParser extends StringParser {
 
     const expr = this.Expect(this.Expression, 'initial value for ') as Expression;
 
-    const check = typeof expr === 'number' ||
+    const check = expr instanceof NumberExpression ||
       expr instanceof DivertTarget ||
       expr instanceof StringExpression;
 

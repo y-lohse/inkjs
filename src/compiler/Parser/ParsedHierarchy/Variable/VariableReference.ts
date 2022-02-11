@@ -92,7 +92,7 @@ export class VariableReference extends Expression {
     container.AddContent(this._runtimeVarRef);
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     // Work is already done if it's a constant or list item reference

@@ -42,8 +42,8 @@ export class ConstantDeclaration extends ParsedObject {
     return null;
   };
 
-  public ResolveReferences = (context: Story) => {
-    this.ResolveReferences(context);
+  public ResolveReferences(context: Story) {
+    super.ResolveReferences(context);
     context.CheckForNamingCollisions(
       this,
       this.constantIdentifier,

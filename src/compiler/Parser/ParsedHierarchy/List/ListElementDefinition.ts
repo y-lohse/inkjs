@@ -40,7 +40,7 @@ export class ListElementDefinition extends ParsedObject {
     throw new Error('Not implemented.');
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
     context.CheckForNamingCollisions(this, this.indentifier, SymbolType.ListItem);
   };

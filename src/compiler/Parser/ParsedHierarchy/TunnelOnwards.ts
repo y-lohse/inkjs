@@ -75,7 +75,7 @@ export class TunnelOnwards extends ParsedObject {
     return container;
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     if (!this._overrideDivertTarget) {

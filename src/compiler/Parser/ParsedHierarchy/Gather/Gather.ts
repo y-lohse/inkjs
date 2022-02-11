@@ -52,7 +52,7 @@ export class Gather extends ParsedObject implements INamedContent, IWeavePoint {
     return container;
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     if (this.identifier && (this.identifier.name || '').length > 0) {

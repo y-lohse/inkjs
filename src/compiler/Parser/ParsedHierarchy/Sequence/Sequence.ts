@@ -199,7 +199,7 @@ export class Sequence extends ParsedObject {
     ));
   }
 
-  public readonly ResolveReferences = (context: Story) => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     for (const toResolve of this._sequenceDivertsToResolve) {

@@ -412,7 +412,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return null;
   };
 
-  public ResolveReferences = (context: any): void => {
+  public ResolveReferences(context: any): void {
     if (this._startingSubFlowDivert) {
       if (!this._startingSubFlowRuntime) {
         throw new Error();
@@ -454,13 +454,13 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
   };
 
   public readonly CheckForDisallowedFunctionFlowControl = (): void => {
-    // if (!(this instanceof Knot)) {
-    //   this.Error(
-    //     'Functions cannot be stitches - i.e. they should be defined as \'== function myFunc ==\' rather than internal to another knot.',
-    //   );
-    // }
-
-
+    // if (!(this instanceof Knot)) { // cannont use Knot here because of circular dependancy
+    if(this.flowLevel !== FlowLevel.Knot){
+        this.Error(
+          'Functions cannot be stitches - i.e. they should be defined as \'== function myFunc ==\' rather than internal to another knot.',
+        );
+    }
+    
     // Not allowed sub-flows
     for (const [ key, value ] of this._subFlowsByName) {
       this.Error(

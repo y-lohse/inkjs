@@ -62,7 +62,7 @@ export class IncDecExpression extends Expression {
     container.AddContent(this._runtimeAssignment);
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     const varResolveResult = context.ResolveVariableWithName(
@@ -82,9 +82,9 @@ export class IncDecExpression extends Expression {
 
     this._runtimeAssignment.isGlobal = varResolveResult.isGlobal;
 
-    if (!(parent instanceof Weave) &&
-      !(parent instanceof FlowBase) &&
-      !(parent instanceof ContentList))
+    if (!(this.parent instanceof Weave) &&
+      !(this.parent instanceof FlowBase) &&
+      !(this.parent instanceof ContentList))
     {
       this.Error(`Can't use ${this.incrementDecrementWord} as sub-expression`);
     }

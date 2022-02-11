@@ -276,7 +276,7 @@ export class Choice
     return this._outerContainer;
   };
 
-  public ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     // Weave style choice - target own content container
     if (this._innerContentContainer) {
       this.runtimeChoice.pathOnChoice = this._innerContentContainer.path;

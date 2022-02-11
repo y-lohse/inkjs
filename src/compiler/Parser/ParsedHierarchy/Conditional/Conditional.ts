@@ -57,7 +57,7 @@ export class Conditional extends ParsedObject {
     return container;
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     const pathToReJoin = this._reJoinTarget!.path;
 
     for (const branch of this.branches) {

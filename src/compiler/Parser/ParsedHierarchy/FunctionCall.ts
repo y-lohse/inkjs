@@ -244,7 +244,7 @@ export class FunctionCall extends Expression {
     }
   }
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 
     // If we aren't using the proxy divert after all (e.g. if 

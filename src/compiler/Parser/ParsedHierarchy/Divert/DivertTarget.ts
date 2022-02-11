@@ -53,7 +53,7 @@ export class DivertTarget extends Expression {
     container.AddContent(this.runtimeDivertTargetValue);
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     super.ResolveReferences(context);
 
     if (this.divert.isDone || this.divert.isEnd) {

@@ -58,7 +58,7 @@ export abstract class AbstractValue extends InkObject {
     return null;
   }
   public Copy() {
-    return asOrThrows(AbstractValue.Create(this), InkObject);
+    return asOrThrows(AbstractValue.Create(this.valueObject), InkObject);
   }
   public BadCastException(targetType: ValueType) {
     return new StoryException(

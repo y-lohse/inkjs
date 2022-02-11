@@ -76,7 +76,6 @@ export class Divert extends ParsedObject {
       return RuntimeControlCommand.Done();
     }
 
-    debugger;
     this.runtimeDivert = new RuntimeDivert();
 
     // Normally we resolve the target content during the
@@ -240,7 +239,7 @@ export class Divert extends ParsedObject {
     }
   };
 
-  public readonly ResolveReferences = (context: Story): void => {
+  public ResolveReferences(context: Story): void{
     if (this.isEmpty || this.isEnd || this.isDone) {
       return;
     } else if (!this.runtimeDivert) {
@@ -278,9 +277,7 @@ export class Divert extends ParsedObject {
     if (!this.target) {
       throw new Error();
     } else if (this.target.numberOfComponents === 1) {
-      if (!this.target.firstComponent) {
-        throw new Error();
-      }
+      if (!this.target.firstComponent) { throw new Error(); }
 
       // BuiltIn means TURNS_SINCE, CHOICE_COUNT, RANDOM or SEED_RANDOM
       isBuiltIn = FunctionCall.IsBuiltIn(this.target.firstComponent);
