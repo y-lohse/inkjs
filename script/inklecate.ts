@@ -19,7 +19,7 @@ process.exit(0);
 
 const countAllVisit = process.argv.includes("-c");
 const play = process.argv.includes("-p") || process.argv.includes("-k");
-const write = process.argv.includes("-k") && !process.argv.includes("-p");
+const write = !process.argv.includes("-k") && !process.argv.includes("-p");
 const explicitOutput = process.argv.includes("-o");
 let outputfile: string|null = null;
 if(explicitOutput){
@@ -53,7 +53,7 @@ if(jsonStory && write){
 
 if(jsonStory && play){
     const prompt = readline.createInterface({
-        input: process.stdin, //or fileStream 
+        input: process.stdin, //or fileStream
         output: process.stdout
       });
     const play = async () =>{
@@ -68,7 +68,7 @@ if(jsonStory && play){
                 }
             }
             process.stdout.write("\n")
-            
+
             if(story.currentChoices.length == 0){
                 return;
             }
@@ -83,11 +83,11 @@ if(jsonStory && play){
                 story.ChooseChoiceIndex(choiceIndex);
             }
         }while(true);
-        
+
     }
     play().then(()=>{
         process.stdout.write("\nDONE.")
         process.exit(0);
     });
-    
+
 }
