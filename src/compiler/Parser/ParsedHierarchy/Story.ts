@@ -427,10 +427,10 @@ export class Story extends FlowBase {
   };
 
   public readonly IsExternal = (namedFuncTarget: string): boolean =>
-    namedFuncTarget in this.externals;
+     this.externals.has(namedFuncTarget);
 
   public readonly AddExternal = (decl: ExternalDeclaration): void => {
-    if (decl.name! in this.externals) {
+    if (this.externals.has(decl.name!)) {
       this.Error(
         `Duplicate EXTERNAL definition of '${decl.name}'`,
         decl,

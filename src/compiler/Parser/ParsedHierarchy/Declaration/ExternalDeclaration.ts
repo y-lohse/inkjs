@@ -21,4 +21,8 @@ export class ExternalDeclaration extends ParsedObject implements INamedContent {
     // No runtime code exists for an external, only metadata
     return null;
   };
+
+  public toString(): string {
+    return `EXTERNAL ${this.identifier?.name}`
+  }
 }
