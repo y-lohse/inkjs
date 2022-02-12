@@ -140,6 +140,7 @@ export class Container extends InkObject implements INamedContent {
     let runtimeObj = asOrThrows(namedContentObj, InkObject);
     runtimeObj.parent = this;
 
+    if (namedContentObj.name === null) return throwNullException("namedContentObj.name");
     this.namedContent.set(namedContentObj.name!, namedContentObj);
   }
   public ContentAtPath(
