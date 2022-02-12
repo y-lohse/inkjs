@@ -980,7 +980,7 @@ export class InkParser extends StringParser {
       const lastObj = mixedTextAndLogicResults[lastObjIdx];
       if (lastObj instanceof Text) {
         const textObj: Text = lastObj;
-        textObj.text = textObj.text.replace(new RegExp(/[ \t]+/g), " ");
+        textObj.text = textObj.text.replace(new RegExp(/[ \t]+$/g), "");
 
         if (terminateWithSpace) {
           textObj.text += " ";
@@ -1046,7 +1046,6 @@ export class InkParser extends StringParser {
     }
 
     this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
-
     return result;
   };
 
@@ -2643,7 +2642,7 @@ export class InkParser extends StringParser {
 
     this.DisallowIncrement(logic);
 
-    let contentList: ContentList = logic as any;
+    let contentList = asOrNull(logic, ContentList);
     if (!contentList) {
       contentList = new ContentList(logic as any);
     }

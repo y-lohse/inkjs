@@ -427,7 +427,7 @@ export class Story extends FlowBase {
   };
 
   public readonly IsExternal = (namedFuncTarget: string): boolean =>
-     this.externals.has(namedFuncTarget);
+    this.externals.has(namedFuncTarget);
 
   public readonly AddExternal = (decl: ExternalDeclaration): void => {
     if (this.externals.has(decl.name!)) {

@@ -23,6 +23,6 @@ export class ExternalDeclaration extends ParsedObject implements INamedContent {
   };
 
   public toString(): string {
-    return `EXTERNAL ${this.identifier?.name}`
+    return `EXTERNAL ${this.identifier?.name}`;
   }
 }
