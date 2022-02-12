@@ -13,7 +13,7 @@ export namespace SimpleJson {
     constructor(text: string) {
       // Enforce float detection
       const jsonWithExplicitFloat = text.replace(
-        /(,)([0-9]+\.[0-9]+)([,]*)/g,
+        /(,)([0-9]+\.[0]+)([,]*)/g,
         '$1"$2f"$3'
       );
       this._rootObject = JSON.parse(jsonWithExplicitFloat);
