@@ -2537,10 +2537,10 @@ export class InkParser extends StringParser {
       const elementValueNum = this.Expect(
         this.ExpressionInt,
         "value to be assigned to list item"
-      ) as number;
+      ) as NumberExpression;
 
       if (elementValueNum !== null) {
-        elementValue = elementValueNum;
+        elementValue = elementValueNum.value as number;
       }
 
       if (needsToCloseParen) {
