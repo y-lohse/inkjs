@@ -35,9 +35,9 @@ export class UnaryExpression extends Expression {
         }
       } else if (op == "!" || op == "not") {
         if (innerNumber.isInt()) {
-          return new NumberExpression(innerNumber.value == 0, "int");
+          return new NumberExpression(innerNumber.value == 0, "bool");
         } else if (innerNumber.isFloat()) {
-          return new NumberExpression(innerNumber.value == 0.0, "float");
+          return new NumberExpression(innerNumber.value == 0.0, "bool");
         } else if (innerNumber.isBool()) {
           return new NumberExpression(!innerNumber.value, "bool");
         }
