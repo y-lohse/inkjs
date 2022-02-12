@@ -628,7 +628,8 @@ export class Weave extends ParsedObject {
       }
 
       // End of the current flow
-      if (laterObj instanceof Choice || laterObj instanceof Divert) {
+      // if (laterObj instanceof IWeavePoint) // cannot test on interface in ts
+      if (laterObj instanceof Choice || laterObj instanceof Gather) {
         break;
       }
 
