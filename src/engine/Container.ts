@@ -115,11 +115,12 @@ export class Container extends InkObject implements INamedContent {
     } else {
       let contentObj = contentObjOrList as InkObject;
 
+      this._content.push(contentObj);
+
       if (contentObj.parent) {
         throw new Error("content is already in " + contentObj.parent);
       }
 
-      this._content.push(contentObj);
       contentObj.parent = this;
 
       this.TryAddNamedContent(contentObj);
@@ -140,7 +141,8 @@ export class Container extends InkObject implements INamedContent {
     let runtimeObj = asOrThrows(namedContentObj, InkObject);
     runtimeObj.parent = this;
 
-    if (namedContentObj.name === null) return throwNullException("namedContentObj.name");
+    if (namedContentObj.name === null)
+      return throwNullException("namedContentObj.name");
     this.namedContent.set(namedContentObj.name!, namedContentObj);
   }
   public ContentAtPath(
@@ -181,11 +183,11 @@ export class Container extends InkObject implements INamedContent {
     return result;
   }
   public InsertContent(contentObj: InkObject, index: number) {
+    this.content.splice(index, 0, contentObj);
+
     if (contentObj.parent) {
       throw new Error("content is already in " + contentObj.parent);
     }
-
-    this.content.splice(index, 0, contentObj);
 
     contentObj.parent = this;
 
