@@ -469,11 +469,11 @@ export class Weave extends ParsedObject {
       // Found ancestor?
       const weaveAncestor = asOrNull(ancestor, Weave);
       if (weaveAncestor) {
-        if (!nested && closestInnerWeaveAncestor === null){
+        if (!nested && closestInnerWeaveAncestor === null) {
           closestInnerWeaveAncestor = weaveAncestor;
         }
-        
-        if(nested && closestOuterWeaveAncestor === null){
+
+        if (nested && closestOuterWeaveAncestor === null) {
           closestOuterWeaveAncestor = weaveAncestor;
         }
       }

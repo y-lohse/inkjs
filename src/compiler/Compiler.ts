@@ -6,6 +6,7 @@ import { InkList as RuntimeList, Story as RuntimeStory } from "../engine/Story";
 import { Story as ParsedStory } from "./Parser/ParsedHierarchy/Story";
 import { DebugMetadata } from "../engine/DebugMetadata";
 import { StringValue } from "../engine/Value";
+import { asOrNull } from "../engine/TypeAssertion";
 
 export class Compiler {
   private _errors: string[] = [];
@@ -93,7 +94,7 @@ export class Compiler {
 
   public readonly RetrieveDebugSourceForLatestContent = (): void => {
     for (const outputObj of this.runtimeStory.state.outputStream) {
-      const textContent = outputObj as StringValue;
+      const textContent = asOrNull(outputObj, StringValue);
       if (textContent !== null) {
         const range = new DebugSourceRange(
           textContent.value?.length || 0,

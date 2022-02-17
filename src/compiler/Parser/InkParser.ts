@@ -514,7 +514,7 @@ export class InkParser extends StringParser {
     innerContent.AddContent(new Text("\n"));
 
     const choice = new Choice(startContent!, optionOnlyContent!, innerContent);
-    choice.identifier = optionalName || undefined;
+    if (optionalName) choice.identifier = optionalName;
     choice.indentationDepth = bullets.length;
     choice.hasWeaveStyleInlineBrackets = hasWeaveStyleInlineBrackets;
     choice.condition = conditionExpr;

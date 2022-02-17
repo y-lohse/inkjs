@@ -180,7 +180,6 @@ export class Sequence extends ParsedObject {
         sequenceDivert,
         contentContainerForSequenceBranch
       );
-
       this.AddDivertToResolve(seqBranchCompleteDivert, postSequenceNoOp);
     }
 
