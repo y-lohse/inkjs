@@ -359,7 +359,6 @@ export class Weave extends ParsedObject {
       const choice = weavePoint; //, Choice);
 
       this.currentContainer.AddContent(choice.runtimeObject);
-
       if (!choice.innerContentContainer) {
         throw new Error();
       } //guaranteed not to happen
@@ -470,11 +469,12 @@ export class Weave extends ParsedObject {
       // Found ancestor?
       const weaveAncestor = asOrNull(ancestor, Weave);
       if (weaveAncestor) {
-        if (
-          (!nested && closestInnerWeaveAncestor === null) ||
-          (nested && closestOuterWeaveAncestor === null)
-        ) {
+        if (!nested && closestInnerWeaveAncestor === null){
           closestInnerWeaveAncestor = weaveAncestor;
+        }
+        
+        if(nested && closestOuterWeaveAncestor === null){
+          closestOuterWeaveAncestor = weaveAncestor;
         }
       }
 
