@@ -48,7 +48,8 @@ const rstory = c.Compile();
 const jsonStory = rstory.ToJson()
 
 if(jsonStory && write){
-    fs.writeFileSync(outputfile, jsonStory);
+    const BOM = '\u{feff}';
+    fs.writeFileSync(outputfile, BOM+jsonStory);
 }
 
 if(jsonStory && play){
