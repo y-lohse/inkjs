@@ -24,12 +24,14 @@ export abstract class StringParser {
 
   private _chars: string[];
 
-  public errorHandler: null | ((
-    message: string,
-    index: number,
-    lineIndex?: number,
-    isWarning?: boolean
-  ) => void) = null;
+  public errorHandler:
+    | null
+    | ((
+        message: string,
+        index: number,
+        lineIndex?: number,
+        isWarning?: boolean
+      ) => void) = null;
   public state: StringParserState;
   public hadError: boolean = false;
 
