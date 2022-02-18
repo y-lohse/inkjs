@@ -135,17 +135,14 @@ export class Compiler {
     switch (errorType) {
       case ErrorType.Author:
         this._authorMessages.push(message);
-        console.info(message);
         break;
 
       case ErrorType.Warning:
         this._warnings.push(message);
-        console.warn(message);
         break;
 
       case ErrorType.Error:
         this._errors.push(message);
-        console.error(message);
         break;
     }
 

@@ -92,7 +92,7 @@ export class InkParser extends StringParser {
     this.RegisterExpressionOperators();
     this.GenerateStatementLevelRules();
 
-    this.errorHandler = this.OnError;
+    this.errorHandler = this.OnStringParserError;
 
     if (rootParser === null) {
       this._rootParser = this;
@@ -221,20 +221,20 @@ export class InkParser extends StringParser {
     this.SetFlag(Number(CustomFlags.ParsingString), value);
   }
 
-  public readonly OnError = (
+  public readonly OnStringParserError = (
     message: string,
     index: number,
-    lineIndex: number = -2,
+    lineIndex: number = 0,
     isWarning: boolean = false
   ): void => {
     const warningType: string = isWarning ? "WARNING:" : "ERROR:";
     let fullMessage: string = warningType;
 
     if (this._filename !== null) {
-      fullMessage += `'${this._filename}'`;
+      fullMessage += ` '${this._filename}'`;
     }
 
-    fullMessage += `line ${lineIndex + 1}, index: ${index}: ${message}`;
+    fullMessage += ` line ${lineIndex + 1}: ${message}`;
 
     if (this._externalErrorHandler !== null) {
       this._externalErrorHandler(

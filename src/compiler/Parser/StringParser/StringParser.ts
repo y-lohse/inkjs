@@ -1,5 +1,4 @@
 import { CharacterSet } from "../CharacterSet";
-import { ErrorHandler, ErrorType } from "../../../engine/Error";
 import { ParsedObject } from "../ParsedHierarchy/Object";
 import { StringParserState } from "./StringParserState";
 import { StringParserElement } from "./StringParserElement";
@@ -25,7 +24,12 @@ export abstract class StringParser {
 
   private _chars: string[];
 
-  public errorHandler: ErrorHandler | null = null;
+  public errorHandler: null | ((
+    message: string,
+    index: number,
+    lineIndex?: number,
+    isWarning?: boolean
+  ) => void) = null;
   public state: StringParserState;
   public hadError: boolean = false;
 
@@ -158,11 +162,7 @@ export abstract class StringParser {
       if (!this.errorHandler) {
         throw new Error(`${errorType} on line ${lineNumber}: ${message}`);
       } else {
-        //this.errorHandler(message, this.index, lineNumber - 1, isWarning);
-        this.errorHandler(
-          `${message} ${errorType} on line ${lineNumber}: ${message}`,
-          ErrorType.Error
-        );
+        this.errorHandler(message, this.index, lineNumber - 1, isWarning);
       }
 
       this.state.NoteErrorReported();
