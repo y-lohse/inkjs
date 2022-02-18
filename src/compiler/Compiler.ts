@@ -8,6 +8,9 @@ import { DebugMetadata } from "../engine/DebugMetadata";
 import { StringValue } from "../engine/Value";
 import { asOrNull } from "../engine/TypeAssertion";
 
+export { CompilerOptions } from "./CompilerOptions";
+export { InkList, Story } from "../engine/Story";
+
 export class Compiler {
   private _errors: string[] = [];
   get errors(): string[] {
@@ -151,7 +154,3 @@ export class Compiler {
     }
   };
 }
-
-//for js exports and direct usage
-export class Story extends RuntimeStory {}
-export class InkList extends RuntimeList {}
