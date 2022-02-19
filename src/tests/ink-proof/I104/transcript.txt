@@ -1,0 +1,7 @@
+This is place 1.
+This is place 2.
+
+1: choice in place 1
+2: choice in place 2
+?> choice in place 1
+The end

@@ -1,0 +1,3 @@
+0
+hello
+RUNTIME WARNING: (Ink Pointer -> 0 -- index 1): Variable not found: 'x'. Using default value of 0 (false). This can happen with temporary variables if the declaration hasn't yet been hit. Globals are always given a default value on load if a value doesn't exist in the save state.

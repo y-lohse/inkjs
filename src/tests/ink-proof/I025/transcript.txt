@@ -1,0 +1,3 @@
+The value of a variable in test file 2 is 5.
+This is the main file
+The value when accessed from knot_in_2 is 5.

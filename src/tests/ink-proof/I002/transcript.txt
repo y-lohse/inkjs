@@ -1,0 +1,7 @@
+"What's that?" my master asked.
+
+1: "I am somewhat tired."
+2: "Nothing, Monsieur!"
+3: "I said, this journey is appalling."
+?> "I said, this journey is appalling and I want no more of it."
+"Ah," he replied, not unkindly. "I see you are feeling frustrated. Tomorrow, things will improve."

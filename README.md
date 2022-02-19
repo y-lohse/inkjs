@@ -122,6 +122,29 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 // result.output is the text that was written to the output while the function was evaluated
 ```
 
+## Compiler
+
+### inklecate.js
+```shell
+$ node inklecate.js -h
+
+Usage: inklecate <options> <ink file>
+   -o <filename>:   Output file name
+   -c:              Count all visits to knots, stitches and weave points, not
+                    just those referenced by TURNS_SINCE and read counts.
+   -p:              Play mode
+
+```
+
+### online compiler
+```javascript
+const story  = (new inkjs.Compiler(`Hello World`)).Compile()
+// story is an inkjs.Story
+
+const jsonBytecode = story.ToJson();
+// the generated json can be further re-used
+```
+
 ## Compatibility table
 
 | _inklecate_ version | _inkjs_ version |

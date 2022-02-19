@@ -1,0 +1,4 @@
+Pound, Pizza, Euro, Pasta, Dollar, Curry, Paella
+Euro, Pasta, Dollar, Curry
+Two, Three, Four, Five, Six
+Pizza, Pasta

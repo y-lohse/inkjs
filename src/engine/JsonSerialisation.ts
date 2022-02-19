@@ -315,6 +315,12 @@ export class JsonSerialisation {
     if (typeof token === "string") {
       let str = token.toString();
 
+      //Float value
+      const floatRepresentation = /^([0-9]+.[0-9]+f)$/.exec(str);
+      if (floatRepresentation) {
+        return new FloatValue(parseFloat(floatRepresentation[0]));
+      }
+
       // String value
       let firstChar = str[0];
       if (firstChar == "^") return new StringValue(str.substring(1));
@@ -485,7 +491,20 @@ export class JsonSerialisation {
     if (token === null || token === undefined) return null;
 
     throw new Error(
-      "Failed to convert token to runtime object: " + JSON.stringify(token)
+      "Failed to convert token to runtime object: " +
+        this.toJson(token, ["parent"])
+    );
+  }
+
+  public static toJson<T>(
+    me: T,
+    removes?: (keyof T)[],
+    space?: number
+  ): string {
+    return JSON.stringify(
+      me,
+      (k, v) => (removes?.some((r) => r === k) ? undefined : v),
+      space
     );
   }
 
@@ -519,6 +538,8 @@ export class JsonSerialisation {
         writer.WritePropertyEnd();
       }
     }
+
+    if (countFlags > 0) writer.WriteIntProperty("#f", countFlags);
 
     if (hasNameProperty) writer.WriteProperty("#n", container.name);
 

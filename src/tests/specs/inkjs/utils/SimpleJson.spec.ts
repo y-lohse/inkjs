@@ -39,7 +39,7 @@ describe("SimpleJson.Writer", () => {
     writer.WriteIntProperty("inkSaveVersion", 8);
     writer.WriteObjectEnd();
 
-    expect(writer.ToString()).toEqual(
+    expect(writer.toString()).toEqual(
       '{"callstackThreads":{"callstack":[{"cPath":"path.to.component","idx":2,"exp":"expression","type":3},null],"threadIndex":0,"previousContentObject":"path.to.object"},"inkSaveVersion":8}'
     );
   });
@@ -71,7 +71,7 @@ describe("SimpleJson.Writer", () => {
     }
     writer.WriteObjectEnd();
 
-    expect(writer.ToString()).toEqual(
+    expect(writer.toString()).toEqual(
       '{"property":"^Hello World.","key":["^Hello World."]}'
     );
   });
@@ -93,7 +93,7 @@ describe("SimpleJson.Writer", () => {
     }
     writer.WriteArrayEnd();
 
-    expect(writer.ToString()).toEqual("[[[[null]]]]");
+    expect(writer.toString()).toEqual("[[[[null]]]]");
   });
 
   it("throws with unbalanced calls", () => {
@@ -115,7 +115,7 @@ describe("SimpleJson.Writer", () => {
       writer.WriteIntProperty("property", 3);
       writer.WriteObjectEnd();
 
-      expect(writer.ToString()).toEqual('{"property":3}');
+      expect(writer.toString()).toEqual('{"property":3}');
     });
 
     it("creates the proper object hierarchy", () => {
@@ -123,7 +123,7 @@ describe("SimpleJson.Writer", () => {
       writer.WriteInt(3);
       writer.WriteArrayEnd();
 
-      expect(writer.ToString()).toEqual("[3]");
+      expect(writer.toString()).toEqual("[3]");
     });
 
     it("converts floats into integer", () => {
@@ -140,7 +140,7 @@ describe("SimpleJson.Writer", () => {
       }
       writer.WriteArrayEnd();
 
-      expect(writer.ToString()).toEqual('[{"property":3},[3,4]]');
+      expect(writer.toString()).toEqual('[{"property":3},[3,4]]');
     });
   });
 
@@ -150,7 +150,7 @@ describe("SimpleJson.Writer", () => {
       writer.WriteFloatProperty("property", 3.4);
       writer.WriteObjectEnd();
 
-      expect(writer.ToString()).toEqual('{"property":3.4}');
+      expect(writer.toString()).toEqual('{"property":3.4}');
     });
 
     it("creates the proper object hierarchy", () => {
@@ -158,16 +158,16 @@ describe("SimpleJson.Writer", () => {
       writer.WriteFloat(36.1456);
       writer.WriteArrayEnd();
 
-      expect(writer.ToString()).toEqual("[36.1456]");
+      expect(writer.toString()).toEqual("[36.1456]");
     });
 
-    it("doesn't converts integer into floats", () => {
+    it("should convert integers into floats", () => {
       writer.WriteArrayStart();
       writer.WriteFloat(3);
       writer.WriteFloat(4);
       writer.WriteArrayEnd();
 
-      expect(writer.ToString()).toEqual("[3,4]");
+      expect(writer.toString()).toEqual("[3.0,4.0]");
     });
 
     it("converts infinity and NaN", () => {
@@ -177,7 +177,7 @@ describe("SimpleJson.Writer", () => {
       writer.WriteFloat(NaN);
       writer.WriteArrayEnd();
 
-      expect(writer.ToString()).toEqual("[3.4e+38,-3.4e+38,0]");
+      expect(writer.toString()).toEqual("[3.4e+38,-3.4e+38,0]");
     });
   });
 });

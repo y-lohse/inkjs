@@ -8,6 +8,7 @@ let glob = require("glob");
 let fs = require('fs-extra');
 let path = require('path');
 
+let inklecate = path.join(__dirname, '..', '..', 'dist', 'inklecate.js');
 let fileDirectory = path.join(__dirname, 'inkfiles');
 let inkFileDirectory = path.join(fileDirectory, 'original');
 let compiledFileDirectory = path.join(fileDirectory, 'compiled');
@@ -22,7 +23,7 @@ let filesRequiringCFlag = [
 ]
 
 function runInklecate(input, output, extraArgs) {
-	let command = `inklecate ${extraArgs} -o "${output}" "${input}"`
+	let command = `node ${inklecate} ${extraArgs} -o "${output}" "${input}"`
 
 	return new Promise((resolve, reject) => {
 		childProcess.exec(command, (error, stdout, stderr) => {
