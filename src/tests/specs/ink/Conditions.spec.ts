@@ -1,38 +1,63 @@
 import * as testsUtils from "../common";
+import { CompilerOptions } from "../../../compiler/CompilerOptions";
 
 describe("Conditions", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "conditions");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "conditions",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestAllSwitchBranchesFailIsClean
   it("tests all switch branches fail is clean", () => {
-    loadStory("all_switch_branches_fail_is_clean");
+    compileStory("all_switch_branches_fail_is_clean");
 
-    story.Continue();
-    expect(story.state.evaluationStack.length).toBe(0);
+    context.story.Continue();
+    expect(context.story.state.evaluationStack.length).toBe(0);
   });
 
+  // TestConditionals
+  it("tests conditionals", () => {
+    compileStory("conditionals");
+
+    expect(context.story.ContinueMaximally()).toBe(
+      "true\ntrue\ntrue\ntrue\ntrue\ngreat\nright?\n"
+    );
+  });
+
+  // TestElseBranches
   it("tests else branches", () => {
-    loadStory("else_branches");
+    compileStory("else_branches");
 
-    expect(story.ContinueMaximally()).toBe("other\nother\nother\nother\n");
+    expect(context.story.ContinueMaximally()).toBe(
+      "other\nother\nother\nother\n"
+    );
   });
 
+  // TestEmptyMultilineConditionalBranch
   it("tests empty multiline conditional branch", () => {
-    loadStory("empty_multiline_conditional_branch");
+    compileStory("empty_multiline_conditional_branch");
 
-    expect(story.Continue()).toBe("");
+    expect(context.story.Continue()).toBe("");
   });
 
+  // TestTrivialCondition
   it("tests trivial condition", () => {
-    loadStory("trivial_condition");
+    compileStory("trivial_condition");
 
-    story.Continue();
+    context.story.Continue();
   });
 });

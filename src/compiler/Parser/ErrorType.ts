@@ -1,5 +1,7 @@
+// TODO: Unifify with Engine.
+
 export enum ErrorType {
   Author,
-  Error,
   Warning,
+  Error,
 }

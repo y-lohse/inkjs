@@ -1,85 +1,96 @@
 import * as testsUtils from "../common";
 
 describe("Multiflow", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: string) {
-    story = testsUtils.loadInkFile(name, "multiflow");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "multiflow",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestMultiFlowBasics
   it("tests multi flow basics", () => {
-    loadStory("multi_flow_basics");
+    compileStory("multi_flow_basics");
 
-    story.SwitchFlow("First");
-    story.ChoosePathString("knot1");
-    expect(story.Continue()).toBe("knot 1 line 1\n");
+    context.story.SwitchFlow("First");
+    context.story.ChoosePathString("knot1");
+    expect(context.story.Continue()).toBe("knot 1 line 1\n");
 
-    story.SwitchFlow("Second");
-    story.ChoosePathString("knot2");
-    expect(story.Continue()).toBe("knot 2 line 1\n");
+    context.story.SwitchFlow("Second");
+    context.story.ChoosePathString("knot2");
+    expect(context.story.Continue()).toBe("knot 2 line 1\n");
 
-    story.SwitchFlow("First");
-    expect(story.Continue()).toBe("knot 1 line 2\n");
+    context.story.SwitchFlow("First");
+    expect(context.story.Continue()).toBe("knot 1 line 2\n");
 
-    story.SwitchFlow("Second");
-    expect(story.Continue()).toBe("knot 2 line 2\n");
+    context.story.SwitchFlow("Second");
+    expect(context.story.Continue()).toBe("knot 2 line 2\n");
   });
 
+  // TestMultiFlowSaveLoadThreads
   it("tests multi flow save load threads", () => {
-    loadStory("multi_flow_save_load_threads");
+    compileStory("multi_flow_save_load_threads");
 
-    expect(story.Continue()).toBe("Default line 1\n");
+    expect(context.story.Continue()).toBe("Default line 1\n");
 
-    story.SwitchFlow("Blue Flow");
-    story.ChoosePathString("blue");
-    expect(story.Continue()).toBe("Hello I'm blue\n");
+    context.story.SwitchFlow("Blue Flow");
+    context.story.ChoosePathString("blue");
+    expect(context.story.Continue()).toBe("Hello I'm blue\n");
 
-    story.SwitchFlow("Red Flow");
-    story.ChoosePathString("red");
-    expect(story.Continue()).toBe("Hello I'm red\n");
+    context.story.SwitchFlow("Red Flow");
+    context.story.ChoosePathString("red");
+    expect(context.story.Continue()).toBe("Hello I'm red\n");
 
-    story.SwitchFlow("Blue Flow");
-    expect(story.currentText).toBe("Hello I'm blue\n");
-    expect(story.currentChoices[0].text).toBe("Thread 1 blue choice");
+    context.story.SwitchFlow("Blue Flow");
+    expect(context.story.currentText).toBe("Hello I'm blue\n");
+    expect(context.story.currentChoices[0].text).toBe("Thread 1 blue choice");
 
-    story.SwitchFlow("Red Flow");
-    expect(story.currentText).toBe("Hello I'm red\n");
-    expect(story.currentChoices[0].text).toBe("Thread 1 red choice");
+    context.story.SwitchFlow("Red Flow");
+    expect(context.story.currentText).toBe("Hello I'm red\n");
+    expect(context.story.currentChoices[0].text).toBe("Thread 1 red choice");
 
-    let saved = story.state.ToJson();
+    let saved = context.story.state.ToJson();
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe(
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe(
       "Thread 1 red choice\nAfter thread 1 choice (red)\n"
     );
-    story.ResetState();
+    context.story.ResetState();
 
-    story.state.LoadJson(saved);
+    context.story.state.LoadJson(saved);
 
-    story.ChooseChoiceIndex(1);
-    expect(story.ContinueMaximally()).toBe(
+    context.story.ChooseChoiceIndex(1);
+    expect(context.story.ContinueMaximally()).toBe(
       "Thread 2 red choice\nAfter thread 2 choice (red)\n"
     );
 
-    story.state.LoadJson(saved);
-    story.SwitchFlow("Blue Flow");
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe(
+    context.story.state.LoadJson(saved);
+    context.story.SwitchFlow("Blue Flow");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe(
       "Thread 1 blue choice\nAfter thread 1 choice (blue)\n"
     );
 
-    story.state.LoadJson(saved);
-    story.SwitchFlow("Blue Flow");
-    story.ChooseChoiceIndex(1);
-    expect(story.ContinueMaximally()).toBe(
+    context.story.state.LoadJson(saved);
+    context.story.SwitchFlow("Blue Flow");
+    context.story.ChooseChoiceIndex(1);
+    expect(context.story.ContinueMaximally()).toBe(
       "Thread 2 blue choice\nAfter thread 2 choice (blue)\n"
     );
 
-    story.RemoveFlow("Blue Flow");
-    expect(story.Continue()).toBe("Default line 2\n");
+    context.story.RemoveFlow("Blue Flow");
+    expect(context.story.Continue()).toBe("Default line 2\n");
   });
 });

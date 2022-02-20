@@ -1,20 +1,29 @@
 import * as testsUtils from "../common";
 
 describe("Extra", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "extra");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "extra",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
   it("tests arithmetic", () => {
-    loadStory("arithmetic_2");
+    compileStory("arithmetic_2");
 
-    expect(story.ContinueMaximally()).toBe(
+    expect(context.story.ContinueMaximally()).toBe(
       "2\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n"
     );
   });
