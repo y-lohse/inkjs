@@ -1,3 +1,0 @@
-This is a thread example
-Hello.
-The example is now complete.

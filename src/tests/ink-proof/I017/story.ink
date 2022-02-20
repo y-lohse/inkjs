@@ -1,5 +1,0 @@
-hello
--> END
-world
--> END
-

@@ -1,3 +1,0 @@
-This is include 1.
-This is include 2.
-This is the main file.

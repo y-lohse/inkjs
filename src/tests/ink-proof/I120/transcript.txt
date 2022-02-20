@@ -1,4 +1,0 @@
-Top level content
-
-1: choice
-?> choice
