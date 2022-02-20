@@ -1,7 +1,0 @@
-{
-  "oneLineDescription": "Knot and variable with same name",
-  "tags": [
-    "knots"
-  ],
-  "hide": "Segfault expected"
-}

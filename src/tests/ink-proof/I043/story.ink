@@ -1,5 +1,0 @@
-{ shuffle:
--   * choice
-    nextline
-    -> END
-}
