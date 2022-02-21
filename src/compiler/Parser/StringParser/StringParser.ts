@@ -424,6 +424,7 @@ export class StringParser {
     // since they're properties that would have to access
     // the rule stack every time otherwise.
     let i: number = this.index;
+    let cli: number = this.characterInLineIndex;
     let li: number = this.lineIndex;
 
     let success: boolean = true;
@@ -436,12 +437,15 @@ export class StringParser {
       }
       if (c === "\n") {
         li++;
+        cli = -1;
       }
 
       i++;
+      cli++;
     }
 
     this.index = i;
+    this.characterInLineIndex = cli;
     this.lineIndex = li;
 
     if (success) {
@@ -456,9 +460,11 @@ export class StringParser {
       const c = this._chars[this.index];
       if (c === "\n") {
         this.lineIndex += 1;
+        this.characterInLineIndex = -1;
       }
 
       this.index += 1;
+      this.characterInLineIndex += 1;
 
       return c;
     }
@@ -513,6 +519,7 @@ export class StringParser {
     // since they're properties that would have to access
     // the rule stack every time otherwise.
     let ii: number = this.index;
+    let cli: number = this.characterInLineIndex;
     let li: number = this.lineIndex;
     let count: number = 0;
     while (
@@ -522,13 +529,16 @@ export class StringParser {
     ) {
       if (this._chars[ii] === "\n") {
         li += 1;
+        cli = -1;
       }
 
       ii += 1;
+      cli += 1;
       count += 1;
     }
 
     this.index = ii;
+    this.characterInLineIndex = cli;
     this.lineIndex = li;
 
     const lastCharIndex: number = this.index;
@@ -604,9 +614,11 @@ export class StringParser {
           parsedString += pauseCharacter;
           if (pauseCharacter === "\n") {
             this.lineIndex += 1;
+            this.characterInLineIndex = -1;
           }
 
           this.index += 1;
+          this.characterInLineIndex += 1;
 
           continue;
         } else {
@@ -625,6 +637,7 @@ export class StringParser {
   // No need to Begin/End rule since we never parse a newline, so keeping oldIndex is good enough
   public readonly ParseInt = (): number | null => {
     const oldIndex: number = this.index;
+    const oldCharacterInLineIndex: number = this.characterInLineIndex;
     const negative: boolean = this.ParseString("-") !== null;
 
     // Optional whitespace
@@ -636,6 +649,7 @@ export class StringParser {
     if (parsedString === null) {
       // Roll back and fail
       this.index = oldIndex;
+      this.characterInLineIndex = oldCharacterInLineIndex;
 
       return null;
     }
@@ -662,6 +676,7 @@ export class StringParser {
   // No need to Begin/End rule since we never parse a newline, so keeping oldIndex is good enough
   public readonly ParseFloat = (): number | null => {
     const oldIndex: number = this.index;
+    const oldCharacterInLineIndex: number = this.characterInLineIndex;
 
     const leadingInt: number | null = this.ParseInt();
     if (leadingInt !== null) {
@@ -676,6 +691,7 @@ export class StringParser {
 
     // Roll back and fail
     this.index = oldIndex;
+    this.characterInLineIndex = oldCharacterInLineIndex;
 
     return null;
   };

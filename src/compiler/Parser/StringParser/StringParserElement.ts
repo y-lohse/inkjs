@@ -12,6 +12,7 @@ export class StringParserElement {
     StringParserElement._uniqueIdCounter++;
     this.uniqueId = StringParserElement._uniqueIdCounter;
     this.characterIndex = fromElement.characterIndex;
+    this.characterInLineIndex = fromElement.characterInLineIndex;
     this.lineIndex = fromElement.lineIndex;
     this.customFlags = fromElement.customFlags;
     this.reportedErrorInScope = false;
@@ -25,6 +26,7 @@ export class StringParserElement {
   // state of the individual rule too.
   public readonly SquashFrom = (fromElement: StringParserElement): void => {
     this.characterIndex = fromElement.characterIndex;
+    this.characterInLineIndex = fromElement.characterInLineIndex;
     this.lineIndex = fromElement.lineIndex;
     this.reportedErrorInScope = fromElement.reportedErrorInScope;
   };
