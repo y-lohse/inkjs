@@ -166,9 +166,9 @@ export class InkParser extends StringParser {
     stateAtEnd: StringParserElement
   ): DebugMetadata => {
     const md = new DebugMetadata();
-    md.startLineNumber = stateAtStart?.lineIndex || 0 + 1;
+    md.startLineNumber = (stateAtStart?.lineIndex || 0) + 1;
     md.endLineNumber = stateAtEnd.lineIndex + 1;
-    md.startCharacterNumber = stateAtStart?.characterInLineIndex || 0 + 1;
+    md.startCharacterNumber = (stateAtStart?.characterInLineIndex || 0) + 1;
     md.endCharacterNumber = stateAtEnd.characterInLineIndex + 1;
     md.fileName = this._filename;
 
