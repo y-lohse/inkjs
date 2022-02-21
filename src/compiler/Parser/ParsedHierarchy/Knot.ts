@@ -19,6 +19,10 @@ export class Knot extends FlowBase {
     super(name, topLevelObjects, args, isFunction);
   }
 
+  get typeName(): string {
+    return "Knot";
+  }
+
   public ResolveReferences(context: Story): void {
     super.ResolveReferences(context);
 

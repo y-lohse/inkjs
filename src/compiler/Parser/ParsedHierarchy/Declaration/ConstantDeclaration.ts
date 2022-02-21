@@ -32,6 +32,10 @@ export class ConstantDeclaration extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "CONST";
+  }
+
   public readonly GenerateRuntimeObject = (): RuntimeObject | null => {
     // Global declarations don't generate actual procedural
     // runtime objects, but instead add a global variable to the story itself.
@@ -46,9 +50,5 @@ export class ConstantDeclaration extends ParsedObject {
       this.constantIdentifier,
       SymbolType.Var
     );
-  }
-
-  get typeName() {
-    return "Constant";
   }
 }

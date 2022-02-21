@@ -94,6 +94,10 @@ export class FunctionCall extends Expression {
     this.AddContent(this._proxyDivert);
   }
 
+  get typeName(): string {
+    return "FunctionCall";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

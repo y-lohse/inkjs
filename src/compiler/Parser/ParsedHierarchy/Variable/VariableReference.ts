@@ -47,6 +47,10 @@ export class VariableReference extends Expression {
     super();
   }
 
+  get typeName(): string {
+    return "ref";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

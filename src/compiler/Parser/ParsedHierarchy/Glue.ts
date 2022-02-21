@@ -5,4 +5,8 @@ export class Glue extends Wrap<RuntimeGlue> {
   constructor(glue: RuntimeGlue) {
     super(glue);
   }
+
+  get typeName(): string {
+    return "Glue";
+  }
 }

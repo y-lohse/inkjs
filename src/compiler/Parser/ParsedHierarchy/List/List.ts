@@ -11,6 +11,10 @@ export class List extends Expression {
     super();
   }
 
+  get typeName(): string {
+    return "List";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

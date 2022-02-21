@@ -6,6 +6,9 @@ export class Text extends ParsedObject {
   constructor(public text: string) {
     super();
   }
+  get typeName(): string {
+    return "Text";
+  }
 
   public readonly GenerateRuntimeObject = (): RuntimeObject =>
     new StringValue(this.text);

@@ -8,6 +8,10 @@ export class Identifier {
     this.name = name;
   }
 
+  get typeName(): string {
+    return "Identifier";
+  }
+
   public static Done(): Identifier {
     return new Identifier("DONE");
   }

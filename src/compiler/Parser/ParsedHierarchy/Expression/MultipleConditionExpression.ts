@@ -13,6 +13,10 @@ export class MultipleConditionExpression extends Expression {
     this.AddContent(conditionExpressions);
   }
 
+  get typeName(): string {
+    return "MultipleConditionExpression";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

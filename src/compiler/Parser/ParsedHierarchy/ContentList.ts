@@ -23,6 +23,10 @@ export class ContentList extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "ContentList";
+  }
+
   public readonly TrimTrailingWhitespace = (): void => {
     for (let ii = this.content.length - 1; ii >= 0; --ii) {
       const text = asOrNull(this.content[ii], Text);

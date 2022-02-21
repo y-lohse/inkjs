@@ -20,7 +20,7 @@ export class ListElementDefinition extends ParsedObject {
   }
 
   get typeName(): string {
-    return "List element";
+    return "ListElement";
   }
 
   get name(): string | null {

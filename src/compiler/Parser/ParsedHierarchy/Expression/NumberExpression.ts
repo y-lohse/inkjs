@@ -20,6 +20,10 @@ export class NumberExpression extends Expression {
     }
   }
 
+  get typeName(): string {
+    return "Number";
+  }
+
   public isInt = (): boolean => this.subtype == "int";
 
   public isFloat = (): boolean => this.subtype == "float";

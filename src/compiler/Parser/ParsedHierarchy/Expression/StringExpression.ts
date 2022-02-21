@@ -25,6 +25,10 @@ export class StringExpression extends Expression {
     this.AddContent(content);
   }
 
+  get typeName(): string {
+    return "String";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

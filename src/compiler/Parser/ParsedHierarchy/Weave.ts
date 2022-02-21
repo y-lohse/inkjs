@@ -112,6 +112,10 @@ export class Weave extends ParsedObject {
     this.ConstructWeaveHierarchyFromIndentation();
   }
 
+  get typeName(): string {
+    return "Weave";
+  }
+
   public readonly ResolveWeavePointNaming = (): void => {
     const namedWeavePoints = [
       ...this.FindAll<IWeavePoint>(Gather)(

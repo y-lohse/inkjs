@@ -18,6 +18,10 @@ export class ReturnType extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "ReturnType";
+  }
+
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
 

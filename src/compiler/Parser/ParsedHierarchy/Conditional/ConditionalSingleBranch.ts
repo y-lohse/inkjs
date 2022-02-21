@@ -64,6 +64,10 @@ export class ConditionalSingleBranch extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "ConditionalSingleBranch";
+  }
+
   // Runtime content can be summarised as follows:
   //  - Evaluate an expression if necessary to branch on
   //  - Branch to a named container if true
