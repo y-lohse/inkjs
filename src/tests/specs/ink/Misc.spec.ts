@@ -42,7 +42,7 @@ describe("Misc", () => {
   });
 
   // TestEndOfContent
-  it.only("tests end of content", () => {
+  it("tests end of content", () => {
     compileStory("end_of_content_hello_world", false, true);
     context.story.ContinueMaximally();
     expect(context.errorMessages.length).toBe(0);
@@ -201,8 +201,8 @@ C C C
   });
 
   // TestAuthorWarningsInsideContentListBug
-  it("tests return text warning", () => {
-    compileStory("return_text_warning", false, true);
+  it("tests author warnings inside content list bug", () => {
+    compileStory("author_warnings_inside_content_list_bug", false, true);
 
     expect(context.errorMessages.length).toBe(0);
   });

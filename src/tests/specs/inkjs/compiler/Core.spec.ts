@@ -23,7 +23,7 @@ describe("Core parsers", () => {
     expect(parser.index).toBe(24);
   });
 
-  it.only("parses newLine", () => {
+  it("parses newLine", () => {
     const parser = new InkParser(
       `moo text and \nthen an -> happens\nand what ?`
     );
