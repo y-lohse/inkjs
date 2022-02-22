@@ -65,7 +65,7 @@ describe("Core parsers", () => {
   });
 
   it("parses interleave complex 1", () => {
-    const parser = new InkParser(`A\n\n   B\nA\nC    \nA\nB\nD\nA\nB\n`);
+    const parser = new InkParser(`A\n\n    \nB\nA\nC   \n\nA\nB\nD\nA\nB\n`);
     const ret = parser.Interleave(
       parser.Optional(parser.MultilineWhitespace),
       () =>
@@ -80,3 +80,4 @@ describe("Core parsers", () => {
     expect(parser.index).toBe(22);
   });
 });
+
