@@ -161,13 +161,13 @@ describe("SimpleJson.Writer", () => {
       expect(writer.toString()).toEqual("[36.1456]");
     });
 
-    it("should convert integers into floats", () => {
+    it("doesn't converts integer into floats", () => {
       writer.WriteArrayStart();
       writer.WriteFloat(3);
       writer.WriteFloat(4);
       writer.WriteArrayEnd();
 
-      expect(writer.toString()).toEqual("[3.0,4.0]");
+      expect(writer.toString()).toEqual("[3,4]");
     });
 
     it("converts infinity and NaN", () => {
