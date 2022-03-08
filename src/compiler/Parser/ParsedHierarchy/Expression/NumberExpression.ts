@@ -48,9 +48,11 @@ export class NumberExpression extends Expression {
 
   public Equals(obj: ParsedObject): boolean {
     const numberExpression = asOrNull(obj, NumberExpression);
-    if(!numberExpression) return false;
+    if (!numberExpression) return false;
 
-    return numberExpression.subtype == this.subtype 
-        && numberExpression.value   == this.value;
+    return (
+      numberExpression.subtype == this.subtype &&
+      numberExpression.value == this.value
+    );
   }
 }

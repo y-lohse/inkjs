@@ -156,7 +156,9 @@ export class Story extends FlowBase {
     this.constants = new Map();
     for (const constDecl of this.FindAll(ConstantDeclaration)()) {
       // Check for duplicate definitions
-      const existingDefinition: Expression = this.constants.get(constDecl.constantName!) as any;
+      const existingDefinition: Expression = this.constants.get(
+        constDecl.constantName!
+      ) as any;
 
       if (existingDefinition) {
         if (!existingDefinition.Equals(constDecl.expression)) {

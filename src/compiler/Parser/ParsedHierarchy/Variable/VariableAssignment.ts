@@ -28,6 +28,9 @@ export class VariableAssignment extends ParsedObject {
     if (this.isNewTemporaryDeclaration) {
       return "temp";
     } else if (this.isGlobalDeclaration) {
+      if (this.listDefinition !== null) {
+        return "LIST";
+      }
       return "VAR";
     }
 

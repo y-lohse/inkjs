@@ -5,5 +5,5 @@ export enum SymbolType {
   Var = 3,
   SubFlowAndWeave = 4,
   Arg = 5,
-  Temp = 6
+  Temp = 6,
 }

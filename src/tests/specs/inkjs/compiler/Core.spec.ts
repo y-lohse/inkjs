@@ -80,4 +80,3 @@ describe("Core parsers", () => {
     expect(parser.index).toBe(22);
   });
 });
-

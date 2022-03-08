@@ -66,5 +66,5 @@ export class StringExpression extends Expression {
     const thisTxt = this.toString();
     const otherTxt = otherStr.toString();
     return thisTxt === otherTxt;
-  };
+  }
 }
