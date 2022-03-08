@@ -556,7 +556,7 @@ export class Story extends FlowBase {
     }
 
     // Stitches, Choices and Gathers
-    const path = new Path(this.identifier!);
+    const path = new Path(identifier);
     const targetContent = path.ResolveFromContext(obj);
     if (targetContent && targetContent !== obj) {
       this.NameConflictError(
