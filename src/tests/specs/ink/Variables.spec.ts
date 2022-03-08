@@ -177,7 +177,6 @@ describe("Variables", () => {
   // TestConstRedefinition
   it("tests const redefinition", () => {
     compileStoryWithoutRuntime("const_redefinition");
-    debugger;
     expect(context.errorMessages).not.toContainStringContaining(
       "'pi' has been redefined"
     );

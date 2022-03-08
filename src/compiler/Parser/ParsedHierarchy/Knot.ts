@@ -20,7 +20,7 @@ export class Knot extends FlowBase {
   }
 
   get typeName(): string {
-    return "Knot";
+    return this.isFunction ? "Function" : "Knot";
   }
 
   public ResolveReferences(context: Story): void {
