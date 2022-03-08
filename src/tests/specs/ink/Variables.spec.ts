@@ -207,9 +207,8 @@ describe("Variables", () => {
     // The Original code used 'CompileString', but since the compilation fails,
     // 'compile' can be used instead.
     compileStoryWithoutRuntime("variable_naming_collision_with_arg");
-
     expect(context.errorMessages).toContainStringContaining(
-      "name has already been used for a function"
+      "name has already been used for a argument to knot"
     );
   });
 

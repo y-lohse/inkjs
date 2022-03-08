@@ -583,7 +583,7 @@ export class Story extends FlowBase {
         for (const arg of flow.args) {
           if (arg.identifier?.name === identifier?.name) {
             obj.Error(
-              `${typeNameToPrint} '${identifier}': Name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`
+              `${typeNameToPrint} '${identifier}': name has already been used for a argument to ${flow.identifier} on ${flow.debugMetadata}`
             );
 
             return;
