@@ -196,8 +196,7 @@ C C C
   // TestReturnTextWarning
   it("tests return text warning", () => {
     compileStoryWithoutRuntime("return_text_warning");
-
-    expect(context.warningMessages.length).toBe(1);
+    expect(context.warningMessages.length).toBe(2); // inklecate returns 2 warnings
   });
 
   // TestAuthorWarningsInsideContentListBug

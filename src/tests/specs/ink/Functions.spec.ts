@@ -56,8 +56,8 @@ describe("Functions", () => {
 
   // TestFunctionPurityChecks
   it("tests function purity checks", () => {
-    compileStoryWithoutRuntime("function_call_restrictions");
-
+    compileStoryWithoutRuntime("function_purity_checks");
+    
     expect(context.errorMessages.length).toBe(7);
     expect(context.errorMessages[0]).toContain(
       "Return statements can only be used in knots that"
