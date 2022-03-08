@@ -1,46 +1,59 @@
 import * as testsUtils from "../common";
 
 describe("Tags", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "tags");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "tags",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestTags
   it("tests string constants", () => {
-    loadStory("tags");
+    compileStory("tags");
 
     let globalTags = ["author: Joe", "title: My Great Story"];
     let knotTags = ["knot tag"];
     let knotTagsWhenContinuedTwiceTags = ["end of knot tag"];
     let stitchTags = ["stitch tag"];
 
-    expect(story.globalTags).toEqual(globalTags);
-    expect(story.Continue()).toBe("This is the content\n");
-    expect(story.currentTags).toEqual(globalTags);
+    expect(context.story.globalTags).toEqual(globalTags);
+    expect(context.story.Continue()).toBe("This is the content\n");
+    expect(context.story.currentTags).toEqual(globalTags);
 
-    expect(story.TagsForContentAtPath("knot")).toEqual(knotTags);
-    expect(story.TagsForContentAtPath("knot.stitch")).toEqual(stitchTags);
+    expect(context.story.TagsForContentAtPath("knot")).toEqual(knotTags);
+    expect(context.story.TagsForContentAtPath("knot.stitch")).toEqual(
+      stitchTags
+    );
 
-    story.ChoosePathString("knot");
-    expect(story.Continue()).toBe("Knot content\n");
-    expect(story.currentTags).toEqual(knotTags);
-    expect(story.Continue()).toBe("");
-    expect(story.currentTags).toEqual(knotTagsWhenContinuedTwiceTags);
+    context.story.ChoosePathString("knot");
+    expect(context.story.Continue()).toBe("Knot content\n");
+    expect(context.story.currentTags).toEqual(knotTags);
+    expect(context.story.Continue()).toBe("");
+    expect(context.story.currentTags).toEqual(knotTagsWhenContinuedTwiceTags);
   });
 
+  // TestTagOnChoice
   it("tests tag on choice", () => {
-    loadStory("tags_on_choice");
+    compileStory("tag_on_choice");
 
-    story.Continue();
-    story.ChooseChoiceIndex(0);
+    context.story.Continue();
+    context.story.ChooseChoiceIndex(0);
 
-    let txt = story.Continue();
-    let tags = story.currentTags;
+    let txt = context.story.Continue();
+    let tags = context.story.currentTags;
 
     expect(txt).toEqual("Hello");
     expect(tags.length).toEqual(1);

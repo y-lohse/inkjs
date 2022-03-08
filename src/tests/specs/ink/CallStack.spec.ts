@@ -1,28 +1,39 @@
 import * as testsUtils from "../common";
 
 describe("Callstack", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "callstack");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "callstack",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestCallStackEvaluation
   it("tests call stack evaluation", () => {
-    loadStory("call_stack_evaluation");
-    expect(story.Continue()).toBe("8\n");
+    compileStory("callstack_evaluation");
+    expect(context.story.Continue()).toBe("8\n");
   });
 
+  // TestCleanCallstackResetOnPathChoice
   it("tests clean callstack reset on path choice", () => {
-    loadStory("clean_callstack_reset_on_path_choice");
+    compileStory("clean_callstack_reset_on_path_choice");
 
-    expect(story.Continue()).toBe("The first line.\n");
+    expect(context.story.Continue()).toBe("The first line.\n");
 
-    story.ChoosePathString("SomewhereElse");
+    context.story.ChoosePathString("SomewhereElse");
 
-    expect(story.ContinueMaximally()).toBe("somewhere else\n");
+    expect(context.story.ContinueMaximally()).toBe("somewhere else\n");
   });
 });

@@ -1,30 +1,40 @@
 import * as testsUtils from "../common";
 
 describe("Bindings", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: string) {
-    story = testsUtils.loadInkFile(name, "bindings");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "bindings",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestExternalBinding
   it("tests external bindings", () => {
-    loadStory("external_binding");
+    compileStory("external_binding");
 
     let testExternalBindingMessage = "";
 
-    story.BindExternalFunction("message", (arg: any) => {
+    context.story.BindExternalFunction("message", (arg: any) => {
       testExternalBindingMessage = "MESSAGE: " + arg;
     });
 
-    story.BindExternalFunction("multiply", (arg1: any, arg2: any) => {
+    context.story.BindExternalFunction("multiply", (arg1: any, arg2: any) => {
       return arg1 * arg2;
     });
 
-    story.BindExternalFunction(
+    context.story.BindExternalFunction(
       "times",
       (numberOfTimes: any, stringValue: any) => {
         let result = "";
@@ -37,55 +47,58 @@ describe("Bindings", () => {
       }
     );
 
-    expect(story.Continue()).toBe("15\n");
-    expect(story.Continue()).toBe("knock knock knock\n");
+    expect(context.story.Continue()).toBe("15\n");
+    expect(context.story.Continue()).toBe("knock knock knock\n");
     expect(testExternalBindingMessage).toBe("MESSAGE: hello world");
   });
 
+  // TestGameInkBackAndForth
   it("tests game ink back and forth", () => {
-    loadStory("game_ink_back_and_forth");
+    compileStory("game_ink_back_and_forth");
 
-    story.BindExternalFunction("gameInc", (x: any) => {
+    context.story.BindExternalFunction("gameInc", (x: any) => {
       x += 1;
-      x = story.EvaluateFunction("inkInc", [x]);
+      x = context.story.EvaluateFunction("inkInc", [x]);
       return x;
     });
 
-    let finalResult = story.EvaluateFunction("topExternal", [5], true);
+    let finalResult = context.story.EvaluateFunction("topExternal", [5], true);
 
     expect(finalResult["returned"]).toBe(7);
     expect(finalResult["output"]).toBe("In top external\n");
   });
 
+  // TestVariableObserver
   it("tests variable observer", () => {
-    loadStory("variable_observer");
+    compileStory("variable_observer");
 
     let currentVarValue = 0;
     let observerCallCount = 0;
 
-    story.ObserveVariable("testVar", (varName: any, newValue: any) => {
+    context.story.ObserveVariable("testVar", (varName: any, newValue: any) => {
       currentVarValue = newValue;
       observerCallCount += 1;
     });
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
 
     expect(currentVarValue).toBe(15);
     expect(observerCallCount).toBe(1);
 
-    story.ChooseChoiceIndex(0);
-    story.Continue();
+    context.story.ChooseChoiceIndex(0);
+    context.story.Continue();
 
     expect(currentVarValue).toBe(25);
     expect(observerCallCount).toBe(2);
   });
 
+  // TestLookupSafeOrNot
   it("tests lookup safe or not", () => {
     // SAFE Lookahead
-    loadStory("lookup_safe_or_not");
+    compileStory("lookup_safe_or_not");
 
     let callCount = 0;
-    story.BindExternalFunction(
+    context.story.BindExternalFunction(
       "myAction",
       () => {
         callCount++;
@@ -93,14 +106,14 @@ describe("Bindings", () => {
       true
     );
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
     expect(callCount).toBe(2);
 
     // UNSAFE Lookahead
     callCount = 0;
-    story.ResetState();
-    story.UnbindExternalFunction("myAction");
-    story.BindExternalFunction(
+    context.story.ResetState();
+    context.story.UnbindExternalFunction("myAction");
+    context.story.BindExternalFunction(
       "myAction",
       () => {
         callCount++;
@@ -108,16 +121,15 @@ describe("Bindings", () => {
       false
     );
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
     expect(callCount).toBe(1);
 
     // SAFE Lookahead with glue broken intentionally
-    loadStory("lookup_safe_or_not_with_post_glue");
+    compileStory("lookup_safe_or_not_with_post_glue");
 
     // Disabling this rule to match the tests from upstream.
     // eslint-disable-next-line @typescript-eslint/no-empty-function
-    story.BindExternalFunction("myAction", () => {});
-    let result = story.ContinueMaximally();
-    expect(result).toBe("One\nTwo\n");
+    context.story.BindExternalFunction("myAction", () => {});
+    expect(context.story.ContinueMaximally()).toBe("One\nTwo\n");
   });
 });

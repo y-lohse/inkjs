@@ -16,7 +16,7 @@ export type ParseRuleReturn =
 
 export type SpecificParseRule<T extends ParseRule> = T;
 
-export abstract class StringParser {
+export class StringParser {
   public ParseRule: ParseRule | null = null;
 
   public static readonly ParseSuccess: typeof ParseSuccess = ParseSuccess;

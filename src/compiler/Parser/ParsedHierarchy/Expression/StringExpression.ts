@@ -51,7 +51,7 @@ export class StringExpression extends Expression {
   };
 
   // Equals override necessary in order to check for CONST multiple definition equality
-  public readonly Equals = (obj: ParsedObject): boolean => {
+  public Equals(obj: ParsedObject): boolean {
     const otherStr = asOrNull(obj, StringExpression);
     if (otherStr === null) {
       return false;

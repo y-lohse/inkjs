@@ -1,6 +1,8 @@
 import { Container as RuntimeContainer } from "../../../../engine/Container";
 import { Expression } from "./Expression";
 import { BoolValue, FloatValue, IntValue } from "../../../../engine/Value";
+import { asOrNull } from "../../../../engine/TypeAssertion";
+import { ParsedObject } from "../Object";
 
 export class NumberExpression extends Expression {
   public value: number | boolean;
@@ -43,4 +45,12 @@ export class NumberExpression extends Expression {
   };
 
   public readonly toString = (): string => String(this.value);
+
+  public Equals(obj: ParsedObject): boolean {
+    const numberExpression = asOrNull(obj, NumberExpression);
+    if(!numberExpression) return false;
+
+    return numberExpression.subtype == this.subtype 
+        && numberExpression.value   == this.value;
+  }
 }

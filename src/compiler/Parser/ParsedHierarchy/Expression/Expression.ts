@@ -55,5 +55,9 @@ export abstract class Expression extends ParsedObject {
     return "Expression";
   }
 
+  public Equals(obj: ParsedObject): boolean {
+    return false;
+  }
+
   public readonly toString = () => "No string value in JavaScript.";
 }
