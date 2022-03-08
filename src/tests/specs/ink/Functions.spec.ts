@@ -25,10 +25,10 @@ describe("Functions", () => {
 
     expect(context.errorMessages.length).toBe(2);
     expect(context.errorMessages).toContainStringContaining(
-      "name has already been uses for a function"
+      "name has already been used for a function"
     );
     expect(context.errorMessages).toContainStringContaining(
-      "name has already been uses for a var"
+      "name has already been used for a var"
     );
   });
 
