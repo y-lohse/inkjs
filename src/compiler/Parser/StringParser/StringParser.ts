@@ -304,11 +304,10 @@ export class StringParser {
   };
 
   public readonly Optional = (rule: ParseRule): ParseRule => () => {
-    const result = this.ParseObject(rule) 
-    if(result === null) return StringParser.ParseSuccess;
+    const result = this.ParseObject(rule);
+    if (result === null) return StringParser.ParseSuccess;
     return result;
-  }
-    
+  };
 
   // Return ParseSuccess instead the real result so that it gets excluded
   // from result arrays (e.g. Interleave)
