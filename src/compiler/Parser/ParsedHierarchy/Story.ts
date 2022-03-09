@@ -291,7 +291,7 @@ export class Story extends FlowBase {
       let foundItem: ListElementDefinition | null = null;
       let originalFoundList: ListDefinition | null = null;
 
-      for (const [_, value] of this._listDefs.entries()) {
+      for (const [, value] of this._listDefs.entries()) {
         const itemInThisList = value.ItemNamed(itemName);
         if (itemInThisList) {
           if (foundItem) {
@@ -329,7 +329,7 @@ export class Story extends FlowBase {
     // Can't flatten the named inner containers, but we can at least
     // iterate through their children
     if (container.namedContent) {
-      for (const [_, value] of container.namedContent) {
+      for (const [, value] of container.namedContent) {
         const namedInnerContainer = asOrNull(value, RuntimeContainer);
         if (namedInnerContainer) {
           innerContainers.add(namedInnerContainer);

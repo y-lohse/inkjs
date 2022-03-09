@@ -5,5 +5,8 @@ module.exports = {
   ],
   testPathIgnorePatterns: [
     "<rootDir>/src/"
-  ]
+  ],
+  setupFilesAfterEnv: [
+    "<rootDir>/tests/specs/setupTests.js"
+  ],
 };

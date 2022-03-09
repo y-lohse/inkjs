@@ -72,9 +72,9 @@ export function isJSONRepresentationMatchingUpstream(
 
 export function getInkPath() {
   if (process.env.INK_TEST === "dist") {
-    return path.join(getRootDir(), "dist", "ink-es2015.js");
+    return path.join(getRootDir(), "dist", "ink-full-es2015.js");
   } else if (process.env.INK_TEST === "legacy") {
-    return path.join(getRootDir(), "dist", "ink.js");
+    return path.join(getRootDir(), "dist", "ink-full.js");
   } else {
     return; // No ENV, so no inkPath.
   }
