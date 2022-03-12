@@ -1,0 +1,1 @@
+﻿{"inkVersion":20,"root":[["ev",{"f()":"six"},{"f()":"two"},"+","out","/ev","\n","end",["done",{"#n":"g-0"}],null],"done",{"six":["ev",{"f()":"four"},{"f()":"two"},"+","/ev","~ret","\n",null],"four":["ev",{"f()":"two"},{"f()":"two"},"+","/ev","~ret","\n",null],"two":["ev",2,"/ev","~ret",null]}],"listDefs":{}}

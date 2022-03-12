@@ -1,10 +1,9 @@
-import { CharacterSet } from "../../../compiler/Parser/CharacterSet";
-import { InkParser } from "../../../compiler/Parser/InkParser";
+import { CharacterSet } from "../../../../compiler/Parser/CharacterSet";
+import { InkParser } from "../../../../compiler/Parser/InkParser";
 
 describe("Core parsers", () => {
   it("parses moo", () => {
-    const parser = new InkParser(`moo text and then an arrow 
-      -> happens `);
+    const parser = new InkParser(`moo text and then an arrow\n-> happens `);
     const ret = parser.ParseString("moo");
     expect(ret).toBe("moo");
     expect(parser.index).toBe(3);
@@ -25,9 +24,9 @@ describe("Core parsers", () => {
   });
 
   it("parses newLine", () => {
-    const parser = new InkParser(`moo text and 
-then an -> happens
-and what ?`);
+    const parser = new InkParser(
+      `moo text and \nthen an -> happens\nand what ?`
+    );
     parser.index = 13;
 
     const ret = parser.ParseNewline();
@@ -66,19 +65,7 @@ and what ?`);
   });
 
   it("parses interleave complex 1", () => {
-    const parser = new InkParser(`A
-
-    
-B
-A
-C   
-
-A
-B
-D
-A
-B
-`);
+    const parser = new InkParser(`A\n\n    \nB\nA\nC   \n\nA\nB\nD\nA\nB\n`);
     const ret = parser.Interleave(
       parser.Optional(parser.MultilineWhitespace),
       () =>
@@ -93,3 +80,4 @@ B
     expect(parser.index).toBe(22);
   });
 });
+

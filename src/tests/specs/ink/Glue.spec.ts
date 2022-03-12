@@ -1,43 +1,57 @@
 import * as testsUtils from "../common";
 
 describe("Glue", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "glue");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "glue",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestImplicitInlineGlue
   it("tests implicit inline glue", () => {
-    loadStory("implicit_inline_glue");
+    compileStory("implicit_inline_glue");
 
-    expect(story.Continue()).toBe("I have five eggs.\n");
+    expect(context.story.Continue()).toBe("I have five eggs.\n");
   });
 
+  // TestImplicitInlineGlueB
   it("tests implicit inline glue b", () => {
-    loadStory("implicit_inline_glue_b");
+    compileStory("implicit_inline_glue_b");
 
-    expect(story.ContinueMaximally()).toBe("A\nX\n");
+    expect(context.story.ContinueMaximally()).toBe("A\nX\n");
   });
 
+  // TestImplicitInlineGlueC
   it("tests implicit inline glue c", () => {
-    loadStory("implicit_inline_glue_c");
+    compileStory("implicit_inline_glue_c");
 
-    expect(story.ContinueMaximally()).toBe("A\nC\n");
+    expect(context.story.ContinueMaximally()).toBe("A\nC\n");
   });
 
+  // TestLeftRightGlueMatching
   it("tests left right glue matching", () => {
-    loadStory("left_right_glue_matching");
+    compileStory("left_right_glue_matching");
 
-    expect(story.ContinueMaximally()).toBe("A line.\nAnother line.\n");
+    expect(context.story.ContinueMaximally()).toBe("A line.\nAnother line.\n");
   });
 
+  // TestSimpleGlue
   it("tests simple glue", () => {
-    loadStory("simple_glue");
+    compileStory("simple_glue");
 
-    expect(story.Continue()).toBe("Some content with glue.\n");
+    expect(context.story.Continue()).toBe("Some content with glue.\n");
   });
 });

@@ -1,207 +1,267 @@
 import * as testsUtils from "../common";
 
 describe("Choices", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "choices");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "choices",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestChoiceCount
   it("tests choice count", () => {
-    loadStory("choice_count");
-    expect(story.Continue()).toBe("2\n");
+    compileStory("choice_count");
+    expect(context.story.Continue()).toBe("2\n");
   });
 
+  // TestChoiceDivertsToDone
   it("tests choice divert to done", () => {
-    loadStory("choice_diverts_to_done");
-    story.Continue();
+    compileStory("choice_diverts_to_done");
+    context.story.Continue();
 
-    expect(story.currentChoices.length).toBe(1);
-    story.ChooseChoiceIndex(0);
+    expect(context.story.currentChoices.length).toBe(1);
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.Continue()).toBe("choice");
+    expect(context.story.Continue()).toBe("choice");
   });
 
+  // TestChoiceWithBracketsOnly
   it("tests choice with brackets only", () => {
-    loadStory("choice_with_brackets_only");
-    story.Continue();
+    compileStory("choice_with_brackets_only");
+    context.story.Continue();
 
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("Option");
-    story.ChooseChoiceIndex(0);
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("Option");
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.Continue()).toBe("Text\n");
+    expect(context.story.Continue()).toBe("Text\n");
   });
 
+  // TestChoiceThreadForking
   it("tests choice thread forking", () => {
-    loadStory("choice_thread_forking");
-    story.Continue();
-    let savedState = story.state.ToJson();
+    compileStory("choice_thread_forking");
+    context.story.Continue();
+    let savedState = context.story.state.ToJson();
 
-    loadStory("choice_thread_forking");
-    story.state.LoadJson(savedState);
+    compileStory("choice_thread_forking");
+    context.story.state.LoadJson(savedState);
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.hasWarning).toBe(false);
+    expect(context.story.hasWarning).toBe(false);
   });
 
+  // TestConditionalChoices
   it("tests conditional choices", () => {
-    loadStory("conditional_choices");
-    story.ContinueMaximally();
+    compileStory("conditional_choices");
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(4);
-    expect(story.currentChoices[0].text).toBe("one");
-    expect(story.currentChoices[1].text).toBe("two");
-    expect(story.currentChoices[2].text).toBe("three");
-    expect(story.currentChoices[3].text).toBe("four");
+    expect(context.story.currentChoices.length).toBe(4);
+    expect(context.story.currentChoices[0].text).toBe("one");
+    expect(context.story.currentChoices[1].text).toBe("two");
+    expect(context.story.currentChoices[2].text).toBe("three");
+    expect(context.story.currentChoices[3].text).toBe("four");
   });
 
+  // TestDefaultChoices
   it("tests default choice", () => {
-    loadStory("default_choices");
+    compileStory("default_choices");
 
-    expect(story.Continue()).toBe("");
-    expect(story.currentChoices.length).toBe(2);
+    expect(context.story.Continue()).toBe("");
+    expect(context.story.currentChoices.length).toBe(2);
 
-    story.ChooseChoiceIndex(0);
-    expect(story.Continue()).toBe("After choice\n");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.Continue()).toBe("After choice\n");
 
-    expect(story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices.length).toBe(1);
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("After choice\nThis is default.\n");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe(
+      "After choice\nThis is default.\n"
+    );
   });
 
+  // TestDefaultSimpleGather
   it("tests default simple gather", () => {
-    loadStory("default_simple_gather");
+    compileStory("default_simple_gather");
 
-    expect(story.Continue()).toBe("x\n");
+    expect(context.story.Continue()).toBe("x\n");
   });
 
+  // TestFallbackChoiceOnThread
   it("tests fallback choice on thread", () => {
-    loadStory("fallback_choice_on_thread");
+    compileStory("fallback_choice_on_thread");
 
-    expect(story.Continue()).toBe("Should be 1 not 0: 1.\n");
+    expect(context.story.Continue()).toBe("Should be 1 not 0: 1.\n");
   });
 
+  // TestGatherChoiceSameLine
   it("tests gather choice same line", () => {
-    loadStory("gather_choice_same_line");
+    compileStory("gather_choice_same_line");
 
-    story.Continue();
-    expect(story.currentChoices[0].text).toBe("hello");
+    context.story.Continue();
+    expect(context.story.currentChoices[0].text).toBe("hello");
 
-    story.ChooseChoiceIndex(0);
-    story.Continue();
+    context.story.ChooseChoiceIndex(0);
+    context.story.Continue();
 
-    expect(story.currentChoices[0].text).toBe("world");
+    expect(context.story.currentChoices[0].text).toBe("world");
   });
 
+  // TestHasReadOnChoice
   it("tests has read on choice", () => {
-    loadStory("has_read_on_choice");
+    compileStory("has_read_on_choice");
 
-    story.ContinueMaximally();
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("visible choice");
+    context.story.ContinueMaximally();
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("visible choice");
   });
 
+  // TestLogicInChoices
   it("tests logic in choices", () => {
-    loadStory("logic_in_choices");
+    compileStory("logic_in_choices");
 
-    story.ContinueMaximally();
-    expect(story.currentChoices[0].text).toBe("'Hello Joe, your name is Joe.'");
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe(
+    context.story.ContinueMaximally();
+    expect(context.story.currentChoices[0].text).toBe(
+      "'Hello Joe, your name is Joe.'"
+    );
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe(
       "'Hello Joe,' I said, knowing full well that his name was Joe.\n"
     );
   });
 
+  // TestNonTextInChoiceInnerContent
   it("tests non text in choice inner content", () => {
-    loadStory("non_text_in_choice_inner_content");
+    compileStory("non_text_in_choice_inner_content");
 
-    story.Continue();
-    story.ChooseChoiceIndex(0);
+    context.story.Continue();
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.Continue()).toBe("option text. Conditional bit. Next.\n");
+    expect(context.story.Continue()).toBe(
+      "option text. Conditional bit. Next.\n"
+    );
   });
 
+  // TestOnceOnlyChoicesCanLinkBackToSelf
   it("tests test once only choices can link back to self", () => {
-    loadStory("once_only_choices_can_link_back_to_self");
+    compileStory("once_only_choices_can_link_back_to_self");
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("First choice");
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("First choice");
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("Second choice");
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("Second choice");
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.hasError).toBe(false);
+    expect(context.story.hasError).toBe(false);
   });
 
+  // TestOnceOnlyChoicesWithOwnContent
   it("tests test once only choices with own content", () => {
-    loadStory("once_only_choices_with_own_content");
+    compileStory("once_only_choices_with_own_content");
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(3);
+    expect(context.story.currentChoices.length).toBe(3);
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices.length).toBe(2);
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices.length).toBe(1);
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(0);
+    expect(context.story.currentChoices.length).toBe(0);
   });
 
+  // TestShouldntGatherDueToChoice
   it("tests should not gather due to choice", () => {
-    loadStory("should_not_gather_due_to_choice");
+    compileStory("should_not_gather_due_to_choice");
 
-    story.ContinueMaximally();
-    story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.ContinueMaximally()).toBe("opt\ntext\n");
+    expect(context.story.ContinueMaximally()).toBe("opt\ntext\n");
   });
 
+  // TestStickyChoicesStaySticky
   it("tests sticky choices stay sticky", () => {
-    loadStory("sticky_choices_stay_sticky");
+    compileStory("sticky_choices_stay_sticky");
 
-    story.ContinueMaximally();
-    expect(story.currentChoices.length).toBe(2);
+    context.story.ContinueMaximally();
+    expect(context.story.currentChoices.length).toBe(2);
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
-    expect(story.currentChoices.length).toBe(2);
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
+    expect(context.story.currentChoices.length).toBe(2);
   });
 
+  // TestVariousDefaultChoices
   it("tests various default choices", () => {
-    loadStory("various_default_choices");
+    compileStory("various_default_choices");
 
-    expect(story.ContinueMaximally()).toBe("1\n2\n3\n");
+    expect(context.story.ContinueMaximally()).toBe("1\n2\n3\n");
   });
 
+  // TestStateRollbackOverDefaultChoice
   it("tests state rollback over default choice", () => {
-    loadStory("state_rollback_over_default_choice");
+    compileStory("state_rollback_over_default_choice");
 
-    expect(story.Continue()).toBe("Text.\n");
-    expect(story.Continue()).toBe("5\n");
+    expect(context.story.Continue()).toBe("Text.\n");
+    expect(context.story.Continue()).toBe("5\n");
+  });
+
+  // TestNestedChoiceError
+  it("tests nested choice error", () => {
+    compileStory("nested_choice_error", false, true);
+
+    expect(context.errorMessages).toContainStringContaining(
+      "need to explicitly divert"
+    );
+  });
+
+  // TestEmptyChoice
+  it("tests empty choice", () => {
+    compileStory("empty_choice", false, true);
+
+    expect(context.errorMessages.length).toBe(0);
+    expect(context.warningMessages.length).toBe(1);
+    expect(context.warningMessages).toContainStringContaining(
+      "completely empty"
+    );
+  });
+
+  // TestVariousBlankChoiceWarning
+  it("tests various blank choice warning", () => {
+    compileStory("various_blank_choice_warning", false, true);
+
+    expect(context.warningMessages).toContainStringContaining("Blank choice");
   });
 });

@@ -57,12 +57,8 @@ import { UnaryExpression } from "./ParsedHierarchy/Expression/UnaryExpression";
 import { asOrNull, filterUndef } from "../../engine/TypeAssertion";
 import { Identifier } from "./ParsedHierarchy/Identifier";
 import { NumberExpression } from "./ParsedHierarchy/Expression/NumberExpression";
-
-export enum ErrorType {
-  Author,
-  Error,
-  Warning,
-}
+import { ErrorType } from "./ErrorType";
+import { DefaultFileHandler } from "../FileHandler/DefaultFileHandler";
 
 export class InkParser extends StringParser {
   /**
@@ -82,17 +78,26 @@ export class InkParser extends StringParser {
 
   constructor(
     str: string,
-    private _filename: string | null = null,
-    private _externalErrorHandler: ErrorHandler | null = null,
+    filename: string | null = null,
+    externalErrorHandler: ErrorHandler | null = null,
     rootParser: InkParser | null = null,
-    private _fileHandler: IFileHandler | null = null
+    fileHandler: IFileHandler | null = null
   ) {
     super(str);
 
+    this._filename = filename;
     this.RegisterExpressionOperators();
     this.GenerateStatementLevelRules();
 
     this.errorHandler = this.OnStringParserError;
+
+    this._externalErrorHandler = externalErrorHandler;
+
+    if (fileHandler === null) {
+      this._fileHandler = new DefaultFileHandler();
+    } else {
+      this._fileHandler = fileHandler;
+    }
 
     if (rootParser === null) {
       this._rootParser = this;
@@ -110,6 +115,7 @@ export class InkParser extends StringParser {
   }
 
   // Main entry point
+  // NOTE: This method is named Parse() in upstream.
   public readonly ParseStory = (): Story => {
     const topLevelContent: ParsedObject[] = this.StatementsAtLevel(
       StatementLevel.Top
@@ -3343,6 +3349,10 @@ export class InkParser extends StringParser {
 
     return result;
   };
+
+  private _filename: string | null = null;
+  private _externalErrorHandler: ErrorHandler | null = null;
+  private _fileHandler: IFileHandler | null = null;
 
   /**
    * End Whitespace section.

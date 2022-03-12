@@ -130,9 +130,9 @@ export class VariableReference extends Expression {
       if (targetFlow && targetFlow.isFunction) {
         // Is parent context content rather than logic?
         if (
-          parent instanceof Weave ||
-          parent instanceof ContentList ||
-          parent instanceof FlowBase
+          this.parent instanceof Weave ||
+          this.parent instanceof ContentList ||
+          this.parent instanceof FlowBase
         ) {
           this.Warning(
             `'${targetFlow.identifier}' being used as read count rather than being called as function. Perhaps you intended to write ${targetFlow.identifier}()`
@@ -159,7 +159,7 @@ export class VariableReference extends Expression {
     }
 
     if (!context.ResolveVariableWithName(this.name, this).found) {
-      this.Error(`Unresolved variable: ${this}`, this);
+      this.Error(`Unresolved variable: ${this.name}`, this);
     }
   }
 
