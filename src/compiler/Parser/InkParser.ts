@@ -58,7 +58,7 @@ import { asOrNull, filterUndef } from "../../engine/TypeAssertion";
 import { Identifier } from "./ParsedHierarchy/Identifier";
 import { NumberExpression } from "./ParsedHierarchy/Expression/NumberExpression";
 import { ErrorType } from "./ErrorType";
-import { PosixFileHandler } from "../FileHandler/PosixFileHandler";
+import { DefaultFileHandler } from "../FileHandler/DefaultFileHandler";
 
 export class InkParser extends StringParser {
   /**
@@ -94,7 +94,7 @@ export class InkParser extends StringParser {
     this._externalErrorHandler = externalErrorHandler;
 
     if (fileHandler === null) {
-      this._fileHandler = new PosixFileHandler();
+      this._fileHandler = new DefaultFileHandler();
     } else {
       this._fileHandler = fileHandler;
     }
