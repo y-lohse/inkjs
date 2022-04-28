@@ -139,11 +139,14 @@ Usage: inklecate <options> <ink file>
 ### online compiler
 ```javascript
 const story  = (new inkjs.Compiler(`Hello World`)).Compile()
-// story is an inkjs.Story
+// story is an inkjs.Story that can be played right away
 
 const jsonBytecode = story.ToJson();
 // the generated json can be further re-used
 ```
+
+### Differences with the C# Compiler
+See [Differences with the C# Compiler](docs/compiler-differences.md).
 
 ## Compatibility table
 
