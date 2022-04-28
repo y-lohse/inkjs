@@ -22,6 +22,10 @@ export class TunnelOnwards extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "TunnelOnwards";
+  }
+
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
 

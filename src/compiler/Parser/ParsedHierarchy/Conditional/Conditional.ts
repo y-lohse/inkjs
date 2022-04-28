@@ -24,6 +24,10 @@ export class Conditional extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "Conditional";
+  }
+
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
     const container = new RuntimeContainer();
 

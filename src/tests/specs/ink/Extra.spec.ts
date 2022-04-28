@@ -24,7 +24,7 @@ describe("Extra", () => {
     compileStory("arithmetic_2");
 
     expect(context.story.ContinueMaximally()).toBe(
-      "2\n2\n2.3333333333333335\n2\n2\n2.3333333333333335\n"
+      "2\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n2.3333333333333335\n"
     );
   });
 });

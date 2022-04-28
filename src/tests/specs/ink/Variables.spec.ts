@@ -177,7 +177,6 @@ describe("Variables", () => {
   // TestConstRedefinition
   it("tests const redefinition", () => {
     compileStoryWithoutRuntime("const_redefinition");
-
     expect(context.errorMessages).not.toContainStringContaining(
       "'pi' has been redefined"
     );
@@ -208,9 +207,8 @@ describe("Variables", () => {
     // The Original code used 'CompileString', but since the compilation fails,
     // 'compile' can be used instead.
     compileStoryWithoutRuntime("variable_naming_collision_with_arg");
-
     expect(context.errorMessages).toContainStringContaining(
-      "name has already been used for a function"
+      "name has already been used for a argument to knot"
     );
   });
 

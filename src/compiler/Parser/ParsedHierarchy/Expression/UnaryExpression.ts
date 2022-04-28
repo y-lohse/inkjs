@@ -58,6 +58,10 @@ export class UnaryExpression extends Expression {
     this.innerExpression = this.AddContent(inner) as Expression;
   }
 
+  get typeName(): string {
+    return "UnaryExpression";
+  }
+
   public readonly GenerateIntoContainer = (container: RuntimeContainer) => {
     this.innerExpression.GenerateIntoContainer(container);
     container.AddContent(NativeFunctionCall.CallWithName(this.nativeNameForOp));

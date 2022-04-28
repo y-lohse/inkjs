@@ -18,6 +18,10 @@ export class BinaryExpression extends Expression {
     this.opName = opName;
   }
 
+  get typeName(): string {
+    return "BinaryExpression";
+  }
+
   public readonly GenerateIntoContainer = (container: RuntimeContainer) => {
     this.leftExpression.GenerateIntoContainer(container);
     this.rightExpression.GenerateIntoContainer(container);

@@ -61,6 +61,10 @@ export class Path {
     }
   }
 
+  get typeName(): string {
+    return "Path";
+  }
+
   public readonly toString = (): string => {
     if (this.components === null || this.components.length === 0) {
       if (this.baseTargetLevel === FlowLevel.WeavePoint) {

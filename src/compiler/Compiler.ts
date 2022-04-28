@@ -2,7 +2,7 @@ import { CompilerOptions } from "./CompilerOptions";
 import { DebugSourceRange } from "./DebugSourceRange";
 import { ErrorType } from "./Parser/ErrorType";
 import { InkParser } from "./Parser/InkParser";
-import { Story as RuntimeStory } from "../engine/Story";
+import { Story } from "../engine/Story";
 import { Story as ParsedStory } from "./Parser/ParsedHierarchy/Story";
 import { DebugMetadata } from "../engine/DebugMetadata";
 import { StringValue } from "../engine/Value";
@@ -46,8 +46,8 @@ export class Compiler {
     return this._parsedStory;
   }
 
-  private _runtimeStory: RuntimeStory | null = null;
-  get runtimeStory(): RuntimeStory {
+  private _runtimeStory: Story | null = null;
+  get runtimeStory(): Story {
     if (!this._runtimeStory) {
       throw new Error("Compilation failed.");
     }
@@ -74,7 +74,7 @@ export class Compiler {
     this._options = options || new CompilerOptions();
   }
 
-  public readonly Compile = (): RuntimeStory => {
+  public readonly Compile = (): Story => {
     this._parser = new InkParser(
       this.inputString,
       this.options.sourceFilename || null,

@@ -32,6 +32,10 @@ export class IncDecExpression extends Expression {
     }
   }
 
+  get typeName(): string {
+    return "IncDecExpression";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

@@ -42,6 +42,10 @@ export class DivertTarget extends Expression {
     this.divert = this.AddContent(divert) as Divert;
   }
 
+  get typeName(): string {
+    return "DivertTarget";
+  }
+
   public readonly GenerateIntoContainer = (
     container: RuntimeContainer
   ): void => {

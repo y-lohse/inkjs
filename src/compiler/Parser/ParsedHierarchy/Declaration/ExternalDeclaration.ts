@@ -15,6 +15,10 @@ export class ExternalDeclaration extends ParsedObject implements INamedContent {
     super();
   }
 
+  get typeName(): string {
+    return "EXTERNAL";
+  }
+
   public readonly GenerateRuntimeObject = (): RuntimeObject | null => {
     this.story.AddExternal(this);
 

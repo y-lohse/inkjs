@@ -1,7 +1,11 @@
 import { Container as RuntimeContainer } from "../../../../engine/Container";
 import { Expression } from "./Expression";
 import { BoolValue, FloatValue, IntValue } from "../../../../engine/Value";
+import { asOrNull } from "../../../../engine/TypeAssertion";
+import { ParsedObject } from "../Object";
 
+// This class is named Number in the C# codebase
+// but this conflict with the built-in Number class
 export class NumberExpression extends Expression {
   public value: number | boolean;
   public subtype: "int" | "float" | "bool";
@@ -18,6 +22,10 @@ export class NumberExpression extends Expression {
     } else {
       throw new Error("Unexpected object type in NumberExpression.");
     }
+  }
+
+  get typeName(): string {
+    return "Number";
   }
 
   public isInt = (): boolean => this.subtype == "int";
@@ -39,4 +47,14 @@ export class NumberExpression extends Expression {
   };
 
   public readonly toString = (): string => String(this.value);
+
+  public Equals(obj: ParsedObject): boolean {
+    const numberExpression = asOrNull(obj, NumberExpression);
+    if (!numberExpression) return false;
+
+    return (
+      numberExpression.subtype == this.subtype &&
+      numberExpression.value == this.value
+    );
+  }
 }

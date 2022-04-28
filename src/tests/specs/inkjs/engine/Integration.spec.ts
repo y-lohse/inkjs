@@ -273,12 +273,16 @@ describe("Integration", () => {
       // JavaScript-only spec
       let inkjs = require(inkPath); // eslint-disable-line @typescript-eslint/no-var-requires
 
-      it("should expose the context.story class", () => {
-        expect(inkjs.context.story).toBeDefined();
+      it("should expose the Story class", () => {
+        expect(inkjs.Story).toBeDefined();
       });
 
       it("should expose the InkList class", () => {
         expect(inkjs.InkList).toBeDefined();
+      });
+
+      it("should expose the Compiler class", () => {
+        expect(inkjs.Compiler).toBeDefined();
       });
     }
   });

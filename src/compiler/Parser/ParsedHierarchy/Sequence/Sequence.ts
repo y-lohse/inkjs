@@ -42,6 +42,10 @@ export class Sequence extends ParsedObject {
     }
   }
 
+  get typeName(): string {
+    return "Sequence";
+  }
+
   // Generate runtime code that looks like:
   //
   //   chosenIndex = MIN(sequence counter, num elements) e.g. for "Stopping"
