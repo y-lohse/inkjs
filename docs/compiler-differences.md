@@ -27,3 +27,8 @@ This [issue is known](https://github.com/y-lohse/inkjs/issues/934) and will be a
 
 As a major difference from the C# compiler, the Parsed Hierarchy classes are not publicly exposed and their name may be obscured when using the minified version of inkjs-full.  
 You'll have to rely on their `.typeName` property.
+
+Some typename are specific to this library :   
+* Constant declaration : `CONST` instead of `Constant`
+* List declaration : `LIST` instead of `VAR`
+* List definition (container) : `ListDefinition` instead of `List definition`
