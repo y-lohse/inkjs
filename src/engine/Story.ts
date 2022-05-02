@@ -1301,7 +1301,7 @@ export class Story extends InkObject {
                 ". The maximum must be larger"
             );
 
-          let resultSeed = this.state.storySeed + this.state.previousRandom;
+          let resultSeed = this.state.previousRandom;
           let random = new PRNG(resultSeed);
 
           let nextRandom = random.next();
@@ -1309,7 +1309,7 @@ export class Story extends InkObject {
           this.state.PushEvaluationStack(new IntValue(chosenValue));
 
           // Next random number (rather than keeping the Random object around)
-          this.state.previousRandom = nextRandom;
+          this.state.previousRandom = random.nextSeed();
           break;
         }
 
@@ -1324,8 +1324,7 @@ export class Story extends InkObject {
             return throwNullException("minInt.value");
           }
 
-          this.state.storySeed = seed.value;
-          this.state.previousRandom = 0;
+          this.state.previousRandom = seed.value;
 
           this.state.PushEvaluationStack(new Void());
           break;
@@ -1461,7 +1460,7 @@ export class Story extends InkObject {
             newList = new InkList();
           } else {
             // Generate a random index for the element to take
-            let resultSeed = this.state.storySeed + this.state.previousRandom;
+            let resultSeed = this.state.previousRandom;
             let random = new PRNG(resultSeed);
 
             let nextRandom = random.next();
@@ -1489,7 +1488,7 @@ export class Story extends InkObject {
             newList = new InkList(randomItem.Key.originName, this);
             newList.Add(randomItem.Key, randomItem.Value);
 
-            this.state.previousRandom = nextRandom;
+            this.state.previousRandom = random.nextSeed();
           }
 
           this.state.PushEvaluationStack(new ListValue(newList));
@@ -2257,7 +2256,9 @@ export class Story extends InkObject {
     }
 
     for (let i = 0; i <= iterationIndex; ++i) {
-      let chosen = random.next() % unpickedIndices.length;
+      let nextRandom = random.next();
+      let chosen = nextRandom % unpickedIndices.length;
+      random.nextSeed();
       let chosenIndex = unpickedIndices[chosen];
       unpickedIndices.splice(chosen, 1);
 

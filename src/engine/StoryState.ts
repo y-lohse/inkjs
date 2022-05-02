@@ -353,9 +353,9 @@ export class StoryState {
     this._turnIndices = new Map();
     this.currentTurnIndex = -1;
 
-    let timeSeed = new Date().getTime();
-    this.storySeed = new PRNG(timeSeed).next() % 100;
-    this.previousRandom = 0;
+    let timeSeed = Date.now();
+    this.storySeed = new PRNG(timeSeed).nextSeed();
+    this.previousRandom = this.storySeed;
 
     this.GoToStart();
   }
