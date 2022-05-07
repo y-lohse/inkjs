@@ -7,7 +7,7 @@ import { babel } from '@rollup/plugin-babel';
 const moduleName = 'inkjs';
 const engineOnlyInputFile = 'src/engine/Story.ts';
 const fullfeatureInputFile = 'src/compiler/Compiler.ts';
-const inklecateInputFile = 'script/inklecate.ts';
+const inklecateInputFile = 'script/inkjs-compiler.ts';
 const format = 'umd';
 const tsconfig = {
   tsconfig: "tsconfig.json",
@@ -111,10 +111,10 @@ export default [
     ]
   },
   {
-    input: 'script/inklecate.ts',
+    input: inklecateInputFile,
     output: {
-      name: 'inklecate',
-      file: 'dist/inklecate.js',
+      name: 'inkjs-compiler',
+      file: 'dist/inkjs-compiler.js',
       format: 'commonjs',
       sourcemap: false
     },

@@ -124,11 +124,11 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 
 ## Compiler
 
-### inklecate.js
+### inkjs-compiler.js
 ```shell
-$ node inklecate.js -h
+$ node inkjs-compiler.js -h
 
-Usage: inklecate <options> <ink file>
+Usage: inkjs-compiler <options> <ink file>
    -o <filename>:   Output file name
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
