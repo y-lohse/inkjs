@@ -7,6 +7,7 @@ import { babel } from '@rollup/plugin-babel';
 const moduleName = 'inkjs';
 const engineOnlyInputFile = 'src/engine/Story.ts';
 const fullfeatureInputFile = 'src/compiler/Compiler.ts';
+const posixHandlerInputFile = 'src/compiler/FileHandler/PosixFileHandler.ts';
 const inklecateInputFile = 'script/inklecate.ts';
 const format = 'umd';
 const tsconfig = {
@@ -111,10 +112,30 @@ export default [
     ]
   },
   {
-    input: 'script/inklecate.ts',
+    input: inklecateInputFile,
     output: {
       name: 'inklecate',
       file: 'dist/inklecate.js',
+      format: 'commonjs',
+      sourcemap: false
+    },
+    plugins: [
+      nodeResolve(),
+      typescript(tsconfig),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
+      }),
+      terser(),
+      //sourcemaps()
+    ]
+  },
+  {
+    input: posixHandlerInputFile,
+    output: {
+      name: 'posixFileHandle',
+      file: 'dist/inkjs-full-posixhandler.js',
       format: 'commonjs',
       sourcemap: false
     },
