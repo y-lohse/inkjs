@@ -7,8 +7,8 @@ export class PRNG {
     this.seed = seed % 2147483647;
     if (this.seed <= 0) this.seed += 2147483646;
   }
-  public next(): number { // problem with 16807
-    return (this.seed = (this.seed * 16807) % 2147483647);
+  public next(): number {
+    return (this.seed = (this.seed * 48271) % 2147483647);
   }
   public nextFloat(): number {
     return (this.next() - 1) / 2147483646;
