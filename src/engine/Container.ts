@@ -165,9 +165,8 @@ export class Container extends InkObject implements INamedContent {
         break;
       }
 
-      let foundObj: InkObject | null = currentContainer.ContentWithPathComponent(
-        comp
-      );
+      let foundObj: InkObject | null =
+        currentContainer.ContentWithPathComponent(comp);
 
       if (foundObj == null) {
         result.approximate = true;

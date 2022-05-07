@@ -295,7 +295,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         if (existingChild) {
           const errorMsg = `${this.GetType()} already contains flow named '${
             namedChild.name
-          }' (at ${((existingChild as any) as RuntimeObject).debugMetadata})`;
+          }' (at ${(existingChild as any as RuntimeObject).debugMetadata})`;
           this.Error(errorMsg, childFlow);
         }
 
@@ -419,7 +419,8 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
         throw new Error();
       }
 
-      this._startingSubFlowDivert.targetPath = this._startingSubFlowRuntime.path;
+      this._startingSubFlowDivert.targetPath =
+        this._startingSubFlowRuntime.path;
     }
 
     super.ResolveReferences(context);

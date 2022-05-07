@@ -104,9 +104,8 @@ export class VariableReference extends Expression {
 
     // Is it a read count?
     const parsedPath = new Path(this.pathIdentifiers);
-    const targetForCount: ParsedObject | null = parsedPath.ResolveFromContext(
-      this
-    );
+    const targetForCount: ParsedObject | null =
+      parsedPath.ResolveFromContext(this);
     if (targetForCount) {
       if (!targetForCount.containerForCounting) {
         throw new Error();
