@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2017 inkle Ltd.
+Copyright (c) 2017 inkle Ltd.  
 Copyright (c) 2017 inkjs contributors (see AUTHORS)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
