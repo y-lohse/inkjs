@@ -160,7 +160,7 @@ describe("Logic", () => {
   it("should generate random numbers", () => {
     context.story.ChoosePathString("logic.random");
 
-    expect(context.story.Continue()).toEqual("15\n");
-    expect(context.story.Continue()).toEqual("-24\n");
+    expect(context.story.Continue()).toEqual("27\n");
+    expect(context.story.Continue()).toEqual("8\n");
   });
 });
