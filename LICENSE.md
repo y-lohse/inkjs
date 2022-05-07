@@ -1,7 +1,7 @@
 MIT License
 
-Copyright (c) 2017 Yannick Lohse for the inkjs Player
-Copyright (c) 2022 Julien Zamor + Furkle for the inkjs Compiler
+Copyright (c) 2017 inkle Ltd.
+Copyright (c) 2017 inkjs contributors (see AUTHORS)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
