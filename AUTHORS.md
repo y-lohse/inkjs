@@ -8,4 +8,4 @@ Julien Zamor (@smwhr): compiler port
 
 To see the full list of contributors, see the revision history in
 source control. Alternatively, the complete list of contributors
-can be found at https://github.com/y-loshe/inkjs/graphs/contributors
+can be found at https://github.com/y-lohse/inkjs/graphs/contributors
