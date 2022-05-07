@@ -1,4 +1,5 @@
 /engine/
+/compiler/
 dist/
 test/stories/
 /tests/specs/

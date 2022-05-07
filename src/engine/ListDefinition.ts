@@ -1,5 +1,4 @@
-import { InkList, InkListItem, SerializedInkListItem } from "./InkList";
-import { ListValue } from "./Value";
+import { InkListItem, SerializedInkListItem } from "./InkList";
 import { TryGetResult } from "./TryGetResult";
 
 export class ListDefinition {

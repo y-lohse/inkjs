@@ -6,7 +6,6 @@ import { Tag } from "./Tag";
 import { Glue } from "./Glue";
 import { Path } from "./Path";
 import { ControlCommand } from "./ControlCommand";
-import { StoryException } from "./StoryException";
 import { StringBuilder } from "./StringBuilder";
 import { JsonSerialisation } from "./JsonSerialisation";
 import { PRNG } from "./PRNG";
@@ -35,7 +34,7 @@ export class StoryState {
   public ToJson(indented: boolean = false) {
     let writer = new SimpleJson.Writer();
     this.WriteJson(writer);
-    return writer.ToString();
+    return writer.toString();
   }
   public toJson(indented: boolean = false) {
     return this.ToJson(indented);

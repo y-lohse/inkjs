@@ -1,45 +1,55 @@
 import * as testsUtils from "../common";
 
 describe("Booleans", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: string) {
-    story = testsUtils.loadInkFile(name, "booleans");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "booleans",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestBools
   it("tests bools", () => {
-    loadStory("true");
-    expect(story.Continue()).toBe("true\n");
+    compileStory("true");
+    expect(context.story.Continue()).toBe("true\n");
 
-    loadStory("true_plus_one");
-    expect(story.Continue()).toBe("2\n");
+    compileStory("true_plus_one");
+    expect(context.story.Continue()).toBe("2\n");
 
-    loadStory("two_plus_true");
-    expect(story.Continue()).toBe("3\n");
+    compileStory("two_plus_true");
+    expect(context.story.Continue()).toBe("3\n");
 
-    loadStory("false_plus_false");
-    expect(story.Continue()).toBe("0\n");
+    compileStory("false_plus_false");
+    expect(context.story.Continue()).toBe("0\n");
 
-    loadStory("true_plus_true");
-    expect(story.Continue()).toBe("2\n");
+    compileStory("true_plus_true");
+    expect(context.story.Continue()).toBe("2\n");
 
-    loadStory("true_equals_one");
-    expect(story.Continue()).toBe("true\n");
+    compileStory("true_equals_one");
+    expect(context.story.Continue()).toBe("true\n");
 
-    loadStory("not_one");
-    expect(story.Continue()).toBe("false\n");
+    compileStory("not_one");
+    expect(context.story.Continue()).toBe("false\n");
 
-    loadStory("not_true");
-    expect(story.Continue()).toBe("false\n");
+    compileStory("not_true");
+    expect(context.story.Continue()).toBe("false\n");
 
-    loadStory("three_greater_than_one");
-    expect(story.Continue()).toBe("true\n");
+    compileStory("three_greater_than_one");
+    expect(context.story.Continue()).toBe("true\n");
 
-    loadStory("list_hasnt");
-    expect(story.Continue()).toBe("true\n");
+    compileStory("list_hasnt");
+    expect(context.story.Continue()).toBe("true\n");
   });
 });

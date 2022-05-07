@@ -1,94 +1,122 @@
 import * as testsUtils from "../common";
 
 describe("Weaves", () => {
-  let story: any;
+  let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    story = testsUtils.loadInkFile(name, "weaves");
+  function compileStory(
+    name: string,
+    countAllVisits: boolean = false,
+    testingErrors: boolean = false
+  ) {
+    context = testsUtils.makeDefaultTestContext(
+      name,
+      "weaves",
+      countAllVisits,
+      testingErrors
+    );
   }
 
-  beforeEach(() => {
-    story = undefined;
+  afterEach(() => {
+    context = new testsUtils.TestContext();
   });
 
+  // TestConditionalChoiceInWeave
   it("tests conditional choice in weave", () => {
-    loadStory("conditional_choice_in_weave");
+    compileStory("conditional_choice_in_weave");
 
-    expect(story.ContinueMaximally()).toBe("start\ngather should be seen\n");
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("go to a stitch");
+    expect(context.story.ContinueMaximally()).toBe(
+      "start\ngather should be seen\n"
+    );
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("go to a stitch");
 
-    story.ChooseChoiceIndex(0);
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.ContinueMaximally()).toBe("result\n");
+    expect(context.story.ContinueMaximally()).toBe("result\n");
   });
 
+  // TestConditionalChoiceInWeave2
   it("tests conditional choice in weave 2", () => {
-    loadStory("conditional_choice_in_weave_2");
+    compileStory("conditional_choice_in_weave_2");
 
-    expect(story.Continue()).toBe("first gather\n");
-    expect(story.currentChoices.length).toBe(2);
+    expect(context.story.Continue()).toBe("first gather\n");
+    expect(context.story.currentChoices.length).toBe(2);
 
-    story.ChooseChoiceIndex(0);
+    context.story.ChooseChoiceIndex(0);
 
-    expect(story.ContinueMaximally()).toBe("the main gather\nbottom gather\n");
-    expect(story.currentChoices.length).toBe(0);
+    expect(context.story.ContinueMaximally()).toBe(
+      "the main gather\nbottom gather\n"
+    );
+    expect(context.story.currentChoices.length).toBe(0);
   });
 
+  // TestUnbalancedWeaveIndentation
   it("tests unbalanced weave indentation", () => {
-    loadStory("unbalanced_weave_indentation");
+    compileStory("unbalanced_weave_indentation");
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("First");
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("First");
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("First\n");
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("Very indented");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe("First\n");
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("Very indented");
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("Very indented\nEnd\n");
-    expect(story.currentChoices.length).toBe(0);
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe("Very indented\nEnd\n");
+    expect(context.story.currentChoices.length).toBe(0);
   });
 
+  // TestWeaveGathers
   it("tests weave gathers", () => {
-    loadStory("weave_gathers");
+    compileStory("weave_gathers");
 
-    story.ContinueMaximally();
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(2);
-    expect(story.currentChoices[0].text).toBe("one");
-    expect(story.currentChoices[1].text).toBe("four");
+    expect(context.story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices[0].text).toBe("one");
+    expect(context.story.currentChoices[1].text).toBe("four");
 
-    story.ChooseChoiceIndex(0);
-    story.ContinueMaximally();
+    context.story.ChooseChoiceIndex(0);
+    context.story.ContinueMaximally();
 
-    expect(story.currentChoices.length).toBe(1);
-    expect(story.currentChoices[0].text).toBe("two");
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toBe("two");
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("two\nthree\nsix\n");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe("two\nthree\nsix\n");
   });
 
+  // TestWeaveOptions
   it("tests weave options", () => {
-    loadStory("weave_options");
+    compileStory("weave_options");
 
-    story.ContinueMaximally();
-    expect(story.currentChoices[0].text).toBe("Hello.");
+    context.story.ContinueMaximally();
+    expect(context.story.currentChoices[0].text).toBe("Hello.");
 
-    story.ChooseChoiceIndex(0);
-    expect(story.Continue()).toBe("Hello, world.\n");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.Continue()).toBe("Hello, world.\n");
   });
 
+  // TestWeaveWithinSequence
   it("tests weave within sequence", () => {
-    loadStory("weave_within_sequence");
+    compileStory("weave_within_sequence");
 
-    story.Continue();
-    expect(story.currentChoices.length).toBe(1);
+    context.story.Continue();
+    expect(context.story.currentChoices.length).toBe(1);
 
-    story.ChooseChoiceIndex(0);
-    expect(story.ContinueMaximally()).toBe("choice\nnextline\n");
+    context.story.ChooseChoiceIndex(0);
+    expect(context.story.ContinueMaximally()).toBe("choice\nnextline\n");
+  });
+
+  // TestWeavePointNamingCollision
+  it("tests weave point naming collision", () => {
+    compileStory("weave_point_naming_collision", false, true);
+
+    expect(context.errorMessages).toContainStringContaining(
+      "with the same label"
+    );
   });
 });

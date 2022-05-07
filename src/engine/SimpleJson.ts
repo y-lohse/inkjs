@@ -205,7 +205,7 @@ export namespace SimpleJson {
       escape: boolean = true
     ) {
       if (value === null) {
-        console.error("Warning: trying to write a null string");
+        console.error("Warning: trying to write a null value");
         return;
       }
 
@@ -297,7 +297,7 @@ export namespace SimpleJson {
     }
 
     // Serialise the root object into a JSON string.
-    public ToString() {
+    public toString() {
       if (this._jsonObject === null) {
         return "";
       }

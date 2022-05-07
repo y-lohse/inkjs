@@ -58,7 +58,7 @@ export abstract class AbstractValue extends InkObject {
     return null;
   }
   public Copy() {
-    return asOrThrows(AbstractValue.Create(this), InkObject);
+    return asOrThrows(AbstractValue.Create(this.valueObject), InkObject);
   }
   public BadCastException(targetType: ValueType) {
     return new StoryException(
@@ -264,7 +264,7 @@ export class StringValue extends Value<string> {
 }
 
 export class DivertTargetValue extends Value<Path> {
-  constructor(targetPath: Path) {
+  constructor(targetPath: Path | null = null) {
     super(targetPath);
   }
   public get valueType() {

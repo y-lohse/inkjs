@@ -67,3 +67,7 @@ function unsafeTypeAssertion<T>(
 ) {
   return obj as T;
 }
+
+export function filterUndef<T>(element: T | undefined): element is T {
+  return element != undefined;
+}

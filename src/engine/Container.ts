@@ -10,7 +10,7 @@ import { tryGetValueFromMap } from "./TryGetResult";
 import { asINamedContentOrNull, asOrNull, asOrThrows } from "./TypeAssertion";
 
 export class Container extends InkObject implements INamedContent {
-  public name: string = "";
+  public name: string | null = null;
 
   public _content: InkObject[] = [];
   public namedContent: Map<string, INamedContent> = new Map();
@@ -41,7 +41,7 @@ export class Container extends InkObject implements INamedContent {
     for (let c of this.content) {
       let named = asINamedContentOrNull(c);
       if (named != null && named.hasValidName) {
-        namedOnlyContentDict.delete(named.name);
+        namedOnlyContentDict.delete(named.name!);
       }
     }
 
@@ -114,6 +114,7 @@ export class Container extends InkObject implements INamedContent {
       }
     } else {
       let contentObj = contentObjOrList as InkObject;
+
       this._content.push(contentObj);
 
       if (contentObj.parent) {
@@ -140,7 +141,9 @@ export class Container extends InkObject implements INamedContent {
     let runtimeObj = asOrThrows(namedContentObj, InkObject);
     runtimeObj.parent = this;
 
-    this.namedContent.set(namedContentObj.name, namedContentObj);
+    if (namedContentObj.name === null)
+      return throwNullException("namedContentObj.name");
+    this.namedContent.set(namedContentObj.name!, namedContentObj);
   }
   public ContentAtPath(
     path: Path,
@@ -180,7 +183,7 @@ export class Container extends InkObject implements INamedContent {
     return result;
   }
   public InsertContent(contentObj: InkObject, index: number) {
-    this.content[index] = contentObj;
+    this.content.splice(index, 0, contentObj);
 
     if (contentObj.parent) {
       throw new Error("content is already in " + contentObj.parent);
@@ -191,7 +194,7 @@ export class Container extends InkObject implements INamedContent {
     this.TryAddNamedContent(contentObj);
   }
   public AddContentsOfContainer(otherContainer: Container) {
-    this.content = this.content.concat(otherContainer.content);
+    this.content.push(...otherContainer.content);
 
     for (let obj of otherContainer.content) {
       obj.parent = this;
