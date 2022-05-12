@@ -160,48 +160,52 @@ export abstract class ParsedObject {
     return subContent;
   };
 
-  public readonly Find = <T extends ParsedObject>(
-    type: (new (...arg: any[]) => T) | (Function & { prototype: T })
-  ) => (queryFunc: FindQueryFunc<T> | null = null): T | null => {
-    let tObj = (asOrNull(this, type) as any) as T;
-    if (tObj !== null && (queryFunc === null || queryFunc(tObj) === true)) {
-      return tObj;
-    }
-
-    if (this.content === null) {
-      return null;
-    }
-
-    for (const obj of this.content) {
-      let nestedResult = obj.Find && obj.Find(type)(queryFunc);
-      if (nestedResult) {
-        return nestedResult as T;
+  public readonly Find =
+    <T extends ParsedObject>(
+      type: (new (...arg: any[]) => T) | (Function & { prototype: T })
+    ) =>
+    (queryFunc: FindQueryFunc<T> | null = null): T | null => {
+      let tObj = asOrNull(this, type) as any as T;
+      if (tObj !== null && (queryFunc === null || queryFunc(tObj) === true)) {
+        return tObj;
       }
-    }
 
-    return null;
-  };
+      if (this.content === null) {
+        return null;
+      }
 
-  public readonly FindAll = <T extends ParsedObject>(
-    type: (new (...arg: any[]) => T) | (Function & { prototype: T })
-  ) => (queryFunc?: FindQueryFunc<T>, foundSoFar?: T[]): T[] => {
-    const found = Array.isArray(foundSoFar) ? foundSoFar : [];
+      for (const obj of this.content) {
+        let nestedResult = obj.Find && obj.Find(type)(queryFunc);
+        if (nestedResult) {
+          return nestedResult as T;
+        }
+      }
 
-    const tObj = asOrNull(this, type);
-    if (tObj !== null && (!queryFunc || queryFunc(tObj) === true)) {
-      found.push(tObj);
-    }
+      return null;
+    };
 
-    if (this.content === null) {
-      return [];
-    }
+  public readonly FindAll =
+    <T extends ParsedObject>(
+      type: (new (...arg: any[]) => T) | (Function & { prototype: T })
+    ) =>
+    (queryFunc?: FindQueryFunc<T>, foundSoFar?: T[]): T[] => {
+      const found = Array.isArray(foundSoFar) ? foundSoFar : [];
 
-    for (const obj of this.content) {
-      obj.FindAll && obj.FindAll(type)(queryFunc, found);
-    }
+      const tObj = asOrNull(this, type);
+      if (tObj !== null && (!queryFunc || queryFunc(tObj) === true)) {
+        found.push(tObj);
+      }
 
-    return found;
-  };
+      if (this.content === null) {
+        return [];
+      }
+
+      for (const obj of this.content) {
+        obj.FindAll && obj.FindAll(type)(queryFunc, found);
+      }
+
+      return found;
+    };
 
   public ResolveReferences(context: Story) {
     if (this.content !== null) {

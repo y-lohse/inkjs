@@ -255,9 +255,9 @@ export class InkParser extends StringParser {
   public readonly AuthorWarning = (): AuthorWarning | null => {
     this.Whitespace();
 
-    const identifier = (this.Parse(
+    const identifier = this.Parse(
       this.IdentifierWithMetadata
-    ) as unknown) as Identifier | null;
+    ) as unknown as Identifier | null;
     if (identifier === null || identifier.name !== "TODO") {
       return null;
     }
@@ -886,51 +886,52 @@ export class InkParser extends StringParser {
     return multipleConditions as ConditionalSingleBranch[];
   };
 
-  public readonly SingleMultilineCondition = (): ConditionalSingleBranch | null => {
-    this.Whitespace();
+  public readonly SingleMultilineCondition =
+    (): ConditionalSingleBranch | null => {
+      this.Whitespace();
 
-    if (
-      // Make sure we're not accidentally parsing a divert
-      this.ParseString("->") !== null ||
-      this.ParseString("-") === null
-    ) {
-      return null;
-    }
+      if (
+        // Make sure we're not accidentally parsing a divert
+        this.ParseString("->") !== null ||
+        this.ParseString("-") === null
+      ) {
+        return null;
+      }
 
-    this.Whitespace();
+      this.Whitespace();
 
-    let expr: Expression | null = null;
-    const isElse: boolean = this.Parse(this.ElseExpression) !== null;
+      let expr: Expression | null = null;
+      const isElse: boolean = this.Parse(this.ElseExpression) !== null;
 
-    if (!isElse) {
-      expr = this.Parse(this.ConditionExpression) as Expression;
-    }
+      if (!isElse) {
+        expr = this.Parse(this.ConditionExpression) as Expression;
+      }
 
-    let content: ParsedObject[] = this.StatementsAtLevel(
-      StatementLevel.InnerBlock
-    );
-    if (expr === null && content === null) {
-      this.Error("expected content for the conditional branch following '-'");
+      let content: ParsedObject[] = this.StatementsAtLevel(
+        StatementLevel.InnerBlock
+      );
+      if (expr === null && content === null) {
+        this.Error("expected content for the conditional branch following '-'");
 
-      // Recover
-      content = [new Text("")];
-    }
+        // Recover
+        content = [new Text("")];
+      }
 
-    // Allow additional multiline whitespace, if the statements were empty (valid)
-    // then their surrounding multiline whitespacce needs to be handled manually.
-    // e.g.
-    // { x:
-    //   - 1:    // intentionally left blank, but newline needs to be parsed
-    //   - 2: etc
-    // }
-    this.MultilineWhitespace();
+      // Allow additional multiline whitespace, if the statements were empty (valid)
+      // then their surrounding multiline whitespacce needs to be handled manually.
+      // e.g.
+      // { x:
+      //   - 1:    // intentionally left blank, but newline needs to be parsed
+      //   - 2: etc
+      // }
+      this.MultilineWhitespace();
 
-    const branch = new ConditionalSingleBranch(content);
-    branch.ownExpression = expr;
-    branch.isElse = isElse;
+      const branch = new ConditionalSingleBranch(content);
+      branch.ownExpression = expr;
+      branch.isElse = isElse;
 
-    return branch;
-  };
+      return branch;
+    };
 
   public readonly ConditionExpression = (): ParsedObject | null => {
     const expr = this.Parse(this.Expression) as ParsedObject;
@@ -1978,9 +1979,8 @@ export class InkParser extends StringParser {
     let includedStory: Story | null = null;
     let includedString: string = "";
     try {
-      includedString = this._rootParser.fileHandler.LoadInkFileContents(
-        fullFilename
-      );
+      includedString =
+        this._rootParser.fileHandler.LoadInkFileContents(fullFilename);
     } catch (err) {
       this.Error(`Failed to load: '${filename}'.\nError:${err}`);
     }
@@ -3065,9 +3065,8 @@ export class InkParser extends StringParser {
   };
 
   public readonly StatementAtLevel = (level: StatementLevel): ParsedObject => {
-    const rulesAtLevel: ParseRule[] = this._statementRulesAtLevel[
-      level as number
-    ];
+    const rulesAtLevel: ParseRule[] =
+      this._statementRulesAtLevel[level as number];
     const statement = this.OneOf(rulesAtLevel) as ReturnType;
 
     // For some statements, allow them to parse, but create errors, since
@@ -3087,9 +3086,8 @@ export class InkParser extends StringParser {
   ): ParseRuleReturn => {
     this.Whitespace();
 
-    const breakRules: ParseRule[] = this._statementBreakRulesAtLevel[
-      level as number
-    ];
+    const breakRules: ParseRule[] =
+      this._statementBreakRulesAtLevel[level as number];
     const breakRuleResult = this.OneOf(breakRules);
     if (breakRuleResult === null) {
       return null;
@@ -3185,16 +3183,18 @@ export class InkParser extends StringParser {
   // Modifier to turn a rule into one that expects a newline on the end.
   // e.g. anywhere you can use "MixedTextAndLogic" as a rule, you can use
   // "Line(MixedTextAndLogic)" to specify that it expects a newline afterwards.
-  public readonly Line = (inlineRule: ParseRule): ParseRule => () => {
-    const result = this.ParseObject(inlineRule);
-    if (result === null) {
-      return null;
-    }
+  public readonly Line =
+    (inlineRule: ParseRule): ParseRule =>
+    () => {
+      const result = this.ParseObject(inlineRule);
+      if (result === null) {
+        return null;
+      }
 
-    this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
+      this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
 
-    return result;
-  };
+      return result;
+    };
 
   /**
    * End Statements section.
@@ -3314,18 +3314,20 @@ export class InkParser extends StringParser {
     return null;
   };
 
-  public readonly Spaced = (rule: ParseRule): ParseRule => () => {
-    this.Whitespace();
+  public readonly Spaced =
+    (rule: ParseRule): ParseRule =>
+    () => {
+      this.Whitespace();
 
-    const result = this.ParseObject(rule);
-    if (result === null) {
-      return null;
-    }
+      const result = this.ParseObject(rule);
+      if (result === null) {
+        return null;
+      }
 
-    this.Whitespace();
+      this.Whitespace();
 
-    return result;
-  };
+      return result;
+    };
 
   public readonly AnyWhitespace = (): typeof ParseSuccess | null => {
     let anyWhitespace: boolean = false;
@@ -3337,18 +3339,20 @@ export class InkParser extends StringParser {
     return anyWhitespace ? ParseSuccess : null;
   };
 
-  public readonly MultiSpaced = (rule: ParseRule): ParseRuleReturn => () => {
-    this.AnyWhitespace();
+  public readonly MultiSpaced =
+    (rule: ParseRule): ParseRuleReturn =>
+    () => {
+      this.AnyWhitespace();
 
-    const result = this.ParseObject(rule);
-    if (result === null) {
-      return null;
-    }
+      const result = this.ParseObject(rule);
+      if (result === null) {
+        return null;
+      }
 
-    this.AnyWhitespace();
+      this.AnyWhitespace();
 
-    return result;
-  };
+      return result;
+    };
 
   private _filename: string | null = null;
   private _externalErrorHandler: ErrorHandler | null = null;

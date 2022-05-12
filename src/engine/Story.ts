@@ -118,17 +118,15 @@ export class Story extends InkObject {
 
   public onMakeChoice: ((arg1: Choice) => void) | null = null;
 
-  public onEvaluateFunction:
-    | ((arg1: string, arg2: any[]) => void)
-    | null = null;
+  public onEvaluateFunction: ((arg1: string, arg2: any[]) => void) | null =
+    null;
 
   public onCompleteEvaluateFunction:
     | ((arg1: string, arg2: any[], arg3: string, arg4: any) => void)
     | null = null;
 
-  public onChoosePathString:
-    | ((arg1: string, arg2: any[]) => void)
-    | null = null;
+  public onChoosePathString: ((arg1: string, arg2: any[]) => void) | null =
+    null;
 
   // TODO: Implement Profiler
   public StartProfiling() {
@@ -207,9 +205,8 @@ export class Story extends InkObject {
 
       let listDefsObj;
       if ((listDefsObj = rootObject["listDefs"])) {
-        this._listDefinitions = JsonSerialisation.JTokenToListDefinitions(
-          listDefsObj
-        );
+        this._listDefinitions =
+          JsonSerialisation.JTokenToListDefinitions(listDefsObj);
       }
 
       this._mainContentContainer = asOrThrows(
@@ -737,9 +734,8 @@ export class Story extends InkObject {
     // Stop flow if we hit a stack pop when we're unable to pop (e.g. return/done statement in knot
     // that was diverted to rather than called as a function)
     let currentContentObj = pointer.Resolve();
-    let isLogicOrFlowControl = this.PerformLogicAndFlowControl(
-      currentContentObj
-    );
+    let isLogicOrFlowControl =
+      this.PerformLogicAndFlowControl(currentContentObj);
 
     // Has flow been forced to end by flow control above?
     if (this.state.currentPointer.isNull) {
@@ -978,9 +974,8 @@ export class Story extends InkObject {
       if (currentDivert.hasVariableTarget) {
         let varName = currentDivert.variableDivertName;
 
-        let varContents = this.state.variablesState.GetVariableWithName(
-          varName
-        );
+        let varContents =
+          this.state.variablesState.GetVariableWithName(varName);
 
         if (varContents == null) {
           this.Error(
@@ -1571,8 +1566,8 @@ export class Story extends InkObject {
     } else {
       if (this.state.callStack.currentElement.type == PushPopType.Function) {
         let funcDetail = "";
-        let container = this.state.callStack.currentElement.currentPointer
-          .container;
+        let container =
+          this.state.callStack.currentElement.currentPointer.container;
         if (container != null) {
           funcDetail = "(" + container.path.toString() + ") ";
         }
@@ -1924,9 +1919,8 @@ export class Story extends InkObject {
         }
         if (!this._externals.has(name)) {
           if (this.allowExternalFunctionFallbacks) {
-            let fallbackFound = this.mainContentContainer.namedContent.has(
-              name
-            );
+            let fallbackFound =
+              this.mainContentContainer.namedContent.has(name);
             if (!fallbackFound) {
               missingExternals.add(name);
             }
@@ -1991,9 +1985,8 @@ export class Story extends InkObject {
     if (specificVariableName != null) {
       if (this._variableObservers.has(specificVariableName)) {
         if (observer != null) {
-          let variableObservers = this._variableObservers.get(
-            specificVariableName
-          );
+          let variableObservers =
+            this._variableObservers.get(specificVariableName);
           if (variableObservers != null) {
             variableObservers.splice(variableObservers.indexOf(observer), 1);
             if (variableObservers.length === 0) {
@@ -2375,10 +2368,8 @@ export class Story extends InkObject {
   private _listDefinitions: ListDefinitionsOrigin | null = null;
 
   private _externals: Map<string, Story.ExternalFunctionDef>;
-  private _variableObservers: Map<
-    string,
-    Story.VariableObserver[]
-  > | null = null;
+  private _variableObservers: Map<string, Story.VariableObserver[]> | null =
+    null;
   private _hasValidatedExternals: boolean = false;
 
   private _temporaryEvaluationContainer: Container | null = null;

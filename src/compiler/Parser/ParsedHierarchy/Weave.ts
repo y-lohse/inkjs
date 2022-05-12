@@ -129,12 +129,8 @@ export class Weave extends ParsedObject {
 
     for (const weavePoint of namedWeavePoints) {
       // Check for weave point naming collisions
-      const existingWeavePoint:
-        | IWeavePoint
-        | null
-        | undefined = this.namedWeavePoints.get(
-        weavePoint.identifier?.name || ""
-      );
+      const existingWeavePoint: IWeavePoint | null | undefined =
+        this.namedWeavePoints.get(weavePoint.identifier?.name || "");
 
       if (existingWeavePoint) {
         const typeName =
@@ -570,10 +566,8 @@ export class Weave extends ParsedObject {
       return null;
     }
 
-    let weavePointResult:
-      | IWeavePoint
-      | null
-      | undefined = this.namedWeavePoints.get(name);
+    let weavePointResult: IWeavePoint | null | undefined =
+      this.namedWeavePoints.get(name);
     if (weavePointResult) {
       return weavePointResult;
     }
@@ -819,9 +813,8 @@ export class Weave extends ParsedObject {
     for (const [weavePointName, weavePoint] of this.namedWeavePoints) {
       for (const flow of ancestorFlows) {
         // Shallow search
-        const otherContentWithName = flow.ContentWithNameAtLevel(
-          weavePointName
-        );
+        const otherContentWithName =
+          flow.ContentWithNameAtLevel(weavePointName);
         if (otherContentWithName && otherContentWithName !== weavePoint) {
           const errorMsg = `${weavePoint.GetType()} '${weavePointName}' has the same label name as a ${otherContentWithName.GetType()} (on ${
             otherContentWithName.debugMetadata
