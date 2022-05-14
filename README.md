@@ -92,7 +92,7 @@ From there on, you can follow [the official documentation](https://github.com/in
 
 There are a few very minor API differences between ink C# and inkjs:
 
-### [Getting and setting ink variables](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#settinggetting-ink-variables).
+### [Getting and setting ink variables](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#settinggetting-ink-variables)
 
 On platforms that do not support [ES2015 Proxies](https://kangax.github.io/compat-table/es6/) (basically node.js v5, IE 11, Safari 9 and everything below), you can't directly read and write variables to the story state. Instead you will have to use the `$` function:
 
@@ -125,6 +125,7 @@ var result = EvaluateFunction("my_ink_function", ["arg1", "arg2"], true);
 ## Compiler
 
 ### inklecate.js
+
 ```shell
 $ node inklecate.js -h
 
@@ -137,6 +138,7 @@ Usage: inklecate <options> <ink file>
 ```
 
 ### online compiler
+
 ```javascript
 const story  = (new inkjs.Compiler(`Hello World`)).Compile()
 // story is an inkjs.Story that can be played right away
@@ -145,7 +147,10 @@ const jsonBytecode = story.ToJson();
 // the generated json can be further re-used
 ```
 
+You can use this in combination with [Webpack and TypeScript](docs/working-with-typescript-and-webpack.md).
+
 ### Differences with the C# Compiler
+
 See [Differences with the C# Compiler](docs/compiler-differences.md).
 
 ## Compatibility table
