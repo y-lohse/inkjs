@@ -11,13 +11,13 @@ In Webpack 5, static resources are loaded with [Asset Modules](https://webpack.j
 Here we load `.ink` files and inline their content into the script. This is most useful for programs which unconditionally use a single Ink file.
 
 ```javascript
-    rules: [
-        {
-            test: /\.ink$/i,
-            type: 'asset/source',
-        },
-        // ... and then the rest of your rules
-    ]
+rules: [
+	{
+		test: /\.ink$/i,
+		type: 'asset/source',
+	},
+	// ... and then the rest of your rules
+];
 ```
 
 We can then `import` (or `require`) the ink file and compile it.
@@ -43,8 +43,8 @@ Create one, such as `global.d.ts` in the top level of your source code, which re
 
 ```typescript
 declare module '*.ink' {
-    const value: string;
-    export default value;
+	const value: string;
+	export default value;
 }
 ```
 
