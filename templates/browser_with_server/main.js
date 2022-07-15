@@ -13,12 +13,19 @@
 		continueStory();
 	});
 
+    function isAnimationEnabled() {
+        return window.matchMedia('(prefers-reduced-motion: no-preference)').matches;
+    }
+
     function showAfter(delay, el) {
-        setTimeout(function() { el.classList.add("show") }, delay);
+        setTimeout(function() { el.classList.add("show") }, isAnimationEnabled() ? delay : 0);
     }
 
     function scrollToBottom() {
-        var progress = 0.0;
+        // If the user doesn't want animations, let them scroll manually
+        if (!isAnimationEnabled()) {
+            return;
+        }
         var start = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop || 0;
         var dist = document.body.scrollHeight - window.innerHeight - start;
         if( dist < 0 ) return;
