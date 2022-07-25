@@ -26,6 +26,8 @@ function VariablesStateAccessor<T>(): new () => Pick<T, keyof T> {
   return class {} as any;
 }
 
+type VariableStateValue = boolean | string | number | InkList | InkObject | null
+
 export class VariablesState extends VariablesStateAccessor<
   Record<string, any>
 >() {
@@ -79,8 +81,10 @@ export class VariablesState extends VariablesStateAccessor<
   // the original code uses a magic getter and setter for global variables,
   // allowing things like variableState['varname]. This is not quite possible
   // in js without a Proxy, so it is replaced with this $ function.
-  public $(variableName: string): string | number | InkList | InkObject | null;
-  public $(variableName: string, value: any): void;
+  public $(
+    variableName: string
+  ): VariableStateValue;
+  public $(variableName: string, value: VariableStateValue): void;
   public $(variableName: string, value?: any) {
     if (typeof value === "undefined") {
       let varContents = null;
