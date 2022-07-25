@@ -19,6 +19,7 @@ import { CallStack } from "./CallStack";
 import { StatePatch } from "./StatePatch";
 import { SimpleJson } from "./SimpleJson";
 import { InkList } from "./Story";
+import { Path } from "./Path";
 
 // Fake class wrapper around VariableState to have correct typing
 // when using the Proxy syntax in typescript
@@ -26,13 +27,7 @@ function VariablesStateAccessor<T>(): new () => Pick<T, keyof T> {
   return class {} as any;
 }
 
-type VariableStateValue =
-  | boolean
-  | string
-  | number
-  | InkList
-  | InkObject
-  | null;
+type VariableStateValue = boolean | string | number | InkList | Path | null;
 
 export class VariablesState extends VariablesStateAccessor<
   Record<string, any>
