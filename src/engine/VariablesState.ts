@@ -20,14 +20,15 @@ import { StatePatch } from "./StatePatch";
 import { SimpleJson } from "./SimpleJson";
 import { InkList } from "./Story";
 
-
 // Fake class wrapper around VariableState to have correct typing
 // when using the Proxy syntax in typescript
-function VariablesStateAccessor<T>() : new() => Pick<T, keyof T>{
-  return class {} as any
+function VariablesStateAccessor<T>(): new () => Pick<T, keyof T> {
+  return class {} as any;
 }
 
-export class VariablesState extends VariablesStateAccessor<Record<string, any>>(){
+export class VariablesState extends VariablesStateAccessor<
+  Record<string, any>
+>() {
   // The way variableChangedEvent is a bit different than the reference implementation.
   // Originally it uses the C# += operator to add delegates, but in js we need to maintain
   // an actual collection of delegates (ie. callbacks) to register a new one, there is a
@@ -78,9 +79,9 @@ export class VariablesState extends VariablesStateAccessor<Record<string, any>>(
   // the original code uses a magic getter and setter for global variables,
   // allowing things like variableState['varname]. This is not quite possible
   // in js without a Proxy, so it is replaced with this $ function.
-  public $(variableName: string): string|number|InkList|InkObject|null
-  public $(variableName: string, value: any): void
-  public $(variableName: string, value?:any){
+  public $(variableName: string): string | number | InkList | InkObject | null;
+  public $(variableName: string, value: any): void;
+  public $(variableName: string, value?: any) {
     if (typeof value === "undefined") {
       let varContents = null;
 
