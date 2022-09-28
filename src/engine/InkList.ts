@@ -128,7 +128,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
     if (arguments[0] instanceof InkList) {
       let otherList = arguments[0] as InkList;
 
-      var otherOriginNames = otherList.originNames;
+      let otherOriginNames = otherList.originNames as string[];
       if (otherOriginNames !== null)
         this._originNames = otherOriginNames.slice();
       if (otherList.origins !== null) {
