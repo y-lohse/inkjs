@@ -39,7 +39,7 @@
     "jest-diff": "27.5.1",
     "prettier": "2.7.1",
     "remap-istanbul": "0.13.0",
-    "rollup": "2.71.1",
+    "rollup": "2.79.1",
     "@rollup/plugin-babel": "5.3.1",
     "@rollup/plugin-node-resolve": "13.3.0",
     "rollup-plugin-sourcemaps": "0.6.3",
