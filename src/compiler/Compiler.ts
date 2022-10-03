@@ -9,6 +9,7 @@ import { StringValue } from "../engine/Value";
 import { asOrNull } from "../engine/TypeAssertion";
 
 export { CompilerOptions } from "./CompilerOptions";
+export { JsonFileHandler } from "./FileHandler/JsonFileHandler";
 export { InkList, Story } from "../engine/Story";
 
 export class Compiler {
