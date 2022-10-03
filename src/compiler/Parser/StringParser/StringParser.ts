@@ -303,28 +303,36 @@ export class StringParser {
     return null;
   };
 
-  public readonly Optional = (rule: ParseRule): ParseRule => () => {
-    const result = this.ParseObject(rule);
-    if (result === null) return StringParser.ParseSuccess;
-    return result;
-  };
+  public readonly Optional =
+    (rule: ParseRule): ParseRule =>
+    () => {
+      const result = this.ParseObject(rule);
+      if (result === null) return StringParser.ParseSuccess;
+      return result;
+    };
 
   // Return ParseSuccess instead the real result so that it gets excluded
   // from result arrays (e.g. Interleave)
-  public readonly Exclude = (rule: ParseRule): ParseRule => () =>
-    this.ParseObject(rule) && StringParser.ParseSuccess;
+  public readonly Exclude =
+    (rule: ParseRule): ParseRule =>
+    () =>
+      this.ParseObject(rule) && StringParser.ParseSuccess;
 
   // Combination of both of the above
-  public readonly OptionalExclude = (rule: ParseRule): ParseRule => () => {
-    this.ParseObject(rule);
-    return StringParser.ParseSuccess;
-  };
+  public readonly OptionalExclude =
+    (rule: ParseRule): ParseRule =>
+    () => {
+      this.ParseObject(rule);
+      return StringParser.ParseSuccess;
+    };
 
   // Convenience method for creating more readable ParseString rules that can be combined
   // in other structuring rules (like OneOf etc)
   // e.g. OneOf(String("one"), String("two"))
-  public readonly String = (str: string): ParseRule => () =>
-    this.ParseString(str);
+  public readonly String =
+    (str: string): ParseRule =>
+    () =>
+      this.ParseString(str);
 
   private readonly TryAddResultToList = <T>(
     result: ParseRuleReturn,
@@ -589,9 +597,8 @@ export class StringParser {
     //  - When the end point is reached (or EOF), we're done
     do {
       // TODO: Perhaps if no pause or end characters are passed, we should check *every* character for stopRule?
-      const partialParsedString:
-        | string
-        | null = this.ParseUntilCharactersFromCharSet(pauseAndEnd);
+      const partialParsedString: string | null =
+        this.ParseUntilCharactersFromCharSet(pauseAndEnd);
 
       if (partialParsedString) {
         parsedString += partialParsedString;

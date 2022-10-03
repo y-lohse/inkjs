@@ -186,7 +186,8 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
       this._outerContainer.AddContent(this._divertToStartContentOuter);
 
       // Start content itself in a named container
-      this._startContentRuntimeContainer = this.startContent.GenerateRuntimeObject() as RuntimeContainer;
+      this._startContentRuntimeContainer =
+        this.startContent.GenerateRuntimeObject() as RuntimeContainer;
       this._startContentRuntimeContainer.name = "s";
 
       // Effectively, the "return" statement - return to the point specified by $r
@@ -213,7 +214,8 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
     if (this.choiceOnlyContent) {
       this._outerContainer.AddContent(RuntimeControlCommand.BeginString());
 
-      const choiceOnlyRuntimeContent = this.choiceOnlyContent.GenerateRuntimeObject() as RuntimeContainer;
+      const choiceOnlyRuntimeContent =
+        this.choiceOnlyContent.GenerateRuntimeObject() as RuntimeContainer;
       this._outerContainer.AddContentsOfContainer(choiceOnlyRuntimeContent);
 
       this._outerContainer.AddContent(RuntimeControlCommand.EndString());
@@ -260,7 +262,8 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
 
     // Choice's own inner content
     if (this.innerContent) {
-      const innerChoiceOnlyContent = this.innerContent.GenerateRuntimeObject() as RuntimeContainer;
+      const innerChoiceOnlyContent =
+        this.innerContent.GenerateRuntimeObject() as RuntimeContainer;
       this._innerContentContainer.AddContentsOfContainer(
         innerChoiceOnlyContent
       );
@@ -306,7 +309,8 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
         throw new Error();
       }
 
-      this._divertToStartContentOuter.targetPath = this._startContentRuntimeContainer.path;
+      this._divertToStartContentOuter.targetPath =
+        this._startContentRuntimeContainer.path;
     }
 
     if (this._divertToStartContentInner) {
@@ -314,7 +318,8 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
         throw new Error();
       }
 
-      this._divertToStartContentInner.targetPath = this._startContentRuntimeContainer.path;
+      this._divertToStartContentInner.targetPath =
+        this._startContentRuntimeContainer.path;
     }
 
     super.ResolveReferences(context);

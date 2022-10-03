@@ -162,7 +162,8 @@ export class Sequence extends ParsedObject {
       // Generate content for this sequence element
       if (elIndex < this.sequenceElements.length) {
         const el = this.sequenceElements[elIndex];
-        contentContainerForSequenceBranch = el.runtimeObject as RuntimeContainer;
+        contentContainerForSequenceBranch =
+          el.runtimeObject as RuntimeContainer;
       } else {
         // Final empty branch for "once" sequences
         contentContainerForSequenceBranch = new RuntimeContainer();

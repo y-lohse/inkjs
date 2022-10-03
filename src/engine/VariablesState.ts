@@ -168,9 +168,8 @@ export class VariablesState {
     for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
       let loadedToken = jToken[varValKey];
       if (typeof loadedToken !== "undefined") {
-        let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(
-          loadedToken
-        );
+        let tokenInkObject =
+          JsonSerialisation.JTokenToRuntimeObject(loadedToken);
         if (tokenInkObject === null) {
           return throwNullException("tokenInkObject");
         }
@@ -331,9 +330,8 @@ export class VariablesState {
       // var varPointer = value as VariablePointerValue;
       let varPointer = asOrNull(value, VariablePointerValue);
       if (varPointer !== null) {
-        let fullyResolvedVariablePointer = this.ResolveVariablePointer(
-          varPointer
-        );
+        let fullyResolvedVariablePointer =
+          this.ResolveVariablePointer(varPointer);
         value = fullyResolvedVariablePointer;
       }
     } else {
