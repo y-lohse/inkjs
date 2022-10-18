@@ -8,7 +8,7 @@ const moduleName = 'inkjs';
 const engineOnlyInputFile = 'src/engine/Story.ts';
 const fullfeatureInputFile = 'src/compiler/Compiler.ts';
 const posixHandlerInputFile = 'src/compiler/FileHandler/PosixFileHandler.ts';
-const inklecateInputFile = 'script/inklecate.ts';
+const inklecateInputFile = 'script/inkjs-compiler.ts';
 const format = 'umd';
 const tsconfig = {
   tsconfig: "tsconfig.json",
@@ -114,8 +114,8 @@ export default [
   {
     input: inklecateInputFile,
     output: {
-      name: 'inklecate',
-      file: 'dist/inklecate.js',
+      name: 'inkjs-compiler',
+      file: 'dist/inkjs-compiler.js',
       format: 'commonjs',
       sourcemap: false
     },
