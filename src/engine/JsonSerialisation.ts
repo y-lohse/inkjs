@@ -719,6 +719,10 @@ export class JsonSerialisation {
     _controlCommandNames[ControlCommand.CommandType.ListFromInt] = "listInt";
     _controlCommandNames[ControlCommand.CommandType.ListRange] = "range";
     _controlCommandNames[ControlCommand.CommandType.ListRandom] = "lrnd";
+    _controlCommandNames[ControlCommand.CommandType.BeginTag] = "#";
+    _controlCommandNames[ControlCommand.CommandType.EndTag] = "/#";
+    _controlCommandNames[ControlCommand.CommandType.EndTagAndPushToStack] =
+      "/#out";
 
     for (let i = 0; i < ControlCommand.CommandType.TOTAL_VALUES; ++i) {
       if (_controlCommandNames[i] == null)
