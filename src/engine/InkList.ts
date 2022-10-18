@@ -385,7 +385,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
   }
   public HasIntersection(otherList: InkList): boolean {
     for (let [key] of this) {
-      if (otherList.Contains(key)) return true;
+      if (otherList.has(key)) return true;
     }
     return false;
   }
