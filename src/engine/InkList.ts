@@ -391,7 +391,13 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
     return result;
   }
-  public Contains(otherList: InkList) {
+
+  public Contains(key: string): boolean;
+  public Contains(otherList: InkList): boolean;
+  public Contains(what: string | InkList): boolean {
+    if (typeof what == "string") return this.ContainsItemNamed(what);
+    const otherList = what;
+    if (otherList.size == 0 || this.size == 0) return false;
     for (let [key] of otherList) {
       if (!this.has(key)) return false;
     }
