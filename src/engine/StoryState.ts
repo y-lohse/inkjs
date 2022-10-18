@@ -25,7 +25,6 @@ import { Flow } from "./Flow";
 import { InkList } from "./InkList";
 
 export class StoryState {
-  
   // Backward compatible changes since v8:
   // v10: dynamic tags
   // v9:  multi-flows

@@ -4,10 +4,7 @@ describe("Choices", () => {
   let context: testsUtils.TestContext;
 
   function loadStory(name: any) {
-    context = testsUtils.fromJsonTestContext(
-      name,
-      "choices"
-    )
+    context = testsUtils.fromJsonTestContext(name, "choices");
   }
 
   function compileStory(
@@ -275,14 +272,14 @@ describe("Choices", () => {
   //TestTagsInChoice
   it("tests dynamic tags in choice", () => {
     loadStory("tags_in_choice");
-    
+
     context.story.Continue();
-    expect(context.story.currentTags).toEqual(["one","two"])
-    expect(context.story.choices.length).toBe(2)
-    expect(context.story.currentChoices[0].tags).toEqual(["one", "two"])
+    expect(context.story.currentTags).toEqual(["one", "two"]);
+    expect(context.story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices[0].tags).toEqual(["one", "two"]);
 
     context.story.ChooseChoiceIndex(0);
-    expect(context.story.Continue()).toBe("one three")
-    expect(context.story.currentTags).toEqual(["one","three"])
-  })
+    expect(context.story.Continue()).toBe("one three");
+    expect(context.story.currentTags).toEqual(["one", "three"]);
+  });
 });

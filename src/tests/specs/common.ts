@@ -118,12 +118,12 @@ export class TestContext {
 /*
  * Simplified Test Context when testing directly from a precompiled json file
  * Useful when updating the runtime before having the compiler ready
- */ 
+ */
 export function fromJsonTestContext(
   name: string,
   category: string,
   testingErrors: boolean = false
-){
+) {
   let context = new TestContext(testingErrors);
 
   let rootDir: string;

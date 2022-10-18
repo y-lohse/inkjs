@@ -4,10 +4,7 @@ describe("Diverts", () => {
   let context: testsUtils.TestContext;
 
   function loadStory(name: any) {
-    context = testsUtils.fromJsonTestContext(
-      name,
-      "diverts"
-    )
+    context = testsUtils.fromJsonTestContext(name, "diverts");
   }
 
   function compileStory(
@@ -179,10 +176,11 @@ describe("Diverts", () => {
     );
   });
 
-
   // TestTunnelOnwardsToVariableDivertTarget
   it("tests variable divert target in tunnel onward", () => {
-    loadStory("tunnel_onwards_to_variable_divert_target")
-    expect(context.story.ContinueMaximally()).toMatch("This is outer\nThis is the_esc\n");
-  })
+    loadStory("tunnel_onwards_to_variable_divert_target");
+    expect(context.story.ContinueMaximally()).toMatch(
+      "This is outer\nThis is the_esc\n"
+    );
+  });
 });

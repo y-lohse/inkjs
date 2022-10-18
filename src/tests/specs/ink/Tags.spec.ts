@@ -4,10 +4,7 @@ describe("Tags", () => {
   let context: testsUtils.TestContext;
 
   function loadStory(name: any) {
-    context = testsUtils.fromJsonTestContext(
-      name,
-      "tags"
-    )
+    context = testsUtils.fromJsonTestContext(name, "tags");
   }
 
   function compileStory(
@@ -57,18 +54,17 @@ describe("Tags", () => {
     loadStory("tags_in_seq");
 
     expect(context.story.Continue()).toBe("A red sequence.\n");
-    expect(context.story.currentTags).toEqual(["red"])
-    
+    expect(context.story.currentTags).toEqual(["red"]);
+
     expect(context.story.Continue()).toBe("A white sequence.\n");
-    expect(context.story.currentTags).toEqual(["white"])
-  })
+    expect(context.story.currentTags).toEqual(["white"]);
+  });
 
   //TestTagsDynamicContent
   it("tests dynamic content in tags", () => {
     loadStory("tags_dynamic_content");
 
     expect(context.story.Continue()).toBe("tag\n");
-    expect(context.story.currentTags).toEqual(["pic8red.jpg"])
-  })
-
+    expect(context.story.currentTags).toEqual(["pic8red.jpg"]);
+  });
 });
