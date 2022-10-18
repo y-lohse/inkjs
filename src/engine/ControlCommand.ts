@@ -89,6 +89,15 @@ export class ControlCommand extends InkObject {
   public static ListRandom() {
     return new ControlCommand(ControlCommand.CommandType.ListRandom);
   }
+  public static BeginTag() {
+    return new ControlCommand(ControlCommand.CommandType.BeginTag);
+  }
+  public static EndTag() {
+    return new ControlCommand(ControlCommand.CommandType.EndTag);
+  }
+  public static EndTagAndPushToStack() {
+    return new ControlCommand(ControlCommand.CommandType.EndTagAndPushToStack);
+  }
   public toString() {
     return this.commandType.toString();
   }
@@ -97,7 +106,7 @@ export class ControlCommand extends InkObject {
 export namespace ControlCommand {
   export enum CommandType {
     NotSet = -1,
-    EvalStart, // 0
+    EvalStart,  // 0
     EvalOutput, // 1
     EvalEnd, // 2
     Duplicate, // 3
@@ -110,17 +119,20 @@ export namespace ControlCommand {
     ChoiceCount, // 10
     Turns, // 11
     TurnsSince, // 12
-    Random, // 13
-    SeedRandom, // 14
-    VisitIndex, // 15
-    SequenceShuffleIndex, // 16
-    StartThread, // 17
-    Done, // 18
-    End, // 19
-    ListFromInt, // 20
-    ListRange, // 21
-    ListRandom, // 22
-    ReadCount, // 23
+    ReadCount, // 13
+    Random, // 14
+    SeedRandom, // 15
+    VisitIndex, // 16
+    SequenceShuffleIndex, // 17
+    StartThread, // 18
+    Done, // 19
+    End, // 20
+    ListFromInt, // 21
+    ListRange, // 22
+    ListRandom, // 23
+    BeginTag, // 24
+    EndTag, // 25
+    EndTagAndPushToStack, // 26
 
     TOTAL_VALUES,
   }
