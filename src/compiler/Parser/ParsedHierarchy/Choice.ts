@@ -45,6 +45,7 @@ export class Choice extends ParsedObject implements IWeavePoint, INamedContent {
   }
   public onceOnly: boolean;
   public isInvisibleDefault: boolean = false;
+  public tags: string[] | null = null;
   public indentationDepth: number;
   public hasWeaveStyleInlineBrackets: boolean = false;
 
