@@ -18,8 +18,20 @@ import { throwNullException } from "./NullException";
 import { CallStack } from "./CallStack";
 import { StatePatch } from "./StatePatch";
 import { SimpleJson } from "./SimpleJson";
+import { InkList } from "./Story";
+import { Path } from "./Path";
 
-export class VariablesState {
+// Fake class wrapper around VariableState to have correct typing
+// when using the Proxy syntax in typescript
+function VariablesStateAccessor<T>(): new () => Pick<T, keyof T> {
+  return class {} as any;
+}
+
+type VariableStateValue = boolean | string | number | InkList | Path | null;
+
+export class VariablesState extends VariablesStateAccessor<
+  Record<string, any>
+>() {
   // The way variableChangedEvent is a bit different than the reference implementation.
   // Originally it uses the C# += operator to add delegates, but in js we need to maintain
   // an actual collection of delegates (ie. callbacks) to register a new one, there is a
@@ -70,7 +82,9 @@ export class VariablesState {
   // the original code uses a magic getter and setter for global variables,
   // allowing things like variableState['varname]. This is not quite possible
   // in js without a Proxy, so it is replaced with this $ function.
-  public $(variableName: string, value: any) {
+  public $(variableName: string): VariableStateValue;
+  public $(variableName: string, value: VariableStateValue): void;
+  public $(variableName: string, value?: any) {
     if (typeof value === "undefined") {
       let varContents = null;
 
@@ -116,6 +130,7 @@ export class VariablesState {
     callStack: CallStack,
     listDefsOrigin: ListDefinitionsOrigin | null
   ) {
+    super();
     this._globalVariables = new Map();
     this._callStack = callStack;
     this._listDefsOrigin = listDefsOrigin;
@@ -138,8 +153,8 @@ export class VariablesState {
 
       return p;
     } catch (e) {
-      // thr proxy object is not available in this context. we should warn the
-      // dev but writting to the console feels a bit intrusive.
+      // the proxy object is not available in this context. we should warn the
+      // dev but writing to the console feels a bit intrusive.
       // console.log("ES6 Proxy not available - direct manipulation of global variables can't work, use $() instead.");
     }
   }
@@ -168,9 +183,8 @@ export class VariablesState {
     for (let [varValKey, varValValue] of this._defaultGlobalVariables) {
       let loadedToken = jToken[varValKey];
       if (typeof loadedToken !== "undefined") {
-        let tokenInkObject = JsonSerialisation.JTokenToRuntimeObject(
-          loadedToken
-        );
+        let tokenInkObject =
+          JsonSerialisation.JTokenToRuntimeObject(loadedToken);
         if (tokenInkObject === null) {
           return throwNullException("tokenInkObject");
         }
@@ -331,9 +345,8 @@ export class VariablesState {
       // var varPointer = value as VariablePointerValue;
       let varPointer = asOrNull(value, VariablePointerValue);
       if (varPointer !== null) {
-        let fullyResolvedVariablePointer = this.ResolveVariablePointer(
-          varPointer
-        );
+        let fullyResolvedVariablePointer =
+          this.ResolveVariablePointer(varPointer);
         value = fullyResolvedVariablePointer;
       }
     } else {

@@ -128,7 +128,9 @@ export class InkList extends Map<SerializedInkListItem, number> {
     if (arguments[0] instanceof InkList) {
       let otherList = arguments[0] as InkList;
 
-      this._originNames = otherList.originNames;
+      let otherOriginNames = otherList.originNames as string[];
+      if (otherOriginNames !== null)
+        this._originNames = otherOriginNames.slice();
       if (otherList.origins !== null) {
         this.origins = otherList.origins.slice();
       }
@@ -168,9 +170,8 @@ export class InkList extends Map<SerializedInkListItem, number> {
   }
 
   public static FromString(myListItem: string, originStory: Story) {
-    let listValue = originStory.listDefinitions?.FindSingleItemListWithName(
-      myListItem
-    );
+    let listValue =
+      originStory.listDefinitions?.FindSingleItemListWithName(myListItem);
     if (listValue) {
       if (listValue.value === null) {
         return throwNullException("listValue.value");

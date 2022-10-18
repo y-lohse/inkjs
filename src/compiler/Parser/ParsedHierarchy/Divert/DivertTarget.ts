@@ -164,7 +164,8 @@ export class DivertTarget extends Expression {
 
     // Main resolve
     this.runtimeDivert.targetPath &&
-      (this.runtimeDivertTargetValue.targetPath = this.runtimeDivert.targetPath);
+      (this.runtimeDivertTargetValue.targetPath =
+        this.runtimeDivert.targetPath);
 
     // Tell hard coded (yet variable) divert targets that they also need to be counted
     // TODO: Only detect DivertTargets that are values rather than being used directly for

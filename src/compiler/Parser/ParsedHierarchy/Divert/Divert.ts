@@ -137,9 +137,8 @@ export class Divert extends ParsedObject {
 
             // Check that we're not attempting to pass a read count by reference
             const targetPath = new Path(varRef.pathIdentifiers);
-            const targetForCount: ParsedObject | null = targetPath.ResolveFromContext(
-              this
-            );
+            const targetForCount: ParsedObject | null =
+              targetPath.ResolveFromContext(this);
             if (targetForCount) {
               this.Error(
                 `can't pass a read count by reference. '${
@@ -425,9 +424,8 @@ export class Divert extends ParsedObject {
           // i.e. read count instead of divert target
           // Unfortunately have to manually resolve here since we're still in code gen
           const knotCountPath = new Path(varRef.pathIdentifiers);
-          const targetForCount: ParsedObject | null = knotCountPath.ResolveFromContext(
-            varRef
-          );
+          const targetForCount: ParsedObject | null =
+            knotCountPath.ResolveFromContext(varRef);
           if (targetForCount) {
             this.Error(
               `Passing read count of '${knotCountPath.dotSeparatedComponents}' instead of a divert target. You probably meant '${knotCountPath}'`

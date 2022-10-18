@@ -5,14 +5,15 @@
 The C# compiler is intented to always be used on a file system and thus the question of how files are included follow a classic pattern.  
 Nevertheless, when using the compiler inside a browser, the concept of "file" is a blurry one.   
 Inkjs provides 2 file handlers :
-* A POSIX file handler : similar to the one used in the C# compiler that will look for files in folders
-* A JSON file handler : expects a JSON object of the form
+* A JSON file handler : it is included by default : it expects a JSON object representing all the files of the project of the form :
 ```
 {
     "filename1.ink": "INCLUDE filename2.ink",
     "filename2.ink": "This content is included",
 }
 ```
+
+* A POSIX file handler : delivered as a separate `inkjs-full-posixhandler.js` file that must be included/required : similar to the one used in the C# compiler that will look for files in folders.
 
 ## Float and ints
 

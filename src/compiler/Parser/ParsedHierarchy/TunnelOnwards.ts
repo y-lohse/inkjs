@@ -91,7 +91,8 @@ export class TunnelOnwards extends ParsedObject {
     super.ResolveReferences(context);
 
     if (this.divertAfter && this.divertAfter.targetContent) {
-      this._overrideDivertTarget!.targetPath = this.divertAfter.targetContent.runtimePath;
+      this._overrideDivertTarget!.targetPath =
+        this.divertAfter.targetContent.runtimePath;
     }
   }
 
