@@ -50,7 +50,7 @@ if (!Number.isInteger) {
 }
 
 export class Story extends InkObject {
-  public static inkVersionCurrent = 20;
+  public static inkVersionCurrent = 21;
 
   public inkVersionMinimumCompatible = 18;
 

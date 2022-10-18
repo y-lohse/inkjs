@@ -25,7 +25,11 @@ import { Flow } from "./Flow";
 import { InkList } from "./InkList";
 
 export class StoryState {
-  public readonly kInkSaveStateVersion = 9;
+  
+  // Backward compatible changes since v8:
+  // v10: dynamic tags
+  // v9:  multi-flows
+  public readonly kInkSaveStateVersion = 10;
   public readonly kMinCompatibleLoadVersion = 8;
 
   public onDidLoadState: (() => void) | null = null;

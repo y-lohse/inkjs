@@ -3,6 +3,13 @@ import * as testsUtils from "../common";
 describe("Diverts", () => {
   let context: testsUtils.TestContext;
 
+  function loadStory(name: any) {
+    context = testsUtils.fromJsonTestContext(
+      name,
+      "diverts"
+    )
+  }
+
   function compileStory(
     name: string,
     countAllVisits: boolean = false,
@@ -171,4 +178,11 @@ describe("Diverts", () => {
       "Empty diverts (->) are only valid on choices"
     );
   });
+
+
+  // TestTunnelOnwardsToVariableDivertTarget
+  it("tests variable divert target in tunnel onward", () => {
+    loadStory("tunnel_onwards_to_variable_divert_target")
+    expect(context.story.ContinueMaximally()).toMatch("This is outer\nThis is the_esc\n");
+  })
 });

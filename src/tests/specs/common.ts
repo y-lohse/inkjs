@@ -115,6 +115,31 @@ export class TestContext {
   };
 }
 
+/*
+ * Simplified Test Context when testing directly from a precompiled json file
+ * Useful when updating the runtime before having the compiler ready
+ */ 
+export function fromJsonTestContext(
+  name: string,
+  category: string,
+  testingErrors: boolean = false
+){
+  let context = new TestContext(testingErrors);
+
+  let rootDir: string;
+  if (category) {
+    rootDir = path.join(inkBaselinePath, category);
+  } else {
+    rootDir = path.join(inkBaselinePath);
+  }
+
+  let jsonContent = loadJSONFile(name, category);
+  context.story = new Story(jsonContent);
+  context.bytecode = context.story.ToJson();
+
+  return context;
+}
+
 export function makeDefaultTestContext(
   name: string,
   category: string,
