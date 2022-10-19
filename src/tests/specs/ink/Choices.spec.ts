@@ -271,11 +271,12 @@ describe("Choices", () => {
 
   //TestTagsInChoice
   it("tests dynamic tags in choice", () => {
+    
     loadStory("tags_in_choice");
-
     context.story.Continue();
+    
     expect(context.story.currentTags).toEqual(["one", "two"]);
-    expect(context.story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices.length).toBe(1);
     expect(context.story.currentChoices[0].tags).toEqual(["one", "two"]);
 
     context.story.ChooseChoiceIndex(0);

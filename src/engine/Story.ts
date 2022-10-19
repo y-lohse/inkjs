@@ -883,7 +883,7 @@ export class Story extends InkObject {
     }
   }
 
-  public PopChoiceStringAndTags(tags: string[]|null){
+  public PopChoiceStringAndTags(tags: string[]){
     let choiceOnlyStrVal = asOrThrows(
       this.state.PopEvaluationStack(),
       StringValue
@@ -891,7 +891,6 @@ export class Story extends InkObject {
 
     while (this.state.evaluationStack.length > 0
           && asOrNull(this.state.PeekEvaluationStack(), Tag)) {
-      if( tags == null ) tags = [];
       let tag = asOrNull(this.state.PopEvaluationStack(), Tag);
       if(tag) tags.unshift(tag.text);
     }
@@ -911,7 +910,7 @@ export class Story extends InkObject {
 
     let startText = "";
     let choiceOnlyText = "";
-    let tags = null;
+    let tags:string[] = [];
 
     if (choicePoint.hasChoiceOnlyContent) {
       choiceOnlyText = this.PopChoiceStringAndTags(tags) || "";
@@ -943,6 +942,7 @@ export class Story extends InkObject {
     choice.sourcePath = choicePoint.path.toString();
     choice.isInvisibleDefault = choicePoint.isInvisibleDefault;
     choice.threadAtGeneration = this.state.callStack.ForkThread();
+
     choice.tags = tags;
 
     choice.text = (startText + choiceOnlyText).replace(/^[ \t]+|[ \t]+$/g, "");

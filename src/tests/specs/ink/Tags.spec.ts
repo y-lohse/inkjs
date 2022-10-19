@@ -26,7 +26,7 @@ describe("Tags", () => {
 
   // TestTags
   it("tests string constants", () => {
-    compileStory("tags");
+    loadStory("tags");
 
     let globalTags = ["author: Joe", "title: My Great Story"];
     let knotTags = ["knot tag"];

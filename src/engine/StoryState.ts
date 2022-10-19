@@ -380,7 +380,7 @@ export class StoryState {
     return this._currentFlow.name == this.kDefaultFlowName;
   }
 
-  get aliveFlowNames(): string[]{
+  get aliveFlowNames(){
     if( this._aliveFlowNamesDirty ) {
       this._aliveFlowNames = [];
 
