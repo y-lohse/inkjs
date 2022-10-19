@@ -106,7 +106,7 @@ export class ControlCommand extends InkObject {
 export namespace ControlCommand {
   export enum CommandType {
     NotSet = -1,
-    EvalStart,  // 0
+    EvalStart, // 0
     EvalOutput, // 1
     EvalEnd, // 2
     Duplicate, // 3

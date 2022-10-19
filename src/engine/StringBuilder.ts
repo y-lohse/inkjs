@@ -27,7 +27,7 @@ export class StringBuilder {
     return this.string;
   }
 
-  public Clear(){
+  public Clear() {
     this.string = "";
   }
 }
