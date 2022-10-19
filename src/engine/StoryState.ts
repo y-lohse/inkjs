@@ -259,11 +259,22 @@ export class StoryState {
     if (this._outputStreamTextDirty) {
       let sb = new StringBuilder();
 
+      let inTag:boolean = false;
+
       for (let outputObj of this.outputStream) {
         // var textContent = outputObj as StringValue;
         let textContent = asOrNull(outputObj, StringValue);
-        if (textContent !== null) {
+        if (!inTag && textContent !== null) {
           sb.Append(textContent.value);
+        }else{
+          let controlCommand = asOrNull(outputObj, ControlCommand);
+          if( controlCommand !== null ) {
+            if( controlCommand.commandType == ControlCommand.CommandType.BeginTag ) {
+              inTag = true;
+            } else if( controlCommand.commandType == ControlCommand.CommandType.EndTag ) {
+              inTag = false;
+            }
+          }
         }
       }
 
@@ -311,13 +322,47 @@ export class StoryState {
   get currentTags() {
     if (this._outputStreamTagsDirty) {
       this._currentTags = [];
+      let inTag: boolean = false;
+      let sb = new StringBuilder ();
 
       for (let outputObj of this.outputStream) {
-        // var tag = outputObj as Tag;
-        let tag = asOrNull(outputObj, Tag);
-        if (tag !== null) {
-          this._currentTags.push(tag.text);
+        let controlCommand = asOrNull(outputObj, ControlCommand);
+        if( controlCommand != null ) {
+
+          if( controlCommand.commandType == ControlCommand.CommandType.BeginTag ) {
+              if( inTag && sb.Length > 0 ) {
+                  var txt = this.CleanOutputWhitespace(sb.toString());
+                  this._currentTags.push(txt);
+                  sb.Clear();
+              }
+              inTag = true;
+          }
+
+          else if( controlCommand.commandType == ControlCommand.CommandType.EndTag ) {
+              if( sb.Length > 0 ) {
+                  var txt = this.CleanOutputWhitespace(sb.toString());
+                  this._currentTags.push(txt);
+                  sb.Clear();
+              }
+              inTag = false;
+          }
+        }else if( inTag ) {
+            let strVal = asOrNull(outputObj, StringValue)
+            if( strVal !== null ) {
+                sb.Append(strVal.value);
+            }
+        }else {
+          var tag = outputObj as Tag;
+          if (tag != null && tag.text != null && tag.text.length > 0) {
+              this._currentTags.push (tag.text); // tag.text has whitespae already cleaned
+          }
         }
+      }
+
+      if( sb.Length > 0 ) {
+          var txt = this.CleanOutputWhitespace(sb.toString());
+          this._currentTags.push(txt);
+          sb.Clear();
       }
 
       this._outputStreamTagsDirty = false;
@@ -329,6 +374,29 @@ export class StoryState {
 
   get currentFlowName() {
     return this._currentFlow.name;
+  }
+
+  get currentFlowIsDefaultFlow() {
+    return this._currentFlow.name == this.kDefaultFlowName;
+  }
+
+  get aliveFlowNames(): string[]{
+    if( this._aliveFlowNamesDirty ) {
+      this._aliveFlowNames = [];
+
+                if (this._namedFlows != null)
+                {
+                    for (let flowName of this._namedFlows.keys()) {
+                        if (flowName != this.kDefaultFlowName) {
+                            this._aliveFlowNames.push(flowName);
+                        }
+                    }
+                }
+
+      this._aliveFlowNamesDirty = false;
+    }
+
+    return this._aliveFlowNames;
   }
 
   get inExpressionEvaluation() {
@@ -344,6 +412,7 @@ export class StoryState {
     this._currentFlow = new Flow(this.kDefaultFlowName, story);
     this.OutputStreamDirty();
 
+    this._aliveFlowNamesDirty = true;
     this._evaluationStack = [];
 
     this._variablesState = new VariablesState(
@@ -388,6 +457,7 @@ export class StoryState {
     } else {
       flow = new Flow(flowName, this.story);
       this._namedFlows.set(flowName, flow);
+      this._aliveFlowNamesDirty = true;
     }
 
     this._currentFlow = flow;
@@ -414,6 +484,7 @@ export class StoryState {
     if (this._namedFlows === null)
       return throwNullException("this._namedFlows");
     this._namedFlows.delete(flowName);
+    this._aliveFlowNamesDirty = true;
   }
 
   public CopyAndStartPatching() {
@@ -431,6 +502,7 @@ export class StoryState {
       copy._namedFlows = new Map();
       for (let [namedFlowKey, namedFlowValue] of this._namedFlows) {
         copy._namedFlows.set(namedFlowKey, namedFlowValue);
+        copy._aliveFlowNamesDirty = true;
       }
       copy._namedFlows.set(this._currentFlow.name, copy._currentFlow);
     }
@@ -629,6 +701,7 @@ export class StoryState {
     }
 
     this.OutputStreamDirty();
+    this._aliveFlowNamesDirty = true;
 
     this.variablesState.SetJsonToken(jObject["variablesState"]);
     this.variablesState.callStack = this._currentFlow.callStack;
@@ -1048,12 +1121,12 @@ export class StoryState {
     if (args !== null) {
       for (let i = 0; i < args.length; i++) {
         if (
-          !(typeof args[i] === "number" || typeof args[i] === "string") ||
+          !(typeof args[i] === "number" || typeof args[i] === "string" || typeof args[i] === "boolean" ||
           args[i] instanceof InkList
-        ) {
+        )) {
           throw new Error(
             "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be" +
-            "number, string or InkList. Argument was " +
+            "number, string, bool or InkList. Argument was " +
             (nullIfUndefined(arguments[i]) === null)
               ? "null"
               : arguments[i].constructor.name
@@ -1145,6 +1218,8 @@ export class StoryState {
   private _patch: StatePatch | null = null;
 
   private _currentFlow: Flow;
+  private _aliveFlowNames: string[] | null = null;
   private _namedFlows: Map<string, Flow> | null = null;
   private readonly kDefaultFlowName = "DEFAULT_FLOW";
+  private _aliveFlowNamesDirty: boolean = true;
 }

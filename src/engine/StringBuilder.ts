@@ -26,4 +26,8 @@ export class StringBuilder {
   public toString(): string {
     return this.string;
   }
+
+  public Clear(){
+    this.string = "";
+  }
 }
