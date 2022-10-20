@@ -566,6 +566,7 @@ export class Story extends InkObject {
 
     let newlineStillExists =
       currText.length >= prevText.length &&
+      prevText.length > 0 &&
       currText.charAt(prevText.length - 1) == "\n";
     if (
       prevTagCount == currTagCount &&
@@ -1167,58 +1168,84 @@ export class Story extends InkObject {
           break;
 
         // Leave it to story.currentText and story.currentTags to sort out the text from the tags
-        // This is mostly because we can't rely on the existence of EndTag, and we don't want
+        // This is mostly because we can't always rely on the existence of EndTag, and we don't want
         // to try and flatten dynamic tags to strings every time \n is pushed to output
         case ControlCommand.CommandType.BeginTag:
-        case ControlCommand.CommandType.EndTag:
           this.state.PushToOutputStream(evalCommand);
           break;
 
-        case ControlCommand.CommandType.EndTagAndPushToStack: {
-          let contentStackForTag: InkObject[] = [];
-          let outputCountConsumed = 0;
-          for (let i = this.state.outputStream.length - 1; i >= 0; --i) {
-            let obj = this.state.outputStream[i];
+        // EndTag has 2 modes:
+        //  - When in string evaluation (for choices)
+        //  - Normal
+        //
+        // The only way you could have an EndTag in the middle of
+        // string evaluation is if we're currently generating text for a
+        // choice, such as:
+        //
+        //   + choice # tag
+        //
+        // In the above case, the ink will be run twice:
+        //  - First, to generate the choice text. String evaluation
+        //    will be on, and the final string will be pushed to the
+        //    evaluation stack, ready to be popped to make a Choice
+        //    object.
+        //  - Second, when ink generates text after choosing the choice.
+        //    On this ocassion, it's not in string evaluation mode.
+        //
+        // On the writing side, we disallow manually putting tags within
+        // strings like this:
+        //
+        //   {"hello # world"}
+        //
+        // So we know that the tag must be being generated as part of
+        // choice content. Therefore, when the tag has been generated,
+        // we push it onto the evaluation stack in the exact same way
+        // as the string for the choice content.
+        case ControlCommand.CommandType.EndTag: {
+          if (this.state.inStringEvaluation) {
+            let contentStackForTag: InkObject[] = [];
+            let outputCountConsumed = 0;
+            for (let i = this.state.outputStream.length - 1; i >= 0; --i) {
+              let obj = this.state.outputStream[i];
+              outputCountConsumed++;
 
-            outputCountConsumed++;
-
-            // var command = obj as ControlCommand;
-            let command = asOrNull(obj, ControlCommand);
-            if (command) {
-              if (command.commandType == ControlCommand.CommandType.BeginTag) {
-                break;
-              } else {
-                this.Error(
-                  "Unexpected ControlCommand while extracting tag from choice"
-                );
-                break;
+              // var command = obj as ControlCommand;
+              let command = asOrNull(obj, ControlCommand);
+              if (command != null) {
+                if (
+                  command.commandType == ControlCommand.CommandType.BeginTag
+                ) {
+                  break;
+                } else {
+                  this.Error(
+                    "Unexpected ControlCommand while extracting tag from choice"
+                  );
+                  break;
+                }
+              }
+              if (obj instanceof StringValue) {
+                contentStackForTag.push(obj);
               }
             }
-            if (obj instanceof StringValue) {
-              contentStackForTag.push(obj);
+
+            // Consume the content that was produced for this string
+            this.state.PopFromOutputStream(outputCountConsumed);
+            // Build string out of the content we collected
+            let sb = new StringBuilder();
+            for (let strVal of contentStackForTag) {
+              sb.Append(strVal.toString());
             }
+            let choiceTag = new Tag(
+              this.state.CleanOutputWhitespace(sb.toString())
+            );
+            // Pushing to the evaluation stack means it gets picked up
+            // when a Choice is generated from the next Choice Point.
+            this.state.PushToOutputStream(choiceTag);
+          } else {
+            // Otherwise! Simply push EndTag, so that in the output stream we
+            // have a structure of: [BeginTag, "the tag content", EndTag]
+            this.state.PushToOutputStream(evalCommand);
           }
-          // Consume the content that was produced for this string
-          this.state.PopFromOutputStream(outputCountConsumed);
-
-          // Build string out of the content we collected
-          let sb = new StringBuilder();
-          for (let c of contentStackForTag) {
-            sb.Append(c.toString());
-          }
-
-          let choiceTag = new Tag(
-            this.state.CleanOutputWhitespace(sb.toString())
-          );
-
-          // Pushing to the evaluation stack means it gets picked up
-          // when a Choice is generated from the next Choice Point.
-          this.state.PushEvaluationStack(choiceTag);
-
-          // But we also push it to general output in case people
-          // want to get the tag from there.
-          this.state.PushToOutputStream(choiceTag);
-          break;
         }
 
         case ControlCommand.CommandType.EndString: {

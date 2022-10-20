@@ -95,9 +95,6 @@ export class ControlCommand extends InkObject {
   public static EndTag() {
     return new ControlCommand(ControlCommand.CommandType.EndTag);
   }
-  public static EndTagAndPushToStack() {
-    return new ControlCommand(ControlCommand.CommandType.EndTagAndPushToStack);
-  }
   public toString() {
     return this.commandType.toString();
   }
@@ -132,7 +129,6 @@ export namespace ControlCommand {
     ListRandom, // 23
     BeginTag, // 24
     EndTag, // 25
-    EndTagAndPushToStack, // 26
 
     TOTAL_VALUES,
   }
