@@ -357,7 +357,7 @@ export class StoryState {
             sb.Append(strVal.value);
           }
         } else {
-          let tag = outputObj as Tag;
+          let tag = asOrNull(outputObj, Tag);
           if (tag != null && tag.text != null && tag.text.length > 0) {
             this._currentTags.push(tag.text); // tag.text has whitespae already cleaned
           }
