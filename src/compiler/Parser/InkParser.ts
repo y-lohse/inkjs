@@ -227,11 +227,11 @@ export class InkParser extends StringParser {
     this.SetFlag(Number(CustomFlags.ParsingString), value);
   }
 
-  get tagActive(): boolean{
+  get tagActive(): boolean {
     return this.GetFlag(Number(CustomFlags.TagActive));
   }
 
-  set tagActive(value: boolean){
+  set tagActive(value: boolean) {
     this.SetFlag(Number(CustomFlags.TagActive), value);
   }
 
@@ -3212,50 +3212,50 @@ export class InkParser extends StringParser {
    * Begin Tags section.
    */
 
-  private _endOfTagCharSet: CharacterSet = new CharacterSet("#\n\r\\");
-
-  public readonly Tag = (): Tag | null => {
+  public readonly StartTag = (): ParsedObject | null => {
     this.Whitespace();
 
     if (this.ParseString("#") === null) {
       return null;
     }
 
-    this.Whitespace();
-
-    let sb = "";
-    do {
-      // Read up to another #, end of input or newline
-      const tagText: string =
-        this.ParseUntilCharactersFromCharSet(this._endOfTagCharSet) || "";
-      sb += tagText;
-
-      // Escape character
-      if (this.ParseString("\\") !== null) {
-        const c: string = this.ParseSingleCharacter();
-        if (c !== "\0") {
-          sb += c;
-        }
-
-        continue;
-      }
-
-      break;
-    } while (true);
-
-    const fullTagText = sb.trim();
-
-    return new Tag(new RuntimeTag(fullTagText));
-  };
-
-  public readonly Tags = (): Tag[] | null => {
-    const tags = this.OneOrMore(this.Tag) as Tag[];
-    if (tags === null) {
-      return null;
+    if (this.parsingStringExpression) {
+      this.Error(
+        "Tags aren't allowed inside of strings. Please use \\# if you want a hash symbol."
+      );
     }
 
-    return tags;
+    let result: ParsedObject | null = null;
+    if (this.tagActive) {
+      let contentList = new ContentList();
+      contentList.AddContent(new Tag(/*isStart:*/ false));
+      contentList.AddContent(new Tag(/*isStart:*/ true));
+      result = contentList;
+    } else {
+      result = new Tag(/*isStart:*/ true);
+    }
+    this.tagActive = true;
+
+    this.Whitespace();
+
+    return result;
   };
+
+  public EndTagIfNecessary(outputContentList: ParsedObject[]): void;
+  public EndTagIfNecessary(outputContentList: ContentList): void;
+  public EndTagIfNecessary(
+    outputContentList: ParsedObject[] | ContentList
+  ): void {
+    if (this.tagActive) {
+      if (outputContentList != null) {
+        if (outputContentList instanceof ContentList) {
+          outputContentList.AddContent(new Tag(/*isStart:*/ false ));
+        } else {
+          outputContentList.push(new Tag(/*isStart:*/ false));
+        }
+      }
+    }
+  }
 
   /**
    * End Tags section.
