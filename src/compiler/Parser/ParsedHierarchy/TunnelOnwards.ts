@@ -1,11 +1,14 @@
 import { Container as RuntimeContainer } from "../../../engine/Container";
 import { ControlCommand as RuntimeControlCommand } from "../../../engine/ControlCommand";
 import { Divert } from "./Divert/Divert";
+import { Divert as RuntimeDivert } from "../../../engine/Divert";
 import { DivertTargetValue } from "../../../engine/Value";
 import { ParsedObject } from "./Object";
 import { InkObject as RuntimeObject } from "../../../engine/Object";
 import { Story } from "./Story";
 import { Void } from "../../../engine/Void";
+import { asOrNull } from "../../../engine/TypeAssertion";
+import { VariableReference } from "../../../engine/VariableReference";
 
 export class TunnelOnwards extends ParsedObject {
   private _overrideDivertTarget: DivertTargetValue | null = null;
@@ -72,10 +75,17 @@ export class TunnelOnwards extends ParsedObject {
           }
         }
       }
-
-      // Finally, divert to the requested target
-      this._overrideDivertTarget = new DivertTargetValue();
-      container.AddContent(this._overrideDivertTarget);
+      // Supply the divert target for the tunnel onwards target, either variable or more commonly, the explicit name
+      // var returnDivertObj = returnRuntimeObj as Runtime.Divert;
+      let returnDivertObj = asOrNull(returnRuntimeObj, RuntimeDivert)
+      if( returnDivertObj != null && returnDivertObj.hasVariableTarget ) {
+          var runtimeVarRef = new VariableReference (returnDivertObj.variableDivertName);
+          container.AddContent(runtimeVarRef);
+      } else {
+          this._overrideDivertTarget = new DivertTargetValue ();
+          container.AddContent (this._overrideDivertTarget);
+      }
+      
     } else {
       // No divert after tunnel onwards
       container.AddContent(new Void());
