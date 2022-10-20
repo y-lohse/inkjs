@@ -3249,7 +3249,7 @@ export class InkParser extends StringParser {
     if (this.tagActive) {
       if (outputContentList != null) {
         if (outputContentList instanceof ContentList) {
-          outputContentList.AddContent(new Tag(/*isStart:*/ false ));
+          outputContentList.AddContent(new Tag(/*isStart:*/ false));
         } else {
           outputContentList.push(new Tag(/*isStart:*/ false));
         }
