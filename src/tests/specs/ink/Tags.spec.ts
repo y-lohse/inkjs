@@ -26,7 +26,7 @@ describe("Tags", () => {
 
   // TestTags
   it("tests string constants", () => {
-    loadStory("tags");
+    compileStory("tags");
 
     let globalTags = ["author: Joe", "title: My Great Story"];
     let knotTags = ["knot tag"];
@@ -51,7 +51,7 @@ describe("Tags", () => {
 
   //TestTagsInSeq
   it("tests tags in a sequence", () => {
-    loadStory("tags_in_seq");
+    compileStory("tags_in_seq");
 
     expect(context.story.Continue()).toBe("A red sequence.\n");
     expect(context.story.currentTags).toEqual(["red"]);
@@ -62,7 +62,7 @@ describe("Tags", () => {
 
   //TestTagsDynamicContent
   it("tests dynamic content in tags", () => {
-    loadStory("tags_dynamic_content");
+    compileStory("tags_dynamic_content");
 
     expect(context.story.Continue()).toBe("tag\n");
     expect(context.story.currentTags).toEqual(["pic8red.jpg"]);

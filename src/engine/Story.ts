@@ -895,7 +895,7 @@ export class Story extends InkObject {
       asOrNull(this.state.PeekEvaluationStack(), Tag)
     ) {
       let tag = asOrNull(this.state.PopEvaluationStack(), Tag);
-      if (tag) tags.unshift(tag.text);
+      if (tag) tags.push(tag.text);
     }
     return choiceOnlyStrVal.value;
   }

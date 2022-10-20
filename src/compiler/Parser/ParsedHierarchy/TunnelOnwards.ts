@@ -77,15 +77,16 @@ export class TunnelOnwards extends ParsedObject {
       }
       // Supply the divert target for the tunnel onwards target, either variable or more commonly, the explicit name
       // var returnDivertObj = returnRuntimeObj as Runtime.Divert;
-      let returnDivertObj = asOrNull(returnRuntimeObj, RuntimeDivert)
-      if( returnDivertObj != null && returnDivertObj.hasVariableTarget ) {
-          var runtimeVarRef = new VariableReference (returnDivertObj.variableDivertName);
-          container.AddContent(runtimeVarRef);
+      let returnDivertObj = asOrNull(returnRuntimeObj, RuntimeDivert);
+      if (returnDivertObj != null && returnDivertObj.hasVariableTarget) {
+        let runtimeVarRef = new VariableReference(
+          returnDivertObj.variableDivertName
+        );
+        container.AddContent(runtimeVarRef);
       } else {
-          this._overrideDivertTarget = new DivertTargetValue ();
-          container.AddContent (this._overrideDivertTarget);
+        this._overrideDivertTarget = new DivertTargetValue();
+        container.AddContent(this._overrideDivertTarget);
       }
-      
     } else {
       // No divert after tunnel onwards
       container.AddContent(new Void());

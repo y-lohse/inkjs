@@ -178,7 +178,8 @@ describe("Diverts", () => {
 
   // TestTunnelOnwardsToVariableDivertTarget
   it("tests variable divert target in tunnel onward", () => {
-    loadStory("tunnel_onwards_to_variable_divert_target");
+    compileStory("tunnel_onwards_to_variable_divert_target");
+    
     expect(context.story.ContinueMaximally()).toMatch(
       "This is outer\nThis is the_esc\n"
     );

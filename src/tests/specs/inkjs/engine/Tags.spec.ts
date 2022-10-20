@@ -4,7 +4,8 @@ describe("Tags", () => {
   let context: testsUtils.TestContext;
 
   beforeEach(() => {
-    context = testsUtils.fromJsonTestContext("tests", "inkjs");
+    // context = testsUtils.fromJsonTestContext("tests", "inkjs");
+    context = testsUtils.makeDefaultTestContext("tests", "inkjs", true);
     context.story.allowExternalFunctionFallbacks = true;
   });
 
@@ -51,7 +52,7 @@ describe("Tags", () => {
     context.story.Continue();
 
     expect(context.story.currentChoices.length).toEqual(1);
-    expect(context.story.currentChoices[0].text).toEqual("a choice a tag"); //weird https://discord.com/channels/329929050866843648/1032209859749359646/1032306385200877710
+    expect(context.story.currentChoices[0].text).toEqual("a choice");
     expect(context.story.currentTags.length).toEqual(0);
 
     context.story.ChooseChoiceIndex(0);

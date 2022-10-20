@@ -461,7 +461,7 @@ export class InkParser extends StringParser {
 
       this.Expect(this.String("]"), "closing ']' for weave-style option");
 
-      this.EndTagIfNecessary(startContent);
+      this.EndTagIfNecessary(optionOnlyContent);
 
       let innerTextAndLogic = this.Parse(
         this.MixedTextAndLogic
@@ -1049,9 +1049,10 @@ export class InkParser extends StringParser {
     // but is in fact entirely a tag, then let's not append
     // a newline, since we want the tag (or tags) to be associated
     // with the line below rather than being completely independent.
-    let lineIsPureTag = result.length > 0 && result[0] instanceof Tag && result[0].isStart;
+    let lineIsPureTag =
+      result.length > 0 && result[0] instanceof Tag && result[0].isStart;
 
-    if(lineIsPureTag){
+    if (!lineIsPureTag) {
       result.push(new Text("\n"));
     }
 
@@ -1086,7 +1087,7 @@ export class InkParser extends StringParser {
         if (results === null) {
           results = [];
         }
-        
+
         // End previously active tag if necessary
         this.EndTagIfNecessary(results);
 
@@ -2654,7 +2655,7 @@ export class InkParser extends StringParser {
     ) as ParsedObject;
 
     if (logic === null) {
-      this.parsingStringExpression = wasParsingString
+      this.parsingStringExpression = wasParsingString;
       return null;
     }
 
@@ -2680,7 +2681,7 @@ export class InkParser extends StringParser {
     //  When logic ends in (1) we still want tag to continue.
     //  When logic ends in (2) we want to auto-end the tag.
     //  Side note: we simply disallow tags within strings.
-    if( !wasTagActive ) this.EndTagIfNecessary(contentList);
+    if (!wasTagActive) this.EndTagIfNecessary(contentList);
 
     return contentList;
   };
