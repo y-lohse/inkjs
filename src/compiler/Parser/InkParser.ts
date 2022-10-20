@@ -449,6 +449,8 @@ export class InkParser extends StringParser {
     //   * "Hello[."]," he said.
     const hasWeaveStyleInlineBrackets: boolean = this.ParseString("[") !== null;
     if (hasWeaveStyleInlineBrackets) {
+      this.EndTagIfNecessary(startContent);
+
       const optionOnlyTextAndLogic = this.Parse(
         this.MixedTextAndLogic
       ) as ParsedObject[];
@@ -459,6 +461,8 @@ export class InkParser extends StringParser {
 
       this.Expect(this.String("]"), "closing ']' for weave-style option");
 
+      this.EndTagIfNecessary(startContent);
+
       let innerTextAndLogic = this.Parse(
         this.MixedTextAndLogic
       ) as ParsedObject[];
@@ -468,6 +472,8 @@ export class InkParser extends StringParser {
     }
 
     this.Whitespace();
+
+    this.EndTagIfNecessary(innerContent ?? startContent);
 
     // Finally, now we know we're at the end of the main choice body, parse
     // any diverts separately.
@@ -500,10 +506,7 @@ export class InkParser extends StringParser {
       innerContent = new ContentList();
     }
 
-    const tags = this.Parse(this.Tags) as ParsedObject[];
-    if (tags !== null) {
-      innerContent.AddContent(tags);
-    }
+    this.EndTagIfNecessary(innerContent);
 
     // Normal diverts on the end of a choice - simply add to the normal content
     if (diverts !== null) {
@@ -3241,10 +3244,10 @@ export class InkParser extends StringParser {
     return result;
   };
 
-  public EndTagIfNecessary(outputContentList: ParsedObject[]): void;
-  public EndTagIfNecessary(outputContentList: ContentList): void;
+  public EndTagIfNecessary(outputContentList: ParsedObject[] | null): void;
+  public EndTagIfNecessary(outputContentList: ContentList | null): void;
   public EndTagIfNecessary(
-    outputContentList: ParsedObject[] | ContentList
+    outputContentList: ParsedObject[] | ContentList | null
   ): void {
     if (this.tagActive) {
       if (outputContentList != null) {
@@ -3254,6 +3257,7 @@ export class InkParser extends StringParser {
           outputContentList.push(new Tag(/*isStart:*/ false));
         }
       }
+      this.tagActive = false;
     }
   }
 
