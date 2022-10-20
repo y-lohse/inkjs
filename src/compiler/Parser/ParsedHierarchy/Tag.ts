@@ -31,3 +31,15 @@ export class Tag extends ParsedObject {
     }
   }
 }
+
+import { Tag as RuntimeTag } from "../../../engine/Tag";
+import { Wrap } from "./Wrap";
+export class LegacyTag extends Wrap<RuntimeTag> {
+  constructor(tag: RuntimeTag) {
+    super(tag);
+  }
+  get typeName(): string {
+    return "Tag";
+  }
+}
+
