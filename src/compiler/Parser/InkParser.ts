@@ -2624,8 +2624,8 @@ export class InkParser extends StringParser {
     return result;
   };
 
-  public readonly InlineLogicOrGlue = (): ParsedObject =>
-    this.OneOf([this.InlineLogic, this.Glue]) as ParsedObject;
+  public readonly InlineLogicOrGlueOrStartTag = (): ParsedObject =>
+    this.OneOf([this.InlineLogic, this.Glue, this.StartTag]) as ParsedObject;
 
   public readonly Glue = (): Glue | null => {
     // Don't want to parse whitespace, since it might be important
@@ -2643,6 +2643,9 @@ export class InkParser extends StringParser {
       return null;
     }
 
+    let wasParsingString = this.parsingStringExpression;
+    let wasTagActive = this.tagActive;
+
     this.Whitespace();
 
     const logic = this.Expect(
@@ -2651,6 +2654,7 @@ export class InkParser extends StringParser {
     ) as ParsedObject;
 
     if (logic === null) {
+      this.parsingStringExpression = wasParsingString
       return null;
     }
 
@@ -2664,6 +2668,19 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     this.Expect(this.String("}"), "closing brace '}' for inline logic");
+
+    // Allow nested strings and logic
+    this.parsingStringExpression = wasParsingString;
+
+    // Difference between:
+    //
+    //     1) A thing # {image}.jpg
+    //     2) A {red #red|blue #blue} sequence.
+    //
+    //  When logic ends in (1) we still want tag to continue.
+    //  When logic ends in (2) we want to auto-end the tag.
+    //  Side note: we simply disallow tags within strings.
+    if( !wasTagActive ) this.EndTagIfNecessary(contentList);
 
     return contentList;
   };
@@ -2717,6 +2734,8 @@ export class InkParser extends StringParser {
       this.InnerSequence,
       this.InnerExpression,
     ];
+
+    let wasTagActiveAtStartOfScope = this.tagActive;
 
     // Adapted from "OneOf" structuring rule except that in
     // order for the rule to succeed, it has to maximally
