@@ -270,10 +270,10 @@ describe("Choices", () => {
   });
 
   //TestTagsInChoice
-  it("tests dynamic tags in choice", () => {
-    compileStory("tags_in_choice");
+  it("tests tags in choice", () => {
+    compileStory("tags_in_choice", true);
     context.story.Continue();
-
+    
     expect(context.story.currentTags.length).toBe(0);
     expect(context.story.currentChoices.length).toBe(1);
     expect(context.story.currentChoices[0].tags).toEqual(["one", "two"]);

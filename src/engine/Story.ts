@@ -892,7 +892,7 @@ export class Story extends InkObject {
 
     while (
       this.state.evaluationStack.length > 0 &&
-      asOrNull(this.state.PeekEvaluationStack(), Tag)
+      asOrNull(this.state.PeekEvaluationStack(), Tag) != null
     ) {
       let tag = asOrNull(this.state.PopEvaluationStack(), Tag);
       if (tag) tags.push(tag.text);
@@ -945,9 +945,7 @@ export class Story extends InkObject {
     choice.sourcePath = choicePoint.path.toString();
     choice.isInvisibleDefault = choicePoint.isInvisibleDefault;
     choice.threadAtGeneration = this.state.callStack.ForkThread();
-
-    choice.tags = tags;
-
+    choice.tags = tags.reverse(); //C# is a stack
     choice.text = (startText + choiceOnlyText).replace(/^[ \t]+|[ \t]+$/g, "");
 
     return choice;
@@ -1240,12 +1238,13 @@ export class Story extends InkObject {
             );
             // Pushing to the evaluation stack means it gets picked up
             // when a Choice is generated from the next Choice Point.
-            this.state.PushToOutputStream(choiceTag);
+            this.state.PushEvaluationStack(choiceTag);
           } else {
             // Otherwise! Simply push EndTag, so that in the output stream we
             // have a structure of: [BeginTag, "the tag content", EndTag]
             this.state.PushToOutputStream(evalCommand);
           }
+          break;
         }
 
         case ControlCommand.CommandType.EndString: {
