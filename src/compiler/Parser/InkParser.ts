@@ -227,6 +227,14 @@ export class InkParser extends StringParser {
     this.SetFlag(Number(CustomFlags.ParsingString), value);
   }
 
+  get tagActive(): boolean{
+    return this.GetFlag(Number(CustomFlags.TagActive));
+  }
+
+  set tagActive(value: boolean){
+    this.SetFlag(Number(CustomFlags.TagActive), value);
+  }
+
   public readonly OnStringParserError = (
     message: string,
     index: number,
