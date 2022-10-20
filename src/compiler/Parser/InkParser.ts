@@ -1230,6 +1230,8 @@ export class InkParser extends StringParser {
 
     diverts = [];
 
+    this.EndTagIfNecessary(diverts);
+
     // Possible patterns:
     //  ->                   -- explicit gather
     //  ->->                 -- tunnel onwards
