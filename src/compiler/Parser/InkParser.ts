@@ -1022,20 +1022,6 @@ export class InkParser extends StringParser {
       this.MixedTextAndLogic
     ) as ParsedObject[];
 
-    // Terminating tag
-    let onlyTags: boolean = false;
-    const tags = this.Parse(this.Tags) as ParsedObject[];
-    if (tags) {
-      if (!result) {
-        result = tags;
-        onlyTags = true;
-      } else {
-        for (const tag of tags) {
-          result.push(tag);
-        }
-      }
-    }
-
     if (!result || !result.length) {
       return null;
     }
@@ -1057,9 +1043,15 @@ export class InkParser extends StringParser {
       this.TrimEndWhitespace(result, false);
     }
 
-    // Add newline since it's the end of the line
-    // (so long as it's a line with only tags)
-    if (!onlyTags) {
+    this.EndTagIfNecessary(result);
+
+    // If the line doens't actually contain any normal text content
+    // but is in fact entirely a tag, then let's not append
+    // a newline, since we want the tag (or tags) to be associated
+    // with the line below rather than being completely independent.
+    let lineIsPureTag = result.length > 0 && result[0] instanceof Tag && result[0].isStart;
+
+    if(lineIsPureTag){
       result.push(new Text("\n"));
     }
 
@@ -1079,7 +1071,7 @@ export class InkParser extends StringParser {
     // Either, or both interleaved
     let results: ParsedObject[] = this.Interleave<ParsedObject>(
       this.Optional(this.ContentText),
-      this.Optional(this.InlineLogicOrGlue)
+      this.Optional(this.InlineLogicOrGlueOrStartTag)
     );
 
     // Terminating divert?
@@ -1094,6 +1086,9 @@ export class InkParser extends StringParser {
         if (results === null) {
           results = [];
         }
+        
+        // End previously active tag if necessary
+        this.EndTagIfNecessary(results);
 
         this.TrimEndWhitespace(results, true);
 
