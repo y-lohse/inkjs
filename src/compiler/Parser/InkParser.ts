@@ -48,7 +48,6 @@ import {
 } from "./StringParser/StringParser";
 import { StringParserElement } from "./StringParser/StringParserElement";
 import { Tag } from "./ParsedHierarchy/Tag";
-import { Tag as RuntimeTag } from "../../engine/Tag";
 import { Text } from "./ParsedHierarchy/Text";
 import { TunnelOnwards } from "./ParsedHierarchy/TunnelOnwards";
 import { VariableAssignment } from "./ParsedHierarchy/Variable/VariableAssignment";

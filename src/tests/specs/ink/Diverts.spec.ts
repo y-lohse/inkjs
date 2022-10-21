@@ -3,10 +3,6 @@ import * as testsUtils from "../common";
 describe("Diverts", () => {
   let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    context = testsUtils.fromJsonTestContext(name, "diverts");
-  }
-
   function compileStory(
     name: string,
     countAllVisits: boolean = false,

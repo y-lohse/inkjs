@@ -1,5 +1,3 @@
-import * as testsUtils from "../common";
-
 import { InkParser } from "../../../compiler/Parser/InkParser";
 import { StringParser } from "../../../compiler/Parser/StringParser/StringParser";
 import { CharacterRange } from "../../../compiler/Parser/CharacterRange";

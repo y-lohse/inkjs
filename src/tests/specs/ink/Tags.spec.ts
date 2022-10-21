@@ -3,10 +3,6 @@ import * as testsUtils from "../common";
 describe("Tags", () => {
   let context: testsUtils.TestContext;
 
-  function loadStory(name: any) {
-    context = testsUtils.fromJsonTestContext(name, "tags");
-  }
-
   function compileStory(
     name: string,
     countAllVisits: boolean = false,
