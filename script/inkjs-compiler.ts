@@ -55,10 +55,19 @@ if(jsonStory && write){
 }
 
 if(jsonStory && play){
-    const prompt = readline.createInterface({
+    const rl = readline.createInterface({
         input: process.stdin, //or fileStream
         output: process.stdout
       });
+
+    const prompt = () => {
+        return new Promise<string>((resolve, reject) => {
+            rl.question('?> ', (answer: string) => {
+            resolve(answer)
+            })
+        })
+    }
+
     const play = async () =>{
         const story = new Story(jsonStory);
 
@@ -78,18 +87,39 @@ if(jsonStory && play){
 
             for (let i=0; i<story.currentChoices.length; ++i) {
                 const choice = story.currentChoices[i];
-                process.stdout.write( `${i+1}: ${choice.text}\n` );
+                process.stdout.write( `${i+1}: ${choice.text}` );
+                if(    story.currentChoices[i].tags !== null 
+                    && story.currentChoices[i].tags!.length > 0){
+                    process.stdout.write( " # tags: " + story.currentChoices[i].tags!.join(", ") );
+                }
+                process.stdout.write("\n")
             }
             process.stdout.write("?> ");
-            for await (const line of prompt) {
-                const choiceIndex = parseInt(line) - 1;
-                story.ChooseChoiceIndex(choiceIndex);
-            }
+            do{
+                const answer: string = await prompt();
+                if(answer.startsWith("->")){
+                    const target = answer.slice(2).trim()
+                    try{
+                        story.ChoosePathString(target)
+                        break;
+                    }catch(e){
+                        process.stdout.write(e.message + '\n');
+                    }
+                }else{
+                    const choiceIndex = parseInt(answer) - 1;
+                    try{
+                        story.ChooseChoiceIndex(choiceIndex);
+                        break;
+                    }catch(e){
+                        process.stdout.write(e.message + '\n');
+                    }
+                }
+            }while(true);
         }while(true);
 
     }
     play().then(()=>{
-        process.stdout.write("\nDONE.")
+        process.stdout.write("DONE.\n")
         process.exit(0);
     });
 
