@@ -90,4 +90,11 @@ describe("Lists", () => {
 
     expect(context.story.ContinueMaximally()).toBe("1\nl\nn\nl, m\nn\n");
   });
+
+  // TestContainsEmptyListAlwaysFalse
+  it("tests list doest not contain empty list", () => {
+    compileStory("contains_empty_list_always_false");
+
+    expect(context.story.ContinueMaximally()).toBe("false\nfalse\nfalse\n");
+  });
 });

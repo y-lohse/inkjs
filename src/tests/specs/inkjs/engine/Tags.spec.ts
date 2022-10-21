@@ -4,6 +4,7 @@ describe("Tags", () => {
   let context: testsUtils.TestContext;
 
   beforeEach(() => {
+    // context = testsUtils.fromJsonTestContext("tests", "inkjs");
     context = testsUtils.makeDefaultTestContext("tests", "inkjs", true);
     context.story.allowExternalFunctionFallbacks = true;
   });
@@ -67,11 +68,8 @@ describe("Tags", () => {
 
     let tags = context.story.currentTags;
 
-    expect(tags.length).toBe(5);
+    expect(tags.length).toBe(2);
     expect(tags[0]).toEqual("space around");
-    expect(tags[1]).toEqual("");
-    expect(tags[2]).toEqual("");
-    expect(tags[3]).toEqual("");
-    expect(tags[4]).toEqual("0");
+    expect(tags[1]).toEqual("0");
   });
 });

@@ -1,5 +1,4 @@
 import * as testsUtils from "../common";
-import { CompilerOptions } from "../../../compiler/CompilerOptions";
 
 describe("Conditions", () => {
   let context: testsUtils.TestContext;

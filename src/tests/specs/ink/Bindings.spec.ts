@@ -97,6 +97,8 @@ describe("Bindings", () => {
     // SAFE Lookahead
     compileStory("lookup_safe_or_not");
 
+    // Lookahead SAFE - should get multiple calls to the ext function,
+    // one for lookahead on first line, one "for real" on second line.
     let callCount = 0;
     context.story.BindExternalFunction(
       "myAction",
@@ -109,7 +111,8 @@ describe("Bindings", () => {
     context.story.ContinueMaximally();
     expect(callCount).toBe(2);
 
-    // UNSAFE Lookahead
+    // Lookahead UNSAFE - when it sees the function, it should break out early
+    // and stop lookahead, making sure that the action is only called for the second line.
     callCount = 0;
     context.story.ResetState();
     context.story.UnbindExternalFunction("myAction");
