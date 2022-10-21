@@ -1908,7 +1908,7 @@ export class Story extends InkObject {
   public BindExternalFunctionGeneral(
     funcName: string,
     func: Story.ExternalFunction,
-    lookaheadSafe: boolean
+    lookaheadSafe: boolean = true
   ) {
     this.IfAsyncWeCant("bind an external function");
     this.Assert(
@@ -1932,7 +1932,7 @@ export class Story extends InkObject {
   public BindExternalFunction(
     funcName: string,
     func: Story.ExternalFunction,
-    lookaheadSafe: boolean = true
+    lookaheadSafe: boolean = false
   ) {
     this.Assert(func != null, "Can't bind a null function");
 
