@@ -48,7 +48,6 @@ import {
 } from "./StringParser/StringParser";
 import { StringParserElement } from "./StringParser/StringParserElement";
 import { Tag } from "./ParsedHierarchy/Tag";
-import { Tag as RuntimeTag } from "../../engine/Tag";
 import { Text } from "./ParsedHierarchy/Text";
 import { TunnelOnwards } from "./ParsedHierarchy/TunnelOnwards";
 import { VariableAssignment } from "./ParsedHierarchy/Variable/VariableAssignment";
@@ -225,6 +224,14 @@ export class InkParser extends StringParser {
 
   set parsingStringExpression(value: boolean) {
     this.SetFlag(Number(CustomFlags.ParsingString), value);
+  }
+
+  get tagActive(): boolean {
+    return this.GetFlag(Number(CustomFlags.TagActive));
+  }
+
+  set tagActive(value: boolean) {
+    this.SetFlag(Number(CustomFlags.TagActive), value);
   }
 
   public readonly OnStringParserError = (
@@ -441,6 +448,8 @@ export class InkParser extends StringParser {
     //   * "Hello[."]," he said.
     const hasWeaveStyleInlineBrackets: boolean = this.ParseString("[") !== null;
     if (hasWeaveStyleInlineBrackets) {
+      this.EndTagIfNecessary(startContent);
+
       const optionOnlyTextAndLogic = this.Parse(
         this.MixedTextAndLogic
       ) as ParsedObject[];
@@ -451,6 +460,8 @@ export class InkParser extends StringParser {
 
       this.Expect(this.String("]"), "closing ']' for weave-style option");
 
+      this.EndTagIfNecessary(optionOnlyContent);
+
       let innerTextAndLogic = this.Parse(
         this.MixedTextAndLogic
       ) as ParsedObject[];
@@ -460,6 +471,8 @@ export class InkParser extends StringParser {
     }
 
     this.Whitespace();
+
+    this.EndTagIfNecessary(innerContent ?? startContent);
 
     // Finally, now we know we're at the end of the main choice body, parse
     // any diverts separately.
@@ -492,10 +505,7 @@ export class InkParser extends StringParser {
       innerContent = new ContentList();
     }
 
-    const tags = this.Parse(this.Tags) as ParsedObject[];
-    if (tags !== null) {
-      innerContent.AddContent(tags);
-    }
+    this.EndTagIfNecessary(innerContent);
 
     // Normal diverts on the end of a choice - simply add to the normal content
     if (diverts !== null) {
@@ -1011,20 +1021,6 @@ export class InkParser extends StringParser {
       this.MixedTextAndLogic
     ) as ParsedObject[];
 
-    // Terminating tag
-    let onlyTags: boolean = false;
-    const tags = this.Parse(this.Tags) as ParsedObject[];
-    if (tags) {
-      if (!result) {
-        result = tags;
-        onlyTags = true;
-      } else {
-        for (const tag of tags) {
-          result.push(tag);
-        }
-      }
-    }
-
     if (!result || !result.length) {
       return null;
     }
@@ -1046,9 +1042,16 @@ export class InkParser extends StringParser {
       this.TrimEndWhitespace(result, false);
     }
 
-    // Add newline since it's the end of the line
-    // (so long as it's a line with only tags)
-    if (!onlyTags) {
+    this.EndTagIfNecessary(result);
+
+    // If the line doens't actually contain any normal text content
+    // but is in fact entirely a tag, then let's not append
+    // a newline, since we want the tag (or tags) to be associated
+    // with the line below rather than being completely independent.
+    let lineIsPureTag =
+      result.length > 0 && result[0] instanceof Tag && result[0].isStart;
+
+    if (!lineIsPureTag) {
       result.push(new Text("\n"));
     }
 
@@ -1068,7 +1071,7 @@ export class InkParser extends StringParser {
     // Either, or both interleaved
     let results: ParsedObject[] = this.Interleave<ParsedObject>(
       this.Optional(this.ContentText),
-      this.Optional(this.InlineLogicOrGlue)
+      this.Optional(this.InlineLogicOrGlueOrStartTag)
     );
 
     // Terminating divert?
@@ -1083,6 +1086,9 @@ export class InkParser extends StringParser {
         if (results === null) {
           results = [];
         }
+
+        // End previously active tag if necessary
+        this.EndTagIfNecessary(results);
 
         this.TrimEndWhitespace(results, true);
 
@@ -1223,6 +1229,8 @@ export class InkParser extends StringParser {
     }
 
     diverts = [];
+
+    this.EndTagIfNecessary(diverts);
 
     // Possible patterns:
     //  ->                   -- explicit gather
@@ -2616,8 +2624,8 @@ export class InkParser extends StringParser {
     return result;
   };
 
-  public readonly InlineLogicOrGlue = (): ParsedObject =>
-    this.OneOf([this.InlineLogic, this.Glue]) as ParsedObject;
+  public readonly InlineLogicOrGlueOrStartTag = (): ParsedObject =>
+    this.OneOf([this.InlineLogic, this.Glue, this.StartTag]) as ParsedObject;
 
   public readonly Glue = (): Glue | null => {
     // Don't want to parse whitespace, since it might be important
@@ -2635,6 +2643,9 @@ export class InkParser extends StringParser {
       return null;
     }
 
+    let wasParsingString = this.parsingStringExpression;
+    let wasTagActive = this.tagActive;
+
     this.Whitespace();
 
     const logic = this.Expect(
@@ -2643,6 +2654,7 @@ export class InkParser extends StringParser {
     ) as ParsedObject;
 
     if (logic === null) {
+      this.parsingStringExpression = wasParsingString;
       return null;
     }
 
@@ -2656,6 +2668,19 @@ export class InkParser extends StringParser {
     this.Whitespace();
 
     this.Expect(this.String("}"), "closing brace '}' for inline logic");
+
+    // Allow nested strings and logic
+    this.parsingStringExpression = wasParsingString;
+
+    // Difference between:
+    //
+    //     1) A thing # {image}.jpg
+    //     2) A {red #red|blue #blue} sequence.
+    //
+    //  When logic ends in (1) we still want tag to continue.
+    //  When logic ends in (2) we want to auto-end the tag.
+    //  Side note: we simply disallow tags within strings.
+    if (!wasTagActive) this.EndTagIfNecessary(contentList);
 
     return contentList;
   };
@@ -2709,6 +2734,8 @@ export class InkParser extends StringParser {
       this.InnerSequence,
       this.InnerExpression,
     ];
+
+    let wasTagActiveAtStartOfScope = this.tagActive;
 
     // Adapted from "OneOf" structuring rule except that in
     // order for the rule to succeed, it has to maximally
@@ -3204,50 +3231,51 @@ export class InkParser extends StringParser {
    * Begin Tags section.
    */
 
-  private _endOfTagCharSet: CharacterSet = new CharacterSet("#\n\r\\");
-
-  public readonly Tag = (): Tag | null => {
+  public readonly StartTag = (): ParsedObject | null => {
     this.Whitespace();
 
     if (this.ParseString("#") === null) {
       return null;
     }
 
-    this.Whitespace();
-
-    let sb = "";
-    do {
-      // Read up to another #, end of input or newline
-      const tagText: string =
-        this.ParseUntilCharactersFromCharSet(this._endOfTagCharSet) || "";
-      sb += tagText;
-
-      // Escape character
-      if (this.ParseString("\\") !== null) {
-        const c: string = this.ParseSingleCharacter();
-        if (c !== "\0") {
-          sb += c;
-        }
-
-        continue;
-      }
-
-      break;
-    } while (true);
-
-    const fullTagText = sb.trim();
-
-    return new Tag(new RuntimeTag(fullTagText));
-  };
-
-  public readonly Tags = (): Tag[] | null => {
-    const tags = this.OneOrMore(this.Tag) as Tag[];
-    if (tags === null) {
-      return null;
+    if (this.parsingStringExpression) {
+      this.Error(
+        "Tags aren't allowed inside of strings. Please use \\# if you want a hash symbol."
+      );
     }
 
-    return tags;
+    let result: ParsedObject | null = null;
+    if (this.tagActive) {
+      let contentList = new ContentList();
+      contentList.AddContent(new Tag(/*isStart:*/ false));
+      contentList.AddContent(new Tag(/*isStart:*/ true));
+      result = contentList;
+    } else {
+      result = new Tag(/*isStart:*/ true);
+    }
+    this.tagActive = true;
+
+    this.Whitespace();
+
+    return result;
   };
+
+  public EndTagIfNecessary(outputContentList: ParsedObject[] | null): void;
+  public EndTagIfNecessary(outputContentList: ContentList | null): void;
+  public EndTagIfNecessary(
+    outputContentList: ParsedObject[] | ContentList | null
+  ): void {
+    if (this.tagActive) {
+      if (outputContentList != null) {
+        if (outputContentList instanceof ContentList) {
+          outputContentList.AddContent(new Tag(/*isStart:*/ false));
+        } else {
+          outputContentList.push(new Tag(/*isStart:*/ false));
+        }
+      }
+      this.tagActive = false;
+    }
+  }
 
   /**
    * End Tags section.

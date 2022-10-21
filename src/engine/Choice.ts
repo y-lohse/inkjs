@@ -10,6 +10,7 @@ export class Choice extends InkObject {
   public sourcePath: string = "";
   public targetPath: Path | null = null;
   public isInvisibleDefault: boolean = false;
+  public tags: string[] | null = null;
   public originalThreadIndex: number = 0;
 
   get pathStringOnChoice(): string {

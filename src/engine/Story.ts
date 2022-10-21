@@ -50,7 +50,7 @@ if (!Number.isInteger) {
 }
 
 export class Story extends InkObject {
-  public static inkVersionCurrent = 20;
+  public static inkVersionCurrent = 21;
 
   public inkVersionMinimumCompatible = 18;
 
@@ -90,6 +90,14 @@ export class Story extends InkObject {
 
   get currentFlowName() {
     return this.state.currentFlowName;
+  }
+
+  get currentFlowIsDefaultFlow() {
+    return this.state.currentFlowIsDefaultFlow;
+  }
+
+  get aliveFlowNames() {
+    return this.state.aliveFlowNames;
   }
 
   get hasError() {
@@ -558,6 +566,7 @@ export class Story extends InkObject {
 
     let newlineStillExists =
       currText.length >= prevText.length &&
+      prevText.length > 0 &&
       currText.charAt(prevText.length - 1) == "\n";
     if (
       prevTagCount == currTagCount &&
@@ -875,6 +884,22 @@ export class Story extends InkObject {
     }
   }
 
+  public PopChoiceStringAndTags(tags: string[]) {
+    let choiceOnlyStrVal = asOrThrows(
+      this.state.PopEvaluationStack(),
+      StringValue
+    );
+
+    while (
+      this.state.evaluationStack.length > 0 &&
+      asOrNull(this.state.PeekEvaluationStack(), Tag) != null
+    ) {
+      let tag = asOrNull(this.state.PopEvaluationStack(), Tag);
+      if (tag) tags.push(tag.text);
+    }
+    return choiceOnlyStrVal.value;
+  }
+
   public ProcessChoice(choicePoint: ChoicePoint) {
     let showChoice = true;
 
@@ -888,23 +913,14 @@ export class Story extends InkObject {
 
     let startText = "";
     let choiceOnlyText = "";
+    let tags: string[] = [];
 
     if (choicePoint.hasChoiceOnlyContent) {
-      // var choiceOnlyStrVal = state.PopEvaluationStack () as StringValue;
-      let choiceOnlyStrVal = asOrThrows(
-        this.state.PopEvaluationStack(),
-        StringValue
-      );
-      choiceOnlyText = choiceOnlyStrVal.value || "";
+      choiceOnlyText = this.PopChoiceStringAndTags(tags) || "";
     }
 
     if (choicePoint.hasStartContent) {
-      // var startStrVal = state.PopEvaluationStack () as StringValue;
-      let startStrVal = asOrThrows(
-        this.state.PopEvaluationStack(),
-        StringValue
-      );
-      startText = startStrVal.value || "";
+      startText = this.PopChoiceStringAndTags(tags) || "";
     }
 
     // Don't create choice if player has already read this content
@@ -929,7 +945,7 @@ export class Story extends InkObject {
     choice.sourcePath = choicePoint.path.toString();
     choice.isInvisibleDefault = choicePoint.isInvisibleDefault;
     choice.threadAtGeneration = this.state.callStack.ForkThread();
-
+    choice.tags = tags.reverse(); //C# is a stack
     choice.text = (startText + choiceOnlyText).replace(/^[ \t]+|[ \t]+$/g, "");
 
     return choice;
@@ -1149,8 +1165,91 @@ export class Story extends InkObject {
           this.state.inExpressionEvaluation = false;
           break;
 
-        case ControlCommand.CommandType.EndString:
+        // Leave it to story.currentText and story.currentTags to sort out the text from the tags
+        // This is mostly because we can't always rely on the existence of EndTag, and we don't want
+        // to try and flatten dynamic tags to strings every time \n is pushed to output
+        case ControlCommand.CommandType.BeginTag:
+          this.state.PushToOutputStream(evalCommand);
+          break;
+
+        // EndTag has 2 modes:
+        //  - When in string evaluation (for choices)
+        //  - Normal
+        //
+        // The only way you could have an EndTag in the middle of
+        // string evaluation is if we're currently generating text for a
+        // choice, such as:
+        //
+        //   + choice # tag
+        //
+        // In the above case, the ink will be run twice:
+        //  - First, to generate the choice text. String evaluation
+        //    will be on, and the final string will be pushed to the
+        //    evaluation stack, ready to be popped to make a Choice
+        //    object.
+        //  - Second, when ink generates text after choosing the choice.
+        //    On this ocassion, it's not in string evaluation mode.
+        //
+        // On the writing side, we disallow manually putting tags within
+        // strings like this:
+        //
+        //   {"hello # world"}
+        //
+        // So we know that the tag must be being generated as part of
+        // choice content. Therefore, when the tag has been generated,
+        // we push it onto the evaluation stack in the exact same way
+        // as the string for the choice content.
+        case ControlCommand.CommandType.EndTag: {
+          if (this.state.inStringEvaluation) {
+            let contentStackForTag: InkObject[] = [];
+            let outputCountConsumed = 0;
+            for (let i = this.state.outputStream.length - 1; i >= 0; --i) {
+              let obj = this.state.outputStream[i];
+              outputCountConsumed++;
+
+              // var command = obj as ControlCommand;
+              let command = asOrNull(obj, ControlCommand);
+              if (command != null) {
+                if (
+                  command.commandType == ControlCommand.CommandType.BeginTag
+                ) {
+                  break;
+                } else {
+                  this.Error(
+                    "Unexpected ControlCommand while extracting tag from choice"
+                  );
+                  break;
+                }
+              }
+              if (obj instanceof StringValue) {
+                contentStackForTag.push(obj);
+              }
+            }
+
+            // Consume the content that was produced for this string
+            this.state.PopFromOutputStream(outputCountConsumed);
+            // Build string out of the content we collected
+            let sb = new StringBuilder();
+            for (let strVal of contentStackForTag) {
+              sb.Append(strVal.toString());
+            }
+            let choiceTag = new Tag(
+              this.state.CleanOutputWhitespace(sb.toString())
+            );
+            // Pushing to the evaluation stack means it gets picked up
+            // when a Choice is generated from the next Choice Point.
+            this.state.PushEvaluationStack(choiceTag);
+          } else {
+            // Otherwise! Simply push EndTag, so that in the output stream we
+            // have a structure of: [BeginTag, "the tag content", EndTag]
+            this.state.PushToOutputStream(evalCommand);
+          }
+          break;
+        }
+
+        case ControlCommand.CommandType.EndString: {
           let contentStackForString: InkObject[] = [];
+          let contentToRetain: InkObject[] = [];
 
           let outputCountConsumed = 0;
           for (let i = this.state.outputStream.length - 1; i >= 0; --i) {
@@ -1166,7 +1265,9 @@ export class Story extends InkObject {
             ) {
               break;
             }
-
+            if (obj instanceof Tag) {
+              contentToRetain.push(obj);
+            }
             if (obj instanceof StringValue) {
               contentStackForString.push(obj);
             }
@@ -1174,6 +1275,13 @@ export class Story extends InkObject {
 
           // Consume the content that was produced for this string
           this.state.PopFromOutputStream(outputCountConsumed);
+
+          // Rescue the tags that we want actually to keep on the output stack
+          // rather than consume as part of the string we're building.
+          // At the time of writing, this only applies to Tag objects generated
+          // by choices, which are pushed to the stack during string generation.
+          for (let rescuedTag of contentToRetain)
+            this.state.PushToOutputStream(rescuedTag);
 
           // The C# version uses a Stack for contentStackForString, but we're
           // using a simple array, so we need to reverse it before using it
@@ -1189,6 +1297,7 @@ export class Story extends InkObject {
           this.state.inExpressionEvaluation = true;
           this.state.PushEvaluationStack(new StringValue(sb.toString()));
           break;
+        }
 
         case ControlCommand.CommandType.ChoiceCount:
           let choiceCount = this.state.generatedChoices.length;
@@ -1799,7 +1908,7 @@ export class Story extends InkObject {
   public BindExternalFunctionGeneral(
     funcName: string,
     func: Story.ExternalFunction,
-    lookaheadSafe: boolean
+    lookaheadSafe: boolean = true
   ) {
     this.IfAsyncWeCant("bind an external function");
     this.Assert(
@@ -1823,7 +1932,7 @@ export class Story extends InkObject {
   public BindExternalFunction(
     funcName: string,
     func: Story.ExternalFunction,
-    lookaheadSafe: boolean
+    lookaheadSafe: boolean = false
   ) {
     this.Assert(func != null, "Can't bind a null function");
 
@@ -2054,15 +2163,32 @@ export class Story extends InkObject {
       else break;
     }
 
+    let inTag = false;
     let tags: string[] | null = null;
 
     for (let c of flowContainer.content) {
       // var tag = c as Runtime.Tag;
-      let tag = asOrNull(c, Tag);
-      if (tag) {
-        if (tags == null) tags = [];
-        tags.push(tag.text);
-      } else break;
+      let command = asOrNull(c, ControlCommand);
+
+      if (command != null) {
+        if (command.commandType == ControlCommand.CommandType.BeginTag) {
+          inTag = true;
+        } else if (command.commandType == ControlCommand.CommandType.EndTag) {
+          inTag = false;
+        }
+      } else if (inTag) {
+        let str = asOrNull(c, StringValue);
+        if (str !== null) {
+          if (tags === null) tags = [];
+          if (str.value !== null) tags.push(str.value);
+        } else {
+          this.Error(
+            "Tag contained non-text content. Only plain text is allowed when using globalTags or TagsAtContentPath. If you want to evaluate dynamic content, you need to use story.Continue()."
+          );
+        }
+      } else {
+        break;
+      }
     }
 
     return tags;

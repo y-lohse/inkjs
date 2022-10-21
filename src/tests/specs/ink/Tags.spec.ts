@@ -45,18 +45,22 @@ describe("Tags", () => {
     expect(context.story.currentTags).toEqual(knotTagsWhenContinuedTwiceTags);
   });
 
-  // TestTagOnChoice
-  it("tests tag on choice", () => {
-    compileStory("tag_on_choice");
+  //TestTagsInSeq
+  it("tests tags in a sequence", () => {
+    compileStory("tags_in_seq");
 
-    context.story.Continue();
-    context.story.ChooseChoiceIndex(0);
+    expect(context.story.Continue()).toBe("A red sequence.\n");
+    expect(context.story.currentTags).toEqual(["red"]);
 
-    let txt = context.story.Continue();
-    let tags = context.story.currentTags;
+    expect(context.story.Continue()).toBe("A white sequence.\n");
+    expect(context.story.currentTags).toEqual(["white"]);
+  });
 
-    expect(txt).toEqual("Hello");
-    expect(tags.length).toEqual(1);
-    expect(tags[0]).toEqual("hey");
+  //TestTagsDynamicContent
+  it("tests dynamic content in tags", () => {
+    compileStory("tags_dynamic_content");
+
+    expect(context.story.Continue()).toBe("tag\n");
+    expect(context.story.currentTags).toEqual(["pic8red.jpg"]);
   });
 });

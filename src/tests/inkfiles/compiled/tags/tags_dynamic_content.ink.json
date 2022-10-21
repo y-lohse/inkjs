@@ -1,0 +1,1 @@
+{"inkVersion":21,"root":[["^tag ","#","^pic","ev",5,3,"+","out","/ev",["ev","visit",1,"MIN","/ev","ev","du",0,"==","/ev",{"->":".^.s0","c":true},"ev","du",1,"==","/ev",{"->":".^.s1","c":true},"nop",{"s0":["pop","^red",{"->":"0.9.17"},null],"s1":["pop","^blue",{"->":"0.9.17"},null],"#f":5}],"^.jpg","/#","\n",["done",{"#f":5,"#n":"g-0"}],null],"done",{"#f":1}],"listDefs":{}}

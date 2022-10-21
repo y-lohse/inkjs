@@ -1,0 +1,1 @@
+{"inkVersion":21,"root":[[{"->t->":"outer"},["done",{"#f":5,"#n":"g-0"}],null],"done",{"outer":["^This is outer","\n","ev",{"^->":"the_esc"},"/ev",{"->":"cut_to"},{"#f":1}],"cut_to":[{"temp=":"escape"},"ev",{"VAR?":"escape"},"/ev","->->",{"#f":1}],"the_esc":["^This is the_esc","\n","end",{"#f":3}],"#f":1}],"listDefs":{}}

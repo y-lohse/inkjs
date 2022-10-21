@@ -383,6 +383,12 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
     return intersection;
   }
+  public HasIntersection(otherList: InkList): boolean {
+    for (let [key] of this) {
+      if (otherList.has(key)) return true;
+    }
+    return false;
+  }
   public Without(listToRemove: InkList) {
     let result = new InkList(this);
     for (let [key] of listToRemove) {
@@ -391,7 +397,13 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
     return result;
   }
-  public Contains(otherList: InkList) {
+
+  public Contains(key: string): boolean;
+  public Contains(otherList: InkList): boolean;
+  public Contains(what: string | InkList): boolean {
+    if (typeof what == "string") return this.ContainsItemNamed(what);
+    const otherList = what;
+    if (otherList.size == 0 || this.size == 0) return false;
     for (let [key] of otherList) {
       if (!this.has(key)) return false;
     }
