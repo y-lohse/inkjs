@@ -3,8 +3,11 @@
 // TODO: Fix this issue and refactor the entire file.
 /* eslint-disable @typescript-eslint/no-var-requires */
 
-// Recompile baseline ink files with the current version
-// of inklecate available in $PATH.
+// Recompile baseline ink files with specified cli compiler
+//
+// Usage
+// node src/tests/compile.js # uses inklecate from $PATH
+// node src/tests/compile.js "node dist/inkjs-compiler.js" # uses inkjs-compiler
 
 let childProcess = require("child_process");
 let glob = require("glob");
@@ -101,11 +104,11 @@ async function compileInkFile(inklecate) {
   if (errors.length === 0) {
     console.log("Done.");
   } else {
-    errors.forEach((error) => console.error(`\n${error.reason.message}`));
+    errors.forEach((error) => console.error(`\n${error.reason.message.substring(0,255)}`));
   }
 }
 
-let inklecate = process.argv[3];
+let inklecate = process.argv[2];
 
 if (!inklecate || inklecate === "") {
   inklecate = "inklecate";

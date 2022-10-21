@@ -3,12 +3,14 @@ import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
 import { PosixFileHandler } from '../src/compiler/FileHandler/PosixFileHandler';
 var readline = require('readline');
+var path = require('path');
+
 import * as fs from "fs";
 
 const help = process.argv.includes("-h");
 if(help){
 process.stdout.write(`
-Usage: inklecate <options> <ink file>
+Usage: inkjs-compiler <options> <ink file>
    -o <filename>:   Output file name
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
@@ -35,7 +37,7 @@ if(!inputFile){
 }
 outputfile = outputfile || inputFile+".json";
 
-const fileHandler = new PosixFileHandler(inputFile);
+const fileHandler = new PosixFileHandler(path.dirname(inputFile));
 const mainInk = fileHandler.LoadInkFileContents(inputFile);
 
 const options = new CompilerOptions(
