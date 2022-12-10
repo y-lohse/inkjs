@@ -200,7 +200,7 @@ export class Story extends InkObject {
           "Version of ink used to build story is too old to be loaded by this version of the engine"
         );
       } else if (formatFromFile != Story.inkVersionCurrent) {
-        console.warn(
+        console.log(
           "WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising."
         );
       }
