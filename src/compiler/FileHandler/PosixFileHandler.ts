@@ -8,10 +8,10 @@ export class PosixFileHandler implements IFileHandler {
 
   readonly ResolveInkFilename = (filename: string): string => {
     if (this.rootPath !== undefined && this.rootPath !== "") {
-      return path.join(this.rootPath, filename.replace(this.rootPath, ""));
+      return path.join(this.rootPath, filename);
     } else {
       let workingDir = process.cwd();
-      return path.join(workingDir, filename.replace(workingDir, ""));
+      return path.join(workingDir, filename);
     }
   };
 
