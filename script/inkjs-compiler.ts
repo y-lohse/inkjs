@@ -6,6 +6,7 @@ var readline = require('readline');
 var path = require('path');
 
 import * as fs from "fs";
+import { ErrorHandler } from '../src/engine/Error';
 
 const help = process.argv.includes("-h");
 if(help){
@@ -40,12 +41,19 @@ outputfile = outputfile || inputFile+".json";
 const fileHandler = new PosixFileHandler(path.dirname(inputFile));
 const mainInk = fileHandler.LoadInkFileContents(inputFile);
 
+const errorHandler: ErrorHandler = (message, errorType) => {
+    process.stderr.write(message + "\n");
+};
 const options = new CompilerOptions(
-    inputFile, [], countAllVisit, null, fileHandler
+    inputFile, [], countAllVisit, errorHandler, fileHandler
 )
 
-const c = new Compiler(mainInk, options)
+const c = new Compiler(mainInk, options);
 const rstory = c.Compile();
+if (!rstory) {
+    process.stderr.write("*** Compilation failed ***\n");
+    process.exit(1);
+}
 
 const jsonStory = rstory.ToJson()
 
