@@ -37,7 +37,7 @@
     "glob": "7.2.3",
     "jest": "26.6.3",
     "jest-diff": "27.5.1",
-    "prettier": "2.7.1",
+    "prettier": "2.8.1",
     "remap-istanbul": "0.13.0",
     "rollup": "2.79.1",
     "@rollup/plugin-babel": "5.3.1",
