@@ -827,7 +827,10 @@ export class StoryState {
       if (tailLastNewlineIdx < str.length - 1) {
         let numSpaces = str.length - tailLastNewlineIdx - 1;
         let trailingSpaces = new StringValue(
-          str.substring(tailLastNewlineIdx + 1, numSpaces)
+          str.substring(
+            tailLastNewlineIdx + 1,
+            tailLastNewlineIdx + 1 + numSpaces
+          )
         );
         listTexts.push(trailingSpaces);
       }
