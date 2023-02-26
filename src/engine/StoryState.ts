@@ -815,10 +815,7 @@ export class StoryState {
     }
 
     if (innerStrEnd > innerStrStart) {
-      let innerStrText = str.substring(
-        innerStrStart,
-        innerStrEnd - innerStrStart
-      );
+      let innerStrText = str.substring(innerStrStart, innerStrEnd);
       listTexts.push(new StringValue(innerStrText));
     }
 
