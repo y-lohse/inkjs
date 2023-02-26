@@ -427,6 +427,10 @@ mutated 1
 mutated 2
 -> DONE
 
+= variable_print
+{stringvar}
+-> DONE
+
 = visit_count
 visited
 -> DONE

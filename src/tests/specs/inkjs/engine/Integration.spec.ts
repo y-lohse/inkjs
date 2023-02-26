@@ -51,6 +51,21 @@ describe("Integration", () => {
     expect(context.story.variablesState["stringvar"]).toEqual("Jonas");
   });
 
+  it("should correctly print variables passed to ink, part 1", () => {
+    context.story.variablesState["stringvar"] = "\n\nDear Emilia";
+    context.story.ChoosePathString("integration.variable_print");
+    expect(context.story.Continue()).toEqual("Dear Emilia\n");
+  });
+
+  it("should correctly print variables passed to ink, part 2", () => {
+    context.story.variablesState["stringvar"] =
+      "\n\nDear Emilia, \nHope you are well\n\n      ";
+    context.story.ChoosePathString("integration.variable_print");
+    expect(context.story.Continue()).toEqual(
+      "Dear Emilia,\nHope you are well\n"
+    );
+  });
+
   it("should observe variables", () => {
     context.story.ChoosePathString("integration.variable_observer");
     expect(context.story.variablesState["observedVar1"]).toEqual(1);
