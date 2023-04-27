@@ -4,15 +4,10 @@ import * as fs from "fs";
 
 // This class replaces upstream's DefaultFileHandler.
 export class PosixFileHandler implements IFileHandler {
-  constructor(public readonly rootPath?: string) {}
+  constructor(public readonly rootPath: string = "") {}
 
   readonly ResolveInkFilename = (filename: string): string => {
-    if (this.rootPath !== undefined && this.rootPath !== "") {
-      return path.join(this.rootPath, filename);
-    } else {
-      let workingDir = process.cwd();
-      return path.join(workingDir, filename);
-    }
+    return path.resolve(process.cwd(), this.rootPath, filename);
   };
 
   readonly LoadInkFileContents = (filename: string): string => {
