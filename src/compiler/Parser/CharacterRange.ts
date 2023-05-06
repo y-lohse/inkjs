@@ -46,10 +46,11 @@ export class CharacterRange {
   public readonly ToCharacterSet = (): CharacterSet => {
     if (this._correspondingCharSet.set.size === 0) {
       for (
-        let ii = this.start.charCodeAt(0), c = String.fromCharCode(ii);
+        let ii = this.start.charCodeAt(0), c;
         ii <= this.end.charCodeAt(0);
         ii += 1
       ) {
+        c = String.fromCharCode(ii);
         if (!this._excludes.has(c)) {
           this._correspondingCharSet.AddCharacters(c);
         }
