@@ -15,6 +15,7 @@ inkjs is fully compatible with the original version, has zero dependency and wor
 - [Working with a JSON file](#working-with-a-json-file)
 - [Using Node.js](#using-nodejs)
 - [Differences with the C# API](#differences-with-the-c-api)
+- [Using the js Compiler](#compiler)
 
 ## Installation
 

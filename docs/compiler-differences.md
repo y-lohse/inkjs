@@ -6,14 +6,27 @@ The C# compiler is intented to always be used on a file system and thus the ques
 Nevertheless, when using the compiler inside a browser, the concept of "file" is a blurry one.   
 Inkjs provides 2 file handlers :
 * A JSON file handler : it is included by default : it expects a JSON object representing all the files of the project of the form :
-```
+```json
 {
     "filename1.ink": "INCLUDE filename2.ink",
     "filename2.ink": "This content is included",
 }
 ```
 
-* A POSIX file handler : delivered as a separate `inkjs-full-posixhandler.js` file that must be included/required : similar to the one used in the C# compiler that will look for files in folders.
+* A POSIX file handler : delivered as a separate `inkjs-full-posixhandler.js` file that must be included/required : similar to the one used in the C# compiler that will look for files in folders. Example when installing the package from npm :
+
+```javascript
+var Inkjs = require('inkjs');
+var { PosixFileHandler } = require('inkjs/compiler/FileHandler/PosixFileHandler');
+
+const inkFile = fs.readFileSync(`${PATH_TO_STORY_FOLDER}/main.ink`, 'UTF-8').replace(/^\uFEFF/, '');
+const fileHandler = new PosixFileHandler(`${PATH_TO_STORY_FOLDER}/`);
+const errorHandler = (message, errorType) => {
+   console.log(message + "\n");
+}
+const story = new Inkjs.Compiler(inkFile, {fileHandler, errorHandler}).Compile();
+//story.Continue()
+```
 
 ## Float and ints
 
