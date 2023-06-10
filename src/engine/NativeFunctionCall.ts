@@ -121,7 +121,9 @@ export class NativeFunctionCall extends InkObject {
     return null;
   }
 
-  public CallType<T extends { toString: () => string; }>(parametersOfSingleType: Array<Value<T>>) {
+  public CallType<T extends { toString: () => string }>(
+    parametersOfSingleType: Array<Value<T>>
+  ) {
     let param1 = asOrThrows(parametersOfSingleType[0], Value);
     let valType = param1.valueType;
 
