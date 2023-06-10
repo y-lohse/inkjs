@@ -110,16 +110,20 @@ if(jsonStory && play){
                     try{
                         story.ChoosePathString(target)
                         break;
-                    }catch(e){
-                        process.stdout.write(e.message + '\n');
+                    }catch(e: unknown){
+                        if (e instanceof Error) {
+                            process.stdout.write(e.message + '\n');
+                        }
                     }
                 }else{
                     const choiceIndex = parseInt(answer) - 1;
                     try{
                         story.ChooseChoiceIndex(choiceIndex);
                         break;
-                    }catch(e){
-                        process.stdout.write(e.message + '\n');
+                    }catch(e: unknown){
+                        if (e instanceof Error) {
+                            process.stdout.write(e.message + '\n');
+                        }
                     }
                 }
             }while(true);
