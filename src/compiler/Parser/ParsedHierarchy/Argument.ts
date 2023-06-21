@@ -6,4 +6,8 @@ export class Argument {
     public isByReference: boolean | null = null,
     public isDivertTarget: boolean | null = null
   ) {}
+
+  get typeName(): string {
+    return "Argument";
+  }
 }
