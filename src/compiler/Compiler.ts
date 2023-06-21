@@ -9,6 +9,8 @@ import { StringValue } from "../engine/Value";
 import { asOrNull } from "../engine/TypeAssertion";
 
 export { CompilerOptions } from "./CompilerOptions";
+export { InkParser } from "./Parser/InkParser";
+export { StatementLevel } from "./Parser/StatementLevel";
 export { JsonFileHandler } from "./FileHandler/JsonFileHandler";
 export { InkList, Story } from "../engine/Story";
 
