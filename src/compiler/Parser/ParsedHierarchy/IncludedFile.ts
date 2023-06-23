@@ -11,4 +11,8 @@ export class IncludedFile extends ParsedObject {
     // Left to the main story to process
     return null;
   };
+
+  get typeName(): string {
+    return "IncludedFile";
+  }
 }
