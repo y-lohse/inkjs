@@ -489,7 +489,7 @@ a bit of content
 the next bit
 -> DONE
 = choicepoint
-* choice 1
+* choice 1 # a tag
 * choice 2
 - -> DONE
 
