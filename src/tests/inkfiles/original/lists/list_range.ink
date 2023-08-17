@@ -6,4 +6,6 @@ VAR all = ()
 {all}
 {LIST_RANGE(all, 2, 3)}
 {LIST_RANGE(LIST_ALL(Numbers), Two, Six)}
+{LIST_RANGE(LIST_ALL(Numbers), 2, Four)} // mix int and list
+{LIST_RANGE(LIST_ALL(Numbers), Two, 5)} // mix list and int
 {LIST_RANGE((Pizza, Pasta), -1, 100)} // allow out of range
