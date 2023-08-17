@@ -10,12 +10,24 @@ inkjs is fully compatible with the original version, has zero dependency and wor
 
 ## Table of content
 
-- [Installation](#installation)
-- [Quickstart in the browser](#quickstart)
-- [Working with a JSON file](#working-with-a-json-file)
-- [Using Node.js](#using-nodejs)
-- [Differences with the C# API](#differences-with-the-c-api)
-- [Using the js Compiler](#compiler)
+- [](#)
+	- [Table of content](#table-of-content)
+	- [Installation](#installation)
+	- [Quickstart](#quickstart)
+	- [Working with a JSON file](#working-with-a-json-file)
+	- [Using node.js](#using-nodejs)
+		- [Loading inkjs](#loading-inkjs)
+		- [Loading a json file](#loading-a-json-file)
+		- [Starting a story](#starting-a-story)
+	- [Differences with the C# API](#differences-with-the-c-api)
+		- [Getting and setting ink variables](#getting-and-setting-ink-variables)
+		- [Getting the output text when calling `EvaluateFunction`](#getting-the-output-text-when-calling-evaluatefunction)
+	- [Using TypeScript](#using-typescript)
+	- [Compiler](#compiler)
+		- [inkjs-compiler.js](#inkjs-compilerjs)
+		- [online compiler](#online-compiler)
+		- [Differences with the C# Compiler](#differences-with-the-c-compiler)
+	- [Compatibility table](#compatibility-table)
 
 ## Installation
 
@@ -121,6 +133,26 @@ var result = EvaluateFunction('my_ink_function', ['arg1', 'arg2'], true);
 //now result is an object with two properties:
 // result.returned is the return value of my_ink_function("arg1", "arg2")
 // result.output is the text that was written to the output while the function was evaluated
+```
+
+## Using TypeScript
+
+As this library is a port from C#, it requires a less standard way to assign the `Story` class, including all other classes, to a variable:
+
+```ts
+import { Story, Compiler } from 'inkjs';
+
+let story: InstanceType<typeof Story>;
+let compiler: InstanceType<typeof Compiler>;
+```
+
+Further, to minimize the verbose assignment, you can also create aliases in your project:
+
+```ts
+import { Story, Compiler } from 'inkjs';
+
+export type InkStory = InstanceType<typeof Story>;
+export type InkCompiler= InstanceType<typeof Compiler>;
 ```
 
 ## Compiler
