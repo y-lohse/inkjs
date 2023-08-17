@@ -275,6 +275,21 @@ describe("Integration", () => {
       expect(context.story.currentChoices[0].text).toEqual("choice 1");
       expect(context.story.currentChoices[1].text).toEqual("choice 2");
     });
+
+    it("should restore choice tags", () => {
+      context.story.ChoosePathString("saveload.choicepoint");
+      context.story.Continue();
+      expect(context.story.currentChoices.length).toEqual(2);
+      expect(context.story.currentChoices[0].tags.length).toEqual(1);
+      expect(context.story.currentChoices[0].tags[0]).toEqual("a tag");
+
+      const save = context.story.state.ToJson();
+      context.story.state.LoadJson(save);
+
+      expect(context.story.currentChoices.length).toEqual(2);
+      expect(context.story.currentChoices[0].tags.length).toEqual(1);
+      expect(context.story.currentChoices[0].tags[0]).toEqual("a tag");
+    });
   });
 
   describe("debug tools", () => {
