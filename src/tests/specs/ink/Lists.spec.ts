@@ -65,7 +65,13 @@ describe("Lists", () => {
     compileStory("list_range");
 
     expect(context.story.ContinueMaximally()).toBe(
-      "Pound, Pizza, Euro, Pasta, Dollar, Curry, Paella\nEuro, Pasta, Dollar, Curry\nTwo, Three, Four, Five, Six\nPizza, Pasta\n"
+`Pound, Pizza, Euro, Pasta, Dollar, Curry, Paella
+Euro, Pasta, Dollar, Curry
+Two, Three, Four, Five, Six
+Two, Three, Four
+Two, Three, Four, Five
+Pizza, Pasta
+`
     );
   });
 

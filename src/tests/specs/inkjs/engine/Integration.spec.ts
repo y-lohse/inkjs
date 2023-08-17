@@ -282,7 +282,6 @@ describe("Integration", () => {
       expect(context.story.currentChoices.length).toEqual(2);
       expect(context.story.currentChoices[0].tags.length).toEqual(1);
       expect(context.story.currentChoices[0].tags[0]).toEqual("a tag");
-      console.log(context.story.currentChoices[0].tags);
 
       const save = context.story.state.ToJson();
       context.story.state.LoadJson(save);
