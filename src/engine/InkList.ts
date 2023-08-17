@@ -466,7 +466,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
     if (Number.isInteger(maxBound)) {
       maxValue = maxBound;
     } else {
-      if (minBound instanceof InkList && minBound.Count > 0)
+      if (maxBound instanceof InkList && maxBound.Count > 0)
         maxValue = maxBound.maxItem.Value;
     }
 
