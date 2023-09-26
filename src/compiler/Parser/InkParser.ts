@@ -1993,7 +1993,7 @@ export class InkParser extends StringParser {
       this.Error(`Failed to load: '${filename}'.\nError:${err}`);
     }
 
-    if (includedString) {
+    if (includedString != null) {
       const parser: InkParser = new InkParser(
         includedString,
         filename,
