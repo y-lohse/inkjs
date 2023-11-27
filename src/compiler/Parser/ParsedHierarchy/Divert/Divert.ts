@@ -266,7 +266,7 @@ export class Divert extends ParsedObject {
     if (targetFlow) {
       if (!targetFlow.isFunction && this.isFunctionCall) {
         super.Error(
-          `${targetFlow.identifier} hasn't been marked as a function, but it's being called as one. Do you need to delcare the knot as '== function ${targetFlow.identifier} =='?`
+          `${targetFlow.identifier} hasn't been marked as a function, but it's being called as one. Do you need to declare the knot as '== function ${targetFlow.identifier} =='?`
         );
       } else if (
         targetFlow.isFunction &&
