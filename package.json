@@ -21,8 +21,8 @@
   "license": "MIT",
   "browserslist": "> 0.25%, not dead",
   "devDependencies": {
-    "@babel/core": "7.23.9",
-    "@babel/preset-env": "7.23.9",
+    "@babel/core": "7.24.0",
+    "@babel/preset-env": "7.24.0",
     "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-node-resolve": "13.3.0",
     "@types/jest": "26.0.24",
