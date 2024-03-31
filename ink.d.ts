@@ -1,8 +1,8 @@
-import { Story, InkList } from './engine/Story'
-import { Compiler } from './compiler/Compiler'
-import { CompilerOptions } from './compiler/CompilerOptions'
-import { PosixFileHandler } from './compiler/FileHandler/PosixFileHandler'
-import { JsonFileHandler } from './compiler/FileHandler/JsonFileHandler'
+import { Story, InkList } from './src/engine/Story'
+import { Compiler } from './src/compiler/Compiler'
+import { CompilerOptions } from './src/compiler/CompilerOptions'
+import { PosixFileHandler } from './src/compiler/FileHandler/PosixFileHandler'
+import { JsonFileHandler } from './src/compiler/FileHandler/JsonFileHandler'
 
 declare interface Inkjs {
     Story: typeof Story
