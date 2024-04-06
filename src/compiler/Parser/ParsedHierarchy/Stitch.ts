@@ -22,9 +22,13 @@ export class Stitch extends FlowBase {
     return "Stitch";
   }
 
+  // Fixes TS issue with not being able to access the prototype via `super` in functions
+  // attached to the class as properties.
+  private baseToString = this.toString;
+
   public toString = (): string => {
     return `${
       this.parent !== null ? this.parent + " > " : ""
-    }${super.toString()}`;
+    }${this.baseToString()}`;
   };
 }
