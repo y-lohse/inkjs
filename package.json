@@ -29,7 +29,6 @@
     "@types/jest": "29.5.12",
     "@types/node": "^20.12.5",
     "@typescript-eslint/eslint-plugin": "7.5.0",
-    "@typescript-eslint/eslint-plugin-tslint": "7.0.2",
     "@typescript-eslint/parser": "7.5.0",
     "eslint": "^8.56.0",
     "eslint-config-prettier": "9.1.0",

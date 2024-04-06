@@ -15,7 +15,6 @@ module.exports = {
   },
   plugins: [
     "@typescript-eslint",
-    "@typescript-eslint/tslint",
     "import",
     "jsdoc",
     "prefer-arrow",
