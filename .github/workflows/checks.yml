@@ -17,9 +17,9 @@ jobs:
         run: npm install
       - name: Install codecov
         run: npm install codecov
-      - name: Lint
-        run: npm run lint
       - name: Build
         run: npm run build
       - name: tests
         run: npm run test
+      - name: Lint
+        run: npm run lint

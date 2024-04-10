@@ -33,7 +33,7 @@ export class ListElementDefinition extends ParsedObject {
     public readonly explicitValue: number | null = null
   ) {
     super();
-    this.parent = super.parent as ListDefinition;
+    this.parent = this.parent as ListDefinition;
   }
 
   public readonly GenerateRuntimeObject = (): RuntimeObject => {
