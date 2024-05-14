@@ -96,7 +96,7 @@ export class ControlCommand extends InkObject {
     return new ControlCommand(ControlCommand.CommandType.EndTag);
   }
   public toString() {
-    return this.commandType.toString();
+    return "ControlCommand " + this.commandType.toString();
   }
 }
 
