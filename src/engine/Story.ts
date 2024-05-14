@@ -1368,7 +1368,7 @@ export class Story extends InkObject {
               "Invalid value for minimum parameter of RANDOM(min, max)"
             );
 
-          if (maxInt == null || minInt instanceof IntValue === false)
+          if (maxInt == null || maxInt instanceof IntValue === false)
             return this.Error(
               "Invalid value for maximum parameter of RANDOM(min, max)"
             );
