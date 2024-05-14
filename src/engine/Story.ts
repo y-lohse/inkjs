@@ -1230,7 +1230,7 @@ export class Story extends InkObject {
             this.state.PopFromOutputStream(outputCountConsumed);
             // Build string out of the content we collected
             let sb = new StringBuilder();
-            for (let strVal of contentStackForTag) {
+            for (let strVal of contentStackForTag.reverse()) {
               sb.Append(strVal.toString());
             }
             let choiceTag = new Tag(
