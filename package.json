@@ -4,9 +4,20 @@
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "type": "commonjs",
   "main": "dist/ink-full.js",
-  "module": "dist/ink-full.mjs",
   "types": "ink.d.ts",
-  "files": ["src/engine","src/compiler","ink.d.ts","script/inkjs-compiler.ts"],
+  "files": ["src/engine","src/compiler","ink.d.ts", "ink.d.mts","script/inkjs-compiler.ts", "dist"],
+  "exports": {
+    ".":{
+      "types": "./ink.d.mts",
+      "import": "./dist/ink.mjs",
+      "default": "./dist/ink.js"
+    },
+    "./full":{
+      "types": "./ink.d.mts",
+      "import": "./dist/ink-full.mjs",
+      "default": "./dist/ink-full.js"
+    }
+  },
   "scripts": {
     "test": "npm run test:typescript && npm run test:javascript",
     "test:typescript": "jest",
