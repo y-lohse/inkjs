@@ -1,9 +1,23 @@
 {
   "name": "inkjs",
-  "version": "2.2.3",
+  "version": "2.2.4",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
+  "type": "commonjs",
   "main": "dist/ink-full.js",
   "types": "ink.d.ts",
+  "files": ["src/engine","src/compiler","ink.d.ts", "ink.d.mts","script/inkjs-compiler.ts", "dist"],
+  "exports": {
+    ".":{
+      "types": "./ink.d.mts",
+      "import": "./dist/ink.mjs",
+      "default": "./dist/ink.js"
+    },
+    "./full":{
+      "types": "./ink.d.mts",
+      "import": "./dist/ink-full.mjs",
+      "default": "./dist/ink-full.js"
+    }
+  },
   "scripts": {
     "test": "npm run test:typescript && npm run test:javascript",
     "test:typescript": "jest",

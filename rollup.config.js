@@ -25,7 +25,27 @@ export default [
     input: engineOnlyInputFile,
     output: {
       name: moduleName,
-      file: 'dist/ink-es6.js',
+      file: 'dist/ink.mjs',
+      format: 'es',
+      sourcemap: true
+    },
+    plugins: [
+      nodeResolve(),
+      typescript(tsconfig),
+      babel({
+        exclude: 'node_modules/**',
+        extensions: ['.js', '.ts'],
+        babelHelpers: 'bundled'
+      }),
+      terser(),
+      sourcemaps()
+    ]
+  },
+  {
+    input: fullfeatureInputFile,
+    output: {
+      name: moduleName,
+      file: 'dist/ink-full.mjs',
       format: 'es',
       sourcemap: true
     },
