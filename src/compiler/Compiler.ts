@@ -13,6 +13,11 @@ export { InkParser } from "./Parser/InkParser";
 export { StatementLevel } from "./Parser/StatementLevel";
 export { JsonFileHandler } from "./FileHandler/JsonFileHandler";
 export { InkList, Story } from "../engine/Story";
+export { Identifier } from "./Parser/ParsedHierarchy/Identifier";
+export { Path } from "./Parser/ParsedHierarchy/Path";
+export { Argument } from "./Parser/ParsedHierarchy/Argument";
+export { IncludedFile } from "./Parser/ParsedHierarchy/IncludedFile";
+export { VariableAssignment } from "./Parser/ParsedHierarchy/Variable/VariableAssignment";
 
 export class Compiler {
   private _errors: string[] = [];
