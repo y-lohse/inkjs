@@ -140,7 +140,7 @@ var result = EvaluateFunction('my_ink_function', ['arg1', 'arg2'], true);
 As this library is a port from C#, it requires a less standard way to assign the `Story` class, including all other classes, to a variable:
 
 ```ts
-import { Story, Compiler } from 'inkjs';
+import { Story, Compiler } from 'inkjs/full';
 
 let story: InstanceType<typeof Story>;
 let compiler: InstanceType<typeof Compiler>;
@@ -149,7 +149,7 @@ let compiler: InstanceType<typeof Compiler>;
 Further, to minimize the verbose assignment, you can also create aliases in your project:
 
 ```ts
-import { Story, Compiler } from 'inkjs';
+import { Story, Compiler } from 'inkjs/full';
 
 export type InkStory = InstanceType<typeof Story>;
 export type InkCompiler= InstanceType<typeof Compiler>;
