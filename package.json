@@ -1,11 +1,11 @@
 {
   "name": "inkjs",
-  "version": "2.2.4",
+  "version": "2.2.5",
   "description": "A javascript port of inkle's ink scripting language (http://www.inklestudios.com/ink/)",
   "type": "commonjs",
   "main": "dist/ink-full.js",
   "types": "ink.d.ts",
-  "files": ["src/engine","src/compiler","ink.d.ts", "ink.d.mts","script/inkjs-compiler.ts", "dist"],
+  "files": ["engine","compiler","ink.d.ts", "ink.d.mts","script/inkjs-compiler.ts", "dist"],
   "exports": {
     ".":{
       "types": "./ink.d.mts",
@@ -19,17 +19,16 @@
     }
   },
   "scripts": {
-    "test": "npm run test:typescript && npm run test:javascript",
+    "test": "npm run build && npm run test:typescript && npm run test:javascript",
     "test:typescript": "jest",
-    "test:javascript": "npm run test:javascript:dist && npm run test:javascript:legacy",
+    "test:javascript": "npm run build && npm run test:javascript:dist && npm run test:javascript:legacy",
     "test:javascript:dist": "INK_TEST=dist jest --config='jest.config.javascript.js'",
     "test:javascript:legacy": "INK_TEST=legacy jest --config='jest.config.javascript.js'",
     "test:compileFiles": "node src/tests/compile.js",
     "build": "tsc -p ./ && rollup -c",
     "lint": "eslint 'src/**/*.ts'",
     "lint:fix": "npm run lint -- --fix",
-    "watch": "tsc -p ./ && rollup -c -w",
-    "prepare": "npm run build"
+    "watch": "tsc -p ./ && rollup -c -w"
   },
   "author": "Yannick Lohse",
   "license": "MIT",

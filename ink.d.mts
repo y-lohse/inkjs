@@ -4,7 +4,7 @@ import { CompilerOptions } from "./compiler/CompilerOptions";
 import { PosixFileHandler } from "./compiler/FileHandler/PosixFileHandler";
 import { JsonFileHandler } from "./compiler/FileHandler/JsonFileHandler";
 
-export default interface inkjs {
+declare interface Inkjs {
   /**
    * A Story is the core class that represents a complete Ink narrative, and
    * manages runtime evaluation and state.
@@ -37,11 +37,6 @@ export default interface inkjs {
   JsonFileHandler: typeof JsonFileHandler;
 }
 
-export {
-  Story,
-  InkList,
-  Compiler,
-  CompilerOptions,
-  PosixFileHandler,
-  JsonFileHandler,
-};
+
+declare let inkjs: Inkjs
+export = inkjs
