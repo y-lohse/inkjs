@@ -1,5 +1,5 @@
 {
-  "name": "ts-inkjs-test",
+  "name": "ts-inkjs-player",
   "type": "module",
   "version": "1.0.0",
   "description": "",
@@ -16,6 +16,6 @@
     "typescript": "^5.4.5"
   },
   "dependencies": {
-    "inkjs": "^2.2.4"
+    "inkjs": "*"
   }
 }
