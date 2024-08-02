@@ -350,7 +350,7 @@ export namespace SimpleJson {
       }
     }
 
-    private get currentCollection() {
+    private get currentCollection() : Record<string, any> | null {
       if (this._collectionStack.length > 0) {
         return this._collectionStack[this._collectionStack.length - 1];
       } else {

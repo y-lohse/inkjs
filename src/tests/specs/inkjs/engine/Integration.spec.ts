@@ -71,9 +71,9 @@ describe("Integration", () => {
     expect(context.story.variablesState["observedVar1"]).toEqual(1);
     expect(context.story.variablesState["observedVar2"]).toEqual(2);
 
-    const spy1 = jasmine.createSpy("variable observer spy 1");
-    const spy2 = jasmine.createSpy("variable observer spy 2");
-    const commonSpy = jasmine.createSpy("variable observer spy common");
+    const spy1 = jest.fn().mockName("variable observer spy 1");
+    const spy2 = jest.fn().mockName("variable observer spy 2");
+    const commonSpy = jest.fn().mockName("variable observer spy common");
     context.story.ObserveVariable("observedVar1", spy1);
     context.story.ObserveVariable("observedVar2", spy2);
     context.story.ObserveVariable("observedVar1", commonSpy);
@@ -215,11 +215,8 @@ describe("Integration", () => {
   it("should call external functions", () => {
     context.story.allowExternalFunctionFallbacks = false;
     context.story.ChoosePathString("integration.external");
-    const externalSpy = jasmine
-      .createSpy("external function spy", (a) => {
-        return a;
-      })
-      .and.callThrough();
+
+    const externalSpy = jest.fn(a => a).mockName("external function spy");
     context.story.BindExternalFunction("fn_ext", externalSpy);
     context.story.BindExternalFunction("gameInc", () => undefined);
 
@@ -232,13 +229,13 @@ describe("Integration", () => {
 
   it("should handle callstack changes", () => {
     context.story.allowExternalFunctionFallbacks = false;
-    const externalSpy = jasmine
-      .createSpy("external function spy", (x) => {
-        x++;
-        x = parseInt(context.story.EvaluateFunction("inkInc", [x]));
-        return x;
-      })
-      .and.callThrough();
+
+    const externalSpy = jest.fn(x => {
+      x++;
+      x = parseInt(context.story.EvaluateFunction("inkInc", [x]));
+      return x;
+    }).mockName("external function spy");
+
     context.story.BindExternalFunction("fn_ext", () => undefined);
     context.story.BindExternalFunction("gameInc", externalSpy);
 

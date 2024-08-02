@@ -329,6 +329,7 @@ export class Container extends InkObject implements INamedContent {
 
 export namespace Container {
   export enum CountFlags {
+    Start = 0,
     Visits = 1,
     Turns = 2,
     CountStartOnly = 4,
