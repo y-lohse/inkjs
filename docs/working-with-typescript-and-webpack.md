@@ -22,11 +22,11 @@ rules: [
 
 We can then `import` (or `require`) the ink file and compile it.
 
-```typescript
-import * as Inkjs from 'inkjs';
+```javascript
+import { Compiler } from 'inkjs/full';
 import data from '../assets/myStory.ink';
 
-const inkStory = new Inkjs.Compiler(data).Compile();
+const inkStory = new Compiler(data).Compile();
 ```
 
 If you are working in JavaScript, then that is all you need.

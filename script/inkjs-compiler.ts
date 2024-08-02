@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 import { Compiler } from '../src/compiler/Compiler';
 import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
@@ -17,13 +19,13 @@ Usage: inkjs-compiler <options> <ink file>
    -o <filename>:   Output file name
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
-   -p:              Play mode
+   -p:              Play mode (automatic if a json file is passed as argument)
 `);
 process.exit(0);
 }
 
 const countAllVisit = process.argv.includes("-c");
-const play = process.argv.includes("-p") || process.argv.includes("-k");
+let play = process.argv.includes("-p") || process.argv.includes("-k");
 const write = !process.argv.includes("-k") && !process.argv.includes("-p");
 const explicitOutput = process.argv.includes("-o");
 let outputfile: string|null = null;
@@ -71,6 +73,7 @@ if(!inputFile.endsWith(".json")){
     }
 }else{
     jsonStory = fs.readFileSync(inputFile,"utf-8").replace(BOM, "")
+    play = true;
 }
 
 if(jsonStory && play){

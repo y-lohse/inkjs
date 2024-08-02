@@ -1,4 +1,5 @@
-import { Story, Compiler } from 'inkjs/full';
+import { Story, Compiler } from 'inkjs/compiler/Compiler';
+import { Choice } from 'inkjs/engine/Choice';
 
 const inkStory = `
 Once upon a time...
@@ -10,12 +11,14 @@ Once upon a time...
     -> END
 `
 
-let story: InstanceType<typeof Story>;
+let compiler = new Compiler(inkStory);
 
-let compiler: InstanceType<typeof Compiler> = new Compiler(inkStory);
-
- story = compiler.Compile()
+let story: Story = compiler.Compile()
 
 let text = story.Continue()
+let choices: Choice[] = story.currentChoices
 
 console.log(text)
+for (let c of  choices){
+    console.log(` * ${c.text}`)
+}
