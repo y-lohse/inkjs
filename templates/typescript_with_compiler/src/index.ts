@@ -1,4 +1,4 @@
-import { Compiler } from 'inkjs/full';
+import { Story, Compiler } from 'inkjs/full';
 
 const inkStory = `
 Once upon a time...
@@ -10,8 +10,12 @@ Once upon a time...
     -> END
 `
 
-const s = new Compiler(inkStory).Compile()
+let story: InstanceType<typeof Story>;
 
-let text = s.Continue()
+let compiler: InstanceType<typeof Compiler> = new Compiler(inkStory);
+
+ story = compiler.Compile()
+
+let text = story.Continue()
 
 console.log(text)
