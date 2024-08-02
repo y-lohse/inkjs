@@ -175,6 +175,22 @@ describe("Integration", () => {
     expect(context.story.EvaluateFunction("fn_echo", [5.3])).toEqual(5.3);
   });
 
+  it("should report invalid params passed to ink functions", () => {
+    class BadParameter {}
+    expect(() =>
+      context.story.EvaluateFunction("fn_params", [new BadParameter()])
+    ).toThrow("Argument was BadParameter");
+  });
+
+  it("should report invalid params passed to knots/stitches", () => {
+    class BadParameter {}
+    expect(() =>
+      context.story.ChoosePathString("stitch_with_param", undefined, [
+        new BadParameter(),
+      ])
+    ).toThrow("Argument was BadParameter");
+  });
+
   it("should return output and return value from ink function calls", () => {
     expect(context.story.EvaluateFunction("fn_print", [], true)).toEqual({
       output: "function called\n",

@@ -1134,10 +1134,10 @@ export class StoryState {
         ) {
           throw new Error(
             "ink arguments when calling EvaluateFunction / ChoosePathStringWithParameters must be" +
-            "number, string, bool or InkList. Argument was " +
-            (nullIfUndefined(arguments[i]) === null)
-              ? "null"
-              : arguments[i].constructor.name
+              "number, string, bool or InkList. Argument was " +
+              (nullIfUndefined(args[i]) === null
+                ? "null"
+                : args[i].constructor.name)
           );
         }
 

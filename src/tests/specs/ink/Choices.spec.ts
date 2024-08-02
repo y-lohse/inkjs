@@ -278,4 +278,15 @@ describe("Choices", () => {
     expect(context.story.Continue()).toBe("one three");
     expect(context.story.currentTags).toEqual(["one", "three"]);
   });
+
+  //TestDynanicTagsInChoice
+  it("tests tags in choice", () => {
+    compileStory("dynamic_tags_in_choice", true);
+    context.story.Continue();
+
+    expect(context.story.currentTags.length).toBe(0);
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toEqual("choice");
+    expect(context.story.currentChoices[0].tags).toEqual(["tag aaabbb"]);
+  });
 });
