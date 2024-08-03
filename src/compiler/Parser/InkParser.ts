@@ -423,6 +423,9 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
+    // Allow optional newline right after a choice name
+    if (optionalName != null) this.Newline();
+
     // Optional condition for whether the choice should be shown to the player
     const conditionExpr: Expression = this.Parse(
       this.ChoiceCondition
