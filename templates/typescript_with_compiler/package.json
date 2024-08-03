@@ -1,0 +1,21 @@
+{
+  "name": "ts-inkjs-with-compiler",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "tsc --resolveJsonModule -p . && tsx src/index.ts"
+  },
+  "keywords": [],
+  "author": "Sebastian Hanlon",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.14.2",
+    "tsx": "^4.15.2",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "inkjs": "*"
+  }
+}

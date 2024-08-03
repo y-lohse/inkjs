@@ -71,7 +71,18 @@ You can find some boilerplate code for node.js [here](https://github.com/y-lohse
 
 ### Loading inkjs
 
-Require the module: `var Story = require('inkjs').Story;`.
+#### require
+
+You can require the module: 
+```javascript 
+var Story = require('inkjs').Story;
+```
+
+#### import
+You can use import style: 
+```javascript
+import { Story } from 'inkjs';
+`
 
 ### Loading a json file
 
@@ -135,27 +146,6 @@ var result = EvaluateFunction('my_ink_function', ['arg1', 'arg2'], true);
 // result.output is the text that was written to the output while the function was evaluated
 ```
 
-## Using TypeScript
-
-As this library is a port from C#, it requires a less standard way to assign the `Story` class, including all other classes, to a variable:
-
-```ts
-import { Story } from 'inkjs';
-import { Compiler } from 'inkjs/full'; // Compiler is not provided in the default inkjs package
-
-let story: InstanceType<typeof Story>;
-let compiler: InstanceType<typeof Compiler>;
-```
-
-Further, to minimize the verbose assignment, you can also create aliases in your project:
-
-```ts
-import { Story, Compiler } from 'inkjs/full'; // Story is also provided in the "full" subpackage.
-
-export type InkStory = InstanceType<typeof Story>;
-export type InkCompiler= InstanceType<typeof Compiler>;
-```
-
 ## Compiler
 
 ### inkjs-compiler.js
@@ -163,17 +153,21 @@ export type InkCompiler= InstanceType<typeof Compiler>;
 ```shell
 $ node inkjs-compiler.js -h
 
-Usage: inkjs-compiler <options> <ink file>
+Usage: inkjs-compiler <options> <ink or json file>
    -o <filename>:   Output file name
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
-   -p:              Play mode
+   -p:              Play mode (automatic if a json file is passed as argument)
 
 ```
+
+If you install the package globally it is available as the `inkjs-compiler` command.  
+Alternatively, you can call it using `npx inkjs`
 
 ### online compiler
 
 ```javascript
+const inkjs = require("inkjs/full") //the `full` submodule contains the Compiler
 const story = new inkjs.Compiler(`Hello World`).Compile();
 // story is an inkjs.Story that can be played right away
 
@@ -186,6 +180,28 @@ You can use this in combination with [Webpack and TypeScript](docs/working-with-
 ### Differences with the C# Compiler
 
 See [Differences with the C# Compiler](docs/compiler-differences.md).
+
+## Using TypeScript
+
+Inkjs is also packaged to be usable with typescript imports, the main classes (`Story`, `InkList`, `Compiler`) are available under the `/types`submodule.
+
+```ts
+import { Story, Compiler } from 'inkjs/types'; // shortcut
+
+let story: Story;
+let compiler: Compiler;
+```
+
+It is also possible to import deeply nested classes if needed
+
+```ts
+import { Story } from 'inkjs/engine/Story';
+import { Compiler } from 'inkjs/compiler/Compiler';
+
+import { Choice } from 'inkjs/engine/Choice'
+import { Identifier } from 'inkjs/compiler/Parser/ParsedHierarchy/Identifier';
+
+```
 
 ## Compatibility table
 
@@ -207,4 +223,4 @@ See [Differences with the C# Compiler](docs/compiler-differences.md).
 |        0.8.3        | 1.10.0 – 1.10.5 |                |
 |        0.9.0        |     1.11.0      |       19       |
 |        1.0.0        |  2.0.0 - 2.1.0  |       20       |
-|        1.1.1        |      2.2.0      |       21       |
+|        1.1.1        |      2.2.*      |       21       |

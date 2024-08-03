@@ -56,8 +56,10 @@ export class ListDefinition {
     item = InkListItem.Null;
     return { result: item, exists: false };
   }
+
   public TryGetValueForItem(
     item: InkListItem,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     /* out */ intVal: number
   ): TryGetResult<number> {
     if (!item.itemName) return { result: 0, exists: false };

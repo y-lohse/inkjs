@@ -1594,17 +1594,17 @@ export class InkParser extends StringParser {
       return divertTarget;
     }
 
-    let prefixOp: Expression = this.OneOf([
+    let prefixOp: string = this.OneOf([
       this.String("-"),
       this.String("!"),
-    ]) as Expression;
+    ]) as string;
 
     // Don't parse like the string rules above, in case its actually
     // a variable that simply starts with "not", e.g. "notable".
     // This rule uses the Identifier rule, which will scan as much text
     // as possible before returning.
     if (prefixOp === null) {
-      prefixOp = this.Parse(this.ExpressionNot) as Expression;
+      prefixOp = this.Parse(this.ExpressionNot) as string;
     }
 
     this.Whitespace();
@@ -1627,7 +1627,7 @@ export class InkParser extends StringParser {
     if (expr === null) {
       return null;
     } else if (prefixOp !== null) {
-      expr = UnaryExpression.WithInner(expr, prefixOp as any) as Expression;
+      expr = UnaryExpression.WithInner(expr, prefixOp) as Expression;
     }
 
     this.Whitespace();
@@ -1746,12 +1746,14 @@ export class InkParser extends StringParser {
 
     this.Whitespace();
 
-    const args = this.Parse(this.ExpressionFunctionCallArguments);
+    const args = this.Parse(
+      this.ExpressionFunctionCallArguments
+    ) as Expression[];
     if (args === null) {
       return null;
     }
 
-    return new FunctionCall(iden as Identifier, args as any);
+    return new FunctionCall(iden as Identifier, args);
   };
 
   public readonly ExpressionFunctionCallArguments = (): Expression[] | null => {
@@ -2383,7 +2385,10 @@ export class InkParser extends StringParser {
     // Multiple newlines on the output will be removed, so there will be no "leak" for
     // long running calculations. It's disappointingly messy though :-/
     if (result.Find(FunctionCall)() !== null) {
-      result = new ContentList(result as any, new Text("\n"));
+      result = new ContentList(
+        result as unknown as ParsedObject[],
+        new Text("\n")
+      );
     }
 
     this.Expect(this.EndOfLine, "end of line", this.SkipToNextLine);
@@ -2662,7 +2667,7 @@ export class InkParser extends StringParser {
 
     let contentList = asOrNull(logic, ContentList);
     if (!contentList) {
-      contentList = new ContentList(logic as any);
+      contentList = new ContentList(logic as unknown as ParsedObject[]);
     }
 
     this.Whitespace();
@@ -2735,7 +2740,7 @@ export class InkParser extends StringParser {
       this.InnerExpression,
     ];
 
-    let wasTagActiveAtStartOfScope = this.tagActive;
+    //let wasTagActiveAtStartOfScope = this.tagActive;
 
     // Adapted from "OneOf" structuring rule except that in
     // order for the rule to succeed, it has to maximally
@@ -2856,7 +2861,9 @@ export class InkParser extends StringParser {
       case SequenceType.Cycle:
       case SequenceType.Stopping:
       case SequenceType.Shuffle:
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
       case SequenceType.Shuffle | SequenceType.Stopping:
+      // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-comparison
       case SequenceType.Shuffle | SequenceType.Once:
         break;
       default:
@@ -2998,10 +3005,10 @@ export class InkParser extends StringParser {
         justHadContent = false;
       } else {
         // Real content
-        const content = contentOrPipe as any;
+        const content = contentOrPipe as unknown as ParsedObject[];
         if (content === null) {
           this.Error(
-            `Expected content, but got ${contentOrPipe} (this is an ink compiler bug!)`
+            `Expected content, but got ${contentOrPipe as unknown as string} (this is an ink compiler bug!)`
           );
         } else {
           result.push(new ContentList(content));
@@ -3124,7 +3131,9 @@ export class InkParser extends StringParser {
   };
 
   public readonly GenerateStatementLevelRules = () => {
-    const levels = Object.values(StatementLevel);
+    const levels: StatementLevel[] = Object.values(
+      StatementLevel
+    ) as StatementLevel[];
 
     this._statementRulesAtLevel = "f"
       .repeat(levels.length)

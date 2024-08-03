@@ -16,7 +16,7 @@ Inkjs provides 2 file handlers :
 * A POSIX file handler : delivered as a separate `inkjs-full-posixhandler.js` file that must be included/required : similar to the one used in the C# compiler that will look for files in folders. Example when installing the package from npm :
 
 ```javascript
-var Inkjs = require('inkjs');
+var inkjs = require('inkjs/full');
 var { PosixFileHandler } = require('inkjs/compiler/FileHandler/PosixFileHandler');
 
 const inkFile = fs.readFileSync(`${PATH_TO_STORY_FOLDER}/main.ink`, 'UTF-8').replace(/^\uFEFF/, '');
@@ -24,7 +24,7 @@ const fileHandler = new PosixFileHandler(`${PATH_TO_STORY_FOLDER}/`);
 const errorHandler = (message, errorType) => {
    console.log(message + "\n");
 }
-const story = new Inkjs.Compiler(inkFile, {fileHandler, errorHandler}).Compile();
+const story = new inkjs.Compiler(inkFile, {fileHandler, errorHandler}).Compile();
 //story.Continue()
 ```
 

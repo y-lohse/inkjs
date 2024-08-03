@@ -6,9 +6,9 @@
 		"rootDir": "src/",
 		"strict": true,
 		"sourceMap": true,
-		"declaration": true
+		"declaration": true,
+		"lib": ["ES2017"]
 	},
-
 	"include": ["src/"],
 	"exclude": ["node_modules", "**/__tests__/*"]
 }
