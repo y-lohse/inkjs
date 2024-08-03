@@ -3124,7 +3124,9 @@ export class InkParser extends StringParser {
   };
 
   public readonly GenerateStatementLevelRules = () => {
-    const levels : StatementLevel[] = Object.values(StatementLevel) as StatementLevel[];
+    const levels: StatementLevel[] = Object.values(
+      StatementLevel
+    ) as StatementLevel[];
 
     this._statementRulesAtLevel = "f"
       .repeat(levels.length)

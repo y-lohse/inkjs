@@ -216,7 +216,7 @@ describe("Integration", () => {
     context.story.allowExternalFunctionFallbacks = false;
     context.story.ChoosePathString("integration.external");
 
-    const externalSpy = jest.fn(a => a).mockName("external function spy");
+    const externalSpy = jest.fn((a) => a).mockName("external function spy");
     context.story.BindExternalFunction("fn_ext", externalSpy);
     context.story.BindExternalFunction("gameInc", () => undefined);
 
@@ -230,11 +230,13 @@ describe("Integration", () => {
   it("should handle callstack changes", () => {
     context.story.allowExternalFunctionFallbacks = false;
 
-    const externalSpy = jest.fn(x => {
-      x++;
-      x = parseInt(context.story.EvaluateFunction("inkInc", [x]));
-      return x;
-    }).mockName("external function spy");
+    const externalSpy = jest
+      .fn((x) => {
+        x++;
+        x = parseInt(context.story.EvaluateFunction("inkInc", [x]));
+        return x;
+      })
+      .mockName("external function spy");
 
     context.story.BindExternalFunction("fn_ext", () => undefined);
     context.story.BindExternalFunction("gameInc", externalSpy);

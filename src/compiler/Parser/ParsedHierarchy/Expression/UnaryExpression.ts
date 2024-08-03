@@ -52,7 +52,10 @@ export class UnaryExpression extends Expression {
     return unary;
   };
 
-  constructor(inner: Expression, public readonly op: string) {
+  constructor(
+    inner: Expression,
+    public readonly op: string
+  ) {
     super();
 
     this.innerExpression = this.AddContent(inner) as Expression;
