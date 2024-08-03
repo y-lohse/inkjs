@@ -9,7 +9,11 @@ export class BinaryExpression extends Expression {
   public readonly leftExpression: Expression;
   public readonly rightExpression: Expression;
 
-  constructor(left: Expression, right: Expression, public opName: string) {
+  constructor(
+    left: Expression,
+    right: Expression,
+    public opName: string
+  ) {
     super();
 
     this.leftExpression = this.AddContent(left) as Expression;

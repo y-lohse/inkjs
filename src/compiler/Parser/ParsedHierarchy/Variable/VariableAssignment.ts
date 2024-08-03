@@ -169,7 +169,7 @@ export class VariableAssignment extends ParsedObject {
       this.isGlobalDeclaration
         ? "VAR"
         : this.isNewTemporaryDeclaration
-        ? "~ temp"
-        : ""
+          ? "~ temp"
+          : ""
     } ${this.variableName}`;
 }
