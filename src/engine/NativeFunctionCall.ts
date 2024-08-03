@@ -94,7 +94,9 @@ export class NativeFunctionCall extends InkObject {
     for (let p of parameters) {
       if (p instanceof Void)
         throw new StoryException(
-          'Attempting to perform operation on a void value. Did you forget to "return" a value from a function you called here?'
+          "Attempting to perform " +
+            this.name +
+            ' on a void value. Did you forget to "return" a value from a function you called here?'
         );
       if (p instanceof ListValue) hasList = true;
     }

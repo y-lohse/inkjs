@@ -227,6 +227,18 @@ export class StoryState {
     }
   }
 
+  get previousPathString() {
+    let pointer = this.previousPointer;
+    if (pointer.isNull) {
+      return null;
+    } else {
+      if (pointer.path === null) {
+        return throwNullException("previousPointer.path");
+      }
+      return pointer.path.toString();
+    }
+  }
+
   get currentPointer() {
     return this.callStack.currentElement.currentPointer.copy();
   }

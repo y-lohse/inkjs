@@ -370,7 +370,9 @@ export class Story extends InkObject {
       this._state.ResetOutput();
 
       if (this._recursiveContinueCount == 1)
-        this._state.variablesState.batchObservingVariableChanges = true;
+        this._state.variablesState.StartVariableObservation();
+    } else if (this._asyncContinueActive && !isAsyncTimeLimited) {
+      this._asyncContinueActive = false;
     }
 
     let durationStopwatch = new Stopwatch();
@@ -399,6 +401,8 @@ export class Story extends InkObject {
     } while (this.canContinue);
 
     durationStopwatch.Stop();
+
+    let changedVariablesToObserve: Map<string, any> | null = null;
 
     if (outputStreamEndsInNewline || !this.canContinue) {
       if (this._stateSnapshotAtLastNewline !== null) {
@@ -439,7 +443,7 @@ export class Story extends InkObject {
       this._sawLookaheadUnsafeFunctionAfterNewline = false;
 
       if (this._recursiveContinueCount == 1)
-        this._state.variablesState.batchObservingVariableChanges = false;
+        changedVariablesToObserve = this._state.variablesState.CompleteVariableObservation();
 
       this._asyncContinueActive = false;
       if (this.onDidContinue !== null) this.onDidContinue();
@@ -493,6 +497,12 @@ export class Story extends InkObject {
 
         throw new StoryException(sb.toString());
       }
+    }
+    if (
+      changedVariablesToObserve != null &&
+      Object.keys(changedVariablesToObserve).length > 0
+    ) {
+      this._state.variablesState.NotifyObservers(changedVariablesToObserve);
     }
   }
 
@@ -1835,6 +1845,20 @@ export class Story extends InkObject {
     let fallbackFunctionContainer = null;
 
     let foundExternal = typeof funcDef !== "undefined";
+
+    if (
+      foundExternal &&
+      !funcDef!.lookAheadSafe &&
+      this._state.inStringEvaluation
+    ) {
+      this.Error(
+        "External function " +
+          funcName +
+          ' could not be called because 1) it wasn\'t marked as lookaheadSafe when BindExternalFunction was called and 2) the story is in the middle of string generation, either because choice text is being generated, or because you have ink like "hello {func()}". You can work around this by generating the result of your function into a temporary variable before the string or choice gets generated: ~ temp x = ' +
+          funcName +
+          "()"
+      );
+    }
 
     if (
       foundExternal &&
