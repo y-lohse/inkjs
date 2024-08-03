@@ -664,7 +664,7 @@ export class Story extends InkObject {
 
   public StateSnapshot() {
     this._stateSnapshotAtLastNewline = this._state;
-    this._state = this._state.CopyAndStartPatching();
+    this._state = this._state.CopyAndStartPatching(false);
   }
 
   public RestoreStateSnapshot() {
@@ -696,7 +696,7 @@ export class Story extends InkObject {
       );
 
     let stateToSave = this._state;
-    this._state = this._state.CopyAndStartPatching();
+    this._state = this._state.CopyAndStartPatching(true);
     this._asyncSaving = true;
     return stateToSave;
   }

@@ -491,16 +491,31 @@ export class StoryState {
     this._aliveFlowNamesDirty = true;
   }
 
-  public CopyAndStartPatching() {
+  public CopyAndStartPatching(forBackgroundSave: boolean) {
     let copy = new StoryState(this.story);
 
     copy._patch = new StatePatch(this._patch);
 
     copy._currentFlow.name = this._currentFlow.name;
     copy._currentFlow.callStack = new CallStack(this._currentFlow.callStack);
-    copy._currentFlow.currentChoices.push(...this._currentFlow.currentChoices);
     copy._currentFlow.outputStream.push(...this._currentFlow.outputStream);
     copy.OutputStreamDirty();
+
+    // When background saving we need to make copies of choices since they each have
+    // a snapshot of the thread at the time of generation since the game could progress
+    // significantly and threads modified during the save process.
+    // However, when doing internal saving and restoring of snapshots this isn't an issue,
+    // and we can simply ref-copy the choices with their existing threads.
+
+    if (forBackgroundSave) {
+      for (let choice of this._currentFlow.currentChoices) {
+        copy._currentFlow.currentChoices.push(choice.Clone());
+      }
+    } else {
+      copy._currentFlow.currentChoices.push(
+        ...this._currentFlow.currentChoices
+      );
+    }
 
     if (this._namedFlows !== null) {
       copy._namedFlows = new Map();
