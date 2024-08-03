@@ -443,7 +443,8 @@ export class Story extends InkObject {
       this._sawLookaheadUnsafeFunctionAfterNewline = false;
 
       if (this._recursiveContinueCount == 1)
-        changedVariablesToObserve = this._state.variablesState.CompleteVariableObservation();
+        changedVariablesToObserve =
+          this._state.variablesState.CompleteVariableObservation();
 
       this._asyncContinueActive = false;
       if (this.onDidContinue !== null) this.onDidContinue();

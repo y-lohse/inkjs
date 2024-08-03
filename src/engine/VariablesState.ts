@@ -72,7 +72,7 @@ export class VariablesState extends VariablesStateAccessor<
     return changedVars;
   }
 
-  public NotifyObservers(changedVars: Map<string, any>){
+  public NotifyObservers(changedVars: Map<string, any>) {
     for (const [key, value] of changedVars) {
       this.variableChangedEvent(key, value);
     }

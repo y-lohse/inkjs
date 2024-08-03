@@ -352,8 +352,11 @@ export class InkParser extends StringParser {
   public static readonly Latin1Supplement: CharacterRange =
     CharacterRange.Define("\u0080", "\u00FF", new CharacterSet());
 
-  public static readonly Chinese: CharacterRange =
-    CharacterRange.Define("\u4E00", "\u9FFF", new CharacterSet());
+  public static readonly Chinese: CharacterRange = CharacterRange.Define(
+    "\u4E00",
+    "\u9FFF",
+    new CharacterSet()
+  );
 
   private readonly ExtendIdentifierCharacterRanges = (
     identifierCharSet: CharacterSet
