@@ -224,3 +224,4 @@ import { Identifier } from 'inkjs/compiler/Parser/ParsedHierarchy/Identifier';
 |        0.9.0        |     1.11.0      |       19       |
 |        1.0.0        |  2.0.0 - 2.1.0  |       20       |
 |        1.1.1        |      2.2.*      |       21       |
+|        1.2.0        |      2.3.0      |                |
