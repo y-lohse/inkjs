@@ -289,4 +289,14 @@ describe("Choices", () => {
     expect(context.story.currentChoices[0].text).toEqual("choice");
     expect(context.story.currentChoices[0].tags).toEqual(["tag aaabbb"]);
   });
+
+  it("tests newline after choice name", () => {
+    compileStory("newline_after_choice", true);
+    context.story.Continue();
+
+    expect(context.story.currentChoices.length).toBe(1);
+    expect(context.story.currentChoices[0].text).toEqual(
+      "I did have one interesting fact about bricklaying, if you don't mind me spending taking a fair bit of time to lay the groundwork for it."
+    );
+  });
 });

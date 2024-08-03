@@ -168,13 +168,24 @@ export class Container extends InkObject implements INamedContent {
       let foundObj: InkObject | null =
         currentContainer.ContentWithPathComponent(comp);
 
+      // Couldn't resolve entire path?
       if (foundObj == null) {
         result.approximate = true;
         break;
       }
 
+      // Are we about to loop into another container?
+      // Is the object a container as expected? It might
+      // no longer be if the content has shuffled around, so what
+      // was originally a container no longer is.
+      const nextContainer: Container | null = asOrNull(foundObj, Container);
+      if (i < partialPathLength - 1 && nextContainer == null) {
+        result.approximate = true;
+        break;
+      }
+
       currentObj = foundObj;
-      currentContainer = asOrNull(foundObj, Container);
+      currentContainer = nextContainer;
     }
 
     result.obj = currentObj;

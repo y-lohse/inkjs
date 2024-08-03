@@ -47,26 +47,34 @@ export class VariablesState extends VariablesStateAccessor<
 
   public patch: StatePatch | null = null;
 
-  get batchObservingVariableChanges() {
-    return this._batchObservingVariableChanges;
+  public StartVariableObservation() {
+    this._batchObservingVariableChanges = true;
+    this._changedVariablesForBatchObs = new Set();
   }
-  set batchObservingVariableChanges(value: boolean) {
-    this._batchObservingVariableChanges = value;
-    if (value) {
-      this._changedVariablesForBatchObs = new Set();
-    } else {
-      if (this._changedVariablesForBatchObs != null) {
-        for (let variableName of this._changedVariablesForBatchObs) {
-          let currentValue = this._globalVariables.get(variableName);
-          if (!currentValue) {
-            throwNullException("currentValue");
-          } else {
-            this.variableChangedEvent(variableName, currentValue);
-          }
-        }
 
-        this._changedVariablesForBatchObs = null;
+  public CompleteVariableObservation(): Map<string, any> {
+    this._batchObservingVariableChanges = false;
+    let changedVars = new Map<string, any>();
+    if (this._changedVariablesForBatchObs != null) {
+      for (let variableName of this._changedVariablesForBatchObs) {
+        let currentValue = this._globalVariables.get(variableName) as InkObject;
+        this.variableChangedEvent(variableName, currentValue);
       }
+    }
+    // Patch may still be active - e.g. if we were in the middle of a background save
+    if (this.patch != null) {
+      for (let variableName of this.patch.changedVariables) {
+        let patchedVal = this.patch.TryGetGlobal(variableName, null);
+        if (patchedVal.exists) changedVars.set(variableName, patchedVal);
+      }
+    }
+    this._changedVariablesForBatchObs = null;
+    return changedVars;
+  }
+
+  public NotifyObservers(changedVars: Map<string, any>) {
+    for (const [key, value] of changedVars) {
+      this.variableChangedEvent(key, value);
     }
   }
 
@@ -76,8 +84,6 @@ export class VariablesState extends VariablesStateAccessor<
   set callStack(callStack) {
     this._callStack = callStack;
   }
-
-  private _batchObservingVariableChanges: boolean = false;
 
   // the original code uses a magic getter and setter for global variables,
   // allowing things like variableState['varname]. This is not quite possible
@@ -429,7 +435,7 @@ export class VariablesState extends VariablesStateAccessor<
       oldValue !== null &&
       value !== oldValue.result
     ) {
-      if (this.batchObservingVariableChanges) {
+      if (this._batchObservingVariableChanges) {
         if (this._changedVariablesForBatchObs === null) {
           return throwNullException("this._changedVariablesForBatchObs");
         }
@@ -495,4 +501,6 @@ export class VariablesState extends VariablesStateAccessor<
   private _callStack: CallStack;
   private _changedVariablesForBatchObs: Set<string> | null = new Set();
   private _listDefsOrigin: ListDefinitionsOrigin | null;
+
+  private _batchObservingVariableChanges: boolean = false;
 }

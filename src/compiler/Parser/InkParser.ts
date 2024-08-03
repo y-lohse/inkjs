@@ -349,6 +349,15 @@ export class InkParser extends StringParser {
     new CharacterSet()
   );
 
+  public static readonly Latin1Supplement: CharacterRange =
+    CharacterRange.Define("\u0080", "\u00FF", new CharacterSet());
+
+  public static readonly Chinese: CharacterRange = CharacterRange.Define(
+    "\u4E00",
+    "\u9FFF",
+    new CharacterSet()
+  );
+
   private readonly ExtendIdentifierCharacterRanges = (
     identifierCharSet: CharacterSet
   ): void => {
@@ -376,6 +385,8 @@ export class InkParser extends StringParser {
     InkParser.Greek,
     InkParser.Hebrew,
     InkParser.Korean,
+    InkParser.Latin1Supplement,
+    InkParser.Chinese,
   ];
 
   /**
@@ -414,6 +425,9 @@ export class InkParser extends StringParser {
     ) as Identifier;
 
     this.Whitespace();
+
+    // Allow optional newline right after a choice name
+    if (optionalName != null) this.Newline();
 
     // Optional condition for whether the choice should be shown to the player
     const conditionExpr: Expression = this.Parse(

@@ -179,6 +179,7 @@ export class CallStack {
     name: string | null,
     contextIndex: number = -1
   ) {
+    // contextIndex 0 means global, so index is actually 1-based
     if (contextIndex == -1) contextIndex = this.currentElementIndex + 1;
 
     let contextElement = this.callStack[contextIndex - 1];
@@ -359,16 +360,21 @@ export namespace CallStack {
                   ". Has the story changed since this save data was created?"
               );
             else if (threadPointerResult.approximate) {
-              if (pointer.container === null) {
-                return throwNullException("pointer.container");
+              if (pointer.container !== null) {
+                storyContext.Warning(
+                  "When loading state, exact internal story location couldn't be found: '" +
+                    currentContainerPathStr +
+                    "', so it was approximated to '" +
+                    pointer.container.path.toString() +
+                    "' to recover. Has the story changed since this save data was created?"
+                );
+              } else {
+                storyContext.Warning(
+                  "When loading state, exact internal story location couldn't be found: '" +
+                    currentContainerPathStr +
+                    "' and it may not be recoverable. Has the story changed since this save data was created?"
+                );
               }
-              storyContext.Warning(
-                "When loading state, exact internal story location couldn't be found: '" +
-                  currentContainerPathStr +
-                  "', so it was approximated to '" +
-                  pointer.container.path.toString() +
-                  "' to recover. Has the story changed since this save data was created?"
-              );
             }
           }
 

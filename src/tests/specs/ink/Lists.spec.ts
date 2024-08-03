@@ -68,6 +68,7 @@ describe("Lists", () => {
       `Pound, Pizza, Euro, Pasta, Dollar, Curry, Paella
 Euro, Pasta, Dollar, Curry
 Two, Three, Four, Five, Six
+One, Two, Three
 Two, Three, Four
 Two, Three, Four, Five
 Pizza, Pasta
