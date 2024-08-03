@@ -138,6 +138,7 @@ export abstract class FlowBase extends ParsedObject implements INamedContent {
     return finalContent;
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public PreProcessTopLevelObjects(_: ParsedObject[]): void {
     // empty by default, used by Story to process included file references
   }

@@ -55,6 +55,7 @@ export abstract class Expression extends ParsedObject {
     return "Expression";
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   public Equals(obj: ParsedObject): boolean {
     return false;
   }

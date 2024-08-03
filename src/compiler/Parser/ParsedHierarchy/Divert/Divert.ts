@@ -449,7 +449,7 @@ export class Divert extends ParsedObject {
     const externalName: string | null = this.target
       ? this.target.firstComponent
       : null;
-    const external = context.externals.get(externalName as any);
+    const external = context.externals.get(externalName as string);
     if (!external) {
       throw new Error("external not found");
     }
