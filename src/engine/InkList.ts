@@ -170,6 +170,7 @@ export class InkList extends Map<SerializedInkListItem, number> {
   }
 
   public static FromString(myListItem: string, originStory: Story) {
+    if (myListItem == null || myListItem == "") return new InkList();
     let listValue =
       originStory.listDefinitions?.FindSingleItemListWithName(myListItem);
     if (listValue) {
@@ -186,7 +187,10 @@ export class InkList extends Map<SerializedInkListItem, number> {
     }
   }
 
-  public AddItem(itemOrItemName: InkListItem | string | null) {
+  public AddItem(
+    itemOrItemName: InkListItem | string | null,
+    storyObject: Story | null = null
+  ) {
     if (itemOrItemName instanceof InkListItem) {
       let item = itemOrItemName;
 
@@ -216,8 +220,9 @@ export class InkList extends Map<SerializedInkListItem, number> {
       throw new Error(
         "Failed to add item to list because the item was from a new list definition that wasn't previously known to this list. Only items from previously known lists can be used, so that the int value can be found."
       );
-    } else {
-      let itemName = itemOrItemName as string | null;
+    } else if (itemOrItemName !== null) {
+      //itemOrItemName is a string
+      let itemName = itemOrItemName as string;
 
       let foundListDef: ListDefinition | null = null;
 
@@ -242,16 +247,23 @@ export class InkList extends Map<SerializedInkListItem, number> {
         }
       }
 
-      if (foundListDef == null)
-        throw new Error(
-          "Could not add the item " +
-            itemName +
-            " to this list because it isn't known to any list definitions previously associated with this list."
-        );
-
-      let item = new InkListItem(foundListDef.name, itemName);
-      let itemVal = foundListDef.ValueForItem(item);
-      this.Add(item, itemVal);
+      if (foundListDef == null) {
+        if (storyObject == null) {
+          throw new Error(
+            "Could not add the item " +
+              itemName +
+              " to this list because it isn't known to any list definitions previously associated with this list."
+          );
+        } else {
+          let newItem = InkList.FromString(itemName, storyObject)
+            .orderedItems[0];
+          this.Add(newItem.Key, newItem.Value);
+        }
+      } else {
+        let item = new InkListItem(foundListDef.name, itemName);
+        let itemVal = foundListDef.ValueForItem(item);
+        this.Add(item, itemVal);
+      }
     }
   }
   public ContainsItemNamed(itemName: string | null) {
@@ -519,6 +531,14 @@ export class InkList extends Map<SerializedInkListItem, number> {
 
     return ordered;
   }
+
+  get singleItem(): InkListItem | null {
+    for (let item of this.orderedItems) {
+      return item.Key;
+    }
+    return null;
+  }
+
   public toString() {
     let ordered = this.orderedItems;
 
