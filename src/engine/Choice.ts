@@ -21,4 +21,18 @@ export class Choice extends InkObject {
   set pathStringOnChoice(value: string) {
     this.targetPath = new Path(value);
   }
+
+  public Clone() {
+    let copy = new Choice();
+    copy.text = this.text;
+    copy.sourcePath = this.sourcePath;
+    copy.index = this.index;
+    copy.targetPath = this.targetPath;
+    copy.originalThreadIndex = this.originalThreadIndex;
+    copy.isInvisibleDefault = this.isInvisibleDefault;
+    if (this.threadAtGeneration !== null)
+      copy.threadAtGeneration = this.threadAtGeneration.Copy();
+
+    return copy;
+  }
 }

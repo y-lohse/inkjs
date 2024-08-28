@@ -580,10 +580,16 @@ export class JsonSerialisation {
     choice.sourcePath = jObj["originalChoicePath"].toString();
     choice.originalThreadIndex = parseInt(jObj["originalThreadIndex"]);
     choice.pathStringOnChoice = jObj["targetPath"].toString();
-    if (jObj["tags"]) {
-      choice.tags = jObj["tags"];
-    }
+    choice.tags = this.JArrayToTags(jObj);
     return choice;
+  }
+
+  public static JArrayToTags(jObj: Record<string, any>) {
+    if (jObj["tags"]) {
+      return jObj["tags"];
+    } else {
+      return null;
+    }
   }
 
   public static WriteChoice(writer: SimpleJson.Writer, choice: Choice) {
@@ -593,18 +599,20 @@ export class JsonSerialisation {
     writer.WriteProperty("originalChoicePath", choice.sourcePath);
     writer.WriteIntProperty("originalThreadIndex", choice.originalThreadIndex);
     writer.WriteProperty("targetPath", choice.pathStringOnChoice);
-    if (choice.tags) {
-      writer.WriteProperty("tags", (w) => {
-        w.WriteArrayStart();
-        for (const tag of choice.tags!) {
-          w.WriteStringStart();
-          w.WriteStringInner(tag);
-          w.WriteStringEnd();
-        }
-        w.WriteArrayEnd();
-      });
-    }
+    this.WriteChoiceTags(writer, choice);
     writer.WriteObjectEnd();
+  }
+
+  public static WriteChoiceTags(writer: SimpleJson.Writer, choice: Choice) {
+    if (choice.tags && choice.tags.length > 0) {
+      writer.WritePropertyStart("tags");
+      writer.WriteArrayStart();
+      for (const tag of choice.tags!) {
+        writer.Write(tag);
+      }
+      writer.WriteArrayEnd();
+      writer.WritePropertyEnd();
+    }
   }
 
   public static WriteInkList(writer: SimpleJson.Writer, listVal: ListValue) {
