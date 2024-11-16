@@ -63,9 +63,14 @@ if(!inputFile.endsWith(".json")){
     )
 
     const c = new Compiler(mainInk, options);
-    const rstory = c.Compile();
+    let rstory:Story|null = null;
+    try {
+        rstory = c.Compile();
+    } catch (error: unknown) {
+        if((error as Error).message != "Compilation failed.") throw error; //re-throw if an illegitimate js error
+    }
+
     if (!rstory) {
-        process.stderr.write("*** Compilation failed ***\n");
         process.exit(1);
     }
 
@@ -84,7 +89,7 @@ if(!inputFile.endsWith(".json")){
     }
 }else{
     if(printStats){
-        process.stderr.write("warning: Could not generate stats for an already compiled story. Try it on a .ink file instead." + "\n");
+        process.stderr.write("WARNING: Could not generate stats for an already compiled story. Try it on a .ink file instead." + "\n");
         printStats = false;
     }
 
