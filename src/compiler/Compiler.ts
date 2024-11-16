@@ -7,6 +7,7 @@ import { Story as ParsedStory } from "./Parser/ParsedHierarchy/Story";
 import { DebugMetadata } from "../engine/DebugMetadata";
 import { StringValue } from "../engine/Value";
 import { asOrNull } from "../engine/TypeAssertion";
+import { GenerateStoryStats, Stats } from "./Stats";
 
 export { CompilerOptions } from "./CompilerOptions";
 export { InkParser } from "./Parser/InkParser";
@@ -111,6 +112,13 @@ export class Compiler {
         this.debugSourceRanges.push(range);
       }
     }
+  };
+
+  public readonly GenerateStats = (): Stats | null => {
+    if (this._parsedStory === null) {
+      return null;
+    }
+    return GenerateStoryStats(this._parsedStory);
   };
 
   public readonly DebugMetadataForContentAtOffset = (
