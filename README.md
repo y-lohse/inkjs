@@ -158,6 +158,8 @@ Usage: inkjs-compiler <options> <ink or json file>
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
    -p:              Play mode (automatic if a json file is passed as argument)
+   -s:              Print stats about story including word count in JSON format
+   -k:              Keep inklecate running in play mode even after story is complete
 
 ```
 
