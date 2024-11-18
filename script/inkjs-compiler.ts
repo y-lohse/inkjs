@@ -4,6 +4,7 @@ import { Compiler } from '../src/compiler/Compiler';
 import { CompilerOptions } from '../src/compiler/CompilerOptions';
 import { Story } from '../src/engine/Story';
 import { PosixFileHandler } from '../src/compiler/FileHandler/PosixFileHandler';
+import { Stats } from '../src/compiler/Stats';
 var readline = require('readline');
 var path = require('path');
 
@@ -20,11 +21,16 @@ Usage: inkjs-compiler <options> <ink file>
    -c:              Count all visits to knots, stitches and weave points, not
                     just those referenced by TURNS_SINCE and read counts.
    -p:              Play mode (automatic if a json file is passed as argument)
+   -s:              Print stats about story including word count in JSON format
+   -k:              Keep inklecate running in play mode even after story is complete
 `);
 process.exit(0);
 }
 
 const countAllVisit = process.argv.includes("-c");
+let printStats = process.argv.includes("-s");
+let statsResults: Stats|null = null
+
 let play = process.argv.includes("-p") || process.argv.includes("-k");
 const write = !process.argv.includes("-k") && !process.argv.includes("-p");
 const explicitOutput = process.argv.includes("-o");
@@ -33,7 +39,7 @@ if(explicitOutput){
     const opos = process.argv.indexOf("-o") + 1;
     outputfile = process.argv.splice(opos, 1)[0];
 }
-process.argv = process.argv.filter(p => !['-c', '-o', '-p', '-k'].includes(p));
+process.argv = process.argv.filter(p => !['-c', '-o', '-p', '-k', '-s'].includes(p));
 
 const inputFile = process.argv[2] || null;
 if(!inputFile){
@@ -57,11 +63,21 @@ if(!inputFile.endsWith(".json")){
     )
 
     const c = new Compiler(mainInk, options);
-    const rstory = c.Compile();
+    let rstory:Story|null = null;
+    try {
+        rstory = c.Compile();
+    } catch (error: unknown) {
+        if((error as Error).message != "Compilation failed.") throw error; //re-throw if an illegitimate js error
+    }
+
     if (!rstory) {
-        process.stderr.write("*** Compilation failed ***\n");
         process.exit(1);
     }
+
+    if(printStats){
+        statsResults = c.GenerateStats()
+    }
+
     let jsonified: string | void;
 
     if((jsonified = rstory.ToJson())){
@@ -72,8 +88,20 @@ if(!inputFile.endsWith(".json")){
         fs.writeFileSync(outputfile, BOM+jsonStory);
     }
 }else{
+    if(printStats){
+        process.stderr.write("WARNING: Could not generate stats for an already compiled story. Try it on a .ink file instead." + "\n");
+        printStats = false;
+    }
+
     jsonStory = fs.readFileSync(inputFile,"utf-8").replace(BOM, "")
     play = true;
+}
+
+if(jsonStory && !play && printStats && statsResults){
+    Object.entries(statsResults).forEach(([w, n]) => {
+        const capitalizedW = w.charAt(0).toUpperCase() + w.slice(1)
+        process.stdout.write(`${capitalizedW}: ${n}\n`)
+    });
 }
 
 if(jsonStory && play){
