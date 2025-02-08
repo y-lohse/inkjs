@@ -1,17 +1,34 @@
 export class SimpleJson {
-  public static TextToDictionary(text: string) {
-    return new SimpleJson.Reader(text).ToDictionary();
+  public static TextToDictionary(
+    text: string,
+    aggressiveFloatParsing: boolean = false
+  ) {
+    return new SimpleJson.Reader(text, aggressiveFloatParsing).ToDictionary();
   }
 
-  public static TextToArray(text: string) {
-    return new SimpleJson.Reader(text).ToArray();
+  public static TextToArray(
+    text: string,
+    aggressiveFloatParsing: boolean = false
+  ) {
+    return new SimpleJson.Reader(text, aggressiveFloatParsing).ToArray();
   }
 }
 
 export namespace SimpleJson {
   export class Reader {
-    constructor(text: string) {
-      this._rootObject = JSON.parse(text);
+    constructor(text: string, aggressiveFloatParsing: boolean = false) {
+      if (aggressiveFloatParsing) {
+        // When the aggressiveFloatParsing argument is true, we aggressively replace
+        // all floats of the form "123.0" to "123.0f" so that they are recognized
+        // as such and converted to FloatValue later
+        const jsonWithExplicitFloat = text.replace(
+          /(,\s*)([0-9]+\.[0]+)([,]*)/g,
+          '$1"$2f"$3'
+        );
+        this._rootObject = JSON.parse(jsonWithExplicitFloat);
+      } else {
+        this._rootObject = JSON.parse(text);
+      }
     }
 
     public ToDictionary() {

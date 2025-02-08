@@ -315,6 +315,12 @@ export class JsonSerialisation {
     if (typeof token === "string") {
       let str = token.toString();
 
+      //Explicit float value of the form "123.00f"
+      const floatRepresentation = /^([0-9]+.[0-9]+f)$/.exec(str);
+      if (floatRepresentation) {
+        return new FloatValue(parseFloat(floatRepresentation[0]));
+      }
+
       // String value
       let firstChar = str[0];
       if (firstChar == "^") return new StringValue(str.substring(1));
