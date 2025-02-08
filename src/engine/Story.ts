@@ -49,6 +49,10 @@ if (!Number.isInteger) {
   };
 }
 
+interface JSONOptions {
+  aggressiveFloatParsing: boolean;
+}
+
 export class Story extends InkObject {
   public static inkVersionCurrent = 21;
 
@@ -145,6 +149,7 @@ export class Story extends InkObject {
   }
 
   constructor(contentContainer: Container, lists: ListDefinition[] | null);
+  constructor(jsonString: string, options: JSONOptions | undefined);
   constructor(jsonString: string);
   constructor(json: Record<string, any>);
   constructor() {
@@ -168,7 +173,16 @@ export class Story extends InkObject {
     } else {
       if (typeof arguments[0] === "string") {
         let jsonString = arguments[0] as string;
-        json = SimpleJson.TextToDictionary(jsonString);
+        let aggressiveFloatParsing = false;
+
+        if (typeof arguments[1] != "undefined") {
+          let options = arguments[1] as JSONOptions | null;
+          ({ aggressiveFloatParsing } = options || {
+            aggressiveFloatParsing: false,
+          });
+        }
+
+        json = SimpleJson.TextToDictionary(jsonString, aggressiveFloatParsing);
       } else {
         json = arguments[0] as Record<string, any>;
       }
