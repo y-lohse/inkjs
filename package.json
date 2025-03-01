@@ -59,8 +59,8 @@
   },
   "browserslist": "> 0.25%, not dead",
   "devDependencies": {
-    "@babel/core": "7.26.0",
-    "@babel/preset-env": "7.26.0",
+    "@babel/core": "7.26.9",
+    "@babel/preset-env": "7.26.9",
     "@rollup/plugin-babel": "6.0.4",
     "@rollup/plugin-node-resolve": "15.3.1",
     "@rollup/plugin-terser": "0.4.4",
