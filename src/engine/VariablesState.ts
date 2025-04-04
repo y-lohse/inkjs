@@ -155,6 +155,22 @@ export class VariablesState extends VariablesStateAccessor<
           else target.$(name, value);
           return true; // returning a falsy value make the trap fail
         },
+        ownKeys(target: any) {
+          return [
+            ...new Set([
+              ...target._defaultGlobalVariables.keys(),
+              ...target._globalVariables.keys(),
+            ]),
+          ];
+        },
+        getOwnPropertyDescriptor(target, name) {
+          // called for every property
+          return {
+            enumerable: true,
+            configurable: true,
+            value: target.$(name),
+          };
+        },
       });
 
       return p;
