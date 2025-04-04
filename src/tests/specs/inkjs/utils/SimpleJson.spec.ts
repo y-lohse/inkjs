@@ -218,5 +218,4 @@ describe("SimpleJson.Reader", () => {
       SimpleJson.TextToDictionary(jsonString);
     }).toThrow();
   });
-
 });
