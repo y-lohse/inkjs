@@ -28,22 +28,11 @@ describe("Evaluation", () => {
     );
   });
 
-  it("tests arithmetic with default loadStory", () => {
+  it("tests arithmetic with story loaded from JSON", () => {
     context = testsUtils.fromJsonTestContext(
       "arithmetic",
       "evaluation",
-      false,
       false
-    );
-    expect(context.story.ContinueMaximally()).toBe("36\n2\n3\n2\n2\n8\n8\n");
-  });
-
-  it("tests arithmetic with aggressive parse float", () => {
-    context = testsUtils.fromJsonTestContext(
-      "arithmetic",
-      "evaluation",
-      false,
-      true
     );
     expect(context.story.ContinueMaximally()).toBe(
       "36\n2\n3\n2\n2.3333333333333335\n8\n8\n"

@@ -112,19 +112,6 @@ console.log(inkStory.ContinueMaximally());
 
 From there on, you can follow [the official documentation](https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#getting-started-with-the-runtime-api).
 
-#### aggressive float parsing
-Due to the nature of number in javascript, when loading a json file created from Inky (or inklecate), if floating point numbers that look like integer exists in you ink story (eg: something like `{5.0}`), they won't be understood correctly and that can lead to computation and rounding errors. (eg: `{7/3.0}` will display `2` instead of `2.33`).
-
-To correct this, you can load your story with `aggressiveFloatParsing` turned on :
-
-```javascript
-var inkStory = new Story(json, {aggressiveFloatParsing: true});
-
-console.log(inkStory.ContinueMaximally());
-//etc
-```
-**Caveat** : Use with caution, if you have floating point numbers _in your text_, they may be altered.
-
 ## Differences with the C# API
 
 There are a few very minor API differences between ink C# and inkjs:

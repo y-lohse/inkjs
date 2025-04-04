@@ -186,7 +186,7 @@ describe("SimpleJson.Reader", () => {
   it("parses a JSON object string", () => {
     let jsonString = '{"key":"value", "array": [1, 2, null, 3.0, false]}';
     let object = {
-      array: [1, 2, null, 3.0, false],
+      array: [1, 2, null, "3.0f", false],
       key: "value",
     };
 
@@ -198,7 +198,7 @@ describe("SimpleJson.Reader", () => {
 
   it("parses a JSON array string", () => {
     let jsonString = "[1, 2, null, 3.0, false]";
-    let object = [1, 2, null, 3.0, false];
+    let object = [1, 2, null, "3.0f", false];
 
     let reader = new SimpleJson.Reader(jsonString);
 
@@ -219,16 +219,4 @@ describe("SimpleJson.Reader", () => {
     }).toThrow();
   });
 
-  it("parses a JSON object string with agressive float parsing", () => {
-    let jsonString = '{"key":"value", "array": [1, 2, null, 3.0, false]}';
-    let object = {
-      array: [1, 2, null, "3.0f", false],
-      key: "value",
-    };
-
-    let reader = new SimpleJson.Reader(jsonString, true);
-
-    expect(reader.ToDictionary()).toEqual(object);
-    expect(SimpleJson.TextToDictionary(jsonString, true)).toEqual(object);
-  });
 });

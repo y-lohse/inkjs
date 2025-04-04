@@ -1,33 +1,49 @@
 export class SimpleJson {
   public static TextToDictionary(
-    text: string,
-    aggressiveFloatParsing: boolean = false
+    text: string
   ) {
-    return new SimpleJson.Reader(text, aggressiveFloatParsing).ToDictionary();
+    return new SimpleJson.Reader(text).ToDictionary();
   }
 
   public static TextToArray(
-    text: string,
-    aggressiveFloatParsing: boolean = false
+    text: string
   ) {
-    return new SimpleJson.Reader(text, aggressiveFloatParsing).ToArray();
+    return new SimpleJson.Reader(text).ToArray();
   }
 }
 
 export namespace SimpleJson {
   export class Reader {
-    constructor(text: string, aggressiveFloatParsing: boolean = false) {
-      if (aggressiveFloatParsing) {
-        // When the aggressiveFloatParsing argument is true, we aggressively replace
-        // all floats of the form "123.0" to "123.0f" so that they are recognized
-        // as such and converted to FloatValue later
+    constructor(text: string) {
+      
+      // Before parsing the JSON, all floats of the form "123.0" are transformed into "123.0f" 
+      // so that they are recognized as FLOAT in the ink runtime
+      // @ts-ignore
+      const nativeFloatParsing = JSON.parse("0", (_, __, context) => context != null)
+      
+      if (!nativeFloatParsing) {
+        // When the nativeFloatParsing argument is false, 
+        // we aggressively replace using a regexp
+        // At time of writing : only happen for Safari iOS and Mac
         const jsonWithExplicitFloat = text.replace(
           /(,\s*)([0-9]+\.[0]+)([,]*)/g,
           '$1"$2f"$3'
         );
         this._rootObject = JSON.parse(jsonWithExplicitFloat);
       } else {
-        this._rootObject = JSON.parse(text);
+
+        // @ts-ignore
+        const explicitFloatReviver = (_, value, context) => {
+          // When the nativeFloatParsing argument is true, 
+          // we use a custom reviver function
+          //see https://github.com/y-lohse/inkjs/pull/1100#issuecomment-2733148441
+          if (Number.isInteger(value) && context.source.endsWith(".0")) {
+            return context.source + "f";
+          }
+          return value;
+        }
+        // @ts-ignore
+        this._rootObject = JSON.parse(text, explicitFloatReviver);
       }
     }
 

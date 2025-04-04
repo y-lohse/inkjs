@@ -122,14 +122,11 @@ export class TestContext {
 export function fromJsonTestContext(
   name: string,
   category: string,
-  testingErrors: boolean = false,
-  aggressiveFloatParsing: boolean = false
+  testingErrors: boolean = false
 ) {
   let context = new TestContext(testingErrors);
   let jsonContent = loadJSONFile(name, category);
-  context.story = new Story(jsonContent, {
-    aggressiveFloatParsing: aggressiveFloatParsing,
-  });
+  context.story = new Story(jsonContent);
   context.bytecode = context.story.ToJson();
 
   return context;
