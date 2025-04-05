@@ -1218,7 +1218,7 @@ export class StoryState {
       // DivertTargets get returned as the string of components
       // (rather than a Path, which isn't public)
       if (returnVal.valueType == ValueType.DivertTarget) {
-        return returnVal.valueObject.toString();
+        return "-> " + returnVal.valueObject.toString();
       }
 
       // Other types can just have their exact object type:

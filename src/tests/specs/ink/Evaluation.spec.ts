@@ -57,7 +57,7 @@ describe("Evaluation", () => {
 
     let returnedDivertTarget = context.story.EvaluateFunction("test");
 
-    expect(returnedDivertTarget).toBe("somewhere.here");
+    expect(returnedDivertTarget).toBe("-> somewhere.here");
   });
 
   // TestEvaluatingInkFunctionsFromGame2
