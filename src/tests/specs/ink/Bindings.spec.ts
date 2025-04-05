@@ -135,4 +135,13 @@ describe("Bindings", () => {
     context.story.BindExternalFunction("myAction", () => {});
     expect(context.story.ContinueMaximally()).toBe("One\nTwo\n");
   });
+
+  it("is possible to list all GlobalVariables using Object.keys", () => {
+    compileStory("variable_observer");
+
+    expect(Object.keys(context.story.variablesState)).toStrictEqual([
+      "testVar",
+      "testVar2",
+    ]);
+  });
 });
