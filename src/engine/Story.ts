@@ -477,14 +477,14 @@ export class Story extends InkObject {
         if (this.state.hasError) {
           sb.Append(`${this.state.currentErrors!.length}`);
           sb.Append(
-            this.state.currentErrors!.length == 1 ? " error" : "errors"
+            this.state.currentErrors!.length == 1 ? " error" : " errors"
           );
           if (this.state.hasWarning) sb.Append(" and ");
         }
         if (this.state.hasWarning) {
           sb.Append(`${this.state.currentWarnings!.length}`);
           sb.Append(
-            this.state.currentWarnings!.length == 1 ? " warning" : "warnings"
+            this.state.currentWarnings!.length == 1 ? " warning" : " warnings"
           );
           if (this.state.hasWarning) sb.Append(" and ");
         }
