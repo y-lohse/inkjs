@@ -168,6 +168,7 @@ export class Story extends InkObject {
     } else {
       if (typeof arguments[0] === "string") {
         let jsonString = arguments[0] as string;
+
         json = SimpleJson.TextToDictionary(jsonString);
       } else {
         json = arguments[0] as Record<string, any>;
@@ -201,7 +202,7 @@ export class Story extends InkObject {
         );
       } else if (formatFromFile != Story.inkVersionCurrent) {
         console.warn(
-          "WARNING: Version of ink used to build story doesn't match current version of engine. Non-critical, but recommend synchronising."
+          `WARNING: Version of ink ${Story.inkVersionCurrent} used to build story doesn't match current version of engine (${formatFromFile}). Non-critical, but recommend synchronising.`
         );
       }
 

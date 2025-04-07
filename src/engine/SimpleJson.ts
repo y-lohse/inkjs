@@ -11,7 +11,37 @@ export class SimpleJson {
 export namespace SimpleJson {
   export class Reader {
     constructor(text: string) {
-      this._rootObject = JSON.parse(text);
+      // Before parsing the JSON, all floats of the form "123.0" are transformed into "123.0f"
+      // so that they are recognized as FLOAT in the ink runtime
+      const nativeFloatParsing = JSON.parse(
+        "0",
+        // @ts-expect-error : typing
+        (_, __, context) => context != null
+      );
+
+      if (!nativeFloatParsing) {
+        // When the nativeFloatParsing argument is false,
+        // we aggressively replace using a regexp
+        // At time of writing : only happen for Safari iOS and Mac
+        const jsonWithExplicitFloat = text.replace(
+          /(,\s*)([0-9]+\.[0]+)([,]*)/g,
+          '$1"$2f"$3'
+        );
+        this._rootObject = JSON.parse(jsonWithExplicitFloat);
+      } else {
+        // @ts-expect-error : typing
+        const explicitFloatReviver = (_, value, context) => {
+          // When the nativeFloatParsing argument is true,
+          // we use a custom reviver function
+          //see https://github.com/y-lohse/inkjs/pull/1100#issuecomment-2733148441
+          if (Number.isInteger(value) && context.source.endsWith(".0")) {
+            return context.source + "f";
+          }
+          return value;
+        };
+        // @ts-expect-error : typing
+        this._rootObject = JSON.parse(text, explicitFloatReviver);
+      }
     }
 
     public ToDictionary() {
