@@ -82,7 +82,7 @@ var Story = require('inkjs').Story;
 You can use import style: 
 ```javascript
 import { Story } from 'inkjs';
-`
+```
 
 ### Loading a json file
 
