@@ -1988,7 +1988,10 @@ export class InkParser extends StringParser {
     filename = filename.replace(new RegExp(/[ \t]+$/g), "");
 
     // Working directory should already have been set up relative to the root ink file.
-    const fullFilename = this.fileHandler.ResolveInkFilename(filename);
+    const fullFilename = this.fileHandler.ResolveInkFilename(
+      filename,
+      this._filename
+    );
 
     if (this.FilenameIsAlreadyOpen(fullFilename)) {
       this.Error(
@@ -2003,8 +2006,10 @@ export class InkParser extends StringParser {
     let includedStory: Story | null = null;
     let includedString: string = "";
     try {
-      includedString =
-        this._rootParser.fileHandler.LoadInkFileContents(fullFilename);
+      includedString = this._rootParser.fileHandler.LoadInkFileContents(
+        fullFilename,
+        this._filename
+      );
     } catch (err) {
       this.Error(`Failed to load: '${filename}'.\nError:${err}`);
     }
