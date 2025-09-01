@@ -28,14 +28,6 @@ const story = new inkjs.Compiler(inkFile, {fileHandler, errorHandler}).Compile()
 //story.Continue()
 ```
 
-## Float and ints
-
-As the JSON format and javascript in general do not differentiate between float and integers, the inkjs runtime is known to behave differently from the C# runtime when dealing with floating point operations.
-
-The Ink language parser nevertheless enforces this typing and, when played directly from the output of the compiler (as opposed to exporting to JSON and then loading it), the Story object will actually behave like in the C# Runtime.
-
-This may lead to slight differences during play.  
-This [issue is known](https://github.com/y-lohse/inkjs/issues/934) and will be addressed in subsequent release.
 
 ## Named classes/types
 
