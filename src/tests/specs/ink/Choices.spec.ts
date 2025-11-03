@@ -299,4 +299,21 @@ describe("Choices", () => {
       "I did have one interesting fact about bricklaying, if you don't mind me spending taking a fair bit of time to lay the groundwork for it."
     );
   });
+
+  // TestFallbackChoicesHiddenAfterLoad
+  it("tests fallback choices remain hidden after load", () => {
+    compileStory("default_choices");
+    context.story.Continue();
+
+    expect(context.story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices[0].text).toBe("Choice 1");
+    expect(context.story.currentChoices[1].text).toBe("Choice 2");
+
+    const savedState = context.story.state.ToJson();
+    context.story.state.LoadJson(savedState);
+
+    expect(context.story.currentChoices.length).toBe(2);
+    expect(context.story.currentChoices[0].text).toBe("Choice 1");
+    expect(context.story.currentChoices[1].text).toBe("Choice 2");
+  });
 });
