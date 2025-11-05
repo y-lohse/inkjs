@@ -587,6 +587,7 @@ export class JsonSerialisation {
     choice.originalThreadIndex = parseInt(jObj["originalThreadIndex"]);
     choice.pathStringOnChoice = jObj["targetPath"].toString();
     choice.tags = this.JArrayToTags(jObj);
+    choice.isInvisibleDefault = !!jObj["isInvisibleDefault"];
     return choice;
   }
 
@@ -605,6 +606,7 @@ export class JsonSerialisation {
     writer.WriteProperty("originalChoicePath", choice.sourcePath);
     writer.WriteIntProperty("originalThreadIndex", choice.originalThreadIndex);
     writer.WriteProperty("targetPath", choice.pathStringOnChoice);
+    writer.WriteProperty("isInvisibleDefault", choice.isInvisibleDefault);
     this.WriteChoiceTags(writer, choice);
     writer.WriteObjectEnd();
   }
