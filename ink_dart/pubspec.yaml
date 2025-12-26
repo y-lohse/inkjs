@@ -1,0 +1,13 @@
+name: ink_dart
+description: A Dart port of inkjs - the Ink narrative scripting language runtime
+version: 0.1.0
+homepage: https://github.com/johndpope/inkjs
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+
+dev_dependencies:
+  test: ^1.24.0
+  lints: ^3.0.0

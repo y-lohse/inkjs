@@ -1,0 +1,11 @@
+# Dart/Flutter artifacts
+.dart_tool/
+.packages
+pubspec.lock
+build/
+*.iml
+
+# IDE
+.idea/
+.vscode/
+*.swp
