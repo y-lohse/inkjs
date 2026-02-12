@@ -161,7 +161,7 @@ if(jsonStory && play){
                         }
                     }
                 }else if(answer.startsWith("save")){
-                    const saveName = answer.slice(4).trim() || `quicksave-${new Date().toISOString().slice(0,19).replace(/[-:]/g, '')}`; //formatted as YYYYMMDD-HHMMSS
+                    const saveName = answer.slice(4).trim() || `quicksave-${new Date().toISOString().slice(0,19).replace(/[-:]/g, '')}.json`; //formatted as YYYYMMDDTHHMMSS
                     lastSave = saveName;
                     fs.writeFileSync(saveName, BOM+savePoint);
                     process.stdout.write(`Saved to ${saveName}\n`);
