@@ -49,6 +49,9 @@ if(!inputFile){
 
 let jsonStory: string = "";
 
+let lastSave: string|null = null;
+let savePoint:string|null = null;
+
 if(!inputFile.endsWith(".json")){
     outputfile = outputfile || inputFile+".json";
 
@@ -157,10 +160,27 @@ if(jsonStory && play){
                             process.stdout.write(e.message + '\n');
                         }
                     }
+                }else if(answer.startsWith("save")){
+                    const saveName = answer.slice(4).trim() || `quicksave-${new Date().toISOString().slice(0,19).replace(/[-:]/g, '')}.json`; //formatted as YYYYMMDDTHHMMSS
+                    lastSave = saveName;
+                    fs.writeFileSync(saveName, BOM+savePoint);
+                    process.stdout.write(`Saved to ${saveName}\n`);
+                }else if(answer.startsWith("load")){
+                    const saveName = answer.slice(4).trim() || lastSave;
+                    if (saveName === null || saveName === undefined){
+                        process.stdout.write("No save file specified and no last save found.\n");
+                    }else if(fs.existsSync(saveName)){
+                        const saveData = fs.readFileSync(saveName, "utf-8").replace(BOM, "");
+                        story.state.LoadJson(saveData);
+                        break;
+                    }else{
+                        process.stdout.write(`No save file named ${saveName}\n`);
+                    }
                 }else{
                     const choiceIndex = parseInt(answer) - 1;
                     try{
                         story.ChooseChoiceIndex(choiceIndex);
+                        savePoint = story.state.ToJson(); // save before continuing so that we have the text printed when we load a save file
                         break;
                     }catch(e: unknown){
                         if (e instanceof Error) {
