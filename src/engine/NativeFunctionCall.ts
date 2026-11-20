@@ -378,7 +378,7 @@ export class NativeFunctionCall extends InkObject {
       this.AddIntBinaryOp(this.Add, (x, y) => x + y);
       this.AddIntBinaryOp(this.Subtract, (x, y) => x - y);
       this.AddIntBinaryOp(this.Multiply, (x, y) => x * y);
-      this.AddIntBinaryOp(this.Divide, (x, y) => Math.floor(x / y));
+      this.AddIntBinaryOp(this.Divide, (x, y) => (x / y) | 0);
       this.AddIntBinaryOp(this.Mod, (x, y) => x % y);
       this.AddIntUnaryOp(this.Negate, (x) => -x);
 
@@ -427,7 +427,7 @@ export class NativeFunctionCall extends InkObject {
       this.AddFloatBinaryOp(this.Pow, (x, y) => Math.pow(x, y));
       this.AddFloatUnaryOp(this.Floor, (x) => Math.floor(x));
       this.AddFloatUnaryOp(this.Ceiling, (x) => Math.ceil(x));
-      this.AddFloatUnaryOp(this.Int, (x) => Math.floor(x));
+      this.AddFloatUnaryOp(this.Int, (x) => x | 0);
       this.AddFloatUnaryOp(this.Float, NativeFunctionCall.Identity);
 
       // String operations
