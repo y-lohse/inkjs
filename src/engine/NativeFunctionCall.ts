@@ -427,7 +427,7 @@ export class NativeFunctionCall extends InkObject {
       this.AddFloatBinaryOp(this.Pow, (x, y) => Math.pow(x, y));
       this.AddFloatUnaryOp(this.Floor, (x) => Math.floor(x));
       this.AddFloatUnaryOp(this.Ceiling, (x) => Math.ceil(x));
-      this.AddFloatUnaryOp(this.Int, (x) => Math.floor(x));
+      this.AddFloatUnaryOp(this.Int, (x) => x | 0);
       this.AddFloatUnaryOp(this.Float, NativeFunctionCall.Identity);
 
       // String operations
